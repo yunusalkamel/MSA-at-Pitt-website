@@ -23,14 +23,24 @@ const Index = () => {
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
           <img src={heroImg} alt="MSA at Pitt community iftar gathering" className="w-full h-full object-cover" width={1920} height={1080} />
-          <div className="absolute inset-0 bg-accent/70" />
-          <div className="absolute inset-0 opacity-[0.08]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: '250px' }} />
+          <div className="absolute inset-0 bg-gradient-to-b from-accent/80 via-accent/60 to-accent/80" />
+          <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: '250px' }} />
         </div>
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
+          {/* Basmallah */}
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1 }}
+            className="font-arabic text-2xl md:text-3xl text-primary/90 mb-8"
+            dir="rtl"
+          >
+            بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+          </motion.p>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
+            transition={{ delay: 0.3 }}
             className="text-xs uppercase tracking-[0.25em] text-primary mb-6 font-semibold"
           >
             Muslim Student Association · University of Pittsburgh
@@ -38,7 +48,7 @@ const Index = () => {
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.7 }}
+            transition={{ delay: 0.5, duration: 0.7 }}
             className="font-display text-5xl md:text-7xl lg:text-8xl font-bold text-accent-foreground leading-[1.1] mb-6"
           >
             A Home Away{" "}
@@ -47,7 +57,7 @@ const Index = () => {
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
+            transition={{ delay: 0.8 }}
             className="text-lg md:text-xl text-accent-foreground/70 max-w-2xl mx-auto mb-10"
           >
             Connecting Muslim students at Pitt through faith, friendship, and service — welcoming everyone, no matter where you're starting from.
@@ -55,13 +65,13 @@ const Index = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.9 }}
+            transition={{ delay: 1 }}
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
-            <Link to="/join" className="gold-gradient text-primary-foreground px-8 py-3.5 rounded-full font-semibold text-lg hover:opacity-90 transition-opacity">
+            <Link to="/join" className="gold-gradient text-primary-foreground px-8 py-3.5 rounded-full font-semibold text-lg hover:opacity-90 transition-opacity shadow-lg">
               Join the MSA
             </Link>
-            <Link to="/events" className="border border-accent-foreground/30 text-accent-foreground px-8 py-3.5 rounded-full font-semibold text-lg hover:bg-accent-foreground/10 transition-colors">
+            <Link to="/events" className="glass-card text-accent-foreground px-8 py-3.5 rounded-full font-semibold text-lg hover:bg-white/20 transition-colors">
               See Upcoming Events
             </Link>
           </motion.div>
@@ -70,7 +80,7 @@ const Index = () => {
 
       {/* Stats Bar */}
       <section className="relative -mt-16 z-20 px-4 md:px-8">
-        <div className="glass-card max-w-4xl mx-auto p-8 grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+        <div className="glass-card glass-glow max-w-4xl mx-auto p-8 grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
           {[
             { emoji: "🕌", label: "Weekly Events", value: "10+" },
             { emoji: "🤝", label: "Active Members", value: "200+" },
@@ -84,7 +94,7 @@ const Index = () => {
               transition={{ delay: i * 0.15 }}
             >
               <span className="text-2xl">{stat.emoji}</span>
-              <p className="font-display text-3xl font-bold text-foreground mt-1">{stat.value}</p>
+              <p className="font-display text-3xl font-bold text-gradient-gold mt-1">{stat.value}</p>
               <p className="text-muted-foreground text-sm">{stat.label}</p>
             </motion.div>
           ))}
@@ -92,15 +102,16 @@ const Index = () => {
       </section>
 
       {/* About Preview */}
-      <section className="section-padding max-w-7xl mx-auto">
+      <section className="section-padding gradient-mesh-warm max-w-7xl mx-auto">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
+            className="glass-card p-3"
           >
-            <img src={communityImg} alt="MSA students hanging out on campus" className="rounded-lg shadow-lg w-full object-cover aspect-[4/3]" loading="lazy" width={1280} height={854} />
+            <img src={communityImg} alt="MSA students hanging out on campus" className="rounded-2xl w-full object-cover aspect-[4/3]" loading="lazy" width={1280} height={854} />
           </motion.div>
           <motion.div
             initial={{ opacity: 0, x: 30 }}
@@ -112,12 +123,14 @@ const Index = () => {
             <p className="text-muted-foreground text-lg leading-relaxed mb-6">
               MSA at Pitt is one of the largest and most vibrant student organizations at the University of Pittsburgh. We're a community rooted in Islamic values, built on real friendships, and open to absolutely everyone — Muslim or not, practicing or not, just curious or deeply committed.
             </p>
-            <ArabicVerse
-              arabic="وَتَعَاوَنُوا عَلَى الْبِرِّ وَالتَّقْوَىٰ"
-              translation="And cooperate in righteousness and piety."
-              reference="Quran 5:2"
-              className="text-left py-4"
-            />
+            <div className="glass-card p-5 mb-6">
+              <ArabicVerse
+                arabic="وَتَعَاوَنُوا عَلَى الْبِرِّ وَالتَّقْوَىٰ"
+                translation="And cooperate in righteousness and piety."
+                reference="Quran 5:2"
+                className="text-left py-0"
+              />
+            </div>
             <Link to="/about" className="text-primary font-semibold hover:underline text-lg">
               Learn more about us →
             </Link>
@@ -125,14 +138,17 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Ayat Divider */}
+      <div className="glass-divider max-w-2xl mx-auto" />
+
       {/* Upcoming Events */}
-      <section className="section-padding bg-muted/50">
+      <section className="section-padding gradient-mesh-gold">
         <div className="max-w-7xl mx-auto">
           <SectionHeading title="What's coming up" subtitle="Stay connected and never miss a moment." />
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             <GlassCard delay={0}>
               <div className="flex items-center gap-3 mb-4">
-                <div className="gold-gradient text-primary-foreground w-12 h-12 rounded-lg flex items-center justify-center font-bold text-sm">
+                <div className="gold-gradient text-primary-foreground w-12 h-12 rounded-lg flex items-center justify-center font-bold text-sm shadow-md">
                   <span>APR<br/>5</span>
                 </div>
                 <div>
@@ -142,13 +158,13 @@ const Index = () => {
               </div>
               <p className="text-muted-foreground text-sm mb-2">📍 TopGolf Pittsburgh, Bridgeville, PA</p>
               <p className="text-muted-foreground text-sm mb-4">$16.67 for 2 hours of golfing fun. First-timers: +$6. Open to everyone!</p>
-              <a href="https://forms.gle/hnUHffFFsyysX7vY6" target="_blank" rel="noopener noreferrer" className="gold-gradient text-primary-foreground px-5 py-2 rounded-full text-sm font-semibold inline-block hover:opacity-90 transition-opacity">
+              <a href="https://forms.gle/hnUHffFFsyysX7vY6" target="_blank" rel="noopener noreferrer" className="gold-gradient text-primary-foreground px-5 py-2 rounded-full text-sm font-semibold inline-block hover:opacity-90 transition-opacity shadow-md">
                 RSVP →
               </a>
             </GlassCard>
             <GlassCard delay={0.1}>
               <div className="flex items-center gap-3 mb-4">
-                <div className="bg-secondary text-secondary-foreground w-12 h-12 rounded-lg flex items-center justify-center font-bold text-sm">
+                <div className="bg-secondary text-secondary-foreground w-12 h-12 rounded-lg flex items-center justify-center font-bold text-sm shadow-md">
                   <span>MAR<br/>21</span>
                 </div>
                 <div>
@@ -169,14 +185,29 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Community Pillars */}
+      {/* Quran Ayat Section */}
       <section className="section-padding">
+        <div className="max-w-3xl mx-auto">
+          <div className="glass-card-strong glass-glow p-8 md:p-12">
+            <ArabicVerse
+              arabic="إِنَّمَا الْمُؤْمِنُونَ إِخْوَةٌ"
+              translation="The believers are but brothers."
+              reference="Quran 49:10"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Community Pillars */}
+      <section className="section-padding gradient-mesh-warm">
         <div className="max-w-7xl mx-auto">
           <SectionHeading title="What drives us" label="Our Pillars" />
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {pillars.map((pillar, i) => (
               <GlassCard key={pillar.title} delay={i * 0.1}>
-                <pillar.icon className="text-primary mb-4" size={32} />
+                <div className="gold-gradient w-12 h-12 rounded-xl flex items-center justify-center mb-4 shadow-md">
+                  <pillar.icon className="text-primary-foreground" size={24} />
+                </div>
                 <h3 className="font-display text-xl font-bold text-foreground mb-2">{pillar.title}</h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">{pillar.desc}</p>
               </GlassCard>
@@ -186,13 +217,13 @@ const Index = () => {
       </section>
 
       {/* Instagram Strip */}
-      <section className="section-padding bg-muted/50 text-center">
+      <section className="section-padding text-center">
         <SectionHeading title="Follow our story" subtitle="@msa.at.pitt" />
         <a
           href="https://instagram.com/msa.at.pitt"
           target="_blank"
           rel="noopener noreferrer"
-          className="gold-gradient text-primary-foreground px-8 py-3 rounded-full font-semibold inline-block hover:opacity-90 transition-opacity"
+          className="gold-gradient text-primary-foreground px-8 py-3 rounded-full font-semibold inline-block hover:opacity-90 transition-opacity shadow-lg"
         >
           Follow us on Instagram →
         </a>
