@@ -3,6 +3,8 @@ import { BookOpen, Heart, Moon, MessageSquare, Calendar, Link as LinkIcon, Apple
 import Layout from "@/components/Layout";
 import GlassCard from "@/components/GlassCard";
 import SectionHeading from "@/components/SectionHeading";
+import ArabicVerse from "@/components/ArabicVerse";
+import patternImg from "@/assets/islamic-pattern.jpg";
 
 const resources = [
   {
@@ -51,30 +53,36 @@ const Resources = () => {
   return (
     <Layout>
       {/* Hero */}
-      <section className="py-32 md:py-40 text-center px-4">
-        <motion.h1
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="font-display text-5xl md:text-7xl font-bold text-foreground mb-4"
-        >
-          We've got <span className="text-gradient-gold">you.</span>
-        </motion.h1>
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="text-xl text-muted-foreground max-w-2xl mx-auto"
-        >
-          From navigating college to navigating your faith — here are resources to support you.
-        </motion.p>
+      <section className="relative py-32 md:py-40 text-center px-4 overflow-hidden">
+        <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: '200px' }} />
+        <div className="absolute inset-0 gradient-mesh-gold" />
+        <div className="relative z-10">
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="font-display text-5xl md:text-7xl font-bold text-foreground mb-4"
+          >
+            We've got <span className="text-gradient-gold">you.</span>
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="text-xl text-muted-foreground max-w-2xl mx-auto"
+          >
+            From navigating college to navigating your faith — here are resources to support you.
+          </motion.p>
+        </div>
       </section>
 
       {/* Resource Cards */}
-      <section className="section-padding">
+      <section className="section-padding gradient-mesh-warm">
         <div className="max-w-5xl mx-auto grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {resources.map((r, i) => (
             <GlassCard key={r.title} delay={i * 0.1}>
-              <span className="text-3xl mb-3 block">{r.emoji}</span>
+              <div className="gold-gradient w-12 h-12 rounded-xl flex items-center justify-center mb-4 shadow-md">
+                <r.icon className="text-primary-foreground" size={22} />
+              </div>
               <h3 className="font-display text-xl font-bold text-foreground mb-2">{r.title}</h3>
               <p className="text-muted-foreground text-sm leading-relaxed mb-4">{r.desc}</p>
               <a
@@ -90,7 +98,9 @@ const Resources = () => {
 
           {/* Calendar card */}
           <GlassCard delay={0.5}>
-            <span className="text-3xl mb-3 block">📅</span>
+            <div className="bg-secondary w-12 h-12 rounded-xl flex items-center justify-center mb-4 shadow-md">
+              <Calendar className="text-secondary-foreground" size={22} />
+            </div>
             <h3 className="font-display text-xl font-bold text-foreground mb-2">Add Events to Calendar</h3>
             <p className="text-muted-foreground text-sm leading-relaxed mb-4">Never miss an MSA event — sync our calendar with yours.</p>
             <div className="flex flex-col gap-2">
@@ -112,6 +122,19 @@ const Resources = () => {
               </a>
             </div>
           </GlassCard>
+        </div>
+      </section>
+
+      {/* Ayat */}
+      <section className="section-padding">
+        <div className="max-w-2xl mx-auto">
+          <div className="glass-card-strong glass-glow p-8">
+            <ArabicVerse
+              arabic="وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ"
+              translation="And whoever relies upon Allah — then He is sufficient for him."
+              reference="Quran 65:3"
+            />
+          </div>
         </div>
       </section>
     </Layout>
