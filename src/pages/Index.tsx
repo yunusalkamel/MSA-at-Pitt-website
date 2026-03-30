@@ -7,7 +7,7 @@ import SectionHeading from "@/components/SectionHeading";
 import ArabicVerse from "@/components/ArabicVerse";
 import heroImg from "@/assets/hero-gathering.jpg";
 import communityImg from "@/assets/about-community.jpg";
-import patternImg from "@/assets/islamic-pattern.jpg";
+
 
 const pillars = [
   { icon: Moon, title: "Faith", desc: "Islamic education, spiritual growth, and weekly Jummah to nourish your connection with Allah." },
