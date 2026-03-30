@@ -7,7 +7,7 @@ import SectionHeading from "@/components/SectionHeading";
 import ArabicVerse from "@/components/ArabicVerse";
 import heroImg from "@/assets/hero-gathering.jpg";
 import communityImg from "@/assets/about-community.jpg";
-import patternImg from "@/assets/islamic-pattern.jpg";
+
 
 const pillars = [
   { icon: Moon, title: "Faith", desc: "Islamic education, spiritual growth, and weekly Jummah to nourish your connection with Allah." },
@@ -24,7 +24,7 @@ const Index = () => {
         <div className="absolute inset-0">
           <img src={heroImg} alt="MSA at Pitt community iftar gathering" className="w-full h-full object-cover" width={1920} height={1080} />
           <div className="absolute inset-0 bg-gradient-to-b from-accent/80 via-accent/60 to-accent/80" />
-          <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: '250px' }} />
+          <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: `url(/lovable-uploads/e1f5b407-6327-4dbe-8cf3-120914851890.jpg)`, backgroundSize: '250px' }} />
         </div>
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
           {/* Basmallah */}
