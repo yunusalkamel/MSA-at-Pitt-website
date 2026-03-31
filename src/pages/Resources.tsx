@@ -106,6 +106,9 @@ const Resources = () => {
         <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: '200px' }} />
         <div className="absolute inset-0 gradient-mesh-gold" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/5 to-transparent" />
+        {/* Decorative orbs */}
+        <div className="absolute top-1/3 left-1/5 w-64 h-64 rounded-full bg-primary/8 blur-[80px]" />
+        <div className="absolute bottom-1/4 right-1/4 w-56 h-56 rounded-full bg-secondary/8 blur-[80px]" />
         <div className="relative z-10">
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
@@ -134,8 +137,9 @@ const Resources = () => {
       </section>
 
       {/* Flip Resource Cards */}
-      <section className="section-padding gradient-mesh-warm">
-        <div className="max-w-5xl mx-auto">
+      <section className="section-padding gradient-mesh-warm relative overflow-hidden">
+        <div className="absolute inset-0 texture-dots" />
+        <div className="max-w-5xl mx-auto relative z-10">
           <SectionHeading title="Your Resources" label="Everything You Need" />
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {resources.map((r, i) => (
@@ -179,8 +183,9 @@ const Resources = () => {
       </section>
 
       {/* Ayat */}
-      <section className="section-padding">
-        <div className="max-w-2xl mx-auto">
+      <section className="section-padding gradient-section-gold-soft relative overflow-hidden">
+        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: '200px' }} />
+        <div className="max-w-2xl mx-auto relative z-10">
           <div className="glass-card-strong glass-glow p-8">
             <ArabicVerse
               arabic="وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ"

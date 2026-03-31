@@ -9,6 +9,7 @@ import EventsFilterBar from "@/components/events/EventsFilterBar";
 import UpcomingEventsList from "@/components/events/UpcomingEventsList";
 import MonthCalendar from "@/components/events/MonthCalendar";
 import SectionHeading from "@/components/SectionHeading";
+import patternImg from "@/assets/islamic-pattern.jpg";
 import {
   mockEvents,
   getFeaturedEvent,
@@ -38,12 +39,12 @@ const Events = () => {
       <EventsHero />
 
       {/* Action bar */}
-      <section className="section-padding pb-8">
+      <section className="section-padding pb-8 gradient-section-gold-soft">
         <EventsActionBar />
       </section>
 
       {/* Ayat divider */}
-      <section className="px-4 pb-12">
+      <section className="px-4 pb-12 gradient-section-gold-soft">
         <div className="max-w-2xl mx-auto">
           <div className="glass-card-strong glass-glow p-7">
             <ArabicVerse
@@ -57,17 +58,22 @@ const Events = () => {
 
       {/* Featured Event */}
       {featured && (
-        <section className="section-padding pt-4 pb-8">
-          <div className="max-w-5xl mx-auto">
+        <section className="section-padding pt-4 pb-8 gradient-mesh-warm relative overflow-hidden">
+          <div className="absolute inset-0 texture-dots" />
+          <div className="max-w-5xl mx-auto relative z-10">
             <SectionHeading title="Signature Event" label="Don't Miss" />
             <FeaturedEventCard event={featured} />
           </div>
         </section>
       )}
 
+      <div className="glass-divider-thick max-w-3xl mx-auto" />
+
       {/* Main Events Area */}
-      <section className="section-padding gradient-mesh-warm">
-        <div className="max-w-5xl mx-auto">
+      <section className="section-padding gradient-mesh-warm relative overflow-hidden">
+        <div className="absolute inset-0 gradient-section-emerald-soft" />
+        <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: '200px' }} />
+        <div className="max-w-5xl mx-auto relative z-10">
           {/* Controls */}
           <div className="flex flex-col items-center gap-6 mb-10">
             <EventsViewToggle view={view} onChange={setView} />
@@ -84,7 +90,7 @@ const Events = () => {
       </section>
 
       {/* Bottom Ayat */}
-      <section className="section-padding">
+      <section className="section-padding gradient-section-gold-soft">
         <div className="max-w-2xl mx-auto">
           <div className="glass-card-strong glass-glow p-7">
             <ArabicVerse
