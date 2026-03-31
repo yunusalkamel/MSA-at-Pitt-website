@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Instagram, ExternalLink } from "lucide-react";
 import Layout from "@/components/Layout";
 import GlassCard from "@/components/GlassCard";
+import ArabicVerse from "@/components/ArabicVerse";
 import patternImg from "@/assets/islamic-pattern.jpg";
 
 const steps = [
@@ -41,7 +42,9 @@ const Join = () => {
     <Layout>
       {/* Hero */}
       <section className="relative py-32 md:py-40 overflow-hidden text-center">
+        <div className="absolute inset-0 gradient-mesh-gold" />
         <div className="absolute inset-0 opacity-[0.05]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: '200px' }} />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/5 to-transparent" />
         <div className="relative z-10 px-4 max-w-3xl mx-auto">
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
@@ -63,8 +66,9 @@ const Join = () => {
       </section>
 
       {/* Steps */}
-      <section className="section-padding">
-        <div className="max-w-3xl mx-auto space-y-8">
+      <section className="section-padding gradient-mesh-warm relative overflow-hidden">
+        <div className="absolute inset-0 texture-lines" />
+        <div className="max-w-3xl mx-auto space-y-8 relative z-10">
           {steps.map((step, i) => (
             <GlassCard key={step.num} delay={i * 0.12} className="relative">
               <div className="flex items-start gap-6">
@@ -101,10 +105,10 @@ const Join = () => {
                   )}
                   {step.socials && (
                     <div className="flex flex-wrap gap-3">
-                      <a href="https://instagram.com/msa.at.pitt" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 border border-border px-4 py-2 rounded-full text-sm font-medium hover:bg-muted transition-colors">
+                      <a href="https://instagram.com/msa.at.pitt" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 border border-border px-4 py-2 rounded-full text-sm font-medium hover:bg-primary/10 hover:border-primary/30 transition-colors">
                         <Instagram size={16} /> Instagram
                       </a>
-                      <a href="https://linktr.ee/msa.at.pitt" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 border border-border px-4 py-2 rounded-full text-sm font-medium hover:bg-muted transition-colors">
+                      <a href="https://linktr.ee/msa.at.pitt" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 border border-border px-4 py-2 rounded-full text-sm font-medium hover:bg-primary/10 hover:border-primary/30 transition-colors">
                         <ExternalLink size={16} /> Linktree
                       </a>
                     </div>
@@ -117,17 +121,33 @@ const Join = () => {
       </section>
 
       {/* Welcome Note */}
-      <section className="section-padding bg-muted/50">
-        <div className="max-w-2xl mx-auto text-center">
-          <motion.blockquote
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-xl md:text-2xl text-foreground italic font-display leading-relaxed mb-6"
-          >
-            "We're so glad you're here. Whether you've been Muslim your whole life or you're still figuring things out — MSA is your community. Come as you are."
-          </motion.blockquote>
-          <p className="text-muted-foreground font-semibold">— MSA at Pitt President</p>
+      <section className="section-padding gradient-section-gold-soft relative overflow-hidden">
+        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: '200px' }} />
+        <div className="max-w-2xl mx-auto text-center relative z-10">
+          <div className="glass-card-strong glass-glow p-8 md:p-12">
+            <motion.blockquote
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-xl md:text-2xl text-foreground italic font-display leading-relaxed mb-6"
+            >
+              "We're so glad you're here. Whether you've been Muslim your whole life or you're still figuring things out — MSA is your community. Come as you are."
+            </motion.blockquote>
+            <p className="text-muted-foreground font-semibold">— MSA at Pitt President</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Bottom Ayat */}
+      <section className="section-padding gradient-section-emerald-soft">
+        <div className="max-w-2xl mx-auto">
+          <div className="glass-card-strong glass-glow p-7">
+            <ArabicVerse
+              arabic="وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ"
+              translation="And whoever relies upon Allah — then He is sufficient for him."
+              reference="Quran 65:3"
+            />
+          </div>
         </div>
       </section>
     </Layout>

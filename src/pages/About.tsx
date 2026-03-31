@@ -10,11 +10,11 @@ import eventsImg from "@/assets/events-social.jpg";
 import patternImg from "@/assets/islamic-pattern.jpg";
 
 const whatWeDo = [
-{ icon: BookOpen, title: "Faith & Spirituality", desc: "Weekly Jummah, halaqas, Ramadan programming, and collaborations with the Islamic Center of Pittsburgh.", gradient: "from-[hsl(40,100%,50%)] to-[hsl(45,100%,62%)]" },
-{ icon: PartyPopper, title: "Social & Fun", desc: "Eid Socials, TopGolf outings, iftar gatherings of 150+ people, and dedicated brothers' & sisters' events.", gradient: "from-[hsl(153,58%,26%)] to-[hsl(160,50%,40%)]" },
-{ icon: HeartHandshake, title: "Support & Resources", desc: "Wellness resources, freshman survival tips, revert resources — we've got your back.", gradient: "from-[hsl(216,50%,10%)] to-[hsl(216,40%,30%)]" },
-{ icon: Globe, title: "Community Outreach", desc: "Service projects, volunteering, masjid partnerships, and giving back to Pittsburgh.", gradient: "from-[hsl(38,100%,48%)] to-[hsl(153,58%,26%)]" }];
-
+  { icon: BookOpen, title: "Faith & Spirituality", desc: "Weekly Jummah, halaqas, Ramadan programming, and collaborations with the Islamic Center of Pittsburgh.", gradient: "from-[hsl(40,100%,50%)] to-[hsl(45,100%,62%)]" },
+  { icon: PartyPopper, title: "Social & Fun", desc: "Eid Socials, TopGolf outings, iftar gatherings of 150+ people, and dedicated brothers' & sisters' events.", gradient: "from-[hsl(153,58%,26%)] to-[hsl(160,50%,40%)]" },
+  { icon: HeartHandshake, title: "Support & Resources", desc: "Wellness resources, freshman survival tips, revert resources — we've got your back.", gradient: "from-[hsl(216,50%,10%)] to-[hsl(216,40%,30%)]" },
+  { icon: Globe, title: "Community Outreach", desc: "Service projects, volunteering, masjid partnerships, and giving back to Pittsburgh.", gradient: "from-[hsl(38,100%,48%)] to-[hsl(153,58%,26%)]" },
+];
 
 const About = () => {
   return (
@@ -31,23 +31,23 @@ const About = () => {
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6 }}
-            className="mb-6">
-            
+            className="mb-6"
+          >
             <Sparkles className="inline text-primary" size={40} />
           </motion.div>
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            className="font-display text-5xl font-bold text-accent-foreground mb-4 md:text-6xl">
-            
+            className="font-display text-5xl font-bold text-accent-foreground mb-4 md:text-6xl"
+          >
             We are MSA <span className="text-gradient-gold">at Pitt.</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="text-xl text-accent-foreground/70">
-            
+            className="text-xl text-accent-foreground/70"
+          >
             A community rooted in faith, built on belonging, and open to all.
           </motion.p>
         </div>
@@ -55,15 +55,16 @@ const About = () => {
 
       {/* Mission with decorative gradient border */}
       <section className="section-padding gradient-mesh-warm relative overflow-hidden">
+        <div className="absolute inset-0 texture-dots" />
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-1 gold-gradient rounded-full" />
-        <div className="max-w-3xl mx-auto text-center">
+        <div className="max-w-3xl mx-auto text-center relative z-10">
           <motion.p
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             className="font-arabic text-3xl md:text-4xl text-gradient-gold mb-6"
-            dir="rtl">
-            
+            dir="rtl"
+          >
             بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
           </motion.p>
           <SectionHeading title="Our Mission" />
@@ -73,16 +74,18 @@ const About = () => {
         </div>
       </section>
 
+      <div className="glass-divider-thick max-w-3xl mx-auto" />
+
       {/* Who We Are — enhanced with gradient card */}
-      <section className="section-padding">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+      <section className="section-padding gradient-section-gold-soft relative overflow-hidden">
+        <div className="absolute inset-0 texture-lines" />
+        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center relative z-10">
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="relative group">
-            
-            {/* Gradient border effect */}
+            className="relative group"
+          >
             <div className="absolute -inset-1 bg-gradient-to-br from-primary via-secondary to-primary rounded-3xl opacity-30 group-hover:opacity-50 transition-opacity duration-500 blur-sm" />
             <div className="relative glass-card p-3">
               <img src={communityImg} alt="MSA community" className="rounded-2xl w-full object-cover aspect-[4/3]" loading="lazy" width={1280} height={854} />
@@ -92,8 +95,8 @@ const About = () => {
             initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: 0.2 }}>
-            
+            transition={{ delay: 0.2 }}
+          >
             <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-6">
               Who We <span className="text-gradient-gold">Are</span>
             </h2>
@@ -123,26 +126,27 @@ const About = () => {
             <ArabicVerse
               arabic="وَاعْتَصِمُوا بِحَبْلِ اللَّهِ جَمِيعًا وَلَا تَفَرَّقُوا"
               translation="And hold firmly to the rope of Allah all together and do not become divided."
-              reference="Quran 3:103" />
-            
+              reference="Quran 3:103"
+            />
           </div>
         </div>
       </section>
 
       {/* What We Do — enhanced cards with gradient icons */}
-      <section className="section-padding">
-        <div className="max-w-7xl mx-auto">
+      <section className="section-padding gradient-section-emerald-soft relative overflow-hidden">
+        <div className="absolute inset-0 texture-dots" />
+        <div className="max-w-7xl mx-auto relative z-10">
           <SectionHeading title="What We Do" label="Our Focus Areas" />
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {whatWeDo.map((item, i) =>
-            <GlassCard key={item.title} delay={i * 0.1}>
+            {whatWeDo.map((item, i) => (
+              <GlassCard key={item.title} delay={i * 0.1}>
                 <div className={`bg-gradient-to-br ${item.gradient} w-14 h-14 rounded-xl flex items-center justify-center mb-4 shadow-lg`}>
                   <item.icon className="text-white" size={24} />
                 </div>
                 <h3 className="font-display text-xl font-bold text-foreground mb-2">{item.title}</h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">{item.desc}</p>
               </GlassCard>
-            )}
+            ))}
           </div>
         </div>
       </section>
@@ -157,19 +161,19 @@ const About = () => {
       </section>
 
       {/* Ayat */}
-      <section className="section-padding">
+      <section className="section-padding gradient-section-gold-soft">
         <div className="max-w-3xl mx-auto">
           <div className="glass-card-strong glass-glow p-8 md:p-12">
             <ArabicVerse
               arabic="إِنَّمَا الْمُؤْمِنُونَ إِخْوَةٌ"
               translation="The believers are but brothers."
-              reference="Quran 49:10" />
-            
+              reference="Quran 49:10"
+            />
           </div>
         </div>
       </section>
-    </Layout>);
-
+    </Layout>
+  );
 };
 
 export default About;

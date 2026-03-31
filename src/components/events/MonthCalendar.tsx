@@ -100,46 +100,56 @@ const MonthCalendar = ({ events }: Props) => {
             const dateStr = formatDateStr(year, month, day);
             const dayEvents = eventsByDate[dateStr] || [];
             const isToday = dateStr === todayStr;
-            const hasFeatured = dayEvents.some((e) => e.featured);
+            const hasEvents = dayEvents.length > 0;
 
             return (
               <button
                 key={dateStr}
-                onClick={() => dayEvents.length > 0 && setSelectedDate(dateStr)}
-                className={`relative aspect-square rounded-xl flex flex-col items-center justify-start pt-1.5 md:pt-2 transition-all duration-200 text-sm border ${
+                onClick={() => hasEvents && setSelectedDate(dateStr)}
+                className={`relative aspect-square rounded-xl flex flex-col items-center justify-start pt-1.5 md:pt-2 text-sm border transition-all duration-300 ${
                   isToday
-                    ? "border-primary/40 bg-primary/8 shadow-[0_0_12px_hsl(40_100%_55%/0.1)]"
-                    : "border-transparent hover:border-primary/15 hover:bg-primary/5"
-                } ${dayEvents.length > 0 ? "cursor-pointer" : "cursor-default"}`}
+                    ? "border-primary/40 bg-primary/10 shadow-[0_0_16px_hsl(40_100%_55%/0.15)]"
+                    : hasEvents
+                    ? "border-primary/10 bg-primary/5 hover:border-primary/30 hover:bg-primary/10 hover:scale-110 hover:z-10 hover:shadow-[0_0_20px_hsl(40_100%_55%/0.15)]"
+                    : "border-transparent hover:border-border/50 hover:bg-muted/30"
+                } ${hasEvents ? "cursor-pointer" : "cursor-default"}`}
               >
                 <span
                   className={`font-semibold text-xs md:text-sm ${
-                    isToday ? "text-primary" : "text-foreground"
+                    isToday ? "text-primary" : hasEvents ? "text-foreground" : "text-muted-foreground"
                   }`}
                 >
                   {day}
                 </span>
 
-                {/* Event pills */}
+                {/* Event pills — more visible */}
                 <div className="flex flex-col gap-0.5 mt-1 w-full px-0.5 overflow-hidden">
                   {dayEvents.slice(0, 2).map((ev) => (
                     <div
                       key={ev.id}
                       className={`h-1.5 md:h-2 rounded-full w-full ${
                         ev.featured
-                          ? "gold-gradient"
+                          ? "gold-gradient shadow-[0_0_6px_hsl(40_100%_55%/0.4)]"
                           : ev.isPast
-                          ? "bg-muted-foreground/30"
-                          : "bg-secondary/60"
+                          ? "bg-muted-foreground/40"
+                          : "bg-secondary"
                       }`}
+                      title={ev.title}
                     />
                   ))}
                   {dayEvents.length > 2 && (
-                    <span className="text-[9px] text-muted-foreground text-center">
+                    <span className="text-[9px] text-primary font-semibold text-center">
                       +{dayEvents.length - 2}
                     </span>
                   )}
                 </div>
+
+                {/* Event count badge for days with events */}
+                {hasEvents && (
+                  <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full gold-gradient flex items-center justify-center shadow-md">
+                    <span className="text-[8px] font-bold text-primary-foreground">{dayEvents.length}</span>
+                  </div>
+                )}
               </button>
             );
           })}

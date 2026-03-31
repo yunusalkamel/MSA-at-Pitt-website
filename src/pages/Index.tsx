@@ -27,7 +27,6 @@ const Index = () => {
           <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: '250px' }} />
         </div>
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
-          {/* Basmallah */}
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -102,48 +101,52 @@ const Index = () => {
       </section>
 
       {/* About Preview */}
-      <section className="section-padding gradient-mesh-warm max-w-7xl mx-auto">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="glass-card p-3"
-          >
-            <img src={communityImg} alt="MSA students hanging out on campus" className="rounded-2xl w-full object-cover aspect-[4/3]" loading="lazy" width={1280} height={854} />
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-6">More than a club.</h2>
-            <p className="text-muted-foreground text-lg leading-relaxed mb-6">
-              MSA at Pitt is one of the largest and most vibrant student organizations at the University of Pittsburgh. We're a community rooted in Islamic values, built on real friendships, and open to absolutely everyone — Muslim or not, practicing or not, just curious or deeply committed.
-            </p>
-            <div className="glass-card p-5 mb-6">
-              <ArabicVerse
-                arabic="وَتَعَاوَنُوا عَلَى الْبِرِّ وَالتَّقْوَىٰ"
-                translation="And cooperate in righteousness and piety."
-                reference="Quran 5:2"
-                className="text-left py-0"
-              />
-            </div>
-            <Link to="/about" className="text-primary font-semibold hover:underline text-lg">
-              Learn more about us →
-            </Link>
-          </motion.div>
+      <section className="section-padding gradient-mesh-warm relative overflow-hidden">
+        <div className="absolute inset-0 texture-dots" />
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="glass-card p-3"
+            >
+              <img src={communityImg} alt="MSA students hanging out on campus" className="rounded-2xl w-full object-cover aspect-[4/3]" loading="lazy" width={1280} height={854} />
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-6">More than a club.</h2>
+              <p className="text-muted-foreground text-lg leading-relaxed mb-6">
+                MSA at Pitt is one of the largest and most vibrant student organizations at the University of Pittsburgh. We're a community rooted in Islamic values, built on real friendships, and open to absolutely everyone — Muslim or not, practicing or not, just curious or deeply committed.
+              </p>
+              <div className="glass-card p-5 mb-6">
+                <ArabicVerse
+                  arabic="وَتَعَاوَنُوا عَلَى الْبِرِّ وَالتَّقْوَىٰ"
+                  translation="And cooperate in righteousness and piety."
+                  reference="Quran 5:2"
+                  className="text-left py-0"
+                />
+              </div>
+              <Link to="/about" className="text-primary font-semibold hover:underline text-lg">
+                Learn more about us →
+              </Link>
+            </motion.div>
+          </div>
         </div>
       </section>
 
       {/* Ayat Divider */}
-      <div className="glass-divider max-w-2xl mx-auto" />
+      <div className="glass-divider-thick max-w-2xl mx-auto" />
 
       {/* Upcoming Events */}
-      <section className="section-padding gradient-mesh-gold">
-        <div className="max-w-7xl mx-auto">
+      <section className="section-padding gradient-mesh-gold relative overflow-hidden">
+        <div className="absolute inset-0 gradient-section-gold-soft" />
+        <div className="max-w-7xl mx-auto relative z-10">
           <SectionHeading title="What's coming up" subtitle="Stay connected and never miss a moment." />
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             <GlassCard delay={0}>
@@ -186,8 +189,9 @@ const Index = () => {
       </section>
 
       {/* Quran Ayat Section */}
-      <section className="section-padding">
-        <div className="max-w-3xl mx-auto">
+      <section className="section-padding gradient-section-emerald-soft relative overflow-hidden">
+        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: '200px' }} />
+        <div className="max-w-3xl mx-auto relative z-10">
           <div className="glass-card-strong glass-glow p-8 md:p-12">
             <ArabicVerse
               arabic="إِنَّمَا الْمُؤْمِنُونَ إِخْوَةٌ"
@@ -199,8 +203,9 @@ const Index = () => {
       </section>
 
       {/* Community Pillars */}
-      <section className="section-padding gradient-mesh-warm">
-        <div className="max-w-7xl mx-auto">
+      <section className="section-padding gradient-mesh-warm relative overflow-hidden">
+        <div className="absolute inset-0 texture-lines" />
+        <div className="max-w-7xl mx-auto relative z-10">
           <SectionHeading title="What drives us" label="Our Pillars" />
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {pillars.map((pillar, i) => (
@@ -217,7 +222,7 @@ const Index = () => {
       </section>
 
       {/* Instagram Strip */}
-      <section className="section-padding text-center">
+      <section className="section-padding text-center gradient-section-gold-soft">
         <SectionHeading title="Follow our story" subtitle="@msa.at.pitt" />
         <a
           href="https://instagram.com/msa.at.pitt"

@@ -24,48 +24,12 @@ interface GalleryEvent {
 }
 
 const galleryEvents: GalleryEvent[] = [
-  {
-    title: "MSA Fall Kickoff 2025",
-    photos: 120,
-    category: ["fall"],
-    tag: "Brothers & Sisters",
-    image: kickoffImg,
-  },
-  {
-    title: "Ramadan Iftar Night",
-    photos: 85,
-    category: ["spring"],
-    tag: "Brothers & Sisters",
-    image: iftarImg,
-  },
-  {
-    title: "Eid Social 2026",
-    photos: 64,
-    category: ["spring", "special"],
-    tag: "Brothers & Sisters",
-    image: eidImg,
-  },
-  {
-    title: "MSA TopGolf Night",
-    photos: 42,
-    category: ["spring", "special"],
-    tag: "Brothers & Sisters",
-    image: topgolfImg,
-  },
-  {
-    title: "Weekly Halaqa",
-    photos: 30,
-    category: ["weekly"],
-    tag: "Brothers & Sisters",
-    image: halaqaImg,
-  },
-  {
-    title: "Sisters' Social Night",
-    photos: 38,
-    category: ["fall", "special"],
-    tag: "Sisters",
-    image: sistersImg,
-  },
+  { title: "MSA Fall Kickoff 2025", photos: 120, category: ["fall"], tag: "Brothers & Sisters", image: kickoffImg },
+  { title: "Ramadan Iftar Night", photos: 85, category: ["spring"], tag: "Brothers & Sisters", image: iftarImg },
+  { title: "Eid Social 2026", photos: 64, category: ["spring", "special"], tag: "Brothers & Sisters", image: eidImg },
+  { title: "MSA TopGolf Night", photos: 42, category: ["spring", "special"], tag: "Brothers & Sisters", image: topgolfImg },
+  { title: "Weekly Halaqa", photos: 30, category: ["weekly"], tag: "Brothers & Sisters", image: halaqaImg },
+  { title: "Sisters' Social Night", photos: 38, category: ["fall", "special"], tag: "Sisters", image: sistersImg },
 ];
 
 const filters: { key: FilterCategory; label: string; icon: typeof Grid3X3 }[] = [
@@ -86,8 +50,8 @@ const Gallery = () => {
 
   return (
     <Layout>
-      {/* Quranic Ayat Banner — Rutgers style */}
-      <section className="pt-28 md:pt-36 pb-8 px-4">
+      {/* Quranic Ayat Banner */}
+      <section className="pt-28 md:pt-36 pb-8 px-4 gradient-section-gold-soft">
         <div className="max-w-4xl mx-auto">
           <div className="relative glass-card-strong glass-glow p-8 md:p-10 overflow-hidden">
             <div
@@ -106,26 +70,29 @@ const Gallery = () => {
       </section>
 
       {/* Title */}
-      <section className="text-center px-4 pt-8 pb-4">
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="font-display text-5xl md:text-7xl font-bold text-foreground"
-        >
-          Event <span className="text-gradient-gold">Gallery</span>
-        </motion.h1>
-        <motion.p
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="text-muted-foreground text-lg mt-3"
-        >
-          Memories from our amazing events and activities
-        </motion.p>
+      <section className="text-center px-4 pt-8 pb-4 gradient-mesh-gold relative overflow-hidden">
+        <div className="absolute inset-0 texture-dots" />
+        <div className="relative z-10">
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="font-display text-5xl md:text-7xl font-bold text-foreground"
+          >
+            Event <span className="text-gradient-gold">Gallery</span>
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="text-muted-foreground text-lg mt-3"
+          >
+            Memories from our amazing events and activities
+          </motion.p>
+        </div>
       </section>
 
       {/* Filter Tabs */}
-      <section className="px-4 py-8">
+      <section className="px-4 py-8 gradient-section-gold-soft">
         <div className="max-w-5xl mx-auto flex flex-wrap justify-center gap-3">
           {filters.map((f) => {
             const active = activeFilter === f.key;
@@ -148,8 +115,9 @@ const Gallery = () => {
       </section>
 
       {/* Event Album Cards Grid */}
-      <section className="section-padding gradient-mesh-warm">
-        <div className="max-w-6xl mx-auto">
+      <section className="section-padding gradient-mesh-warm relative overflow-hidden">
+        <div className="absolute inset-0 texture-lines" />
+        <div className="max-w-6xl mx-auto relative z-10">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeFilter}
@@ -167,7 +135,6 @@ const Gallery = () => {
                   transition={{ delay: i * 0.1 }}
                   className="group relative rounded-2xl overflow-hidden shadow-xl cursor-pointer aspect-[16/10]"
                 >
-                  {/* Background Image */}
                   <img
                     src={event.image}
                     alt={event.title}
@@ -176,14 +143,8 @@ const Gallery = () => {
                     width={800}
                     height={544}
                   />
-
-                  {/* Dark gradient overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-
-                  {/* Hover glow overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-primary/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-                  {/* Content overlay */}
                   <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 z-10">
                     <h3 className="font-display text-2xl md:text-3xl font-bold text-white mb-1 drop-shadow-lg">
                       {event.title}
@@ -196,8 +157,6 @@ const Gallery = () => {
                       View Photos
                     </span>
                   </div>
-
-                  {/* Top-right category badge */}
                   <div className="absolute top-4 right-4 z-10">
                     <span className="glass-card px-3 py-1 text-xs font-semibold text-white rounded-full">
                       {event.category.includes("special") ? "✨ Special" : event.category.includes("weekly") ? "📅 Weekly" : event.category[0] === "fall" ? "🍂 Fall" : "🌸 Spring"}
@@ -217,7 +176,7 @@ const Gallery = () => {
       </section>
 
       {/* Bottom Ayat */}
-      <section className="section-padding">
+      <section className="section-padding gradient-section-emerald-soft">
         <div className="max-w-2xl mx-auto">
           <div className="glass-card-strong glass-glow p-8 md:p-12">
             <ArabicVerse
