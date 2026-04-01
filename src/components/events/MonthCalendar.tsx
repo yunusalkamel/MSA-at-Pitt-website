@@ -47,12 +47,17 @@ const MonthCalendar = ({ events }: Props) => {
   const todayStr = formatDateStr(today.getFullYear(), today.getMonth(), today.getDate());
 
   const prev = () => {
-    if (month === 0) { setMonth(11); setYear(year - 1); }
-    else setMonth(month - 1);
+    if (month === 0) {
+      setMonth(11);
+      setYear(year - 1);
+    } else setMonth(month - 1);
   };
+
   const next = () => {
-    if (month === 11) { setMonth(0); setYear(year + 1); }
-    else setMonth(month + 1);
+    if (month === 11) {
+      setMonth(0);
+      setYear(year + 1);
+    } else setMonth(month + 1);
   };
 
   const cells: (number | null)[] = [];
@@ -63,7 +68,6 @@ const MonthCalendar = ({ events }: Props) => {
   return (
     <div>
       <div className="glass-card-strong p-4 md:p-6 rounded-2xl">
-        {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={prev}
@@ -71,9 +75,7 @@ const MonthCalendar = ({ events }: Props) => {
           >
             <ChevronLeft size={18} className="text-foreground" />
           </button>
-          <h3 className="font-display text-xl md:text-2xl font-bold text-foreground">
-            {monthLabel}
-          </h3>
+          <h3 className="font-display text-xl md:text-2xl font-bold text-foreground">{monthLabel}</h3>
           <button
             onClick={next}
             className="glass-card w-10 h-10 flex items-center justify-center hover:border-primary/30 transition-colors"
@@ -82,7 +84,6 @@ const MonthCalendar = ({ events }: Props) => {
           </button>
         </div>
 
-        {/* Day headers */}
         <div className="grid grid-cols-7 gap-1 mb-2">
           {DAYS.map((d) => (
             <div key={d} className="text-center text-xs font-semibold text-muted-foreground py-2">
@@ -91,75 +92,74 @@ const MonthCalendar = ({ events }: Props) => {
           ))}
         </div>
 
-        {/* Cells */}
         <div className="grid grid-cols-7 gap-1">
           {cells.map((day, i) => {
-            if (day === null)
-              return <div key={`empty-${i}`} className="aspect-square" />;
+            if (day === null) return <div key={`empty-${i}`} className="aspect-square" />;
 
             const dateStr = formatDateStr(year, month, day);
             const dayEvents = eventsByDate[dateStr] || [];
             const isToday = dateStr === todayStr;
             const hasEvents = dayEvents.length > 0;
+            const visibleEvents = dayEvents.slice(0, 3);
+            const overflowCount = Math.max(dayEvents.length - 3, 0);
 
             return (
               <button
                 key={dateStr}
                 onClick={() => hasEvents && setSelectedDate(dateStr)}
-                className={`group relative aspect-square rounded-xl flex flex-col items-center justify-start pt-1.5 md:pt-2 text-sm border transition-all duration-300 ${
+                className={`group relative aspect-square rounded-xl flex flex-col items-start p-1.5 md:p-2 text-sm border transition-all duration-300 overflow-hidden ${
                   isToday
                     ? "border-primary/40 bg-primary/10 shadow-[0_0_16px_hsl(40_100%_55%/0.15)]"
                     : hasEvents
-                    ? "border-primary/10 bg-primary/5 hover:border-primary/30 hover:bg-primary/10 hover:scale-110 hover:z-10 hover:shadow-[0_0_20px_hsl(40_100%_55%/0.15)]"
+                    ? "border-primary/10 bg-primary/5 hover:border-primary/30 hover:bg-primary/10 hover:scale-105 hover:z-10 hover:shadow-[0_0_20px_hsl(40_100%_55%/0.15)]"
                     : "border-transparent hover:border-border/50 hover:bg-muted/30"
                 } ${hasEvents ? "cursor-pointer" : "cursor-default"}`}
               >
                 <span
-                  className={`font-semibold text-xs md:text-sm ${
+                  className={`font-semibold text-xs md:text-sm mb-1 ${
                     isToday ? "text-primary" : hasEvents ? "text-foreground" : "text-muted-foreground"
                   }`}
                 >
                   {day}
                 </span>
 
-                {/* Event pills */}
-                <div className="flex flex-col gap-1 mt-1.5 w-full px-1 overflow-hidden">
-                  {dayEvents.slice(0, 2).map((ev) => (
-                    <motion.div
-                      key={ev.id}
-                      whileHover={{ scale: 1.05 }}
-                      className={`w-full rounded-md px-1.5 py-0.5 text-left text-[9px] md:text-[10px] leading-tight truncate transition-all ${
-                        ev.featured
-                          ? "gold-gradient text-primary-foreground shadow-[0_0_6px_hsl(40_100%_55%/0.4)]"
-                          : ev.isPast
-                          ? "bg-muted-foreground/30 text-foreground/70"
-                          : "bg-secondary/85 text-secondary-foreground"
-                      }`}
-                      title={ev.title}
-                    >
-                      {ev.title}
-                    </motion.div>
-                  ))}
-                  {dayEvents.length > 2 && (
-                    <span className="text-[9px] text-primary font-semibold text-center group-hover:scale-105 transition-transform">
-                      +{dayEvents.length - 2}
-                    </span>
+                <div className="flex-1 w-full min-h-0 flex flex-col gap-1">
+                  {visibleEvents.map((ev) => {
+                    const sharedStyles = ev.featured
+                      ? "gold-gradient text-primary-foreground shadow-[0_0_6px_hsl(40_100%_55%/0.4)]"
+                      : ev.isPast
+                      ? "bg-muted-foreground/25 text-foreground/70"
+                      : "bg-secondary/80 text-secondary-foreground";
+
+                    return (
+                      <motion.div
+                        key={ev.id}
+                        whileHover={{ scale: 1.02 }}
+                        className={`w-full rounded-md px-1.5 md:px-2 py-1 text-left transition-all ${sharedStyles} ${
+                          visibleEvents.length === 1 ? "h-full" : "flex-1"
+                        }`}
+                        title={ev.title}
+                      >
+                        <div className="text-[9px] md:text-[10px] font-semibold truncate">{ev.title}</div>
+                        <div className="text-[8px] md:text-[9px] opacity-0 group-hover:opacity-90 transition-opacity truncate">
+                          {ev.timeLabel}
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+
+                  {overflowCount > 0 && (
+                    <div className="text-[9px] font-semibold text-primary/90 text-center rounded-md bg-primary/10 py-0.5">
+                      +{overflowCount} more
+                    </div>
                   )}
                 </div>
-
-                {/* Event count badge for days with events */}
-                {hasEvents && (
-                  <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full gold-gradient flex items-center justify-center shadow-md">
-                    <span className="text-[8px] font-bold text-primary-foreground">{dayEvents.length}</span>
-                  </div>
-                )}
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* Day detail panel */}
       <AnimatePresence>
         {selectedDate && (
           <DayEventsPanel
