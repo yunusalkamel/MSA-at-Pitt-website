@@ -84,7 +84,7 @@ const Events = () => {
           {view === "upcoming" ? (
             <UpcomingEventsList events={upcomingFiltered} />
           ) : (
-            <MonthCalendar events={mockEvents} />
+            <MonthCalendar events={filteredEvents} />
           )}
         </div>
       </section>
