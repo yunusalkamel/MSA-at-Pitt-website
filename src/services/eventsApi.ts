@@ -84,9 +84,10 @@ export async function fetchEventsFromCalendar(): Promise<MSAEvent[]> {
     throw new Error(formatError(data.stage, (data as ErrorResponse).error, (data as ErrorResponse).details));
   }
 
-  if (!Array.isArray(data.events)) {
+  const successData = data as EventsResponse;
+  if (!Array.isArray(successData.events)) {
     throw new Error("Calendar fetch failed: success payload missing events array");
   }
 
-  return data.events;
+  return successData.events;
 }
