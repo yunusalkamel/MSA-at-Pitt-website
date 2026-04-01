@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { Heart, Users, Moon, HandHeart } from "lucide-react";
+import { useRef } from "react";
 import Layout from "@/components/Layout";
 import GlassCard from "@/components/GlassCard";
 import SectionHeading from "@/components/SectionHeading";
@@ -17,16 +18,24 @@ const pillars = [
 ];
 
 const Index = () => {
+  const heroRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+  const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+
   return (
     <Layout>
       {/* Hero */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0">
-          <img src={heroImg} alt="MSA at Pitt community iftar gathering" className="w-full h-full object-cover" width={1920} height={1080} />
-          <div className="absolute inset-0 bg-gradient-to-b from-accent/80 via-accent/60 to-accent/80" />
+      <section ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        <motion.div className="absolute inset-0" style={{ y: heroY }}>
+          <img src={heroImg} alt="MSA at Pitt community iftar gathering" className="w-full h-full object-cover scale-110" width={1920} height={1080} />
+          <div className="absolute inset-0 bg-gradient-to-b from-accent/80 via-accent/50 to-accent/90" />
           <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: '250px' }} />
-        </div>
-        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
+        </motion.div>
+        {/* Decorative orbs */}
+        <div className="absolute top-1/4 left-1/6 w-80 h-80 rounded-full bg-primary/15 blur-[120px] animate-pulse" />
+        <div className="absolute bottom-1/3 right-1/5 w-64 h-64 rounded-full bg-secondary/10 blur-[100px]" />
+        <motion.div className="relative z-10 text-center px-4 max-w-4xl mx-auto" style={{ opacity: heroOpacity }}>
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -74,12 +83,12 @@ const Index = () => {
               See Upcoming Events
             </Link>
           </motion.div>
-        </div>
+        </motion.div>
       </section>
 
       {/* Stats Bar */}
       <section className="relative -mt-16 z-20 px-4 md:px-8">
-        <div className="glass-card glass-glow max-w-4xl mx-auto p-8 grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+        <div className="glass-card-strong glass-glow max-w-4xl mx-auto p-8 grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
           {[
             { emoji: "🕌", label: "Weekly Events", value: "10+" },
             { emoji: "🤝", label: "Active Members", value: "200+" },
@@ -101,8 +110,9 @@ const Index = () => {
       </section>
 
       {/* About Preview */}
-      <section className="section-padding gradient-mesh-warm relative overflow-hidden">
-        <div className="absolute inset-0 texture-dots" />
+      <section className="section-padding warm-surface relative overflow-hidden">
+        <div className="absolute inset-0 gradient-mesh-warm" />
+        <div className="absolute inset-0 texture-cross" />
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <motion.div
@@ -124,7 +134,7 @@ const Index = () => {
               <p className="text-muted-foreground text-lg leading-relaxed mb-6">
                 MSA at Pitt is one of the largest and most vibrant student organizations at the University of Pittsburgh. We're a community rooted in Islamic values, built on real friendships, and open to absolutely everyone — Muslim or not, practicing or not, just curious or deeply committed.
               </p>
-              <div className="glass-card p-5 mb-6">
+              <div className="glass-card-strong p-5 mb-6">
                 <ArabicVerse
                   arabic="وَتَعَاوَنُوا عَلَى الْبِرِّ وَالتَّقْوَىٰ"
                   translation="And cooperate in righteousness and piety."
@@ -144,8 +154,9 @@ const Index = () => {
       <div className="glass-divider-thick max-w-2xl mx-auto" />
 
       {/* Upcoming Events */}
-      <section className="section-padding gradient-mesh-gold relative overflow-hidden">
-        <div className="absolute inset-0 gradient-section-gold-soft" />
+      <section className="section-padding warm-surface-deep relative overflow-hidden">
+        <div className="absolute inset-0 gradient-mesh-gold" />
+        <div className="absolute inset-0 texture-dots" />
         <div className="max-w-7xl mx-auto relative z-10">
           <SectionHeading title="What's coming up" subtitle="Stay connected and never miss a moment." />
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -191,6 +202,7 @@ const Index = () => {
       {/* Quran Ayat Section */}
       <section className="section-padding gradient-section-emerald-soft relative overflow-hidden">
         <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: '200px' }} />
+        <div className="absolute top-1/3 right-1/4 w-96 h-96 rounded-full bg-secondary/8 blur-[120px]" />
         <div className="max-w-3xl mx-auto relative z-10">
           <div className="glass-card-strong glass-glow p-8 md:p-12">
             <ArabicVerse
@@ -203,8 +215,10 @@ const Index = () => {
       </section>
 
       {/* Community Pillars */}
-      <section className="section-padding gradient-mesh-warm relative overflow-hidden">
-        <div className="absolute inset-0 texture-lines" />
+      <section className="section-padding warm-surface relative overflow-hidden">
+        <div className="absolute inset-0 gradient-mesh-warm" />
+        <div className="absolute inset-0 texture-lines opacity-40" />
+        <div className="absolute bottom-1/4 left-1/5 w-72 h-72 rounded-full bg-primary/8 blur-[100px]" />
         <div className="max-w-7xl mx-auto relative z-10">
           <SectionHeading title="What drives us" label="Our Pillars" />
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -222,16 +236,20 @@ const Index = () => {
       </section>
 
       {/* Instagram Strip */}
-      <section className="section-padding text-center gradient-section-gold-soft">
-        <SectionHeading title="Follow our story" subtitle="@msa.at.pitt" />
-        <a
-          href="https://instagram.com/msa.at.pitt"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="gold-gradient text-primary-foreground px-8 py-3 rounded-full font-semibold inline-block hover:opacity-90 transition-opacity shadow-lg"
-        >
-          Follow us on Instagram →
-        </a>
+      <section className="section-padding text-center warm-surface-deep relative overflow-hidden">
+        <div className="absolute inset-0 gradient-section-gold-soft" />
+        <div className="absolute inset-0 texture-dots" />
+        <div className="relative z-10">
+          <SectionHeading title="Follow our story" subtitle="@msa.at.pitt" />
+          <a
+            href="https://instagram.com/msa.at.pitt"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="gold-gradient text-primary-foreground px-8 py-3 rounded-full font-semibold inline-block hover:opacity-90 transition-opacity shadow-lg"
+          >
+            Follow us on Instagram →
+          </a>
+        </div>
       </section>
     </Layout>
   );

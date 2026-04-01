@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 
 const navLinks = [
   { to: "/", label: "Home" },
@@ -13,51 +13,69 @@ const navLinks = [
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
 
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 glass-card" style={{ borderRadius: 0, borderTop: 'none', borderLeft: 'none', borderRight: 'none' }}>
-      <div className="max-w-7xl mx-auto px-4 md:px-8 flex items-center justify-between h-16 md:h-20">
-        <Link to="/" className="font-display text-xl md:text-2xl font-bold text-foreground tracking-tight">
-          MSA <span className="text-gradient-gold">at Pitt</span>
-        </Link>
-
-        {/* Desktop nav */}
-        <div className="hidden md:flex items-center gap-8">
-          {navLinks.map((link) => (
-            <Link
-              key={link.to}
-              to={link.to}
-              className={`relative text-sm font-medium transition-colors duration-200 hover:text-primary ${
-                location.pathname === link.to ? "text-primary" : "text-muted-foreground"
-              }`}
-            >
-              {link.label}
-              {location.pathname === link.to && (
-                <motion.div
-                  layoutId="nav-underline"
-                  className="absolute -bottom-1 left-0 right-0 h-0.5 gold-gradient rounded-full"
-                />
-              )}
-            </Link>
-          ))}
-          <Link
-            to="/join"
-            className="gold-gradient text-primary-foreground px-5 py-2.5 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity"
-          >
-            Join the MSA →
+    <nav className="fixed top-0 left-0 right-0 z-50 flex justify-center px-4 pt-3 md:pt-4 pointer-events-none">
+      <motion.div
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className={`pointer-events-auto w-full max-w-5xl transition-all duration-500 ${
+          scrolled
+            ? "glass-card-strong shadow-lg border-primary/10"
+            : "glass-card"
+        } rounded-2xl px-4 md:px-6`}
+      >
+        <div className="flex items-center justify-between h-14 md:h-16">
+          <Link to="/" className="font-display text-lg md:text-xl font-bold text-foreground tracking-tight">
+            MSA <span className="text-gradient-gold">at Pitt</span>
           </Link>
-        </div>
 
-        {/* Mobile toggle */}
-        <button
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="md:hidden text-foreground p-2"
-          aria-label="Toggle menu"
-        >
-          {mobileOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-      </div>
+          {/* Desktop nav */}
+          <div className="hidden md:flex items-center gap-7">
+            {navLinks.map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                className={`relative text-sm font-medium transition-colors duration-200 hover:text-primary ${
+                  location.pathname === link.to ? "text-primary" : "text-muted-foreground"
+                }`}
+              >
+                {link.label}
+                {location.pathname === link.to && (
+                  <motion.div
+                    layoutId="nav-underline"
+                    className="absolute -bottom-1 left-0 right-0 h-0.5 gold-gradient rounded-full"
+                  />
+                )}
+              </Link>
+            ))}
+            <Link
+              to="/join"
+              className="gold-gradient text-primary-foreground px-5 py-2 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity shadow-md"
+            >
+              Join the MSA →
+            </Link>
+          </div>
+
+          {/* Mobile toggle */}
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="md:hidden text-foreground p-2"
+            aria-label="Toggle menu"
+          >
+            {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
+        </div>
+      </motion.div>
 
       {/* Mobile overlay */}
       <AnimatePresence>
@@ -66,7 +84,7 @@ const Navbar = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 top-16 bg-background/98 backdrop-blur-xl z-40 flex flex-col items-center justify-center gap-8 md:hidden"
+            className="pointer-events-auto fixed inset-0 top-[72px] bg-background/98 backdrop-blur-xl z-40 flex flex-col items-center justify-center gap-8 md:hidden"
           >
             {navLinks.map((link, i) => (
               <motion.div
