@@ -32,23 +32,30 @@ type MSAEvent = {
   fullCalendarUrl?: string;
 };
 
+export class GoogleCalendarError extends Error {
+  constructor(
+    message: string,
+    public readonly stage: "google_request" | "google_response_parse",
+    public readonly details?: string,
+  ) {
+    super(message);
+  }
+}
+
 const dayFormatter = new Intl.DateTimeFormat("en-US", {
   weekday: "long",
   timeZone: OUTPUT_TIMEZONE,
 });
-
 const monthDayFormatter = new Intl.DateTimeFormat("en-US", {
   month: "short",
   day: "numeric",
   timeZone: OUTPUT_TIMEZONE,
 });
-
 const timeFormatter = new Intl.DateTimeFormat("en-US", {
   hour: "numeric",
   minute: "2-digit",
   timeZone: OUTPUT_TIMEZONE,
 });
-
 const ymdFormatter = new Intl.DateTimeFormat("en-CA", {
   year: "numeric",
   month: "2-digit",
@@ -79,7 +86,6 @@ function buildTimeLabel(start: GoogleCalendarEvent["start"], end: GoogleCalendar
     const sameDay = toYMD(startDate) === toYMD(inclusiveEnd);
 
     if (sameDay) return `${dayFormatter.format(startDate)} · All day`;
-
     return `${monthDayFormatter.format(startDate)} - ${monthDayFormatter.format(inclusiveEnd)} · All day`;
   }
 
@@ -108,14 +114,12 @@ function inferAudience(summary: string): MSAEvent["audience"] {
 function inferTags(summary: string, description: string): string[] {
   const blob = `${summary} ${description}`.toLowerCase();
   const tags = new Set<string>(["Open to All"]);
-
   if (blob.includes("halaqa") || blob.includes("quran") || blob.includes("tafsir")) tags.add("Education & Service");
   if (blob.includes("career") || blob.includes("network")) tags.add("Careers");
   if (blob.includes("speaker") || blob.includes("lecture") || blob.includes("panel")) tags.add("Speaker Event");
   if (blob.includes("service") || blob.includes("volunteer")) tags.add("Education & Service");
   if (blob.includes("social") || blob.includes("iftar") || blob.includes("eid") || blob.includes("banquet")) tags.add("Social");
   if (blob.includes("dawah")) tags.add("Dawah");
-
   return [...tags];
 }
 
@@ -130,7 +134,7 @@ function normalizeGoogleEvent(event: GoogleCalendarEvent, nowDate: string): MSAE
   const description = event.description?.trim() || "More details coming soon.";
   const startDate = deriveStartDate(event.start);
 
-  const normalized: MSAEvent = {
+  return applyFutureMetadataEnrichment({
     id: event.id || `${startDate}-${title}`,
     title,
     startDate,
@@ -145,15 +149,11 @@ function normalizeGoogleEvent(event: GoogleCalendarEvent, nowDate: string): MSAE
     ctaMode: "learn-more",
     addToCalendarUrl: event.htmlLink,
     fullCalendarUrl: event.htmlLink,
-  };
-
-  return applyFutureMetadataEnrichment(normalized);
+  });
 }
 
 export async function fetchGoogleCalendarEvents(apiKey: string): Promise<MSAEvent[]> {
-  const now = new Date();
-  const timeMin = new Date(now.getTime() - 120 * 24 * 60 * 60 * 1000).toISOString();
-
+  const timeMin = new Date(Date.now() - 120 * 24 * 60 * 60 * 1000).toISOString();
   const params = new URLSearchParams({
     key: apiKey,
     singleEvents: "true",
@@ -168,13 +168,31 @@ export async function fetchGoogleCalendarEvents(apiKey: string): Promise<MSAEven
 
   if (!response.ok) {
     const body = await response.text();
-    throw new Error(`Google Calendar API error (${response.status}): ${body}`);
+    let details = body;
+    if (body.includes("API keys with referer restrictions")) {
+      details = `${body} | This key is being used server-side; use API key restrictions (Calendar API) without website referrer restrictions.`;
+    }
+
+    throw new GoogleCalendarError(
+      `Google Calendar API request failed with status ${response.status}`,
+      "google_request",
+      details,
+    );
   }
 
-  const payload = await response.json();
-  const items: GoogleCalendarEvent[] = Array.isArray(payload.items) ? payload.items : [];
-  const today = toYMD(new Date());
+  let payload: { items?: GoogleCalendarEvent[] };
+  try {
+    payload = await response.json();
+  } catch (error) {
+    throw new GoogleCalendarError(
+      "Google Calendar API returned a non-JSON response",
+      "google_response_parse",
+      error instanceof Error ? error.message : String(error),
+    );
+  }
 
+  const items = Array.isArray(payload.items) ? payload.items : [];
+  const today = toYMD(new Date());
   const normalized = items.map((item) => normalizeGoogleEvent(item, today));
 
   const firstUpcomingIdx = normalized.findIndex((event) => !event.isPast);

@@ -76,6 +76,7 @@ const Events = () => {
           {error && (
             <div className="mb-6 rounded-xl border border-primary/20 bg-primary/10 px-4 py-3 text-sm text-foreground/90">
               Live calendar is temporarily unavailable. Showing curated fallback events.
+              <span className="block mt-1 text-xs text-muted-foreground">{error}</span>
             </div>
           )}
 

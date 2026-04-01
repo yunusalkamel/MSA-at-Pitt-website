@@ -1,4 +1,4 @@
-import { fetchGoogleCalendarEvents } from "./google-calendar-service.ts";
+import { fetchGoogleCalendarEvents, GoogleCalendarError } from "./google-calendar-service.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -12,25 +12,31 @@ Deno.serve(async (req) => {
 
   try {
     const apiKey = Deno.env.get("GOOGLE_CALENDAR_API_KEY");
-
     if (!apiKey) {
-      return new Response(
-        JSON.stringify({ error: "Missing required secret: GOOGLE_CALENDAR_API_KEY" }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        },
-      );
+      const errorPayload = {
+        stage: "missing_secret",
+        error: "Missing required secret: GOOGLE_CALENDAR_API_KEY",
+      };
+      console.error("[google-calendar-events]", errorPayload);
+      return new Response(JSON.stringify(errorPayload), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const events = await fetchGoogleCalendarEvents(apiKey);
-
-    return new Response(JSON.stringify({ events }), {
+    return new Response(JSON.stringify({ stage: "success", count: events.length, events }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    return new Response(JSON.stringify({ error: message }), {
+    const errorPayload = {
+      stage: error instanceof GoogleCalendarError ? error.stage : "edge_function",
+      error: error instanceof Error ? error.message : "Unknown error",
+      details: error instanceof GoogleCalendarError ? error.details : undefined,
+    };
+
+    console.error("[google-calendar-events]", errorPayload);
+    return new Response(JSON.stringify(errorPayload), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
