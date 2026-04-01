@@ -106,7 +106,7 @@ const MonthCalendar = ({ events }: Props) => {
               <button
                 key={dateStr}
                 onClick={() => hasEvents && setSelectedDate(dateStr)}
-                className={`relative aspect-square rounded-xl flex flex-col items-center justify-start pt-1.5 md:pt-2 text-sm border transition-all duration-300 ${
+                className={`group relative aspect-square rounded-xl flex flex-col items-center justify-start pt-1.5 md:pt-2 text-sm border transition-all duration-300 ${
                   isToday
                     ? "border-primary/40 bg-primary/10 shadow-[0_0_16px_hsl(40_100%_55%/0.15)]"
                     : hasEvents
@@ -122,23 +122,26 @@ const MonthCalendar = ({ events }: Props) => {
                   {day}
                 </span>
 
-                {/* Event pills — more visible */}
-                <div className="flex flex-col gap-0.5 mt-1 w-full px-0.5 overflow-hidden">
+                {/* Event pills */}
+                <div className="flex flex-col gap-1 mt-1.5 w-full px-1 overflow-hidden">
                   {dayEvents.slice(0, 2).map((ev) => (
-                    <div
+                    <motion.div
                       key={ev.id}
-                      className={`h-1.5 md:h-2 rounded-full w-full ${
+                      whileHover={{ scale: 1.05 }}
+                      className={`w-full rounded-md px-1.5 py-0.5 text-left text-[9px] md:text-[10px] leading-tight truncate transition-all ${
                         ev.featured
-                          ? "gold-gradient shadow-[0_0_6px_hsl(40_100%_55%/0.4)]"
+                          ? "gold-gradient text-primary-foreground shadow-[0_0_6px_hsl(40_100%_55%/0.4)]"
                           : ev.isPast
-                          ? "bg-muted-foreground/40"
-                          : "bg-secondary"
+                          ? "bg-muted-foreground/30 text-foreground/70"
+                          : "bg-secondary/85 text-secondary-foreground"
                       }`}
                       title={ev.title}
-                    />
+                    >
+                      {ev.title}
+                    </motion.div>
                   ))}
                   {dayEvents.length > 2 && (
-                    <span className="text-[9px] text-primary font-semibold text-center">
+                    <span className="text-[9px] text-primary font-semibold text-center group-hover:scale-105 transition-transform">
                       +{dayEvents.length - 2}
                     </span>
                   )}

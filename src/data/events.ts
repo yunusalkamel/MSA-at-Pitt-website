@@ -15,6 +15,7 @@ export interface MSAEvent {
   signupUrl?: string;
   galleryUrl?: string;
   addToCalendarUrl?: string;
+  fullCalendarUrl?: string;
   coverImage?: string;
 }
 
@@ -49,12 +50,13 @@ export const mockEvents: MSAEvent[] = [
     location: "University Club, University of Pittsburgh",
     shortBlurb:
       "Our flagship gala celebrating a year of growth, community, and faith. Keynote speaker, dinner, awards, and a night to remember.",
-    tags: ["Signature Event", "Social", "Speaker Event", "Open to All"],
+    tags: ["Signature Event", "Social", "Speaker Event", "Banquet", "Gala", "Keynote", "Open to All"],
     audience: "Open to All",
     featured: true,
     ctaMode: "rsvp",
     signupUrl: "https://forms.gle/hnUHffFFsyysX7vY6",
     addToCalendarUrl: GOOGLE_CALENDAR_URL,
+    fullCalendarUrl: GOOGLE_CALENDAR_URL,
   },
   {
     id: "2",
@@ -64,7 +66,7 @@ export const mockEvents: MSAEvent[] = [
     location: "TopGolf Pittsburgh, 400 Presto-Sygan Rd, Bridgeville, PA",
     shortBlurb:
       "Hit the links with the community! $16.67 for 2 hours (first-timers $22.67 incl. membership).",
-    tags: ["Social", "Open to All"],
+    tags: ["Social", "Welcome Week", "Open to All"],
     audience: "Open to All",
     ctaMode: "rsvp",
     signupUrl: "https://forms.gle/hnUHffFFsyysX7vY6",
@@ -198,7 +200,7 @@ export const mockEvents: MSAEvent[] = [
     location: "William Pitt Union Lobby",
     shortBlurb:
       "Stop by our table all week for conversations, free literature, and Q&A about Islam.",
-    tags: ["Dawah", "Education & Service", "Open to All"],
+    tags: ["Dawah", "Education & Service", "Collaboration", "Open to All"],
     audience: "Open to All",
     ctaMode: "learn-more",
     addToCalendarUrl: GOOGLE_CALENDAR_URL,
