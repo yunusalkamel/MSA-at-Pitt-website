@@ -75,8 +75,7 @@ const Events = () => {
         <div className="max-w-5xl mx-auto relative z-10">
           {error && (
             <div className="mb-6 rounded-xl border border-primary/20 bg-primary/10 px-4 py-3 text-sm text-foreground/90">
-              Live calendar is temporarily unavailable. Showing curated fallback events.
-              <span className="block mt-1 text-xs text-muted-foreground">{error}</span>
+              Showing our curated event schedule right now. Live sync will resume automatically.
             </div>
           )}
 

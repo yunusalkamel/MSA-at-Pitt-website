@@ -1,16 +1,6 @@
 const CALENDAR_ID = "2use05cacfd5hu3q2p49q9dvmc@group.calendar.google.com";
-const GOOGLE_API_BASE = "https://www.googleapis.com/calendar/v3";
 const OUTPUT_TIMEZONE = "America/New_York";
-
-type GoogleCalendarEvent = {
-  id?: string;
-  summary?: string;
-  description?: string;
-  location?: string;
-  htmlLink?: string;
-  start?: { date?: string; dateTime?: string };
-  end?: { date?: string; dateTime?: string };
-};
+const PUBLIC_ICS_URL = `https://calendar.google.com/calendar/ical/${encodeURIComponent(CALENDAR_ID)}/public/basic.ics`;
 
 type MSAEvent = {
   id: string;
@@ -26,36 +16,20 @@ type MSAEvent = {
   featured?: boolean;
   isPast?: boolean;
   ctaMode?: "rsvp" | "signup" | "join-now" | "view-photos" | "learn-more";
-  signupUrl?: string;
-  galleryUrl?: string;
   addToCalendarUrl?: string;
   fullCalendarUrl?: string;
 };
 
-export class GoogleCalendarError extends Error {
+export class CalendarFeedError extends Error {
   constructor(
     message: string,
-    public readonly stage: "google_request" | "google_response_parse",
+    public readonly stage: "ics_fetch" | "ics_parse",
     public readonly details?: string,
   ) {
     super(message);
   }
 }
 
-const dayFormatter = new Intl.DateTimeFormat("en-US", {
-  weekday: "long",
-  timeZone: OUTPUT_TIMEZONE,
-});
-const monthDayFormatter = new Intl.DateTimeFormat("en-US", {
-  month: "short",
-  day: "numeric",
-  timeZone: OUTPUT_TIMEZONE,
-});
-const timeFormatter = new Intl.DateTimeFormat("en-US", {
-  hour: "numeric",
-  minute: "2-digit",
-  timeZone: OUTPUT_TIMEZONE,
-});
 const ymdFormatter = new Intl.DateTimeFormat("en-CA", {
   year: "numeric",
   month: "2-digit",
@@ -63,45 +37,66 @@ const ymdFormatter = new Intl.DateTimeFormat("en-CA", {
   timeZone: OUTPUT_TIMEZONE,
 });
 
+const dayFormatter = new Intl.DateTimeFormat("en-US", {
+  weekday: "long",
+  timeZone: OUTPUT_TIMEZONE,
+});
+
+const timeFormatter = new Intl.DateTimeFormat("en-US", {
+  hour: "numeric",
+  minute: "2-digit",
+  timeZone: OUTPUT_TIMEZONE,
+});
+
 function toYMD(date: Date): string {
   return ymdFormatter.format(date);
 }
 
-function safeDate(value?: string): Date | null {
-  if (!value) return null;
-  const parsed = new Date(value);
-  return Number.isNaN(parsed.getTime()) ? null : parsed;
-}
+function unfoldIcs(ics: string): string[] {
+  const raw = ics.replace(/\r\n/g, "\n").split("\n");
+  const lines: string[] = [];
 
-function buildTimeLabel(start: GoogleCalendarEvent["start"], end: GoogleCalendarEvent["end"]): string {
-  const allDayStart = start?.date;
-  const allDayEnd = end?.date;
-
-  if (allDayStart && allDayEnd) {
-    const startDate = safeDate(`${allDayStart}T00:00:00Z`);
-    const endDate = safeDate(`${allDayEnd}T00:00:00Z`);
-    if (!startDate || !endDate) return "All day";
-
-    const inclusiveEnd = new Date(endDate.getTime() - 24 * 60 * 60 * 1000);
-    const sameDay = toYMD(startDate) === toYMD(inclusiveEnd);
-
-    if (sameDay) return `${dayFormatter.format(startDate)} · All day`;
-    return `${monthDayFormatter.format(startDate)} - ${monthDayFormatter.format(inclusiveEnd)} · All day`;
+  for (const line of raw) {
+    if ((line.startsWith(" ") || line.startsWith("\t")) && lines.length > 0) {
+      lines[lines.length - 1] += line.slice(1);
+    } else {
+      lines.push(line);
+    }
   }
 
-  const startDateTime = safeDate(start?.dateTime);
-  const endDateTime = safeDate(end?.dateTime);
-
-  if (!startDateTime) return "Time TBA";
-  if (!endDateTime) return `${dayFormatter.format(startDateTime)} · ${timeFormatter.format(startDateTime)}`;
-
-  return `${dayFormatter.format(startDateTime)} · ${timeFormatter.format(startDateTime)} - ${timeFormatter.format(endDateTime)}`;
+  return lines;
 }
 
-function deriveStartDate(start: GoogleCalendarEvent["start"]): string {
-  if (start?.date) return start.date;
-  const dt = safeDate(start?.dateTime);
-  return dt ? toYMD(dt) : toYMD(new Date());
+function decodeText(value: string): string {
+  return value
+    .replace(/\\n/gi, "\n")
+    .replace(/\\,/g, ",")
+    .replace(/\\;/g, ";")
+    .replace(/\\\\/g, "\\")
+    .trim();
+}
+
+function parseDateToken(token: string): Date | null {
+  const clean = token.trim();
+
+  if (/^\d{8}$/.test(clean)) {
+    const y = Number(clean.slice(0, 4));
+    const m = Number(clean.slice(4, 6));
+    const d = Number(clean.slice(6, 8));
+    return new Date(Date.UTC(y, m - 1, d));
+  }
+
+  if (/^\d{8}T\d{6}Z$/.test(clean)) {
+    const y = Number(clean.slice(0, 4));
+    const m = Number(clean.slice(4, 6));
+    const d = Number(clean.slice(6, 8));
+    const hh = Number(clean.slice(9, 11));
+    const mm = Number(clean.slice(11, 13));
+    const ss = Number(clean.slice(13, 15));
+    return new Date(Date.UTC(y, m - 1, d, hh, mm, ss));
+  }
+
+  return null;
 }
 
 function inferAudience(summary: string): MSAEvent["audience"] {
@@ -114,86 +109,127 @@ function inferAudience(summary: string): MSAEvent["audience"] {
 function inferTags(summary: string, description: string): string[] {
   const blob = `${summary} ${description}`.toLowerCase();
   const tags = new Set<string>(["Open to All"]);
+
   if (blob.includes("halaqa") || blob.includes("quran") || blob.includes("tafsir")) tags.add("Education & Service");
   if (blob.includes("career") || blob.includes("network")) tags.add("Careers");
   if (blob.includes("speaker") || blob.includes("lecture") || blob.includes("panel")) tags.add("Speaker Event");
   if (blob.includes("service") || blob.includes("volunteer")) tags.add("Education & Service");
   if (blob.includes("social") || blob.includes("iftar") || blob.includes("eid") || blob.includes("banquet")) tags.add("Social");
   if (blob.includes("dawah")) tags.add("Dawah");
+
   return [...tags];
 }
 
-function applyFutureMetadataEnrichment(event: MSAEvent): MSAEvent {
-  // Future enrichment hook for tags, signup links, gallery links,
-  // and featured/signature event metadata.
-  return event;
+function formatTimeLabel(start: Date, end: Date | null, allDay: boolean): string {
+  if (allDay) {
+    return `${dayFormatter.format(start)} · All day`;
+  }
+
+  if (!end) {
+    return `${dayFormatter.format(start)} · ${timeFormatter.format(start)}`;
+  }
+
+  return `${dayFormatter.format(start)} · ${timeFormatter.format(start)} - ${timeFormatter.format(end)}`;
 }
 
-function normalizeGoogleEvent(event: GoogleCalendarEvent, nowDate: string): MSAEvent {
-  const title = event.summary?.trim() || "MSA Event";
-  const description = event.description?.trim() || "More details coming soon.";
-  const startDate = deriveStartDate(event.start);
+function normalizeIcsEvent(eventBlock: Record<string, string>, nowYmd: string): MSAEvent | null {
+  const title = decodeText(eventBlock.SUMMARY || "MSA Event");
+  const description = decodeText(eventBlock.DESCRIPTION || "More details coming soon.");
+  const location = decodeText(eventBlock.LOCATION || "Location to be announced");
 
-  return applyFutureMetadataEnrichment({
-    id: event.id || `${startDate}-${title}`,
+  const dtStartRaw = eventBlock.DTSTART || eventBlock["DTSTART;VALUE=DATE"];
+  const dtEndRaw = eventBlock.DTEND || eventBlock["DTEND;VALUE=DATE"];
+
+  if (!dtStartRaw) return null;
+
+  const start = parseDateToken(dtStartRaw);
+  if (!start) return null;
+
+  const end = dtEndRaw ? parseDateToken(dtEndRaw) : null;
+  const allDay = /VALUE=DATE/.test(eventBlock.__DTSTART_META || "") || /^\d{8}$/.test(dtStartRaw);
+  const startDate = toYMD(start);
+
+  return {
+    id: decodeText(eventBlock.UID || `${startDate}-${title}`),
     title,
     startDate,
-    endDate: event.end?.date,
-    timeLabel: buildTimeLabel(event.start, event.end),
-    location: event.location?.trim() || "Location to be announced",
+    endDate: end ? toYMD(end) : undefined,
+    timeLabel: formatTimeLabel(start, end, allDay),
+    location,
     shortBlurb: description,
     description,
     tags: inferTags(title, description),
     audience: inferAudience(title),
-    isPast: startDate < nowDate,
+    isPast: startDate < nowYmd,
     ctaMode: "learn-more",
-    addToCalendarUrl: event.htmlLink,
-    fullCalendarUrl: event.htmlLink,
-  });
+    addToCalendarUrl: `https://calendar.google.com/calendar/u/0/r?cid=${encodeURIComponent(CALENDAR_ID)}`,
+    fullCalendarUrl: `https://calendar.google.com/calendar/u/0/r?cid=${encodeURIComponent(CALENDAR_ID)}`,
+  };
 }
 
-export async function fetchGoogleCalendarEvents(apiKey: string): Promise<MSAEvent[]> {
-  const timeMin = new Date(Date.now() - 120 * 24 * 60 * 60 * 1000).toISOString();
-  const params = new URLSearchParams({
-    key: apiKey,
-    singleEvents: "true",
-    orderBy: "startTime",
-    timeMin,
-    maxResults: "250",
-    timeZone: OUTPUT_TIMEZONE,
-  });
+function parseIcsEvents(icsText: string): Record<string, string>[] {
+  const lines = unfoldIcs(icsText);
+  const events: Record<string, string>[] = [];
+  let current: Record<string, string> | null = null;
 
-  const url = `${GOOGLE_API_BASE}/calendars/${encodeURIComponent(CALENDAR_ID)}/events?${params.toString()}`;
-  const response = await fetch(url);
+  for (const line of lines) {
+    if (line === "BEGIN:VEVENT") {
+      current = {};
+      continue;
+    }
+
+    if (line === "END:VEVENT") {
+      if (current) events.push(current);
+      current = null;
+      continue;
+    }
+
+    if (!current) continue;
+    const colonIdx = line.indexOf(":");
+    if (colonIdx === -1) continue;
+
+    const left = line.slice(0, colonIdx);
+    const value = line.slice(colonIdx + 1);
+    current[left] = value;
+
+    if (left.startsWith("DTSTART")) {
+      current.__DTSTART_META = left;
+      current.DTSTART = value;
+    }
+
+    if (left.startsWith("DTEND")) {
+      current.__DTEND_META = left;
+      current.DTEND = value;
+    }
+  }
+
+  return events;
+}
+
+export async function fetchCalendarEventsFromPublicIcs(): Promise<MSAEvent[]> {
+  const response = await fetch(PUBLIC_ICS_URL);
 
   if (!response.ok) {
     const body = await response.text();
-    let details = body;
-    if (body.includes("API keys with referer restrictions")) {
-      details = `${body} | This key is being used server-side; use API key restrictions (Calendar API) without website referrer restrictions.`;
-    }
-
-    throw new GoogleCalendarError(
-      `Google Calendar API request failed with status ${response.status}`,
-      "google_request",
-      details,
+    throw new CalendarFeedError(
+      `Public iCal feed request failed with status ${response.status}`,
+      "ics_fetch",
+      body,
     );
   }
 
-  let payload: { items?: GoogleCalendarEvent[] };
-  try {
-    payload = await response.json();
-  } catch (error) {
-    throw new GoogleCalendarError(
-      "Google Calendar API returned a non-JSON response",
-      "google_response_parse",
-      error instanceof Error ? error.message : String(error),
-    );
+  const icsText = await response.text();
+  const parsed = parseIcsEvents(icsText);
+
+  if (parsed.length === 0) {
+    throw new CalendarFeedError("No events were parsed from the public iCal feed", "ics_parse");
   }
 
-  const items = Array.isArray(payload.items) ? payload.items : [];
-  const today = toYMD(new Date());
-  const normalized = items.map((item) => normalizeGoogleEvent(item, today));
+  const nowYmd = toYMD(new Date());
+  const normalized = parsed
+    .map((block) => normalizeIcsEvent(block, nowYmd))
+    .filter((event): event is MSAEvent => Boolean(event))
+    .sort((a, b) => a.startDate.localeCompare(b.startDate));
 
   const firstUpcomingIdx = normalized.findIndex((event) => !event.isPast);
   if (firstUpcomingIdx >= 0) {
