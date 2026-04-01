@@ -4,10 +4,10 @@
 
 @layer base {
   :root {
-    --background: 36 33% 97%;
+    --background: 36 25% 94%;
     --foreground: 216 50% 10%;
 
-    --card: 0 0% 100%;
+    --card: 36 20% 96%;
     --card-foreground: 216 50% 10%;
 
     --popover: 0 0% 100%;
@@ -19,7 +19,7 @@
     --secondary: 153 58% 26%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 36 20% 92%;
+    --muted: 36 15% 88%;
     --muted-foreground: 216 15% 45%;
 
     --accent: 216 50% 10%;
@@ -28,7 +28,7 @@
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 36 20% 88%;
+    --border: 36 15% 84%;
     --input: 36 20% 88%;
     --ring: 40 100% 55%;
 
@@ -43,10 +43,10 @@
     --sidebar-border: 36 20% 88%;
     --sidebar-ring: 40 100% 55%;
 
-    --glass-bg: rgba(255, 255, 255, 0.55);
-    --glass-border: rgba(255, 255, 255, 0.35);
-    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-    --glass-bg-strong: rgba(255, 255, 255, 0.75);
+    --glass-bg: rgba(245, 240, 230, 0.55);
+    --glass-border: rgba(210, 190, 160, 0.3);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+    --glass-bg-strong: rgba(245, 240, 230, 0.75);
 
     --font-display: 'Playfair Display', Georgia, serif;
     --font-body: 'DM Sans', system-ui, sans-serif;
@@ -158,41 +158,40 @@
 
   .gradient-mesh-warm {
     background:
-      radial-gradient(ellipse at 20% 20%, hsl(40 100% 55% / 0.08) 0%, transparent 50%),
-      radial-gradient(ellipse at 80% 80%, hsl(153 58% 26% / 0.06) 0%, transparent 50%),
-      radial-gradient(ellipse at 60% 30%, hsl(216 50% 10% / 0.03) 0%, transparent 50%);
+      radial-gradient(ellipse at 20% 20%, hsl(40 100% 55% / 0.1) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, hsl(153 58% 26% / 0.07) 0%, transparent 50%),
+      radial-gradient(ellipse at 60% 30%, hsl(216 50% 10% / 0.04) 0%, transparent 50%);
   }
 
   .gradient-mesh-gold {
     background:
-      radial-gradient(ellipse at 30% 50%, hsl(40 100% 55% / 0.12) 0%, transparent 60%),
-      radial-gradient(ellipse at 70% 20%, hsl(45 100% 65% / 0.08) 0%, transparent 50%);
+      radial-gradient(ellipse at 30% 50%, hsl(40 100% 55% / 0.14) 0%, transparent 60%),
+      radial-gradient(ellipse at 70% 20%, hsl(45 100% 65% / 0.1) 0%, transparent 50%);
   }
 
   .gradient-section-warm {
-    background: linear-gradient(180deg, hsl(36 33% 97%) 0%, hsl(36 30% 94%) 50%, hsl(36 33% 97%) 100%);
+    background: linear-gradient(180deg, hsl(36 25% 92%) 0%, hsl(36 22% 89%) 50%, hsl(36 25% 92%) 100%);
   }
 
-  /* New texture utilities */
   .gradient-section-navy {
-    background: linear-gradient(180deg, hsl(216 50% 10% / 0.03) 0%, hsl(216 50% 10% / 0.08) 50%, hsl(216 50% 10% / 0.03) 100%);
+    background: linear-gradient(180deg, hsl(216 50% 10% / 0.04) 0%, hsl(216 50% 10% / 0.1) 50%, hsl(216 50% 10% / 0.04) 100%);
   }
 
   .gradient-section-gold-soft {
-    background: linear-gradient(180deg, transparent 0%, hsl(40 100% 55% / 0.04) 30%, hsl(40 100% 55% / 0.06) 50%, hsl(40 100% 55% / 0.04) 70%, transparent 100%);
+    background: linear-gradient(180deg, transparent 0%, hsl(40 100% 55% / 0.06) 30%, hsl(40 100% 55% / 0.08) 50%, hsl(40 100% 55% / 0.06) 70%, transparent 100%);
   }
 
   .gradient-section-emerald-soft {
-    background: linear-gradient(180deg, transparent 0%, hsl(153 58% 26% / 0.04) 30%, hsl(153 58% 26% / 0.06) 50%, hsl(153 58% 26% / 0.04) 70%, transparent 100%);
+    background: linear-gradient(180deg, transparent 0%, hsl(153 58% 26% / 0.05) 30%, hsl(153 58% 26% / 0.07) 50%, hsl(153 58% 26% / 0.05) 70%, transparent 100%);
   }
 
   .gradient-mesh-full {
     background:
-      radial-gradient(ellipse at 10% 10%, hsl(40 100% 55% / 0.06) 0%, transparent 40%),
-      radial-gradient(ellipse at 90% 90%, hsl(153 58% 26% / 0.05) 0%, transparent 40%),
-      radial-gradient(ellipse at 50% 50%, hsl(216 50% 10% / 0.02) 0%, transparent 60%),
-      radial-gradient(ellipse at 80% 20%, hsl(40 100% 55% / 0.04) 0%, transparent 30%),
-      radial-gradient(ellipse at 20% 80%, hsl(153 58% 26% / 0.03) 0%, transparent 30%);
+      radial-gradient(ellipse at 10% 10%, hsl(40 100% 55% / 0.08) 0%, transparent 40%),
+      radial-gradient(ellipse at 90% 90%, hsl(153 58% 26% / 0.06) 0%, transparent 40%),
+      radial-gradient(ellipse at 50% 50%, hsl(216 50% 10% / 0.03) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, hsl(40 100% 55% / 0.05) 0%, transparent 30%),
+      radial-gradient(ellipse at 20% 80%, hsl(153 58% 26% / 0.04) 0%, transparent 30%);
   }
 
   .glass-divider {
@@ -225,6 +224,20 @@
       hsl(40 100% 55% / 0.04) 39px,
       hsl(40 100% 55% / 0.04) 40px
     );
+  }
+
+  .texture-cross {
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 39px, hsl(40 100% 55% / 0.03) 39px, hsl(40 100% 55% / 0.03) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, hsl(40 100% 55% / 0.03) 39px, hsl(40 100% 55% / 0.03) 40px);
+  }
+
+  .warm-surface {
+    background: linear-gradient(135deg, hsl(36 25% 92%) 0%, hsl(40 20% 90%) 50%, hsl(36 25% 92%) 100%);
+  }
+
+  .warm-surface-deep {
+    background: linear-gradient(135deg, hsl(36 20% 88%) 0%, hsl(40 15% 85%) 50%, hsl(36 20% 88%) 100%);
   }
 }
 

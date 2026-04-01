@@ -5,10 +5,12 @@ import Footer from "./Footer";
 const Layout = ({ children }: { children: ReactNode }) => {
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 gradient-mesh-full" />
-      <div className="pointer-events-none absolute inset-0 texture-lines opacity-30" />
+      {/* Rich layered background */}
+      <div className="pointer-events-none fixed inset-0 gradient-mesh-full" />
+      <div className="pointer-events-none fixed inset-0 texture-lines opacity-20" />
+      <div className="pointer-events-none fixed inset-0 bg-gradient-to-b from-primary/[0.02] via-transparent to-secondary/[0.02]" />
       <Navbar />
-      <main className="flex-1 pt-16 md:pt-20 relative z-10">{children}</main>
+      <main className="flex-1 pt-20 md:pt-24 relative z-10">{children}</main>
       <Footer />
     </div>
   );
