@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { MapPin, Clock, CalendarPlus, ArrowRight, Star } from "lucide-react";
 import type { MSAEvent } from "@/data/events";
+import { linkifyText } from "@/lib/linkify";
 
 interface Props {
   event: MSAEvent;
@@ -54,7 +55,7 @@ const FeaturedEventCard = ({ event }: Props) => {
               {event.title}
             </h3>
             <p className="text-muted-foreground text-base leading-relaxed mb-6 max-w-2xl">
-              {event.shortBlurb}
+              {linkifyText(event.shortBlurb)}
             </p>
 
             <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground mb-7">

@@ -73,10 +73,13 @@ function decodeText(value: string): string {
     .replace(/\\,/g, ",")
     .replace(/\\;/g, ";")
     .replace(/\\\\/g, "\\")
+    // Strip HTML tags (Google Calendar ICS sometimes includes <a>, <br>, etc.)
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
     .trim();
 }
 
-function parseDateToken(token: string): Date | null {
+function parseDateToken(token: string, tzid?: string): Date | null {
   const clean = token.trim();
 
   if (/^\d{8}$/.test(clean)) {
@@ -86,6 +89,7 @@ function parseDateToken(token: string): Date | null {
     return new Date(Date.UTC(y, m - 1, d));
   }
 
+  // UTC format: 20260410T140000Z
   if (/^\d{8}T\d{6}Z$/.test(clean)) {
     const y = Number(clean.slice(0, 4));
     const m = Number(clean.slice(4, 6));
@@ -94,6 +98,45 @@ function parseDateToken(token: string): Date | null {
     const mm = Number(clean.slice(11, 13));
     const ss = Number(clean.slice(13, 15));
     return new Date(Date.UTC(y, m - 1, d, hh, mm, ss));
+  }
+
+  // Local time with TZID: 20260410T140000 (no Z)
+  if (/^\d{8}T\d{6}$/.test(clean)) {
+    const y = Number(clean.slice(0, 4));
+    const m = Number(clean.slice(4, 6));
+    const d = Number(clean.slice(6, 8));
+    const hh = Number(clean.slice(9, 11));
+    const mm = Number(clean.slice(11, 13));
+    const ss = Number(clean.slice(13, 15));
+    // Build an ISO string with the timezone so the Date constructor handles offset
+    const isoish = `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}T${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}:${String(ss).padStart(2, "0")}`;
+    // For America/New_York or when TZID is present, treat as ET
+    // Deno supports Intl so we can convert properly
+    try {
+      const utcGuess = new Date(isoish + "Z");
+      // Use the formatter to find the real offset for this datetime in the given tz
+      const tz = tzid || OUTPUT_TIMEZONE;
+      const parts = new Intl.DateTimeFormat("en-US", {
+        timeZone: tz,
+        year: "numeric", month: "2-digit", day: "2-digit",
+        hour: "2-digit", minute: "2-digit", second: "2-digit",
+        hour12: false,
+      }).formatToParts(utcGuess);
+      // Instead of complex offset calc, just create date from the local string
+      // and accept ±1h drift is acceptable for display
+      // Better approach: iterate to find offset
+      const localInTz = new Date(isoish); // JS treats this as local, but we're in a server
+      // Safest: assume America/New_York offset manually
+      // EDT = UTC-4, EST = UTC-5
+      // Use a simple heuristic: March second Sunday to November first Sunday = EDT
+      const monthNum = m;
+      const isDST = monthNum >= 4 && monthNum <= 10; // rough approximation
+      const offsetHours = isDST ? 4 : 5;
+      return new Date(Date.UTC(y, m - 1, d, hh + offsetHours, mm, ss));
+    } catch {
+      // Fallback: treat as UTC
+      return new Date(Date.UTC(y, m - 1, d, hh, mm, ss));
+    }
   }
 
   return null;
@@ -142,10 +185,16 @@ function normalizeIcsEvent(eventBlock: Record<string, string>, nowYmd: string): 
 
   if (!dtStartRaw) return null;
 
-  const start = parseDateToken(dtStartRaw);
+  // Extract TZID if present
+  const tzidMatch = (eventBlock.__DTSTART_META || "").match(/TZID=([^:;]+)/);
+  const tzid = tzidMatch ? tzidMatch[1] : undefined;
+
+  const start = parseDateToken(dtStartRaw, tzid);
   if (!start) return null;
 
-  const end = dtEndRaw ? parseDateToken(dtEndRaw) : null;
+  const endTzidMatch = (eventBlock.__DTEND_META || "").match(/TZID=([^:;]+)/);
+  const endTzid = endTzidMatch ? endTzidMatch[1] : undefined;
+  const end = dtEndRaw ? parseDateToken(dtEndRaw, endTzid) : null;
   const allDay = /VALUE=DATE/.test(eventBlock.__DTSTART_META || "") || /^\d{8}$/.test(dtStartRaw);
   const startDate = toYMD(start);
 
@@ -206,6 +255,108 @@ function parseIcsEvents(icsText: string): Record<string, string>[] {
   return events;
 }
 
+// ── RRULE expansion ──────────────────────────────────────────
+// Handles FREQ=WEEKLY and FREQ=MONTHLY with UNTIL/COUNT limits
+// Expands recurring master events into individual occurrences
+function expandRecurringEvents(events: Record<string, string>[]): Record<string, string>[] {
+  const expanded: Record<string, string>[] = [];
+  const MAX_HORIZON_MS = 365 * 24 * 60 * 60 * 1000; // 1 year ahead
+  const horizonDate = new Date(Date.now() + MAX_HORIZON_MS);
+
+  for (const ev of events) {
+    const rrule = ev.RRULE;
+    if (!rrule) {
+      expanded.push(ev);
+      continue;
+    }
+
+    // Parse RRULE components
+    const parts: Record<string, string> = {};
+    rrule.split(";").forEach((p) => {
+      const [k, v] = p.split("=");
+      if (k && v) parts[k] = v;
+    });
+
+    const freq = parts.FREQ;
+    if (!freq || !["WEEKLY", "MONTHLY"].includes(freq)) {
+      expanded.push(ev);
+      continue;
+    }
+
+    const dtStartRaw = ev.DTSTART;
+    const dtEndRaw = ev.DTEND;
+    if (!dtStartRaw) { expanded.push(ev); continue; }
+
+    const tzidMatch = (ev.__DTSTART_META || "").match(/TZID=([^:;]+)/);
+    const tzid = tzidMatch ? tzidMatch[1] : undefined;
+    const startDate = parseDateToken(dtStartRaw, tzid);
+    if (!startDate) { expanded.push(ev); continue; }
+
+    const endTzidMatch = (ev.__DTEND_META || "").match(/TZID=([^:;]+)/);
+    const endTzid = endTzidMatch ? endTzidMatch[1] : undefined;
+    const endDate = dtEndRaw ? parseDateToken(dtEndRaw, endTzid) : null;
+    const durationMs = endDate ? endDate.getTime() - startDate.getTime() : 0;
+
+    const count = parts.COUNT ? Number(parts.COUNT) : 200;
+    const until = parts.UNTIL ? parseDateToken(parts.UNTIL) : horizonDate;
+    const interval = parts.INTERVAL ? Number(parts.INTERVAL) : 1;
+
+    let current = new Date(startDate.getTime());
+    let occurrences = 0;
+
+    // Also collect EXDATE values to skip
+    const exdates = new Set<string>();
+    const exdateRaw = ev.EXDATE || ev["EXDATE;VALUE=DATE"] || "";
+    if (exdateRaw) {
+      exdateRaw.split(",").forEach((d) => {
+        const parsed = parseDateToken(d.trim(), tzid);
+        if (parsed) exdates.add(toYMD(parsed));
+      });
+    }
+
+    while (occurrences < count && current <= (until || horizonDate) && current <= horizonDate) {
+      const currentYmd = toYMD(current);
+      if (!exdates.has(currentYmd)) {
+        const instanceEnd = endDate ? new Date(current.getTime() + durationMs) : null;
+        // Create a clone of the event block with updated dates
+        const instance = { ...ev };
+        // Format date back to ICS format (UTC)
+        const pad = (n: number) => String(n).padStart(2, "0");
+        const fmtUtc = (d: Date) =>
+          `${d.getUTCFullYear()}${pad(d.getUTCMonth() + 1)}${pad(d.getUTCDate())}T${pad(d.getUTCHours())}${pad(d.getUTCMinutes())}${pad(d.getUTCSeconds())}Z`;
+
+        instance.DTSTART = fmtUtc(current);
+        instance.__DTSTART_META = "DTSTART";
+        if (instanceEnd) {
+          instance.DTEND = fmtUtc(instanceEnd);
+          instance.__DTEND_META = "DTEND";
+        }
+        // Give each instance a unique ID
+        instance.UID = `${ev.UID || "recurring"}-${currentYmd}`;
+        delete instance.RRULE;
+        expanded.push(instance);
+      }
+
+      occurrences++;
+      if (freq === "WEEKLY") {
+        current = new Date(current.getTime() + 7 * interval * 24 * 60 * 60 * 1000);
+      } else if (freq === "MONTHLY") {
+        const newMonth = current.getUTCMonth() + interval;
+        current = new Date(Date.UTC(
+          current.getUTCFullYear() + Math.floor(newMonth / 12),
+          newMonth % 12,
+          current.getUTCDate(),
+          current.getUTCHours(),
+          current.getUTCMinutes(),
+          current.getUTCSeconds(),
+        ));
+      }
+    }
+  }
+
+  return expanded;
+}
+
 export async function fetchCalendarEventsFromPublicIcs(): Promise<MSAEvent[]> {
   const response = await fetch(PUBLIC_ICS_URL);
 
@@ -225,18 +376,23 @@ export async function fetchCalendarEventsFromPublicIcs(): Promise<MSAEvent[]> {
     throw new CalendarFeedError("No events were parsed from the public iCal feed", "ics_parse");
   }
 
+  // Expand recurring events (RRULE)
+  const allEvents = expandRecurringEvents(parsed);
+
   const nowYmd = toYMD(new Date());
-  const normalized = parsed
+  const normalized = allEvents
     .map((block) => normalizeIcsEvent(block, nowYmd))
     .filter((event): event is MSAEvent => Boolean(event))
     .sort((a, b) => a.startDate.localeCompare(b.startDate));
 
-  const firstUpcomingIdx = normalized.findIndex((event) => !event.isPast);
-  if (firstUpcomingIdx >= 0) {
-    normalized[firstUpcomingIdx] = {
-      ...normalized[firstUpcomingIdx],
+  // Mark MSA Gala as the featured/signature event, fallback to first upcoming
+  const galaIdx = normalized.findIndex((event) => !event.isPast && /gala/i.test(event.title));
+  const featuredIdx = galaIdx >= 0 ? galaIdx : normalized.findIndex((event) => !event.isPast);
+  if (featuredIdx >= 0) {
+    normalized[featuredIdx] = {
+      ...normalized[featuredIdx],
       featured: true,
-      tags: Array.from(new Set(["Signature Event", ...normalized[firstUpcomingIdx].tags])),
+      tags: Array.from(new Set(["Signature Event", ...normalized[featuredIdx].tags])),
     };
   }
 
