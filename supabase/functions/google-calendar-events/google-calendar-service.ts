@@ -73,6 +73,9 @@ function decodeText(value: string): string {
     .replace(/\\,/g, ",")
     .replace(/\\;/g, ";")
     .replace(/\\\\/g, "\\")
+    // Strip HTML tags (Google Calendar ICS sometimes includes <a>, <br>, etc.)
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
     .trim();
 }
 
