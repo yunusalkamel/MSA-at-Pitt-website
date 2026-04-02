@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import Layout from "@/components/Layout";
 import ArabicVerse from "@/components/ArabicVerse";
 import EventsHero from "@/components/events/EventsHero";
@@ -16,15 +16,18 @@ import {
   getUpcomingEvents,
   filterEventsByTags,
 } from "@/data/events";
+import { useCalendarEvents } from "@/hooks/useCalendarEvents";
 
 const Events = () => {
   const [view, setView] = useState<"upcoming" | "month">("upcoming");
   const [selectedTags, setSelectedTags] = useState<string[]>(["All"]);
+  const { events: remoteEvents, loading, error } = useCalendarEvents();
 
-  const featured = getFeaturedEvent(mockEvents);
+  const sourceEvents = error ? mockEvents : remoteEvents;
+  const featured = getFeaturedEvent(sourceEvents);
   const filteredEvents = useMemo(
-    () => filterEventsByTags(mockEvents, selectedTags),
-    [selectedTags]
+    () => filterEventsByTags(sourceEvents, selectedTags),
+    [selectedTags, sourceEvents]
   );
   const upcomingFiltered = useMemo(
     () =>
@@ -38,12 +41,10 @@ const Events = () => {
     <Layout>
       <EventsHero />
 
-      {/* Action bar */}
       <section className="section-padding pb-8 gradient-section-gold-soft">
         <EventsActionBar />
       </section>
 
-      {/* Ayat divider */}
       <section className="px-4 pb-12 gradient-section-gold-soft">
         <div className="max-w-2xl mx-auto">
           <div className="glass-card-strong glass-glow p-7">
@@ -56,7 +57,6 @@ const Events = () => {
         </div>
       </section>
 
-      {/* Featured Event */}
       {featured && (
         <section className="section-padding pt-4 pb-8 gradient-mesh-warm relative overflow-hidden">
           <div className="absolute inset-0 texture-dots" />
@@ -69,19 +69,26 @@ const Events = () => {
 
       <div className="glass-divider-thick max-w-3xl mx-auto" />
 
-      {/* Main Events Area */}
       <section className="section-padding gradient-mesh-warm relative overflow-hidden">
         <div className="absolute inset-0 gradient-section-emerald-soft" />
-        <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: '200px' }} />
+        <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: "200px" }} />
         <div className="max-w-5xl mx-auto relative z-10">
-          {/* Controls */}
+          {error && (
+            <div className="mb-6 rounded-xl border border-primary/20 bg-primary/10 px-4 py-3 text-sm text-foreground/90">
+              Showing our curated event schedule right now. Live sync will resume automatically.
+            </div>
+          )}
+
           <div className="flex flex-col items-center gap-6 mb-10">
             <EventsViewToggle view={view} onChange={setView} />
             <EventsFilterBar selected={selectedTags} onChange={setSelectedTags} />
           </div>
 
-          {/* View */}
-          {view === "upcoming" ? (
+          {loading && !error ? (
+            <div className="glass-card-strong p-12 text-center text-muted-foreground">
+              Loading events from Google Calendar…
+            </div>
+          ) : view === "upcoming" ? (
             <UpcomingEventsList events={upcomingFiltered} />
           ) : (
             <MonthCalendar events={filteredEvents} />
@@ -89,7 +96,6 @@ const Events = () => {
         </div>
       </section>
 
-      {/* Bottom Ayat */}
       <section className="section-padding gradient-section-gold-soft">
         <div className="max-w-2xl mx-auto">
           <div className="glass-card-strong glass-glow p-7">
