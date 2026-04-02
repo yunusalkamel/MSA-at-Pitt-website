@@ -43,6 +43,38 @@ function getTimeOnlyLabel(timeLabel: string): string {
   return pieces.slice(1).join(" · ");
 }
 
+function parseEventStartMinutes(event: MSAEvent): number {
+  const timeOnly = getTimeOnlyLabel(event.timeLabel);
+  const timeMatch = timeOnly.match(/(\d{1,2})(?::(\d{2}))?\s*(AM|PM)/i);
+
+  if (!timeMatch) return Number.MAX_SAFE_INTEGER;
+
+  const rawHours = Number(timeMatch[1]);
+  const minutes = Number(timeMatch[2] ?? "0");
+  const meridiem = timeMatch[3].toUpperCase();
+
+  let hours24 = rawHours % 12;
+  if (meridiem === "PM") hours24 += 12;
+
+  return hours24 * 60 + minutes;
+}
+
+function sortDayEvents(events: MSAEvent[]): MSAEvent[] {
+  return [...events].sort((a, b) => {
+    const timeDelta = parseEventStartMinutes(a) - parseEventStartMinutes(b);
+    if (timeDelta !== 0) return timeDelta;
+
+    const titleDelta = a.title.localeCompare(b.title);
+    if (titleDelta !== 0) return titleDelta;
+
+    return a.id.localeCompare(b.id);
+  });
+}
+
+function getEventKey(event: MSAEvent, index: number): string {
+  return `${event.id}-${event.startDate}-${event.timeLabel}-${index}`;
+}
+
 const MonthCalendar = ({ events }: Props) => {
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
@@ -62,6 +94,11 @@ const MonthCalendar = ({ events }: Props) => {
       if (!map[e.startDate]) map[e.startDate] = [];
       map[e.startDate].push(e);
     });
+
+    Object.keys(map).forEach((dateKey) => {
+      map[dateKey] = sortDayEvents(map[dateKey]);
+    });
+
     return map;
   }, [events]);
 
@@ -156,10 +193,10 @@ const MonthCalendar = ({ events }: Props) => {
                 </span>
 
                 <div
-                  className="w-full min-h-0 grid gap-1"
+                  className="w-full min-h-0 flex-1 grid gap-1"
                   style={{ gridTemplateRows: `repeat(${rowCount}, minmax(0, 1fr))` }}
                 >
-                  {visibleEvents.map((ev) => {
+                  {visibleEvents.map((ev, eventIndex) => {
                     const sharedStyles = ev.featured
                       ? "gold-gradient text-primary-foreground shadow-[0_0_6px_hsl(var(--primary)/0.3)]"
                       : ev.isPast
@@ -170,7 +207,7 @@ const MonthCalendar = ({ events }: Props) => {
 
                     return (
                       <motion.button
-                        key={ev.id}
+                        key={getEventKey(ev, eventIndex)}
                         layout
                         onClick={(e) => handleEventClick(ev, e)}
                         className={`w-full h-full rounded-md px-1.5 md:px-2 py-1 text-left transition-colors overflow-hidden border border-transparent hover:border-primary/25 ${sharedStyles} ${
