@@ -1,8 +1,9 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, MapPin, Clock, ExternalLink } from "lucide-react";
 import type { MSAEvent } from "@/data/events";
 import DayEventsPanel from "./DayEventsPanel";
+import { linkifyText } from "@/lib/linkify";
 
 interface Props {
   events: MSAEvent[];
@@ -22,11 +23,23 @@ function formatDateStr(y: number, m: number, d: number) {
   return `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
 }
 
+function extractLink(event: MSAEvent): string | undefined {
+  // Check signupUrl first, then fullCalendarUrl, then look for URLs in description
+  if (event.signupUrl) return event.signupUrl;
+  if (event.fullCalendarUrl) return event.fullCalendarUrl;
+  if (event.description) {
+    const match = event.description.match(/https?:\/\/[^\s<>"]+/);
+    if (match) return match[0];
+  }
+  return event.addToCalendarUrl;
+}
+
 const MonthCalendar = ({ events }: Props) => {
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [hoveredEvent, setHoveredEvent] = useState<string | null>(null);
 
   const daysInMonth = getDaysInMonth(year, month);
   const firstDay = getFirstDayOfMonth(year, month);
@@ -65,6 +78,14 @@ const MonthCalendar = ({ events }: Props) => {
   for (let d = 1; d <= daysInMonth; d++) cells.push(d);
   while (cells.length % 7 !== 0) cells.push(null);
 
+  const handleEventClick = (ev: MSAEvent, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const link = extractLink(ev);
+    if (link) {
+      window.open(link, "_blank", "noopener,noreferrer");
+    }
+  };
+
   return (
     <div>
       <div className="glass-card-strong p-4 md:p-6 rounded-2xl">
@@ -100,61 +121,90 @@ const MonthCalendar = ({ events }: Props) => {
             const dayEvents = eventsByDate[dateStr] || [];
             const isToday = dateStr === todayStr;
             const hasEvents = dayEvents.length > 0;
-            const visibleEvents = dayEvents.slice(0, 3);
-            const overflowCount = Math.max(dayEvents.length - 3, 0);
+            const isSingleEvent = dayEvents.length === 1;
 
             return (
-              <button
+              <div
                 key={dateStr}
                 onClick={() => hasEvents && setSelectedDate(dateStr)}
                 className={`group relative aspect-square rounded-xl flex flex-col items-start p-1.5 md:p-2 text-sm border transition-all duration-300 overflow-hidden ${
                   isToday
-                    ? "border-primary/40 bg-primary/10 shadow-[0_0_16px_hsl(40_100%_55%/0.15)]"
+                    ? "border-primary/40 bg-primary/10 shadow-[0_0_16px_hsl(var(--primary)/0.15)]"
                     : hasEvents
-                    ? "border-primary/10 bg-primary/5 hover:border-primary/30 hover:bg-primary/10 hover:scale-105 hover:z-10 hover:shadow-[0_0_20px_hsl(40_100%_55%/0.15)]"
+                    ? "border-primary/10 bg-primary/5 hover:border-primary/30 hover:bg-primary/10"
                     : "border-transparent hover:border-border/50 hover:bg-muted/30"
                 } ${hasEvents ? "cursor-pointer" : "cursor-default"}`}
               >
                 <span
-                  className={`font-semibold text-xs md:text-sm mb-1 ${
+                  className={`font-semibold text-xs md:text-sm mb-0.5 shrink-0 ${
                     isToday ? "text-primary" : hasEvents ? "text-foreground" : "text-muted-foreground"
                   }`}
                 >
                   {day}
                 </span>
 
-                <div className="flex-1 w-full min-h-0 flex flex-col gap-1">
-                  {visibleEvents.map((ev) => {
+                <div className="flex-1 w-full min-h-0 flex flex-col gap-0.5 relative">
+                  {dayEvents.slice(0, 3).map((ev) => {
+                    const isHovered = hoveredEvent === ev.id;
                     const sharedStyles = ev.featured
-                      ? "gold-gradient text-primary-foreground shadow-[0_0_6px_hsl(40_100%_55%/0.4)]"
+                      ? "gold-gradient text-primary-foreground shadow-[0_0_6px_hsl(var(--primary)/0.4)]"
                       : ev.isPast
                       ? "bg-muted-foreground/25 text-foreground/70"
                       : "bg-secondary/80 text-secondary-foreground";
 
+                    const link = extractLink(ev);
+
                     return (
                       <motion.div
                         key={ev.id}
-                        whileHover={{ scale: 1.02 }}
-                        className={`w-full rounded-md px-1.5 md:px-2 py-1 text-left transition-all ${sharedStyles} ${
-                          visibleEvents.length === 1 ? "h-full" : "flex-1"
-                        }`}
+                        layout
+                        onMouseEnter={() => setHoveredEvent(ev.id)}
+                        onMouseLeave={() => setHoveredEvent(null)}
+                        onClick={(e) => handleEventClick(ev, e)}
+                        className={`w-full rounded-md px-1 md:px-1.5 py-0.5 text-left transition-all duration-200 ${sharedStyles} ${
+                          isHovered
+                            ? "absolute inset-0 z-20 flex flex-col justify-center p-2"
+                            : isSingleEvent
+                            ? "flex-1 flex flex-col justify-center"
+                            : ""
+                        } ${link ? "cursor-pointer" : ""}`}
                         title={ev.title}
                       >
-                        <div className="text-[9px] md:text-[10px] font-semibold truncate">{ev.title}</div>
-                        <div className="text-[8px] md:text-[9px] opacity-0 group-hover:opacity-90 transition-opacity truncate">
-                          {ev.timeLabel}
+                        <div className="text-[9px] md:text-[10px] font-semibold truncate flex items-center gap-0.5">
+                          {ev.title}
+                          {link && isHovered && <ExternalLink size={8} className="shrink-0 opacity-70" />}
                         </div>
+                        {/* Show details when single event or hovered */}
+                        {(isSingleEvent || isHovered) && (
+                          <>
+                            <div className="text-[8px] md:text-[9px] opacity-80 truncate flex items-center gap-0.5 mt-0.5">
+                              <Clock size={7} className="shrink-0" />
+                              {ev.timeLabel}
+                            </div>
+                            {ev.location && ev.location !== "Location to be announced" && (
+                              <div className="text-[8px] md:text-[9px] opacity-70 truncate flex items-center gap-0.5">
+                                <MapPin size={7} className="shrink-0" />
+                                {ev.location}
+                              </div>
+                            )}
+                            {isSingleEvent && ev.shortBlurb && (
+                              <div className="text-[7px] md:text-[8px] opacity-60 line-clamp-2 mt-0.5">
+                                {linkifyText(ev.shortBlurb)}
+                              </div>
+                            )}
+                          </>
+                        )}
                       </motion.div>
                     );
                   })}
 
-                  {overflowCount > 0 && (
+                  {dayEvents.length > 3 && (
                     <div className="text-[9px] font-semibold text-primary/90 text-center rounded-md bg-primary/10 py-0.5">
-                      +{overflowCount} more
+                      +{dayEvents.length - 3} more
                     </div>
                   )}
                 </div>
-              </button>
+              </div>
             );
           })}
         </div>
