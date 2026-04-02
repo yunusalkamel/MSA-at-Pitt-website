@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, MapPin, Clock, ExternalLink } from "lucide-react";
 import type { MSAEvent } from "@/data/events";
 import DayEventsPanel from "./DayEventsPanel";
-import { linkifyText } from "@/lib/linkify";
 
 interface Props {
   events: MSAEvent[];
@@ -28,10 +27,18 @@ function extractLink(event: MSAEvent): string | undefined {
   if (event.signupUrl) return event.signupUrl;
   if (event.fullCalendarUrl) return event.fullCalendarUrl;
   if (event.description) {
+    const hrefMatch = event.description.match(/href\s*=\s*["']([^"']+)["']/i);
+    if (hrefMatch?.[1]) return hrefMatch[1];
     const match = event.description.match(/https?:\/\/[^\s<>"]+/);
     if (match) return match[0];
   }
   return event.addToCalendarUrl;
+}
+
+function getTimeOnlyLabel(timeLabel: string): string {
+  const pieces = timeLabel.split("·").map((part) => part.trim()).filter(Boolean);
+  if (pieces.length <= 1) return timeLabel;
+  return pieces.slice(1).join(" · ");
 }
 
 const MonthCalendar = ({ events }: Props) => {
@@ -143,7 +150,7 @@ const MonthCalendar = ({ events }: Props) => {
                   {day}
                 </span>
 
-                <div className="flex-1 w-full min-h-0 flex flex-col gap-0.5 relative">
+                <div className="flex-1 w-full min-h-0 flex flex-col gap-1 relative isolate">
                   {dayEvents.slice(0, 3).map((ev) => {
                     const isHovered = hoveredEvent === ev.id;
                     const sharedStyles = ev.featured
@@ -161,35 +168,34 @@ const MonthCalendar = ({ events }: Props) => {
                         onMouseEnter={() => setHoveredEvent(ev.id)}
                         onMouseLeave={() => setHoveredEvent(null)}
                         onClick={(e) => handleEventClick(ev, e)}
-                        className={`w-full rounded-md px-1 md:px-1.5 py-0.5 text-left transition-all duration-200 ${sharedStyles} ${
+                        className={`w-full min-h-0 rounded-md px-1.5 md:px-2 py-1 text-left transition-all duration-200 overflow-hidden ${sharedStyles} ${
                           isHovered
-                            ? "absolute inset-0 z-20 flex flex-col justify-center p-2"
+                            ? "absolute inset-0 z-20 flex flex-col justify-center bg-background/95 backdrop-blur-[1px]"
                             : isSingleEvent
-                            ? "flex-1 flex flex-col justify-center"
-                            : ""
+                            ? "h-full flex flex-col justify-center"
+                            : "flex-1"
                         } ${link ? "cursor-pointer" : ""}`}
                         title={ev.title}
                       >
-                        <div className="text-[9px] md:text-[10px] font-semibold truncate flex items-center gap-0.5">
+                        <div
+                          className={`font-semibold flex items-start gap-1 ${
+                            isSingleEvent ? "text-[10px] md:text-xs leading-tight line-clamp-2" : "text-[9px] md:text-[10px] truncate"
+                          }`}
+                        >
                           {ev.title}
                           {link && isHovered && <ExternalLink size={8} className="shrink-0 opacity-70" />}
                         </div>
                         {/* Show details when single event or hovered */}
                         {(isSingleEvent || isHovered) && (
                           <>
-                            <div className="text-[8px] md:text-[9px] opacity-80 truncate flex items-center gap-0.5 mt-0.5">
+                            <div className="text-[8px] md:text-[9px] opacity-80 truncate flex items-center gap-0.5 mt-1">
                               <Clock size={7} className="shrink-0" />
-                              {ev.timeLabel}
+                              {getTimeOnlyLabel(ev.timeLabel)}
                             </div>
                             {ev.location && ev.location !== "Location to be announced" && (
                               <div className="text-[8px] md:text-[9px] opacity-70 truncate flex items-center gap-0.5">
                                 <MapPin size={7} className="shrink-0" />
                                 {ev.location}
-                              </div>
-                            )}
-                            {isSingleEvent && ev.shortBlurb && (
-                              <div className="text-[7px] md:text-[8px] opacity-60 line-clamp-2 mt-0.5">
-                                {linkifyText(ev.shortBlurb)}
                               </div>
                             )}
                           </>
