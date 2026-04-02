@@ -206,6 +206,20 @@ function extractExternalUrl(text: string): string | undefined {
   return undefined;
 }
 
+function parseWallClockParts(token: string): { year: number; month: number; day: number; hour: number; minute: number; second: number } | null {
+  const clean = token.trim();
+  if (!/^\d{8}T\d{6}Z?$/.test(clean)) return null;
+
+  return {
+    year: Number(clean.slice(0, 4)),
+    month: Number(clean.slice(4, 6)),
+    day: Number(clean.slice(6, 8)),
+    hour: Number(clean.slice(9, 11)),
+    minute: Number(clean.slice(11, 13)),
+    second: Number(clean.slice(13, 15)),
+  };
+}
+
 function normalizeIcsEvent(eventBlock: Record<string, string>, nowYmd: string): MSAEvent | null {
   const title = decodeText(eventBlock.SUMMARY || "MSA Event");
   const description = decodeText(eventBlock.DESCRIPTION || "More details coming soon.");
@@ -229,7 +243,12 @@ function normalizeIcsEvent(eventBlock: Record<string, string>, nowYmd: string): 
   const allDay = /VALUE=DATE/.test(eventBlock.__DTSTART_META || "") || /^\d{8}$/.test(dtStartRaw);
   const startDate = toYMD(start);
 
-  const signupUrl = extractExternalUrl(eventBlock.DESCRIPTION || "") || extractExternalUrl(description);
+  const directUrl = decodeText(eventBlock.URL || "");
+  const signupUrl =
+    extractExternalUrl(directUrl) ||
+    extractExternalUrl(eventBlock.DESCRIPTION || "") ||
+    extractExternalUrl(description) ||
+    extractExternalUrl(location);
 
   return {
     id: decodeText(eventBlock.UID || `${startDate}-${title}`),
@@ -307,6 +326,14 @@ function utcDayStart(date: Date): Date {
   return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
 }
 
+function localWeekday(date: Date, timeZone: string): number {
+  const token = new Intl.DateTimeFormat("en-US", {
+    weekday: "short",
+    timeZone,
+  }).format(date).slice(0, 2).toUpperCase();
+  return DAY_TO_UTC_INDEX[token] ?? date.getUTCDay();
+}
+
 function addUtcDays(date: Date, days: number): Date {
   return new Date(date.getTime() + days * 24 * 60 * 60 * 1000);
 }
@@ -366,6 +393,7 @@ function expandRecurringEvents(events: Record<string, string>[]): Record<string,
     const endTzid = endTzidMatch ? endTzidMatch[1] : undefined;
     const endDate = dtEndRaw ? parseDateToken(dtEndRaw, endTzid) : null;
     const durationMs = endDate ? endDate.getTime() - startDate.getTime() : 0;
+    const startWallClock = parseWallClockParts(dtStartRaw);
 
     const count = parts.COUNT ? Number(parts.COUNT) : 200;
     const until = parts.UNTIL ? parseDateToken(parts.UNTIL) : horizonDate;
@@ -419,16 +447,26 @@ function expandRecurringEvents(events: Record<string, string>[]): Record<string,
         if (dayDiff < 0) continue;
         const weekIndex = Math.floor(dayDiff / 7);
         if (weekIndex % interval !== 0) continue;
-        if (!byDay.includes(day.getUTCDay())) continue;
+        if (!byDay.includes(localWeekday(day, tzid || OUTPUT_TIMEZONE))) continue;
 
-        const occurrence = new Date(Date.UTC(
-          day.getUTCFullYear(),
-          day.getUTCMonth(),
-          day.getUTCDate(),
-          startDate.getUTCHours(),
-          startDate.getUTCMinutes(),
-          startDate.getUTCSeconds(),
-        ));
+        const occurrence = startWallClock
+          ? zonedLocalToUtcDate(
+              day.getUTCFullYear(),
+              day.getUTCMonth() + 1,
+              day.getUTCDate(),
+              startWallClock.hour,
+              startWallClock.minute,
+              startWallClock.second,
+              tzid || OUTPUT_TIMEZONE,
+            )
+          : new Date(Date.UTC(
+              day.getUTCFullYear(),
+              day.getUTCMonth(),
+              day.getUTCDate(),
+              startDate.getUTCHours(),
+              startDate.getUTCMinutes(),
+              startDate.getUTCSeconds(),
+            ));
         if (occurrence < startDate) continue;
         pushInstance(occurrence);
       }
@@ -479,16 +517,25 @@ export async function fetchCalendarEventsFromPublicIcs(): Promise<MSAEvent[]> {
     .filter((event): event is MSAEvent => Boolean(event))
     .sort((a, b) => a.startDate.localeCompare(b.startDate));
 
+  const deduped = Array.from(
+    new Map(
+      normalized.map((event) => [
+        `${event.id}|${event.startDate}|${event.timeLabel}|${event.title.toLowerCase()}`,
+        event,
+      ]),
+    ).values(),
+  );
+
   // Mark MSA Gala as the featured/signature event, fallback to first upcoming
-  const galaIdx = normalized.findIndex((event) => !event.isPast && /\bMSA\s+Gala\b/i.test(event.title));
-  const featuredIdx = galaIdx >= 0 ? galaIdx : normalized.findIndex((event) => !event.isPast);
+  const galaIdx = deduped.findIndex((event) => !event.isPast && /\bMSA\s+Gala\b/i.test(event.title));
+  const featuredIdx = galaIdx >= 0 ? galaIdx : deduped.findIndex((event) => !event.isPast);
   if (featuredIdx >= 0) {
-    normalized[featuredIdx] = {
-      ...normalized[featuredIdx],
+    deduped[featuredIdx] = {
+      ...deduped[featuredIdx],
       featured: true,
-      tags: Array.from(new Set(["Signature Event", ...normalized[featuredIdx].tags])),
+      tags: Array.from(new Set(["Signature Event", ...deduped[featuredIdx].tags])),
     };
   }
 
-  return normalized;
+  return deduped;
 }

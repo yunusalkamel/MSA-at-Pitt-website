@@ -60,7 +60,7 @@ const Navbar = () => {
             ))}
             <Link
               to="/join"
-              className="gold-gradient text-primary-foreground px-5 py-2 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity shadow-md"
+              className="btn-premium text-sm px-5 py-2"
             >
               Join the MSA →
             </Link>
@@ -112,7 +112,7 @@ const Navbar = () => {
               <Link
                 to="/join"
                 onClick={() => setMobileOpen(false)}
-                className="gold-gradient text-primary-foreground px-8 py-3 rounded-full text-lg font-semibold"
+                className="btn-premium text-lg px-8 py-3"
               >
                 Join the MSA →
               </Link>

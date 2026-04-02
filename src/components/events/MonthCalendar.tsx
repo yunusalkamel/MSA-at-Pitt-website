@@ -23,15 +23,38 @@ function formatDateStr(y: number, m: number, d: number) {
 }
 
 function extractLink(event: MSAEvent): string | undefined {
-  if (event.signupUrl) return event.signupUrl;
-  if (event.fullCalendarUrl) return event.fullCalendarUrl;
+  const candidates = [event.signupUrl, event.fullCalendarUrl, event.addToCalendarUrl];
+
+  for (const candidate of candidates) {
+    const normalized = normalizeHttpUrl(candidate);
+    if (normalized) return normalized;
+  }
+
   if (event.description) {
     const hrefMatch = event.description.match(/href\s*=\s*["']([^"']+)["']/i);
-    if (hrefMatch?.[1]) return hrefMatch[1];
+    if (hrefMatch?.[1]) {
+      const normalized = normalizeHttpUrl(hrefMatch[1]);
+      if (normalized) return normalized;
+    }
     const match = event.description.match(/https?:\/\/[^\s<>"]+/);
-    if (match) return match[0];
+    if (match) {
+      const normalized = normalizeHttpUrl(match[0]);
+      if (normalized) return normalized;
+    }
   }
-  return event.addToCalendarUrl;
+  return undefined;
+}
+
+function normalizeHttpUrl(url?: string): string | undefined {
+  if (!url) return undefined;
+  const cleaned = url.trim().replace(/[),.;]+$/, "");
+  if (!/^https?:\/\//i.test(cleaned)) return undefined;
+
+  try {
+    return new URL(cleaned).toString();
+  } catch {
+    return undefined;
+  }
 }
 
 function getTimeOnlyLabel(timeLabel: string): string {
@@ -171,6 +194,7 @@ const MonthCalendar = ({ events }: Props) => {
             const visibleEvents = dayEvents.slice(0, 2);
             const hiddenCount = Math.max(dayEvents.length - 2, 0);
             const rowCount = dayEvents.length >= 3 ? 3 : Math.max(dayEvents.length, 1);
+            const canExpand = dayEvents.length > 0 && dayEvents.length <= 2;
 
             return (
               <div
@@ -193,8 +217,8 @@ const MonthCalendar = ({ events }: Props) => {
                 </span>
 
                 <div
-                  className="w-full min-h-0 flex-1 grid gap-1"
-                  style={{ gridTemplateRows: `repeat(${rowCount}, minmax(0, 1fr))` }}
+                  className={`w-full min-h-0 flex-1 gap-1 ${canExpand ? "flex flex-col overflow-hidden" : "grid"}`}
+                  style={canExpand ? undefined : { gridTemplateRows: `repeat(${rowCount}, minmax(0, 1fr))` }}
                 >
                   {visibleEvents.map((ev, eventIndex) => {
                     const sharedStyles = ev.featured
@@ -210,12 +234,12 @@ const MonthCalendar = ({ events }: Props) => {
                         key={getEventKey(ev, eventIndex)}
                         layout
                         onClick={(e) => handleEventClick(ev, e)}
-                        className={`w-full h-full rounded-md px-1.5 md:px-2 py-1 text-left transition-colors overflow-hidden border border-transparent hover:border-primary/25 ${sharedStyles} ${
+                        className={`w-full rounded-md px-1.5 md:px-2 py-1 text-left transition-[border-color,transform,flex,box-shadow] duration-200 overflow-hidden border border-transparent hover:border-primary/25 ${sharedStyles} ${
                           link ? "cursor-pointer" : "cursor-default"
-                        }`}
+                        } ${canExpand ? "flex-1 hover:flex-[1.2] hover:shadow-[0_10px_18px_hsl(var(--background)/0.15)]" : "h-full"}`}
                         title={ev.title}
                       >
-                        <div className="font-semibold text-[9px] md:text-[10px] leading-tight line-clamp-2 break-words">
+                        <div className={`font-semibold text-[9px] md:text-[10px] leading-tight break-words ${canExpand ? "line-clamp-3" : "line-clamp-2"}`}>
                           {ev.title}
                         </div>
                         <div className="text-[8px] md:text-[9px] opacity-80 truncate flex items-center gap-0.5 mt-0.5">

@@ -83,7 +83,7 @@ const Join = () => {
                       href={step.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="gold-gradient text-primary-foreground px-6 py-2.5 rounded-full font-semibold inline-block hover:opacity-90 transition-opacity"
+                      className="btn-premium"
                     >
                       {step.cta}
                     </a>
@@ -96,7 +96,7 @@ const Join = () => {
                           href={c.href}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="gold-gradient text-primary-foreground px-6 py-2.5 rounded-full font-semibold inline-block hover:opacity-90 transition-opacity text-center"
+                          className="btn-premium text-center"
                         >
                           {c.label}
                         </a>
@@ -105,10 +105,10 @@ const Join = () => {
                   )}
                   {step.socials && (
                     <div className="flex flex-wrap gap-3">
-                      <a href="https://instagram.com/msa.at.pitt" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 border border-border px-4 py-2 rounded-full text-sm font-medium hover:bg-primary/10 hover:border-primary/30 transition-colors">
+                      <a href="https://instagram.com/msa.at.pitt" target="_blank" rel="noopener noreferrer" className="btn-premium-secondary text-sm px-4 py-2">
                         <Instagram size={16} /> Instagram
                       </a>
-                      <a href="https://linktr.ee/msa.at.pitt" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 border border-border px-4 py-2 rounded-full text-sm font-medium hover:bg-primary/10 hover:border-primary/30 transition-colors">
+                      <a href="https://linktr.ee/msa.at.pitt" target="_blank" rel="noopener noreferrer" className="btn-premium-secondary text-sm px-4 py-2">
                         <ExternalLink size={16} /> Linktree
                       </a>
                     </div>

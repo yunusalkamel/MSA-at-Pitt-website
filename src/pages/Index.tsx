@@ -76,10 +76,10 @@ const Index = () => {
             transition={{ delay: 1 }}
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
-            <Link to="/join" className="gold-gradient text-primary-foreground px-8 py-3.5 rounded-full font-semibold text-lg hover:opacity-90 transition-opacity shadow-lg">
+            <Link to="/join" className="btn-premium text-lg px-8 py-3.5">
               Join the MSA
             </Link>
-            <Link to="/events" className="glass-card text-accent-foreground px-8 py-3.5 rounded-full font-semibold text-lg hover:bg-white/20 transition-colors">
+            <Link to="/events" className="btn-premium-secondary text-lg px-8 py-3.5">
               See Upcoming Events
             </Link>
           </motion.div>
@@ -172,7 +172,7 @@ const Index = () => {
               </div>
               <p className="text-muted-foreground text-sm mb-2">📍 TopGolf Pittsburgh, Bridgeville, PA</p>
               <p className="text-muted-foreground text-sm mb-4">$16.67 for 2 hours of golfing fun. First-timers: +$6. Open to everyone!</p>
-              <a href="https://forms.gle/hnUHffFFsyysX7vY6" target="_blank" rel="noopener noreferrer" className="gold-gradient text-primary-foreground px-5 py-2 rounded-full text-sm font-semibold inline-block hover:opacity-90 transition-opacity shadow-md">
+              <a href="https://forms.gle/hnUHffFFsyysX7vY6" target="_blank" rel="noopener noreferrer" className="btn-premium text-sm px-5 py-2">
                 RSVP →
               </a>
             </GlassCard>
@@ -245,7 +245,7 @@ const Index = () => {
             href="https://instagram.com/msa.at.pitt"
             target="_blank"
             rel="noopener noreferrer"
-            className="gold-gradient text-primary-foreground px-8 py-3 rounded-full font-semibold inline-block hover:opacity-90 transition-opacity shadow-lg"
+            className="btn-premium px-8 py-3"
           >
             Follow us on Instagram →
           </a>
