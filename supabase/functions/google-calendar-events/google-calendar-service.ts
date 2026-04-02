@@ -182,10 +182,16 @@ function normalizeIcsEvent(eventBlock: Record<string, string>, nowYmd: string): 
 
   if (!dtStartRaw) return null;
 
-  const start = parseDateToken(dtStartRaw);
+  // Extract TZID if present
+  const tzidMatch = (eventBlock.__DTSTART_META || "").match(/TZID=([^:;]+)/);
+  const tzid = tzidMatch ? tzidMatch[1] : undefined;
+
+  const start = parseDateToken(dtStartRaw, tzid);
   if (!start) return null;
 
-  const end = dtEndRaw ? parseDateToken(dtEndRaw) : null;
+  const endTzidMatch = (eventBlock.__DTEND_META || "").match(/TZID=([^:;]+)/);
+  const endTzid = endTzidMatch ? endTzidMatch[1] : undefined;
+  const end = dtEndRaw ? parseDateToken(dtEndRaw, endTzid) : null;
   const allDay = /VALUE=DATE/.test(eventBlock.__DTSTART_META || "") || /^\d{8}$/.test(dtStartRaw);
   const startDate = toYMD(start);
 
