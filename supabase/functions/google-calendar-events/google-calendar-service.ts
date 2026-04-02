@@ -277,12 +277,14 @@ export async function fetchCalendarEventsFromPublicIcs(): Promise<MSAEvent[]> {
     .filter((event): event is MSAEvent => Boolean(event))
     .sort((a, b) => a.startDate.localeCompare(b.startDate));
 
-  const firstUpcomingIdx = normalized.findIndex((event) => !event.isPast);
-  if (firstUpcomingIdx >= 0) {
-    normalized[firstUpcomingIdx] = {
-      ...normalized[firstUpcomingIdx],
+  // Mark MSA Gala as the featured/signature event, fallback to first upcoming
+  const galaIdx = normalized.findIndex((event) => !event.isPast && /gala/i.test(event.title));
+  const featuredIdx = galaIdx >= 0 ? galaIdx : normalized.findIndex((event) => !event.isPast);
+  if (featuredIdx >= 0) {
+    normalized[featuredIdx] = {
+      ...normalized[featuredIdx],
       featured: true,
-      tags: Array.from(new Set(["Signature Event", ...normalized[firstUpcomingIdx].tags])),
+      tags: Array.from(new Set(["Signature Event", ...normalized[featuredIdx].tags])),
     };
   }
 
