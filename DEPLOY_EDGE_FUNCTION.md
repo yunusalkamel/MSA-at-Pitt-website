@@ -37,3 +37,14 @@ use the Supabase project dashboard (or Supabase CLI) for deployment.
 - Edge Functions list shows `google-calendar-events`.
 - Calling `/functions/v1/google-calendar-events` returns JSON with `stage: "success"`.
 - Events page loads live events; if feed is unreachable, UI falls back gracefully to curated events.
+
+
+## Important: stale deployment check
+
+If runtime errors still show `stage: "google_request"` or mention Google API keys,
+your project is still running an older deployment.
+
+After redeploying this code, function responses should include:
+
+- `source: "public_ics"`
+- `implementation: "ics_no_key_v1"`
