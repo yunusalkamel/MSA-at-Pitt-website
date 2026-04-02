@@ -255,6 +255,108 @@ function parseIcsEvents(icsText: string): Record<string, string>[] {
   return events;
 }
 
+// ── RRULE expansion ──────────────────────────────────────────
+// Handles FREQ=WEEKLY and FREQ=MONTHLY with UNTIL/COUNT limits
+// Expands recurring master events into individual occurrences
+function expandRecurringEvents(events: Record<string, string>[]): Record<string, string>[] {
+  const expanded: Record<string, string>[] = [];
+  const MAX_HORIZON_MS = 365 * 24 * 60 * 60 * 1000; // 1 year ahead
+  const horizonDate = new Date(Date.now() + MAX_HORIZON_MS);
+
+  for (const ev of events) {
+    const rrule = ev.RRULE;
+    if (!rrule) {
+      expanded.push(ev);
+      continue;
+    }
+
+    // Parse RRULE components
+    const parts: Record<string, string> = {};
+    rrule.split(";").forEach((p) => {
+      const [k, v] = p.split("=");
+      if (k && v) parts[k] = v;
+    });
+
+    const freq = parts.FREQ;
+    if (!freq || !["WEEKLY", "MONTHLY"].includes(freq)) {
+      expanded.push(ev);
+      continue;
+    }
+
+    const dtStartRaw = ev.DTSTART;
+    const dtEndRaw = ev.DTEND;
+    if (!dtStartRaw) { expanded.push(ev); continue; }
+
+    const tzidMatch = (ev.__DTSTART_META || "").match(/TZID=([^:;]+)/);
+    const tzid = tzidMatch ? tzidMatch[1] : undefined;
+    const startDate = parseDateToken(dtStartRaw, tzid);
+    if (!startDate) { expanded.push(ev); continue; }
+
+    const endTzidMatch = (ev.__DTEND_META || "").match(/TZID=([^:;]+)/);
+    const endTzid = endTzidMatch ? endTzidMatch[1] : undefined;
+    const endDate = dtEndRaw ? parseDateToken(dtEndRaw, endTzid) : null;
+    const durationMs = endDate ? endDate.getTime() - startDate.getTime() : 0;
+
+    const count = parts.COUNT ? Number(parts.COUNT) : 200;
+    const until = parts.UNTIL ? parseDateToken(parts.UNTIL) : horizonDate;
+    const interval = parts.INTERVAL ? Number(parts.INTERVAL) : 1;
+
+    let current = new Date(startDate.getTime());
+    let occurrences = 0;
+
+    // Also collect EXDATE values to skip
+    const exdates = new Set<string>();
+    const exdateRaw = ev.EXDATE || ev["EXDATE;VALUE=DATE"] || "";
+    if (exdateRaw) {
+      exdateRaw.split(",").forEach((d) => {
+        const parsed = parseDateToken(d.trim(), tzid);
+        if (parsed) exdates.add(toYMD(parsed));
+      });
+    }
+
+    while (occurrences < count && current <= (until || horizonDate) && current <= horizonDate) {
+      const currentYmd = toYMD(current);
+      if (!exdates.has(currentYmd)) {
+        const instanceEnd = endDate ? new Date(current.getTime() + durationMs) : null;
+        // Create a clone of the event block with updated dates
+        const instance = { ...ev };
+        // Format date back to ICS format (UTC)
+        const pad = (n: number) => String(n).padStart(2, "0");
+        const fmtUtc = (d: Date) =>
+          `${d.getUTCFullYear()}${pad(d.getUTCMonth() + 1)}${pad(d.getUTCDate())}T${pad(d.getUTCHours())}${pad(d.getUTCMinutes())}${pad(d.getUTCSeconds())}Z`;
+
+        instance.DTSTART = fmtUtc(current);
+        instance.__DTSTART_META = "DTSTART";
+        if (instanceEnd) {
+          instance.DTEND = fmtUtc(instanceEnd);
+          instance.__DTEND_META = "DTEND";
+        }
+        // Give each instance a unique ID
+        instance.UID = `${ev.UID || "recurring"}-${currentYmd}`;
+        delete instance.RRULE;
+        expanded.push(instance);
+      }
+
+      occurrences++;
+      if (freq === "WEEKLY") {
+        current = new Date(current.getTime() + 7 * interval * 24 * 60 * 60 * 1000);
+      } else if (freq === "MONTHLY") {
+        const newMonth = current.getUTCMonth() + interval;
+        current = new Date(Date.UTC(
+          current.getUTCFullYear() + Math.floor(newMonth / 12),
+          newMonth % 12,
+          current.getUTCDate(),
+          current.getUTCHours(),
+          current.getUTCMinutes(),
+          current.getUTCSeconds(),
+        ));
+      }
+    }
+  }
+
+  return expanded;
+}
+
 export async function fetchCalendarEventsFromPublicIcs(): Promise<MSAEvent[]> {
   const response = await fetch(PUBLIC_ICS_URL);
 
@@ -274,8 +376,11 @@ export async function fetchCalendarEventsFromPublicIcs(): Promise<MSAEvent[]> {
     throw new CalendarFeedError("No events were parsed from the public iCal feed", "ics_parse");
   }
 
+  // Expand recurring events (RRULE)
+  const allEvents = expandRecurringEvents(parsed);
+
   const nowYmd = toYMD(new Date());
-  const normalized = parsed
+  const normalized = allEvents
     .map((block) => normalizeIcsEvent(block, nowYmd))
     .filter((event): event is MSAEvent => Boolean(event))
     .sort((a, b) => a.startDate.localeCompare(b.startDate));
