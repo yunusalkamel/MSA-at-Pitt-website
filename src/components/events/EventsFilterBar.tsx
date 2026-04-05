@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { EVENT_TAGS, type EventTag } from "@/data/events";
+import { EVENT_TAGS } from "@/data/events";
 
 interface Props {
   selected: string[];
@@ -8,16 +8,10 @@ interface Props {
 
 const EventsFilterBar = ({ selected, onChange }: Props) => {
   const toggle = (tag: string) => {
-    if (tag === "All") {
-      onChange(["All"]);
-      return;
-    }
+    if (tag === "All") { onChange(["All"]); return; }
     let next = selected.filter((t) => t !== "All");
-    if (next.includes(tag)) {
-      next = next.filter((t) => t !== tag);
-    } else {
-      next = [...next, tag];
-    }
+    if (next.includes(tag)) next = next.filter((t) => t !== tag);
+    else next = [...next, tag];
     if (next.length === 0) next = ["All"];
     onChange(next);
   };
@@ -35,11 +29,11 @@ const EventsFilterBar = ({ selected, onChange }: Props) => {
           <button
             key={tag}
             onClick={() => toggle(tag)}
-            className={`px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all duration-200 border ${
-              isActive
-                ? "gold-gradient text-primary-foreground border-primary/40 shadow-[0_0_12px_hsl(40_100%_55%/0.2)]"
-                : "glass-card text-muted-foreground border-transparent hover:border-primary/20 hover:text-foreground"
-            }`}
+            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all duration-200 border
+              ${isActive
+                ? "gold-gradient text-primary-foreground border-transparent shadow-sm"
+                : "bg-transparent border-border/60 text-muted-foreground hover:border-border hover:text-foreground"
+              }`}
           >
             {tag}
           </button>

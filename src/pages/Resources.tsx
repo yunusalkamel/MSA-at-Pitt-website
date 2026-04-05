@@ -189,7 +189,7 @@ const Resources = () => {
       </section>
 
       {/* Ayat */}
-      <section className="section-padding gradient-section-gold-soft relative overflow-hidden">
+      <section className="section-padding-sm gradient-section-gold-soft relative overflow-hidden">
         <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: '200px' }} />
         <div className="max-w-2xl mx-auto relative z-10">
           <div className="glass-card-strong glass-glow p-8">

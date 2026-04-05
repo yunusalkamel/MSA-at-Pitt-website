@@ -129,7 +129,7 @@ const About = () => {
       </section>
 
       {/* Quran Ayat */}
-      <section className="section-padding gradient-mesh-gold relative overflow-hidden">
+      <section className="section-padding-sm gradient-mesh-gold relative overflow-hidden">
         <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: '200px' }} />
         <div className="max-w-3xl mx-auto relative z-10">
           <div className="glass-card-strong glass-glow p-8 md:p-12">
@@ -171,7 +171,7 @@ const About = () => {
       </section>
 
       {/* Closing Ayat */}
-      <section className="section-padding gradient-section-gold-soft">
+      <section className="section-padding-sm gradient-section-gold-soft">
         <div className="max-w-3xl mx-auto">
           <div className="glass-card-strong glass-glow p-8 md:p-12">
             <ArabicVerse

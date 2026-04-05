@@ -185,7 +185,7 @@ const Gallery = () => {
       </section>
 
       {/* Bottom Ayat */}
-      <section className="section-padding gradient-section-emerald-soft">
+      <section className="section-padding-sm gradient-section-emerald-soft">
         <div className="max-w-2xl mx-auto">
           <div className="glass-card-strong glass-glow p-8 md:p-12">
             <ArabicVerse
