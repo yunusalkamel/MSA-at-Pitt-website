@@ -118,8 +118,11 @@ const Gallery = () => {
       </section>
 
       {/* Gallery Grid */}
-      <section className="section-padding gradient-mesh-warm relative overflow-hidden">
-        <div className="absolute inset-0 texture-lines" />
+      <section className="section-padding relative overflow-hidden">
+        <div className="absolute inset-0 steps-surface" />
+        <div className="absolute inset-0 texture-dots opacity-60" />
+        <div className="absolute top-0 right-1/4 w-96 h-96 rounded-full bg-primary/[0.06] blur-[120px]" />
+        <div className="absolute bottom-0 left-1/4 w-80 h-80 rounded-full bg-secondary/[0.05] blur-[100px]" />
         <div className="max-w-6xl mx-auto relative z-10">
           <AnimatePresence mode="wait">
             <motion.div
@@ -163,7 +166,7 @@ const Gallery = () => {
                   </div>
 
                   <div className="absolute top-4 right-4 z-10">
-                    <span className="glass-card-strong px-3 py-1 text-xs font-semibold text-white rounded-full">
+                    <span className="liquid-glass-pill px-3 py-1 text-xs font-semibold text-foreground">
                       {categoryLabel(event)}
                     </span>
                   </div>

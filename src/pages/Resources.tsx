@@ -64,7 +64,7 @@ const FlipCard = ({ resource, index }: { resource: typeof resources[0]; index: n
         style={{ transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)" }}
       >
         {/* Front */}
-        <div className="absolute inset-0 [backface-visibility:hidden] glass-card-hover p-6 md:p-8 flex flex-col rounded-[var(--radius)]">
+        <div className="absolute inset-0 [backface-visibility:hidden] liquid-glass-hover p-6 md:p-8 flex flex-col rounded-[var(--radius)]">
           <div className={`bg-gradient-to-br ${resource.gradient} w-14 h-14 rounded-xl flex items-center justify-center mb-4 shadow-lg`}>
             <resource.icon className="text-white" size={24} />
           </div>
@@ -143,8 +143,11 @@ const Resources = () => {
       </section>
 
       {/* Flip Resource Cards */}
-      <section className="section-padding gradient-mesh-warm relative overflow-hidden">
-        <div className="absolute inset-0 texture-dots" />
+      <section className="section-padding relative overflow-hidden">
+        <div className="absolute inset-0 steps-surface" />
+        <div className="absolute inset-0 texture-cross opacity-25" />
+        <div className="absolute top-1/3 right-0 w-96 h-96 rounded-full bg-primary/[0.06] blur-[110px]" />
+        <div className="absolute bottom-1/4 left-0 w-80 h-80 rounded-full bg-secondary/[0.05] blur-[90px]" />
         <div className="max-w-5xl mx-auto relative z-10">
           <SectionHeading title="Your Resources" label="Everything You Need" />
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -158,7 +161,7 @@ const Resources = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.5, delay: 0.5 }}
-              className="glass-card-hover p-6 md:p-8 h-[320px] flex flex-col"
+              className="liquid-glass-hover p-6 md:p-8 h-[320px] flex flex-col rounded-[var(--radius)]"
             >
               <div className="bg-gradient-to-br from-[hsl(216,50%,10%)] to-[hsl(216,40%,25%)] w-14 h-14 rounded-xl flex items-center justify-center mb-4 shadow-lg">
                 <Calendar className="text-white" size={24} />

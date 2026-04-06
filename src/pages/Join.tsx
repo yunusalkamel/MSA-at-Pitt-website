@@ -82,9 +82,14 @@ const Join = () => {
         </motion.div>
       </section>
 
-      {/* Steps — architectural treatment */}
-      <section className="section-padding warm-surface relative overflow-hidden">
-        <div className="absolute inset-0 texture-lines" />
+      {/* Steps — rich textured ombre section */}
+      <section className="section-padding relative overflow-hidden">
+        <div className="absolute inset-0 steps-surface" />
+        <div className="absolute inset-0 texture-cross opacity-25" />
+        <div className="absolute top-1/4 -left-20 w-96 h-96 rounded-full bg-primary/[0.07] blur-[100px]" />
+        <div className="absolute bottom-1/4 -right-20 w-80 h-80 rounded-full bg-secondary/[0.06] blur-[90px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full bg-primary/[0.04] blur-[80px]" />
+
         <div className="max-w-2xl mx-auto relative z-10">
           <div className="space-y-0">
             {steps.map((step, i) => (
@@ -93,21 +98,18 @@ const Join = () => {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-40px" }}
-                transition={{ duration: 0.45, delay: i * 0.1 }}
+                transition={{ duration: 0.45, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
                 className="relative"
               >
-                {/* Vertical connector line */}
                 {i < steps.length - 1 && (
                   <div className="absolute left-[1.35rem] top-[4.5rem] bottom-0 w-px bg-gradient-to-b from-primary/30 to-primary/5" />
                 )}
 
                 <div className="flex gap-6 py-8">
-                  {/* Step number */}
-                  <div className="flex-shrink-0 w-11 h-11 rounded-full border-2 border-primary/30 bg-primary/[0.06] flex items-center justify-center relative z-10">
+                  <div className="flex-shrink-0 w-11 h-11 rounded-full liquid-glass flex items-center justify-center relative z-10">
                     <span className="font-mono text-xs font-bold text-primary/80 tracking-wider">{step.num}</span>
                   </div>
 
-                  {/* Content */}
                   <div className="flex-1 pt-1.5">
                     <h3 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-2 leading-tight">
                       {step.headline}

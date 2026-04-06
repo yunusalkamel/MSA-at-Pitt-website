@@ -28,7 +28,7 @@ const EventCard = ({ event, index = 0 }: Props) => {
       {/* Hover glow */}
       <div className="absolute -inset-px rounded-2xl bg-gradient-to-br from-primary/15 via-transparent to-secondary/8 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-[1px]" />
 
-      <div className="relative glass-card-hover p-0 overflow-hidden rounded-2xl">
+      <div className="relative liquid-glass-hover p-0 overflow-hidden rounded-2xl">
         <div className="flex">
           {/* Date column */}
           <div className={`w-16 md:w-20 shrink-0 flex flex-col items-center justify-center py-6 gap-0.5

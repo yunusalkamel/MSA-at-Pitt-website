@@ -153,8 +153,10 @@ const About = () => {
       </section>
 
       {/* What We Do */}
-      <section className="section-padding gradient-section-emerald-soft relative overflow-hidden">
-        <div className="absolute inset-0 texture-dots" />
+      <section className="section-padding relative overflow-hidden">
+        <div className="absolute inset-0 steps-surface" />
+        <div className="absolute inset-0 texture-dots opacity-50" />
+        <div className="absolute top-0 left-1/3 w-96 h-64 rounded-full bg-secondary/[0.06] blur-[100px]" />
         <div className="max-w-7xl mx-auto relative z-10">
           <SectionHeading title="What We Do" label="Our Focus Areas" />
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">

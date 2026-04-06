@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowRight, Heart, Users, Moon, HandHeart } from "lucide-react";
+import { ArrowRight, Heart, Users, Moon, HandHeart, Calendar, Smartphone } from "lucide-react";
 import { useRef } from "react";
 import Layout from "@/components/Layout";
 import GlassCard from "@/components/GlassCard";
@@ -11,6 +11,7 @@ import { useCountUp } from "@/hooks/useCountUp";
 import heroImg from "@/assets/hero-gathering.jpg";
 import communityImg from "@/assets/about-community.jpg";
 import patternImg from "@/assets/islamic-pattern.jpg";
+import { GOOGLE_CALENDAR_URL, APPLE_CALENDAR_URL } from "@/data/events";
 
 const pillars = [
   { icon: Moon, title: "Faith", desc: "Weekly Jummah, halaqas, and Ramadan programming — nurturing your tarbiyyah throughout college." },
@@ -32,6 +33,7 @@ const StatItem = ({
   label,
   sub,
   bordered,
+  large,
 }: {
   value?: string;
   numericValue?: number;
@@ -39,17 +41,18 @@ const StatItem = ({
   label: string;
   sub: string;
   bordered?: boolean;
+  large?: boolean;
 }) => {
   const { count, ref } = useCountUp(numericValue ?? 0, 1600);
   const display = value ?? (numericValue !== undefined ? `${count}${suffix ?? ""}` : "");
 
   return (
-    <div ref={ref} className={`text-center px-4 md:px-6 ${bordered ? "border-r border-border/40" : ""}`}>
-      <p className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-gradient-gold leading-none">
+    <div ref={ref} className={`text-center px-3 md:px-6 ${bordered ? "border-r border-border/40" : ""}`}>
+      <p className={`font-display font-bold text-gradient-gold leading-none ${large ? "text-4xl md:text-6xl lg:text-7xl" : "text-3xl md:text-4xl lg:text-5xl"}`}>
         {display}
       </p>
-      <p className="text-foreground text-sm font-semibold mt-2">{label}</p>
-      <p className="text-muted-foreground text-xs mt-0.5">{sub}</p>
+      <p className="text-foreground text-xs md:text-sm font-semibold mt-2">{label}</p>
+      <p className="text-muted-foreground text-[10px] md:text-xs mt-0.5">{sub}</p>
     </div>
   );
 };
@@ -170,11 +173,16 @@ const Index = () => {
 
       {/* ── Stats Bar ── */}
       <section className="relative z-20 px-4 md:px-8 -mt-14">
-        <div className="liquid-glass-strong rounded-2xl max-w-3xl mx-auto p-6 md:p-8 grid grid-cols-3">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.2, duration: 0.6 }}
+          className="liquid-glass-strong rounded-2xl max-w-3xl mx-auto p-6 md:p-8 grid grid-cols-3"
+        >
           <StatItem numericValue={50} suffix="+" label="Events per Semester" sub="halaqas, socials & more" bordered />
-          <StatItem numericValue={400} suffix="+" label="Community Members" sub="and growing every year" bordered />
-          <StatItem value="Est. 1997" label="Founded at Pitt" sub="30+ years of community" />
-        </div>
+          <StatItem value="1997" label="Founded at Pitt" sub="30+ years of community" large bordered />
+          <StatItem numericValue={400} suffix="+" label="Community Members" sub="and growing every year" />
+        </motion.div>
       </section>
 
       {/* ── Our Story ── */}
@@ -191,7 +199,7 @@ const Index = () => {
               className="relative group"
             >
               <div className="absolute -inset-1 bg-gradient-to-br from-primary/30 via-secondary/15 to-primary/20 rounded-2xl opacity-40 group-hover:opacity-60 transition-opacity duration-500 blur-sm" />
-              <div className="relative glass-card p-3">
+              <div className="relative liquid-glass p-3">
                 <img src={communityImg} alt="MSA students on campus" className="rounded-xl w-full object-cover aspect-[4/3]" loading="lazy" width={1280} height={854} />
               </div>
             </motion.div>
@@ -212,7 +220,7 @@ const Index = () => {
               <p className="text-muted-foreground text-base leading-relaxed mb-6">
                 Whether you've been Muslim your whole life, just took your shahada, or you're simply curious — knowledge precedes action, and every journey starts somewhere.
               </p>
-              <div className="glass-card-strong p-5 mb-7 border-l-2 border-primary/30">
+              <div className="liquid-glass p-5 mb-7 border-l-2 border-primary/30">
                 <ArabicVerse
                   arabic="وَتَعَاوَنُوا عَلَى الْبِرِّ وَالتَّقْوَىٰ"
                   translation="And cooperate in righteousness and piety."
@@ -280,13 +288,24 @@ const Index = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
-              className="glass-card border-dashed flex flex-col items-center justify-center p-8 text-center min-h-[220px] hover:border-primary/30 transition-colors group"
+              className="liquid-glass-hover flex flex-col items-center justify-center p-8 text-center min-h-[220px] group"
             >
               <p className="font-display text-xl font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">See all events</p>
               <p className="text-muted-foreground text-sm mb-5">Halaqas, speakers, sisters' events, and more.</p>
-              <Link to="/events" className="btn-premium-secondary text-sm px-5 py-2">
-                View Full Calendar <ArrowRight size={13} />
+              <Link to="/events" className="btn-premium text-sm px-5 py-2 mb-3">
+                View Events Page <ArrowRight size={13} />
               </Link>
+              <div className="flex gap-3">
+                <a href={GOOGLE_CALENDAR_URL} target="_blank" rel="noopener noreferrer"
+                  className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1">
+                  <Calendar size={11} /> Google
+                </a>
+                <span className="text-border">·</span>
+                <a href={APPLE_CALENDAR_URL} target="_blank" rel="noopener noreferrer"
+                  className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1">
+                  <Smartphone size={11} /> Apple
+                </a>
+              </div>
             </motion.div>
           </div>
         </div>

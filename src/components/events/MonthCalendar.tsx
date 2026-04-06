@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Clock, ExternalLink, CalendarClock } from "lucide-react";
 import type { MSAEvent } from "@/data/events";
 import DayEventsPanel from "./DayEventsPanel";
@@ -73,7 +73,7 @@ const SingleEventCell = ({
   return (
     <button
       onClick={onClick}
-      className={`w-full flex-1 rounded-[6px] px-1.5 py-1 text-left overflow-hidden
+      className={`w-full flex-1 rounded-lg px-1.5 py-1 text-left overflow-hidden
         ${chipStyle} ${link ? "cursor-pointer hover:opacity-85" : "cursor-default"}
         transition-opacity duration-150`}
     >
@@ -89,7 +89,7 @@ const SingleEventCell = ({
   );
 };
 
-// Compressed chip for multi-event cells — expands on hover to show time
+// Static chip for multi-event cells — no expand behavior
 const EventChip = ({
   event,
   onClick,
@@ -97,7 +97,6 @@ const EventChip = ({
   event: MSAEvent;
   onClick: (e: React.MouseEvent) => void;
 }) => {
-  const [hovered, setHovered] = useState(false);
   const link = extractLink(event);
   const isFeatured = event.featured;
   const isPast = event.isPast;
@@ -108,37 +107,17 @@ const EventChip = ({
     : "bg-secondary/90 text-secondary-foreground";
 
   return (
-    <motion.button
-      onHoverStart={() => setHovered(true)}
-      onHoverEnd={() => setHovered(false)}
+    <button
       onClick={onClick}
-      layout
-      className={`w-full rounded-[5px] px-1 md:px-1.5 py-[3px] text-left overflow-hidden
-        ${chipStyle} ${link ? "cursor-pointer" : "cursor-default"}
-        transition-opacity duration-150 hover:opacity-90`}
+      title={`${event.title} · ${getTimeOnly(event.timeLabel)}`}
+      className={`w-full rounded-md px-1 md:px-1.5 py-[3px] text-left overflow-hidden
+        ${chipStyle} ${link ? "cursor-pointer hover:opacity-85" : "cursor-default"}
+        transition-opacity duration-150`}
     >
-      <div className={`font-semibold text-[8px] md:text-[10px] leading-tight
-        ${hovered ? "line-clamp-2 whitespace-normal" : "truncate"}`}>
+      <div className="font-semibold text-[8px] md:text-[10px] leading-tight truncate">
         {event.title}
       </div>
-      <AnimatePresence>
-        {hovered && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.15 }}
-            className="overflow-hidden"
-          >
-            <div className="text-[7px] md:text-[9px] opacity-80 flex items-center gap-0.5 mt-[2px]">
-              <Clock size={6} className="shrink-0" />
-              {getTimeOnly(event.timeLabel)}
-              {link && <ExternalLink size={6} className="shrink-0 opacity-60 ml-auto" />}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.button>
+    </button>
   );
 };
 
@@ -277,7 +256,7 @@ const MonthCalendar = ({ events }: Props) => {
                         <button
                           type="button"
                           onClick={(e) => { e.stopPropagation(); setSelectedDate(dateStr); }}
-                          className="rounded-[5px] bg-primary/[0.1] border border-primary/20 text-[9px] md:text-[10px] font-semibold text-primary px-1 md:px-1.5 py-[2px] text-left hover:bg-primary/20 transition-colors"
+                          className="rounded-md bg-primary/[0.1] border border-primary/20 text-[9px] md:text-[10px] font-semibold text-primary px-1 md:px-1.5 py-[2px] text-left hover:bg-primary/20 transition-colors"
                         >
                           +{hiddenCount} more
                         </button>
