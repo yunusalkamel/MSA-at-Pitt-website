@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Clock, ExternalLink, CalendarClock, MapPin } from "lucide-react";
 import type { MSAEvent } from "@/data/events";
 import DayEventsPanel from "./DayEventsPanel";
+import { resolveEventAction } from "./resolveEventAction";
 
 interface Props { events: MSAEvent[] }
 
@@ -12,24 +13,6 @@ function getDaysInMonth(y: number, m: number) { return new Date(y, m + 1, 0).get
 function getFirstDayOfMonth(y: number, m: number) { return new Date(y, m, 1).getDay(); }
 function formatDateStr(y: number, m: number, d: number) {
   return `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
-}
-
-function extractLink(event: MSAEvent): string | undefined {
-  const candidates = [event.signupUrl, event.fullCalendarUrl, event.addToCalendarUrl];
-  for (const c of candidates) { const n = normalizeUrl(c); if (n) return n; }
-  if (event.description) {
-    const hrefMatch = event.description.match(/href\s*=\s*["']([^"']+)["']/i);
-    if (hrefMatch?.[1]) { const n = normalizeUrl(hrefMatch[1]); if (n) return n; }
-    const match = event.description.match(/https?:\/\/[^\s<>"]+/);
-    if (match) { const n = normalizeUrl(match[0]); if (n) return n; }
-  }
-}
-
-function normalizeUrl(url?: string): string | undefined {
-  if (!url) return undefined;
-  const c = url.trim().replace(/[),.;]+$/, "");
-  if (!/^https?:\/\//i.test(c)) return undefined;
-  try { return new URL(c).toString(); } catch { return undefined; }
 }
 
 function getTimeOnly(timeLabel: string): string {
@@ -61,7 +44,7 @@ const SingleEventCell = ({
   event: MSAEvent;
   onClick: (e: React.MouseEvent) => void;
 }) => {
-  const link = extractLink(event);
+  const link = resolveEventAction(event).href;
   const isFeatured = event.featured;
   const isPast = event.isPast;
   const chipStyle = isFeatured
@@ -97,7 +80,7 @@ const EventChip = ({
   event: MSAEvent;
   onClick: (e: React.MouseEvent) => void;
 }) => {
-  const link = extractLink(event);
+  const link = resolveEventAction(event).href;
   const isFeatured = event.featured;
   const isPast = event.isPast;
   const chipStyle = isFeatured
@@ -177,8 +160,13 @@ const MonthCalendar = ({ events }: Props) => {
 
   const handleEventClick = (ev: MSAEvent, e: React.MouseEvent) => {
     e.stopPropagation();
-    const link = extractLink(ev);
-    if (link) { window.open(link, "_blank", "noopener,noreferrer"); return; }
+    const action = resolveEventAction(ev);
+    const link = action.href;
+    if (link) {
+      if (action.external) window.open(link, "_blank", "noopener,noreferrer");
+      else window.location.assign(link);
+      return;
+    }
     setSelectedDate(ev.startDate);
   };
 
@@ -301,7 +289,6 @@ const MonthCalendar = ({ events }: Props) => {
             date={selectedDate}
             events={eventsByDate[selectedDate] || []}
             onClose={() => setSelectedDate(null)}
-            getEventLink={extractLink}
           />
         )}
       </AnimatePresence>

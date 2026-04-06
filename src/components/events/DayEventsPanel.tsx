@@ -3,15 +3,15 @@ import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 import { X, Clock, MapPin, ExternalLink, Tag } from "lucide-react";
 import type { MSAEvent } from "@/data/events";
+import { resolveEventAction } from "./resolveEventAction";
 
 interface Props {
   date: string;
   events: MSAEvent[];
   onClose: () => void;
-  getEventLink: (event: MSAEvent) => string | undefined;
 }
 
-const DayEventsPanel = ({ date, events, onClose, getEventLink }: Props) => {
+const DayEventsPanel = ({ date, events, onClose }: Props) => {
   useEffect(() => {
     const onEscape = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     // Also prevent body scroll while panel is open
@@ -31,9 +31,13 @@ const DayEventsPanel = ({ date, events, onClose, getEventLink }: Props) => {
   });
 
   const openEventLink = (event: MSAEvent) => {
-    const link = getEventLink(event);
-    if (!link) return;
-    window.open(link, "_blank", "noopener,noreferrer");
+    const action = resolveEventAction(event);
+    if (!action.href) return;
+    if (action.external) {
+      window.open(action.href, "_blank", "noopener,noreferrer");
+      return;
+    }
+    window.location.assign(action.href);
   };
 
   return createPortal(
@@ -76,7 +80,8 @@ const DayEventsPanel = ({ date, events, onClose, getEventLink }: Props) => {
         {/* Event list */}
         <div className="max-h-[65vh] overflow-y-auto overscroll-contain p-4 md:p-5 grid gap-3">
           {events.map((event, index) => {
-            const link = getEventLink(event);
+            const action = resolveEventAction(event);
+            const link = action.href;
             const isFeatured = event.featured;
             const isPast = event.isPast;
 
