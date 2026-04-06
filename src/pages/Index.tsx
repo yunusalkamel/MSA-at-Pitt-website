@@ -1,17 +1,25 @@
 import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight, Heart, Users, Moon, HandHeart, Calendar, Smartphone } from "lucide-react";
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import Layout from "@/components/Layout";
 import GlassCard from "@/components/GlassCard";
 import SectionHeading from "@/components/SectionHeading";
 import ArabicVerse from "@/components/ArabicVerse";
 import InstagramWidget from "@/components/InstagramWidget";
 import { useCountUp } from "@/hooks/useCountUp";
+import { useCalendarEvents } from "@/hooks/useCalendarEvents";
 import heroImg from "@/assets/hero-gathering.jpg";
 import communityImg from "@/assets/about-community.jpg";
 import patternImg from "@/assets/islamic-pattern.jpg";
-import { GOOGLE_CALENDAR_URL, APPLE_CALENDAR_URL } from "@/data/events";
+import {
+  mockEvents,
+  getUpcomingEvents,
+  EVENT_SIGNUP_HUB_URL,
+  GOOGLE_CALENDAR_URL,
+  APPLE_CALENDAR_URL,
+  type MSAEvent,
+} from "@/data/events";
 
 const pillars = [
   { icon: Moon, title: "Faith", desc: "Weekly Jummah, halaqas, and Ramadan programming — nurturing your tarbiyyah throughout college." },
@@ -19,6 +27,23 @@ const pillars = [
   { icon: Heart, title: "Community", desc: "Iftars, socials, TopGolf, sports — we show up for each other on and off campus." },
   { icon: HandHeart, title: "Service & Da'wah", desc: "Outreach, volunteering, and giving back to Pittsburgh — continuing to serve the Ummah beyond graduation." },
 ];
+
+const HOMEPAGE_PREVIEW_LIMIT = 2;
+
+function isOnOrAfterToday(event: MSAEvent) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const eventDate = new Date(`${event.startDate}T12:00:00`);
+  return eventDate >= today;
+}
+
+function formatEventMonthDay(dateStr: string) {
+  const eventDate = new Date(`${dateStr}T12:00:00`);
+  return {
+    month: eventDate.toLocaleString("en-US", { month: "short" }),
+    day: eventDate.getDate(),
+  };
+}
 
 function useSectionParallax(ref: React.RefObject<HTMLElement | null>, amount = 14) {
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
@@ -77,6 +102,13 @@ const Index = () => {
 
   const communityBgY = useSectionParallax(communityRef, 14);
   const pillarsBgY = useSectionParallax(pillarsRef, 10);
+  const { events: remoteEvents, loading: eventsLoading, error: eventsError } = useCalendarEvents();
+
+  const sourceEvents = eventsError ? mockEvents : remoteEvents;
+  const upcomingPreviewEvents = useMemo(
+    () => getUpcomingEvents(sourceEvents).filter(isOnOrAfterToday).slice(0, HOMEPAGE_PREVIEW_LIMIT),
+    [sourceEvents],
+  );
 
   return (
     <Layout>
@@ -254,42 +286,54 @@ const Index = () => {
         <div className="absolute inset-0 texture-dots" />
         <div className="max-w-7xl mx-auto relative z-10">
           <SectionHeading title="What's coming up" subtitle="Stay connected and never miss a moment." />
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-            <GlassCard delay={0}>
-              <div className="flex items-start gap-4 mb-4">
-                <div className="gold-gradient text-primary-foreground w-14 h-14 rounded-xl flex flex-col items-center justify-center flex-shrink-0 shadow-md">
-                  <span className="text-[10px] font-semibold opacity-80 uppercase tracking-wide">Apr</span>
-                  <span className="font-display text-2xl font-bold leading-none">5</span>
-                </div>
-                <div>
-                  <h3 className="font-display font-bold text-xl text-foreground leading-tight">MSA TopGolf 2026</h3>
-                  <p className="text-muted-foreground text-sm mt-0.5">Sunday · 4–6 PM</p>
-                </div>
-              </div>
-              <p className="text-muted-foreground text-sm mb-1.5">📍 TopGolf Pittsburgh, Bridgeville</p>
-              <p className="text-muted-foreground text-sm leading-relaxed mb-5">$16.67 for 2 hours. First-timers: +$6. Open to everyone!</p>
-              <a href="https://linktr.ee/msa.at.pitt" target="_blank" rel="noopener noreferrer" className="btn-premium text-sm px-5 py-2">
-                RSVP <ArrowRight size={13} />
-              </a>
-            </GlassCard>
+          {eventsError && (
+            <div className="mb-4 rounded-xl border border-primary/20 bg-primary/[0.06] px-4 py-3 text-sm text-foreground/80">
+              Showing our curated event schedule. Live sync will resume automatically.
+            </div>
+          )}
 
-            <GlassCard delay={0.1}>
-              <div className="flex items-start gap-4 mb-4">
-                <div className="bg-secondary text-secondary-foreground w-14 h-14 rounded-xl flex flex-col items-center justify-center flex-shrink-0 shadow-md">
-                  <span className="text-[10px] font-semibold opacity-80 uppercase tracking-wide">Apr</span>
-                  <span className="font-display text-2xl font-bold leading-none">19</span>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {eventsLoading && !eventsError ? (
+              <GlassCard delay={0}>
+                <div className="min-h-[220px] flex flex-col items-center justify-center text-center">
+                  <div className="w-7 h-7 rounded-full border-2 border-primary border-t-transparent animate-spin mb-3" />
+                  <p className="text-muted-foreground text-sm">Loading upcoming events…</p>
                 </div>
-                <div>
-                  <h3 className="font-display font-bold text-xl text-foreground leading-tight">MSA Annual Banquet 2026</h3>
-                  <p className="text-muted-foreground text-sm mt-0.5">Saturday · 6–10 PM</p>
+              </GlassCard>
+            ) : upcomingPreviewEvents.length === 0 ? (
+              <GlassCard delay={0}>
+                <div className="min-h-[220px] flex flex-col items-center justify-center text-center">
+                  <p className="font-display font-semibold text-xl text-foreground mb-2">No upcoming events yet</p>
+                  <p className="text-muted-foreground text-sm max-w-xs">
+                    New events are added regularly. Check back soon or open the full events page.
+                  </p>
                 </div>
-              </div>
-              <p className="text-muted-foreground text-sm mb-1.5">📍 University Club, Pitt</p>
-              <p className="text-muted-foreground text-sm leading-relaxed mb-5">Our flagship gala — keynote speaker, dinner, awards, and a night to remember.</p>
-              <a href="https://linktr.ee/msa.at.pitt" target="_blank" rel="noopener noreferrer" className="btn-premium text-sm px-5 py-2">
-                RSVP <ArrowRight size={13} />
-              </a>
-            </GlassCard>
+              </GlassCard>
+            ) : (
+              upcomingPreviewEvents.map((event, index) => {
+                const { month, day } = formatEventMonthDay(event.startDate);
+
+                return (
+                  <GlassCard key={event.id} delay={index * 0.1}>
+                    <div className="flex items-start gap-4 mb-4">
+                      <div className="gold-gradient text-primary-foreground w-14 h-14 rounded-xl flex flex-col items-center justify-center flex-shrink-0 shadow-md">
+                        <span className="text-[10px] font-semibold opacity-80 uppercase tracking-wide">{month}</span>
+                        <span className="font-display text-2xl font-bold leading-none">{day}</span>
+                      </div>
+                      <div>
+                        <h3 className="font-display font-bold text-xl text-foreground leading-tight">{event.title}</h3>
+                        <p className="text-muted-foreground text-sm mt-0.5">{event.timeLabel}</p>
+                      </div>
+                    </div>
+                    <p className="text-muted-foreground text-sm mb-1.5">📍 {event.location}</p>
+                    <p className="text-muted-foreground text-sm leading-relaxed mb-5">{event.shortBlurb}</p>
+                    <a href={EVENT_SIGNUP_HUB_URL} target="_blank" rel="noopener noreferrer" className="btn-premium text-sm px-5 py-2">
+                      RSVP <ArrowRight size={13} />
+                    </a>
+                  </GlassCard>
+                );
+              })
+            )}
 
             {/* See all card */}
             <motion.div

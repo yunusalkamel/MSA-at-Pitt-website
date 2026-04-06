@@ -7,7 +7,7 @@ export interface MSAEvent {
   location: string;
   shortBlurb: string;
   description?: string;
-  tags: string[];
+  tags: EventTag[];
   audience?: "Brothers" | "Sisters" | "Mixed" | "Open to All";
   featured?: boolean;
   isPast?: boolean;
@@ -19,8 +19,7 @@ export interface MSAEvent {
   coverImage?: string;
 }
 
-export const EVENT_TAGS = [
-  "All",
+export const EVENT_CONTENT_TAGS = [
   "Social",
   "Dawah",
   "Brothers",
@@ -29,10 +28,12 @@ export const EVENT_TAGS = [
   "Speaker Event",
   "Education & Service",
   "Signature Event",
-  "Past Events",
+  "Open to All",
 ] as const;
 
-export type EventTag = (typeof EVENT_TAGS)[number];
+export type EventTag = (typeof EVENT_CONTENT_TAGS)[number];
+
+export const EVENT_TAGS = ["All", ...EVENT_CONTENT_TAGS, "Past Events"] as const;
 
 export const GOOGLE_CALENDAR_URL =
   "https://calendar.google.com/calendar/embed?src=2use05cacfd5hu3q2p49q9dvmc%40group.calendar.google.com&ctz=America%2FNew_York";
@@ -53,7 +54,7 @@ export const mockEvents: MSAEvent[] = [
     location: "University Club, University of Pittsburgh",
     shortBlurb:
       "Our flagship gala celebrating a year of growth, community, and faith. Keynote speaker, dinner, awards, and a night to remember.",
-    tags: ["Signature Event", "Social", "Speaker Event", "Banquet", "Gala", "Keynote", "Open to All"],
+    tags: ["Signature Event", "Social", "Speaker Event", "Open to All"],
     audience: "Open to All",
     featured: true,
     ctaMode: "rsvp",
@@ -69,7 +70,7 @@ export const mockEvents: MSAEvent[] = [
     location: "TopGolf Pittsburgh, 400 Presto-Sygan Rd, Bridgeville, PA",
     shortBlurb:
       "Hit the links with the community! $16.67 for 2 hours (first-timers $22.67 incl. membership).",
-    tags: ["Social", "Welcome Week", "Open to All"],
+    tags: ["Social", "Open to All"],
     audience: "Open to All",
     ctaMode: "rsvp",
     signupUrl: "https://forms.gle/hnUHffFFsyysX7vY6",
@@ -203,7 +204,7 @@ export const mockEvents: MSAEvent[] = [
     location: "William Pitt Union Main Lobby (beside the Plaza entrance and near Nordy's Place)",
     shortBlurb:
       "Stop by our table all week for conversations, free literature, and Q&A about Islam.",
-    tags: ["Dawah", "Education & Service", "Collaboration", "Open to All"],
+    tags: ["Dawah", "Education & Service", "Open to All"],
     audience: "Open to All",
     ctaMode: "learn-more",
     addToCalendarUrl: GOOGLE_CALENDAR_URL,

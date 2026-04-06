@@ -1,7 +1,5 @@
-import { motion } from "framer-motion";
-import { MapPin, Clock, CalendarPlus, ArrowRight, Star } from "lucide-react";
 import type { MSAEvent } from "@/data/events";
-import { linkifyText } from "@/lib/linkify";
+import EventCardBase from "./EventCardBase";
 
 interface Props {
   event: MSAEvent;

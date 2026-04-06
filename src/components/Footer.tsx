@@ -10,6 +10,9 @@ const footerLinks = [
 ];
 
 const Footer = () => {
+  const currentYear = new Date().getFullYear();
+  const copyrightYears = currentYear > 2025 ? `2025–${currentYear}` : "2025";
+
   return (
     <footer className="bg-accent text-accent-foreground relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-primary/5" />
@@ -80,7 +83,7 @@ const Footer = () => {
         </div>
 
         <p className="text-center text-xs opacity-40 mt-8">
-          © 2025–2026 Muslim Student Association at the University of Pittsburgh
+          © {copyrightYears} Muslim Student Association at the University of Pittsburgh
         </p>
       </div>
     </footer>
