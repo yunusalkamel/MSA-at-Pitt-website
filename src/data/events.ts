@@ -36,9 +36,12 @@ export type EventTag = (typeof EVENT_TAGS)[number];
 
 export const GOOGLE_CALENDAR_URL =
   "https://calendar.google.com/calendar/embed?src=2use05cacfd5hu3q2p49q9dvmc%40group.calendar.google.com&ctz=America%2FNew_York";
+
 export const APPLE_CALENDAR_URL =
   "https://experience.pitt.edu/msa/apple-calendar/";
-export const EVENT_SIGNUP_HUB_URL = "https://forms.gle/hnUHffFFsyysX7vY6";
+
+// Links to Linktree hub — all signup forms, chats, and resources in one place
+export const EVENT_SIGNUP_HUB_URL = "https://linktr.ee/msa.at.pitt";
 
 // ── Mock Data ──────────────────────────────────────────────
 export const mockEvents: MSAEvent[] = [

@@ -35,8 +35,8 @@ const Navbar = () => {
         transition={{ duration: 0.5, ease: "easeOut" }}
         className={`pointer-events-auto w-full max-w-5xl transition-all duration-500 rounded-2xl px-4 md:px-6 ${
           scrolled
-            ? "glass-card-strong shadow-lg border-primary/8"
-            : "glass-card"
+            ? "liquid-glass-strong shadow-lg"
+            : "liquid-glass"
         }`}
       >
         <div className="flex items-center justify-between h-14 md:h-16">
