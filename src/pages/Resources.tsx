@@ -194,9 +194,9 @@ const Resources = () => {
         <div className="max-w-2xl mx-auto relative z-10">
           <div className="glass-card-strong glass-glow p-8">
             <ArabicVerse
-              arabic="وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ"
-              translation="And whoever relies upon Allah — then He is sufficient for him."
-              reference="Quran 65:3"
+              arabic="رَبِّ زِدْنِي عِلْمًا"
+              translation="My Lord, increase me in knowledge."
+              reference="Quran 20:114"
             />
           </div>
         </div>

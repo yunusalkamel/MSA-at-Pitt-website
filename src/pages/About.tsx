@@ -38,27 +38,36 @@ const About = () => {
           style={{ opacity: heroOpacity }}
         >
           <motion.div
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6 }}
+            initial={{ opacity: 0, scale: 0.4, rotate: -5 }}
+            animate={{ opacity: 1, scale: 1, rotate: 0 }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
             className="mb-6"
           >
-            <Sparkles className="inline text-primary" size={40} />
+            <Sparkles className="inline text-primary" size={44} />
           </motion.div>
           <motion.h1
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            className="font-display text-5xl font-bold text-accent-foreground mb-4 md:text-6xl"
+            transition={{ delay: 0.2, duration: 0.7 }}
+            className="font-display text-5xl font-bold text-accent-foreground mb-4 md:text-7xl tracking-tight"
           >
-            We are MSA <span className="text-gradient-gold">at Pitt.</span>
+            We are MSA <span className="text-gradient-gold italic">at Pitt.</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="text-xl text-accent-foreground/70"
+            transition={{ delay: 0.45 }}
+            className="text-lg md:text-xl text-accent-foreground/65 font-light"
           >
             A community rooted in faith, built on belonging, and open to all.
+          </motion.p>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.7 }}
+            className="text-xs uppercase tracking-[0.25em] text-primary/70 font-semibold mt-4"
+          >
+            Cultivate community. Ignite iman.
           </motion.p>
         </motion.div>
       </section>
@@ -131,29 +140,15 @@ const About = () => {
             <p className="text-muted-foreground text-lg leading-relaxed mb-4">
               Our events draw hundreds of students each semester — and we mean it when we say everyone is welcome.
             </p>
-            <div className="relative group">
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-secondary rounded-[var(--radius)] opacity-20 group-hover:opacity-40 transition-opacity blur-sm" />
-              <div className="relative glass-card-strong p-5">
-                <p className="text-foreground font-semibold text-lg italic">
+            <div className="relative group mt-6">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-secondary rounded-[var(--radius)] opacity-20 group-hover:opacity-35 transition-opacity duration-500 blur-sm" />
+              <div className="relative liquid-glass rounded-[var(--radius)] p-5">
+                <p className="text-foreground font-semibold text-lg italic leading-relaxed">
                   "Whether you've been Muslim your whole life, just took your shahada, or you're just curious — you belong here."
                 </p>
               </div>
             </div>
           </motion.div>
-        </div>
-      </section>
-
-      {/* Quran Ayat */}
-      <section className="section-padding-sm gradient-mesh-gold relative overflow-hidden">
-        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: '200px' }} />
-        <div className="max-w-3xl mx-auto relative z-10">
-          <div className="glass-card-strong glass-glow p-8 md:p-12">
-            <ArabicVerse
-              arabic="وَاعْتَصِمُوا بِحَبْلِ اللَّهِ جَمِيعًا وَلَا تَفَرَّقُوا"
-              translation="And hold firmly to the rope of Allah all together and do not become divided."
-              reference="Quran 3:103"
-            />
-          </div>
         </div>
       </section>
 
@@ -179,20 +174,20 @@ const About = () => {
       {/* Org Chart */}
       <section className="section-padding gradient-mesh-warm relative overflow-hidden">
         <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: '200px' }} />
-        <div className="max-w-3xl mx-auto relative z-10">
+        <div className="max-w-5xl mx-auto relative z-10">
           <SectionHeading title="Your MSA Leadership" label="The Board" />
           <OrgChart />
         </div>
       </section>
 
-      {/* Closing Ayat */}
+      {/* Closing Ayat — one, relevant to the org's mission */}
       <section className="section-padding-sm gradient-section-gold-soft">
         <div className="max-w-3xl mx-auto">
           <div className="glass-card-strong glass-glow p-8 md:p-12">
             <ArabicVerse
-              arabic="إِنَّمَا الْمُؤْمِنُونَ إِخْوَةٌ"
-              translation="The believers are but brothers."
-              reference="Quran 49:10"
+              arabic="وَاعْتَصِمُوا بِحَبْلِ اللَّهِ جَمِيعًا وَلَا تَفَرَّقُوا"
+              translation="And hold firmly to the rope of Allah all together and do not become divided."
+              reference="Quran 3:103"
             />
           </div>
         </div>

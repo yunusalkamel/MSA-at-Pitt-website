@@ -1,13 +1,11 @@
-import { useMemo, useState } from "react";
-import { motion } from "framer-motion";
-import { Calendar, Smartphone, ExternalLink, ArrowRight } from "lucide-react";
+import { useMemo, useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { Calendar, Smartphone, ArrowRight } from "lucide-react";
 import Layout from "@/components/Layout";
 import ArabicVerse from "@/components/ArabicVerse";
 import EventsHero from "@/components/events/EventsHero";
 import FeaturedEventCard from "@/components/events/FeaturedEventCard";
-import EventsViewToggle from "@/components/events/EventsViewToggle";
 import EventsFilterBar from "@/components/events/EventsFilterBar";
-import UpcomingEventsList from "@/components/events/UpcomingEventsList";
 import MonthCalendar from "@/components/events/MonthCalendar";
 import EventCard from "@/components/events/EventCard";
 import SectionHeading from "@/components/SectionHeading";
@@ -16,18 +14,18 @@ import {
   mockEvents,
   getFeaturedEvent,
   getUpcomingEvents,
-  filterEventsByTags,
   GOOGLE_CALENDAR_URL,
   APPLE_CALENDAR_URL,
   EVENT_SIGNUP_HUB_URL,
 } from "@/data/events";
 import { useCalendarEvents } from "@/hooks/useCalendarEvents";
 import type { MSAEvent } from "@/data/events";
+import { useState } from "react";
 
-function getNext15DaysEvents(events: MSAEvent[]): MSAEvent[] {
+function getUpcomingWindow(events: MSAEvent[], days = 21): MSAEvent[] {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const cutoff = new Date(today.getTime() + 15 * 24 * 60 * 60 * 1000);
+  const cutoff = new Date(today.getTime() + days * 24 * 60 * 60 * 1000);
   return events
     .filter((e) => {
       if (e.isPast) return false;
@@ -38,30 +36,27 @@ function getNext15DaysEvents(events: MSAEvent[]): MSAEvent[] {
 }
 
 const Events = () => {
-  const [view, setView] = useState<"upcoming" | "month">("upcoming");
   const [selectedTags, setSelectedTags] = useState<string[]>(["All"]);
   const { events: remoteEvents, loading, error } = useCalendarEvents();
 
   const sourceEvents = error ? mockEvents : remoteEvents;
   const featured = getFeaturedEvent(sourceEvents);
-  const next15 = useMemo(() => getNext15DaysEvents(sourceEvents), [sourceEvents]);
-  const filteredEvents = useMemo(
-    () => filterEventsByTags(sourceEvents, selectedTags),
-    [selectedTags, sourceEvents]
-  );
-  const upcomingFiltered = useMemo(
-    () =>
-      selectedTags.includes("Past Events")
-        ? filteredEvents
-        : getUpcomingEvents(filteredEvents),
-    [filteredEvents, selectedTags]
-  );
+  const upcoming = useMemo(() => getUpcomingWindow(sourceEvents, 21), [sourceEvents]);
+  const allEvents = useMemo(() => getUpcomingEvents(sourceEvents), [sourceEvents]);
+
+  // Filtered events for the calendar
+  const calendarEvents = useMemo(() => {
+    if (selectedTags.includes("All")) return sourceEvents;
+    return sourceEvents.filter((e) => e.tags.some((t) => selectedTags.includes(t)));
+  }, [selectedTags, sourceEvents]);
+
+  const upcomingScrollRef = useRef<HTMLDivElement>(null);
 
   return (
     <Layout>
       <EventsHero />
 
-      {/* Featured event — immediately after hero */}
+      {/* Signature event — immediately after hero */}
       {featured && (
         <section className="section-padding pt-10 pb-10 gradient-mesh-warm relative overflow-hidden">
           <div className="absolute inset-0 texture-dots" />
@@ -72,88 +67,22 @@ const Events = () => {
         </section>
       )}
 
-      {/* Calendar sync + Signup Hub */}
-      <section className="px-4 md:px-8 lg:px-16 xl:px-24 py-6 warm-surface-deep relative overflow-hidden">
-        <div className="absolute inset-0 texture-dots opacity-50" />
-        <div className="max-w-5xl mx-auto relative z-10">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="glass-divider-thick" />
 
-            {/* Sync to calendar — left side, understated */}
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mr-1">
-                Sync calendar:
-              </span>
-              <a
-                href={GOOGLE_CALENDAR_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                title="Opens Google Calendar — use the '+' button at bottom right to subscribe"
-                className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground border border-border/50 hover:border-border rounded-full px-3 py-1.5 transition-all glass-card"
-              >
-                <Calendar size={12} />
-                Google Calendar
-              </a>
-              <a
-                href={APPLE_CALENDAR_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                title="Adds MSA calendar directly to your Apple Calendar"
-                className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground border border-border/50 hover:border-border rounded-full px-3 py-1.5 transition-all glass-card"
-              >
-                <Smartphone size={12} />
-                Apple Calendar
-              </a>
-            </div>
-
-            {/* Signup Hub — emphasized, right side */}
-            <a
-              href={EVENT_SIGNUP_HUB_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-premium text-sm px-6 py-2.5 flex-shrink-0"
-            >
-              Event Signup Hub <ExternalLink size={13} />
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* Next 15 days — only shown if there are events */}
-      {next15.length > 0 && (
-        <section className="px-4 md:px-8 lg:px-16 xl:px-24 pt-8 pb-4 warm-surface relative overflow-hidden">
-          <div className="absolute inset-0 gradient-section-gold-soft opacity-60" />
-          <div className="max-w-5xl mx-auto relative z-10">
-            <div className="flex items-baseline gap-3 mb-5">
-              <h3 className="font-display text-2xl font-bold text-foreground">Next 15 Days</h3>
-              <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">
-                {next15.length} event{next15.length !== 1 ? "s" : ""}
-              </span>
-            </div>
-            <div className="max-h-[420px] overflow-y-auto pr-1 grid gap-3 overscroll-contain">
-              {next15.map((event, i) => (
-                <EventCard key={event.id} event={event} index={i} />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      <div className="glass-divider-thick mx-4 md:mx-8 lg:mx-16 xl:mx-24" />
-
-      {/* Full event browser */}
-      <section className="section-padding gradient-mesh-warm relative overflow-hidden">
-        <div className="absolute inset-0 gradient-section-emerald-soft" />
-        <div className="absolute inset-0 opacity-[0.015]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: "200px" }} />
+      {/* Calendar — the main view */}
+      <section className="section-padding warm-surface relative overflow-hidden">
+        <div className="absolute inset-0 gradient-mesh-warm" />
+        <div className="absolute inset-0 texture-cross opacity-50" />
         <div className="max-w-5xl mx-auto relative z-10">
 
           {error && (
-            <div className="mb-6 rounded-xl border border-primary/20 bg-primary/[0.06] px-4 py-3 text-sm text-foreground/80">
+            <div className="mb-5 rounded-xl border border-primary/20 bg-primary/[0.06] px-4 py-3 text-sm text-foreground/80">
               Showing our curated event schedule. Live sync will resume automatically.
             </div>
           )}
 
-          <div className="flex flex-col items-center gap-5 mb-10">
-            <EventsViewToggle view={view} onChange={setView} />
+          {/* Filter chips */}
+          <div className="flex justify-center mb-6">
             <EventsFilterBar selected={selectedTags} onChange={setSelectedTags} />
           </div>
 
@@ -164,22 +93,92 @@ const Events = () => {
                 <p className="text-muted-foreground text-sm">Loading events…</p>
               </div>
             </div>
-          ) : view === "upcoming" ? (
-            <UpcomingEventsList events={upcomingFiltered} />
           ) : (
-            <MonthCalendar events={filteredEvents} />
+            <MonthCalendar events={calendarEvents} />
           )}
+
+          {/* Sync calendar — understated, right below the calendar */}
+          <div className="flex flex-wrap items-center gap-3 mt-5 pt-4 border-t border-border/30">
+            <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">
+              Sync to your calendar:
+            </span>
+            <a
+              href={GOOGLE_CALENDAR_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Opens Google Calendar — click '+' at the bottom right to subscribe"
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground glass-card px-3 py-1.5 rounded-full border-border/50 hover:border-border transition-all"
+            >
+              <Calendar size={11} /> Google Calendar
+            </a>
+            <a
+              href={APPLE_CALENDAR_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Subscribes directly to your Apple Calendar"
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground glass-card px-3 py-1.5 rounded-full border-border/50 hover:border-border transition-all"
+            >
+              <Smartphone size={11} /> Apple Calendar
+            </a>
+            <div className="ml-auto">
+              <a
+                href={EVENT_SIGNUP_HUB_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-premium text-xs px-4 py-2"
+              >
+                Event Signup Hub <ArrowRight size={12} />
+              </a>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Closing ayat — only one, at the very end */}
-      <section className="section-padding-sm gradient-section-gold-soft">
-        <div className="max-w-2xl mx-auto">
+      {/* Upcoming events — horizontal scroll of cards */}
+      {upcoming.length > 0 && (
+        <section className="section-padding warm-surface-deep relative overflow-hidden">
+          <div className="absolute inset-0 gradient-section-gold-soft opacity-70" />
+          <div className="max-w-5xl mx-auto relative z-10">
+            {/* Count badge — no "next 15 days" label */}
+            <div className="flex items-center gap-3 mb-6">
+              <h3 className="font-display text-2xl md:text-3xl font-bold text-foreground">Coming Up</h3>
+              <span className="liquid-glass text-xs font-bold text-primary px-3 py-1 rounded-full">
+                {upcoming.length} event{upcoming.length !== 1 ? "s" : ""}
+              </span>
+            </div>
+
+            {/* Horizontal scroll */}
+            <div
+              ref={upcomingScrollRef}
+              className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide"
+              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+            >
+              {upcoming.map((event, i) => (
+                <motion.div
+                  key={event.id}
+                  initial={{ opacity: 0, x: 20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.06, duration: 0.4 }}
+                  className="flex-shrink-0 w-[280px] md:w-[320px] snap-start"
+                >
+                  <EventCard event={event} index={i} />
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Closing ayat — relevant to gathering and taking action */}
+      <section className="section-padding-sm gradient-section-emerald-soft relative overflow-hidden">
+        <div className="absolute inset-0 opacity-[0.025]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: '200px' }} />
+        <div className="max-w-2xl mx-auto relative z-10">
           <div className="glass-card-strong glass-glow p-7">
             <ArabicVerse
-              arabic="فَإِنَّ مَعَ الْعُسْرِ يُسْرًا"
-              translation="For indeed, with hardship comes ease."
-              reference="Quran 94:5"
+              arabic="وَسَارِعُوا إِلَىٰ مَغْفِرَةٍ مِّن رَّبِّكُمْ وَجَنَّةٍ"
+              translation="And hasten toward forgiveness from your Lord and a Garden."
+              reference="Quran 3:133"
             />
           </div>
         </div>

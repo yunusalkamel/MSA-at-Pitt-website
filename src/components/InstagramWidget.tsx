@@ -1,9 +1,9 @@
 import { motion } from "framer-motion";
 import { Instagram, ExternalLink } from "lucide-react";
 
-// Update FOLLOWER_COUNT manually or wire to a Supabase edge function
-// that caches the count (Instagram Graph API requires Business account OAuth)
-const FOLLOWER_COUNT = "1.4K";
+// ↓ UPDATE THIS manually to match your current follower count
+// Instagram's API requires Business account OAuth to fetch live — update as needed
+const FOLLOWER_COUNT = "1.4K"; // e.g. "1.4K" or "1,412"
 const INSTAGRAM_URL = "https://instagram.com/msa.at.pitt";
 const HANDLE = "@msa.at.pitt";
 

@@ -41,11 +41,11 @@ const StatItem = ({
   bordered?: boolean;
 }) => {
   const { count, ref } = useCountUp(numericValue ?? 0, 1600);
-  const display = numericValue !== undefined ? `${count}${suffix ?? ""}` : value ?? "";
+  const display = value ?? (numericValue !== undefined ? `${count}${suffix ?? ""}` : "");
 
   return (
     <div ref={ref} className={`text-center px-4 md:px-6 ${bordered ? "border-r border-border/40" : ""}`}>
-      <p className="font-display text-4xl md:text-5xl font-bold text-gradient-gold leading-none">
+      <p className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-gradient-gold leading-none">
         {display}
       </p>
       <p className="text-foreground text-sm font-semibold mt-2">{label}</p>
@@ -171,9 +171,9 @@ const Index = () => {
       {/* ── Stats Bar ── */}
       <section className="relative z-20 px-4 md:px-8 -mt-14">
         <div className="liquid-glass-strong rounded-2xl max-w-3xl mx-auto p-6 md:p-8 grid grid-cols-3">
-          <StatItem numericValue={10} suffix="+" label="Weekly Events" sub="every semester" bordered />
-          <StatItem numericValue={200} suffix="+" label="Active Members" sub="and growing" bordered />
-          <StatItem numericValue={20} suffix="+" label="Years at Pitt" sub="established" />
+          <StatItem numericValue={50} suffix="+" label="Events per Semester" sub="halaqas, socials & more" bordered />
+          <StatItem numericValue={400} suffix="+" label="Community Members" sub="and growing every year" bordered />
+          <StatItem value="Est. 1997" label="Founded at Pitt" sub="30+ years of community" />
         </div>
       </section>
 
