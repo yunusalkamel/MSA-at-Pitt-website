@@ -138,6 +138,9 @@
   .font-arabic {
     font-family: var(--font-arabic);
   }
+  .font-body {
+    font-family: var(--font-body);
+  }
 
   /* ── Spacing ── */
   .section-padding {

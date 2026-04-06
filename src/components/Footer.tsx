@@ -14,14 +14,24 @@ const Footer = () => {
     <footer className="bg-accent text-accent-foreground relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-primary/5" />
       <div className="relative max-w-7xl mx-auto px-4 md:px-8 lg:px-16 xl:px-24 py-14">
-        {/* Quranic ayat */}
+        {/* Footer ayat */}
         <div className="text-center mb-10">
-          <p className="font-arabic text-2xl md:text-3xl mb-3 text-primary/70" dir="rtl">
+          <div className="flex items-center justify-center gap-3 mb-3">
+            <div className="w-10 h-px bg-gradient-to-r from-transparent to-primary/25" />
+            <div className="w-1 h-1 rounded-full bg-primary/40" />
+            <div className="w-10 h-px bg-gradient-to-l from-transparent to-primary/25" />
+          </div>
+          <p className="font-arabic text-xl md:text-2xl mb-2 text-primary/65" dir="rtl">
             رَبَّنَا تَقَبَّلْ مِنَّا إِنَّكَ أَنتَ السَّمِيعُ الْعَلِيمُ
           </p>
-          <p className="italic text-sm opacity-60">
+          <p className="italic text-xs opacity-50">
             "Our Lord, accept from us. Indeed, You are the All-Hearing, the All-Knowing." — Quran 2:127
           </p>
+          <div className="flex items-center justify-center gap-3 mt-3">
+            <div className="w-6 h-px bg-gradient-to-r from-transparent to-primary/15" />
+            <div className="w-1 h-1 rounded-full bg-primary/25" />
+            <div className="w-6 h-px bg-gradient-to-l from-transparent to-primary/15" />
+          </div>
         </div>
 
         <div className="glass-divider mb-8" />

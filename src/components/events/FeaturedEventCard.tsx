@@ -42,10 +42,7 @@ const FeaturedEventCard = ({ event }: Props) => {
           <div className="flex-1 p-7 md:p-10">
             <div className="flex flex-wrap gap-2 mb-4">
               {event.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="glass-card text-[11px] font-semibold uppercase tracking-wider text-primary px-3 py-1 rounded-full"
-                >
+                <span key={tag} className="tag-chip-gold">
                   {tag}
                 </span>
               ))}

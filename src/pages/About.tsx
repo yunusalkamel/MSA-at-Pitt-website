@@ -68,15 +68,30 @@ const About = () => {
         <div className="absolute inset-0 texture-dots" />
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-1 gold-gradient rounded-full" />
         <div className="max-w-3xl mx-auto text-center relative z-10">
-          <motion.p
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96 }}
+            whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="font-arabic text-3xl md:text-4xl text-gradient-gold mb-6"
-            dir="rtl"
+            transition={{ duration: 1.0 }}
+            className="mb-6 flex flex-col items-center gap-2"
           >
-            بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
-          </motion.p>
+            <div className="flex items-center gap-3 w-40">
+              <div className="flex-1 h-px bg-gradient-to-r from-transparent to-primary/35" />
+              <div className="w-1 h-1 rounded-full bg-primary/50" />
+              <div className="flex-1 h-px bg-gradient-to-l from-transparent to-primary/35" />
+            </div>
+            <p
+              className="font-arabic text-3xl md:text-4xl text-gradient-gold"
+              dir="rtl"
+            >
+              بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+            </p>
+            <div className="flex items-center gap-3 w-40">
+              <div className="flex-1 h-px bg-gradient-to-r from-transparent to-primary/35" />
+              <div className="w-1 h-1 rounded-full bg-primary/50" />
+              <div className="flex-1 h-px bg-gradient-to-l from-transparent to-primary/35" />
+            </div>
+          </motion.div>
           <SectionHeading title="Our Mission" />
           <p className="text-muted-foreground text-lg leading-relaxed">
             The Muslim Student Association at the University of Pittsburgh exists to foster a welcoming and inclusive community for Muslim students and allies. We strive to strengthen faith, build lasting bonds, celebrate our heritage, and serve those around us — all while making Pitt feel like home.

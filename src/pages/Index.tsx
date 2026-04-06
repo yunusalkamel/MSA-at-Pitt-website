@@ -58,16 +58,30 @@ const Index = () => {
           className="relative z-10 text-center px-4 max-w-4xl mx-auto"
           style={{ opacity: heroOpacity }}
         >
-          {/* Bismillah as spiritual accent — intentionally smaller */}
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1.2 }}
-            className="font-arabic text-lg md:text-xl text-primary/75 mb-5 tracking-wide"
-            dir="rtl"
+          {/* Bismillah — intentional design element, not a header */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1.4, ease: "easeOut" }}
+            className="mb-8 flex flex-col items-center gap-2"
           >
-            بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
-          </motion.p>
+            <div className="flex items-center gap-3 w-40">
+              <div className="flex-1 h-px bg-gradient-to-r from-transparent to-primary/40" />
+              <div className="w-1 h-1 rounded-full bg-primary/60" />
+              <div className="flex-1 h-px bg-gradient-to-l from-transparent to-primary/40" />
+            </div>
+            <p
+              className="font-arabic text-2xl md:text-3xl text-primary/80 tracking-wide"
+              dir="rtl"
+            >
+              بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+            </p>
+            <div className="flex items-center gap-3 w-40">
+              <div className="flex-1 h-px bg-gradient-to-r from-transparent to-primary/40" />
+              <div className="w-1 h-1 rounded-full bg-primary/60" />
+              <div className="flex-1 h-px bg-gradient-to-l from-transparent to-primary/40" />
+            </div>
+          </motion.div>
 
           {/* Org identity first */}
           <motion.p
