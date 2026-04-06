@@ -25,6 +25,17 @@ function useSectionParallax(ref: React.RefObject<HTMLElement | null>, amount = 1
   return useTransform(scrollYProgress, [0, 1], [`-${amount}px`, `${amount}px`]);
 }
 
+// Ornamental section divider — mirrors the bismillah dot motif
+const SectionDivider = ({ className = "" }: { className?: string }) => (
+  <div className={`flex items-center justify-center gap-2.5 py-6 ${className}`}>
+    <div className="w-20 md:w-40 h-px bg-gradient-to-r from-transparent to-primary/28" />
+    <span className="w-1.5 h-1.5 rounded-full bg-primary/35 flex-shrink-0" />
+    <span className="w-2.5 h-2.5 rounded-full bg-primary/55 flex-shrink-0" />
+    <span className="w-1.5 h-1.5 rounded-full bg-primary/35 flex-shrink-0" />
+    <div className="w-20 md:w-40 h-px bg-gradient-to-l from-transparent to-primary/28" />
+  </div>
+);
+
 // Animated stat with count-up
 const StatItem = ({
   value,
@@ -175,7 +186,7 @@ const Index = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.2, duration: 0.6 }}
-          className="liquid-glass-stats rounded-3xl max-w-3xl mx-auto p-4 md:p-6 grid grid-cols-3 items-stretch gap-0 ring-1 ring-white/15 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.08)]"
+          className="liquid-glass-stats rounded-3xl max-w-3xl mx-3 sm:mx-auto p-4 md:p-6 grid grid-cols-3 items-stretch gap-0 ring-1 ring-white/15 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.08)] overflow-hidden"
         >
           <StatItem numericValue={50} suffix="+" label="Events per Semester" sub="halaqas, socials & more" bordered />
           <StatItem value="1997" label="Founded at Pitt" sub="30+ years of community" bordered />
@@ -235,7 +246,7 @@ const Index = () => {
         </div>
       </section>
 
-      <div className="glass-divider-thick" />
+      <SectionDivider />
 
       {/* ── Upcoming Events ── */}
       <section className="section-padding warm-surface-deep relative overflow-hidden">
@@ -309,6 +320,8 @@ const Index = () => {
         </div>
       </section>
 
+      <SectionDivider />
+
       {/* ── Pillars ── */}
       <section ref={pillarsRef} className="section-padding warm-surface relative overflow-hidden">
         <motion.div className="absolute inset-0 gradient-mesh-warm" style={{ y: pillarsBgY }} />
@@ -329,10 +342,11 @@ const Index = () => {
         </div>
       </section>
 
+      <SectionDivider />
+
       {/* ── Join CTA ── */}
       <section className="section-padding gradient-section-gold-soft relative overflow-hidden">
         <div className="absolute inset-0 texture-dots" />
-        <div className="absolute top-0 left-0 right-0 h-px glass-divider" />
         <div className="max-w-3xl mx-auto text-center relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
@@ -359,19 +373,67 @@ const Index = () => {
             </div>
           </motion.div>
         </div>
-        <div className="absolute bottom-0 left-0 right-0 h-px glass-divider" />
       </section>
 
-      {/* ── Closing Ayat ── */}
-      <section className="section-padding-sm gradient-section-emerald-soft relative overflow-hidden">
-        <div className="absolute inset-0 opacity-[0.025]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: '200px' }} />
-        <div className="max-w-2xl mx-auto relative z-10">
-          <div className="glass-card-strong glass-glow p-8 md:p-12">
-            <ArabicVerse
-              arabic="إِنَّمَا الْمُؤْمِنُونَ إِخْوَةٌ"
-              translation="The believers are but brothers."
-              reference="Quran 49:10"
-            />
+      {/* ── Brand Stamp — abyss/royal dark section ── */}
+      <section className="relative overflow-hidden py-20 md:py-28">
+        <div className="absolute inset-0 abyss-surface" />
+        {/* Royal blue radial pulse */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] rounded-full bg-[hsl(222,90%,32%)]/14 blur-[130px] pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[280px] h-[180px] rounded-full bg-[hsl(213,80%,55%)]/10 blur-[80px] pointer-events-none" />
+        <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: '200px' }} />
+        <div className="absolute inset-0 texture-dots opacity-20" />
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-8 lg:px-16">
+          <div className="grid md:grid-cols-2 gap-12 md:gap-20 items-center">
+
+            {/* MSA logo mark with royal glow */}
+            <motion.div
+              initial={{ opacity: 0, x: -24 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="relative group flex justify-center md:justify-start"
+            >
+              <div className="absolute -inset-4 bg-gradient-to-br from-[hsl(222,90%,32%)]/40 via-transparent to-[hsl(222,100%,20%)]/25 rounded-3xl opacity-70 blur-2xl group-hover:opacity-90 transition-opacity duration-700" />
+              <div className="relative liquid-glass-strong px-10 py-9 text-center rounded-2xl">
+                <p className="font-display font-bold leading-none tracking-tight text-7xl md:text-9xl text-gradient-royal">
+                  MSA
+                </p>
+                <div className="flex items-center justify-center gap-2 mt-3">
+                  <div className="h-px w-8 bg-[hsl(213,80%,65%)]/25" />
+                  <p className="text-[9px] uppercase tracking-[0.35em] text-[hsl(213,60%,75%)]/45 font-semibold">at Pitt · Est. 1997</p>
+                  <div className="h-px w-8 bg-[hsl(213,80%,65%)]/25" />
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Tagline + Closing Ayat */}
+            <motion.div
+              initial={{ opacity: 0, x: 24 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.15 }}
+            >
+              <p className="text-[hsl(213,60%,72%)]/45 text-[10px] uppercase tracking-[0.3em] font-semibold mb-4">Muslim Student Association</p>
+              <h2 className="font-display text-4xl md:text-5xl font-bold text-accent-foreground mb-5 leading-tight">
+                Cultivate community.<br />
+                <span className="text-gradient-gold italic">Ignite iman.</span>
+              </h2>
+              <p className="text-accent-foreground/45 text-base leading-relaxed mb-8">
+                Over 28 years of faith, friendship, and service at the University of Pittsburgh — and we're just getting started.
+              </p>
+              {/* Embedded closing ayat */}
+              <div className="border-l-2 border-[hsl(222,90%,32%)]/40 pl-5">
+                <ArabicVerse
+                  arabic="إِنَّمَا الْمُؤْمِنُونَ إِخْوَةٌ"
+                  translation="The believers are but brothers."
+                  reference="Quran 49:10"
+                  className="text-left py-0"
+                  compact
+                />
+              </div>
+            </motion.div>
+
           </div>
         </div>
       </section>

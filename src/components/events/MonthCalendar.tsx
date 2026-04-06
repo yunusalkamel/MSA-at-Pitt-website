@@ -68,7 +68,7 @@ const SingleEventCell = ({
     ? "gold-gradient text-primary-foreground"
     : isPast
     ? "bg-muted/80 text-foreground/70"
-    : "bg-secondary/90 text-secondary-foreground";
+    : "jannah-mid-chip";
 
   return (
     <button
@@ -104,7 +104,7 @@ const EventChip = ({
     ? "gold-gradient text-primary-foreground"
     : isPast
     ? "bg-muted/80 text-foreground/70"
-    : "bg-secondary/90 text-secondary-foreground";
+    : "jannah-mid-chip";
 
   return (
     <button
