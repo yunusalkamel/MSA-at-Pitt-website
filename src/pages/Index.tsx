@@ -33,7 +33,6 @@ const StatItem = ({
   label,
   sub,
   bordered,
-  large,
 }: {
   value?: string;
   numericValue?: number;
@@ -41,18 +40,17 @@ const StatItem = ({
   label: string;
   sub: string;
   bordered?: boolean;
-  large?: boolean;
 }) => {
   const { count, ref } = useCountUp(numericValue ?? 0, 1600);
   const display = value ?? (numericValue !== undefined ? `${count}${suffix ?? ""}` : "");
 
   return (
-    <div ref={ref} className={`text-center px-3 md:px-6 ${bordered ? "border-r border-border/40" : ""}`}>
-      <p className={`font-display font-bold text-gradient-gold leading-none ${large ? "text-4xl md:text-6xl lg:text-7xl" : "text-3xl md:text-4xl lg:text-5xl"}`}>
+    <div ref={ref} className={`text-center px-2 md:px-5 py-3 flex flex-col items-center gap-0.5 ${bordered ? "border-r border-border/30" : ""}`}>
+      <p className="text-foreground/70 text-[9px] md:text-[10px] font-semibold tracking-widest uppercase mb-0.5">{label}</p>
+      <p className="font-display font-bold text-gradient-gold leading-none text-2xl md:text-4xl lg:text-5xl">
         {display}
       </p>
-      <p className="text-foreground text-xs md:text-sm font-semibold mt-2">{label}</p>
-      <p className="text-muted-foreground text-[10px] md:text-xs mt-0.5">{sub}</p>
+      <p className="text-muted-foreground text-[8px] md:text-[10px] leading-tight mt-0.5">{sub}</p>
     </div>
   );
 };
@@ -172,21 +170,21 @@ const Index = () => {
       </section>
 
       {/* ── Stats Bar ── */}
-      <section className="relative z-20 px-4 md:px-8 -mt-14">
+      <section className="relative z-20 px-4 md:px-8 -mt-14 mb-[-5rem] bg-transparent">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.2, duration: 0.6 }}
-          className="liquid-glass-strong rounded-2xl max-w-3xl mx-auto p-6 md:p-8 grid grid-cols-3"
+          className="liquid-glass-stats rounded-3xl max-w-3xl mx-auto p-4 md:p-6 grid grid-cols-3 items-stretch gap-0 ring-1 ring-white/15 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.08)]"
         >
           <StatItem numericValue={50} suffix="+" label="Events per Semester" sub="halaqas, socials & more" bordered />
-          <StatItem value="1997" label="Founded at Pitt" sub="30+ years of community" large bordered />
+          <StatItem value="1997" label="Founded at Pitt" sub="30+ years of community" bordered />
           <StatItem numericValue={400} suffix="+" label="Community Members" sub="and growing every year" />
         </motion.div>
       </section>
 
       {/* ── Our Story ── */}
-      <section ref={communityRef} className="section-padding warm-surface relative overflow-hidden">
+      <section ref={communityRef} className="section-padding pt-32 warm-surface relative overflow-hidden">
         <motion.div className="absolute inset-0 gradient-mesh-warm" style={{ y: communityBgY }} />
         <div className="absolute inset-0 texture-cross" />
         <div className="max-w-7xl mx-auto relative z-10">

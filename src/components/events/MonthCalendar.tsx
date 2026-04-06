@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback } from "react";
-import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, Clock, ExternalLink, CalendarClock } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronLeft, ChevronRight, Clock, ExternalLink, CalendarClock, MapPin } from "lucide-react";
 import type { MSAEvent } from "@/data/events";
 import DayEventsPanel from "./DayEventsPanel";
 
@@ -89,7 +89,7 @@ const SingleEventCell = ({
   );
 };
 
-// Static chip for multi-event cells — no expand behavior
+// Static chip for multi-event cells — no expand behavior, shows title + time + place
 const EventChip = ({
   event,
   onClick,
@@ -109,14 +109,25 @@ const EventChip = ({
   return (
     <button
       onClick={onClick}
-      title={`${event.title} · ${getTimeOnly(event.timeLabel)}`}
-      className={`w-full rounded-md px-1 md:px-1.5 py-[3px] text-left overflow-hidden
+      title={`${event.title} · ${getTimeOnly(event.timeLabel)}${event.location ? ` · ${event.location}` : ""}`}
+      className={`w-full rounded-md px-1 md:px-1.5 py-1 text-left overflow-hidden
         ${chipStyle} ${link ? "cursor-pointer hover:opacity-85" : "cursor-default"}
         transition-opacity duration-150`}
     >
       <div className="font-semibold text-[8px] md:text-[10px] leading-tight truncate">
         {event.title}
       </div>
+      <div className="flex items-center gap-0.5 mt-[2px] opacity-80">
+        <Clock size={6} className="shrink-0" />
+        <span className="text-[7px] md:text-[9px] truncate">{getTimeOnly(event.timeLabel)}</span>
+        {link && <ExternalLink size={6} className="shrink-0 opacity-50 ml-auto" />}
+      </div>
+      {event.location && (
+        <div className="hidden md:flex items-center gap-0.5 mt-[1px] opacity-70">
+          <MapPin size={6} className="shrink-0" />
+          <span className="text-[7px] md:text-[9px] truncate">{event.location}</span>
+        </div>
+      )}
     </button>
   );
 };
@@ -207,7 +218,7 @@ const MonthCalendar = ({ events }: Props) => {
         {/* Grid */}
         <div className="grid grid-cols-7 gap-1">
           {cells.map((day, i) => {
-            if (day === null) return <div key={`empty-${i}`} className="min-h-[72px] md:min-h-[92px]" />;
+            if (day === null) return <div key={`empty-${i}`} className="min-h-[80px] md:min-h-[108px]" />;
 
             const dateStr = formatDateStr(year, month, day);
             const dayEvents = eventsByDate[dateStr] || [];
@@ -221,7 +232,7 @@ const MonthCalendar = ({ events }: Props) => {
               <div
                 key={dateStr}
                 onClick={() => dayEvents.length > 1 && setSelectedDate(dateStr)}
-                className={`group relative min-h-[72px] md:min-h-[92px] rounded-xl flex flex-col items-start p-1.5 md:p-2 border transition-all duration-200 overflow-hidden
+                className={`group relative min-h-[80px] md:min-h-[108px] rounded-xl flex flex-col items-start p-1.5 md:p-2 border transition-all duration-200 overflow-hidden
                   ${isToday
                     ? "border-primary/50 bg-primary/[0.08] shadow-[0_0_14px_hsl(var(--primary)/0.12)]"
                     : hasEvents
