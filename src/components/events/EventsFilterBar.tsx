@@ -29,7 +29,7 @@ const EventsFilterBar = ({ selected, onChange }: Props) => {
           <button
             key={tag}
             onClick={() => toggle(tag)}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all duration-200 border
+            className={`min-h-10 px-4 py-2 rounded-full text-sm md:text-xs font-semibold tracking-wide transition-all duration-200 border
               ${isActive
                 ? "gold-gradient text-primary-foreground border-transparent shadow-sm"
                 : "bg-transparent border-border/60 text-muted-foreground hover:border-border hover:text-foreground"

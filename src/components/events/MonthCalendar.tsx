@@ -73,17 +73,17 @@ const SingleEventCell = ({
   return (
     <button
       onClick={onClick}
-      className={`w-full flex-1 rounded-lg px-1.5 py-1 text-left overflow-hidden
+      className={`w-full flex-1 min-h-[54px] rounded-lg px-2 py-1.5 text-left overflow-hidden
         ${chipStyle} ${link ? "cursor-pointer hover:opacity-85" : "cursor-default"}
         transition-opacity duration-150`}
     >
-      <div className="font-semibold text-[10px] md:text-xs leading-tight break-words line-clamp-2">
+      <div className="font-semibold text-[11px] md:text-xs leading-tight break-words line-clamp-2">
         {event.title}
       </div>
-      <div className="text-[8px] md:text-[10px] opacity-80 flex items-center gap-0.5 mt-0.5">
-        <Clock size={7} className="shrink-0" />
+      <div className="text-[10px] md:text-[10px] opacity-80 flex items-center gap-1 mt-1">
+        <Clock size={9} className="shrink-0" />
         {getTimeOnly(event.timeLabel)}
-        {link && <ExternalLink size={7} className="shrink-0 opacity-60 ml-auto" />}
+        {link && <ExternalLink size={9} className="shrink-0 opacity-60 ml-auto" />}
       </div>
     </button>
   );
@@ -110,17 +110,17 @@ const EventChip = ({
     <button
       onClick={onClick}
       title={`${event.title} · ${getTimeOnly(event.timeLabel)}${event.location ? ` · ${event.location}` : ""}`}
-      className={`w-full rounded-md px-1 md:px-1.5 py-1 text-left overflow-hidden
+      className={`w-full min-h-[46px] rounded-md px-2 md:px-1.5 py-1.5 text-left overflow-hidden
         ${chipStyle} ${link ? "cursor-pointer hover:opacity-85" : "cursor-default"}
         transition-opacity duration-150`}
     >
-      <div className="font-semibold text-[8px] md:text-[10px] leading-tight truncate">
+      <div className="font-semibold text-[10px] md:text-[10px] leading-tight truncate">
         {event.title}
       </div>
-      <div className="flex items-center gap-0.5 mt-[2px] opacity-80">
-        <Clock size={6} className="shrink-0" />
-        <span className="text-[7px] md:text-[9px] truncate">{getTimeOnly(event.timeLabel)}</span>
-        {link && <ExternalLink size={6} className="shrink-0 opacity-50 ml-auto" />}
+      <div className="flex items-center gap-1 mt-1 opacity-80">
+        <Clock size={8} className="shrink-0" />
+        <span className="text-[9px] md:text-[9px] truncate">{getTimeOnly(event.timeLabel)}</span>
+        {link && <ExternalLink size={8} className="shrink-0 opacity-50 ml-auto" />}
       </div>
       {event.location && (
         <div className="hidden md:flex items-center gap-0.5 mt-[1px] opacity-70">
@@ -267,7 +267,7 @@ const MonthCalendar = ({ events }: Props) => {
                         <button
                           type="button"
                           onClick={(e) => { e.stopPropagation(); setSelectedDate(dateStr); }}
-                          className="rounded-md bg-primary/[0.1] border border-primary/20 text-[9px] md:text-[10px] font-semibold text-primary px-1 md:px-1.5 py-[2px] text-left hover:bg-primary/20 transition-colors"
+                          className="rounded-md min-h-8 bg-primary/[0.1] border border-primary/20 text-[10px] md:text-[10px] font-semibold text-primary px-2 md:px-1.5 py-1 text-left hover:bg-primary/20 transition-colors"
                         >
                           +{hiddenCount} more
                         </button>

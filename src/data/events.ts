@@ -197,10 +197,10 @@ export const mockEvents: MSAEvent[] = [
   },
   {
     id: "12",
-    title: "Dawah Table: Islam Awareness Week",
+    title: "Dawah Table: Islam Awareness Week Community Q&A and Student Resource Outreach",
     startDate: "2026-04-14",
     timeLabel: "Monday – Friday · 11:00 AM – 3:00 PM",
-    location: "William Pitt Union Lobby",
+    location: "William Pitt Union Main Lobby (beside the Plaza entrance and near Nordy's Place)",
     shortBlurb:
       "Stop by our table all week for conversations, free literature, and Q&A about Islam.",
     tags: ["Dawah", "Education & Service", "Collaboration", "Open to All"],

@@ -56,12 +56,12 @@ const StatItem = ({
   const display = value ?? (numericValue !== undefined ? `${count}${suffix ?? ""}` : "");
 
   return (
-    <div ref={ref} className={`text-center px-2 md:px-5 py-3 flex flex-col items-center gap-0.5 ${bordered ? "border-r border-border/30" : ""}`}>
-      <p className="text-foreground/70 text-[9px] md:text-[10px] font-semibold tracking-widest uppercase mb-0.5">{label}</p>
+    <div ref={ref} className={`text-center px-2 md:px-5 py-3.5 md:py-3 flex flex-col items-center gap-0.5 ${bordered ? "border-r border-border/30" : ""}`}>
+      <p className="text-foreground/70 text-[10px] md:text-[10px] font-semibold tracking-widest uppercase mb-0.5">{label}</p>
       <p className="font-display font-bold text-gradient-gold leading-none text-2xl md:text-4xl lg:text-5xl">
         {display}
       </p>
-      <p className="text-muted-foreground text-[8px] md:text-[10px] leading-tight mt-0.5">{sub}</p>
+      <p className="text-muted-foreground text-[10px] md:text-[10px] leading-tight mt-0.5">{sub}</p>
     </div>
   );
 };

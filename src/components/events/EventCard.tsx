@@ -73,13 +73,24 @@ const EventCard = ({ event, index = 0 }: Props) => {
               {linkifyText(event.shortBlurb)}
             </p>
 
-            <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground mb-4">
+            <div className="md:hidden text-xs text-muted-foreground mb-4 space-y-1">
+              <p className="flex items-center gap-1.5">
+                <Clock size={12} className="text-primary/60 shrink-0" />
+                <span className="truncate">{event.timeLabel}</span>
+              </p>
+              <p className="flex items-center gap-1.5">
+                <MapPin size={12} className="text-secondary/60 shrink-0" />
+                <span className="truncate">{event.location}</span>
+              </p>
+            </div>
+
+            <div className="hidden md:flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground mb-4">
               <span className="flex items-center gap-1.5">
                 <Clock size={11} className="text-primary/60" />
                 {event.timeLabel}
               </span>
-              <span className="flex items-center gap-1.5">
-                <MapPin size={11} className="text-secondary/60" />
+              <span className="flex items-center gap-1.5 min-w-0">
+                <MapPin size={11} className="text-secondary/60 shrink-0" />
                 <span className="truncate max-w-[180px]">{event.location}</span>
               </span>
             </div>
