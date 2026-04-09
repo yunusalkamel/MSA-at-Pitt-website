@@ -1,0 +1,424 @@
+import { useState, useMemo, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronLeft, ChevronRight, Clock, ExternalLink, CalendarClock, MapPin } from "lucide-react";
+import type { MSAEvent } from "@/data/events";
+import DayEventsPanel from "./DayEventsPanel";
+import { resolveEventAction } from "./resolveEventAction";
+import { DAYS, getDaysInMonth, getFirstDayOfMonth, formatDateStr, getTimeOnly, sortEvents } from "./calendar-utils";
+import { useIsMobile } from "@/hooks/use-mobile";
+
+interface Props { events: MSAEvent[] }
+
+// ── Shared event chip ─────────────────────────────────────────────────────────
+
+const EventChip = ({
+  event,
+  compact = false,
+  onClick,
+}: {
+  event: MSAEvent;
+  compact?: boolean;
+  onClick: (e: React.MouseEvent) => void;
+}) => {
+  const link = resolveEventAction(event).href;
+  const isFeatured = event.featured;
+  const isPast = event.isPast;
+  const chipStyle = isFeatured
+    ? "gold-gradient text-primary-foreground"
+    : isPast
+    ? "bg-muted/80 text-foreground/60"
+    : "bg-secondary/90 text-secondary-foreground";
+
+  return (
+    <button
+      onClick={onClick}
+      title={`${event.title} · ${getTimeOnly(event.timeLabel)}${event.location ? ` · ${event.location}` : ""}`}
+      className={`w-full rounded-md px-2 py-1.5 text-left overflow-hidden
+        ${chipStyle} ${link ? "cursor-pointer hover:opacity-85" : "cursor-default"}
+        transition-opacity duration-150 ${compact ? "min-h-[36px]" : "min-h-[46px]"}`}
+    >
+      <div className={`font-semibold leading-tight truncate ${compact ? "text-[10px]" : "text-[11px]"}`}>
+        {event.title}
+      </div>
+      <div className="flex items-center gap-1 mt-0.5 opacity-80">
+        <Clock size={8} className="shrink-0" />
+        <span className="text-[9px] truncate">{getTimeOnly(event.timeLabel)}</span>
+        {link && <ExternalLink size={8} className="shrink-0 opacity-50 ml-auto" />}
+      </div>
+      {!compact && event.location && (
+        <div className="hidden md:flex items-center gap-0.5 mt-[1px] opacity-70">
+          <MapPin size={6} className="shrink-0" />
+          <span className="text-[9px] truncate">{event.location}</span>
+        </div>
+      )}
+    </button>
+  );
+};
+
+// ── +N more pill ──────────────────────────────────────────────────────────────
+
+const MorePill = ({ count, onClick }: { count: number; onClick: (e: React.MouseEvent) => void }) => (
+  <button
+    type="button"
+    onClick={(e) => { e.stopPropagation(); onClick(e); }}
+    className="w-full rounded-md min-h-[24px] bg-primary/[0.09] border border-primary/20
+      text-[9px] font-semibold text-primary px-2 py-1 text-left
+      hover:bg-primary/[0.18] transition-colors leading-none flex items-center"
+  >
+    +{count} more
+  </button>
+);
+
+// ── Month view (desktop) ──────────────────────────────────────────────────────
+
+const MonthView = ({
+  year, month, eventsByDate, todayStr, monthLabel, isCurrentMonth,
+  onPrev, onNext, onGoToday, onSelectDate,
+}: {
+  year: number; month: number; eventsByDate: Record<string, MSAEvent[]>;
+  todayStr: string; monthLabel: string; isCurrentMonth: boolean;
+  onPrev: () => void; onNext: () => void; onGoToday: () => void;
+  onSelectDate: (date: string) => void;
+}) => {
+  const daysInMonth = getDaysInMonth(year, month);
+  const firstDay = getFirstDayOfMonth(year, month);
+
+  const cells: (number | null)[] = [];
+  for (let i = 0; i < firstDay; i++) cells.push(null);
+  for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+  while (cells.length % 7 !== 0) cells.push(null);
+
+  const handleEventClick = (ev: MSAEvent, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const action = resolveEventAction(ev);
+    if (action.href) {
+      if (action.external) window.open(action.href, "_blank", "noopener,noreferrer");
+      else window.location.assign(action.href);
+      return;
+    }
+    onSelectDate(ev.startDate);
+  };
+
+  return (
+    <div className="glass-card-strong p-4 md:p-6 rounded-2xl">
+      <div className="flex items-center justify-between mb-5 gap-2">
+        <button onClick={onPrev} aria-label="Previous month"
+          className="glass-card w-9 h-9 flex items-center justify-center hover:border-primary/30 transition-colors rounded-xl flex-shrink-0">
+          <ChevronLeft size={17} className="text-foreground" />
+        </button>
+        <div className="flex items-center gap-2.5 min-w-0">
+          <h3 className="font-display text-lg md:text-2xl font-bold text-foreground truncate">{monthLabel}</h3>
+          {!isCurrentMonth && (
+            <button onClick={onGoToday}
+              className="flex-shrink-0 inline-flex items-center gap-1.5 text-[11px] font-semibold text-primary border border-primary/25 bg-primary/[0.06] hover:bg-primary/[0.12] transition-colors px-2.5 py-1 rounded-full">
+              <CalendarClock size={11} /> Today
+            </button>
+          )}
+        </div>
+        <button onClick={onNext} aria-label="Next month"
+          className="glass-card w-9 h-9 flex items-center justify-center hover:border-primary/30 transition-colors rounded-xl flex-shrink-0">
+          <ChevronRight size={17} className="text-foreground" />
+        </button>
+      </div>
+
+      <div className="grid grid-cols-7 gap-1 mb-1">
+        {DAYS.map(d => (
+          <div key={d} className="text-center text-[10px] md:text-xs font-semibold text-muted-foreground py-1.5">{d}</div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-7 gap-1">
+        {cells.map((day, i) => {
+          if (day === null) return <div key={`empty-${i}`} className="min-h-[100px] md:min-h-[116px]" />;
+
+          const dateStr = formatDateStr(year, month, day);
+          const dayEvents = eventsByDate[dateStr] || [];
+          const isToday = dateStr === todayStr;
+          const hasEvents = dayEvents.length > 0;
+          const visibleEvents = dayEvents.slice(0, 2);
+          const hiddenCount = Math.max(dayEvents.length - 2, 0);
+
+          return (
+            <div
+              key={dateStr}
+              onClick={() => hasEvents && onSelectDate(dateStr)}
+              className={`relative min-h-[100px] md:min-h-[116px] rounded-xl flex flex-col items-start p-1.5 md:p-2 border transition-all duration-200 overflow-hidden
+                ${isToday
+                  ? "border-primary/50 bg-primary/[0.08] shadow-[0_0_14px_hsl(var(--primary)/0.12)]"
+                  : hasEvents
+                  ? "border-primary/10 bg-primary/[0.03] hover:border-primary/25 hover:bg-primary/[0.07] cursor-pointer"
+                  : "border-transparent hover:border-border/40 hover:bg-muted/20"
+                }`}
+            >
+              {isToday && (
+                <span className="absolute top-1.5 right-1.5 flex h-1.5 w-1.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-60" />
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary" />
+                </span>
+              )}
+              <span className={`font-semibold text-[11px] md:text-sm shrink-0 leading-none mb-1.5
+                ${isToday ? "text-primary" : hasEvents ? "text-foreground" : "text-muted-foreground"}`}>
+                {day}
+              </span>
+              <div className="w-full flex flex-col gap-[3px] flex-1 min-h-0">
+                {visibleEvents.map((ev, idx) => (
+                  <EventChip key={`${ev.id}-${idx}`} event={ev} onClick={(e) => handleEventClick(ev, e)} />
+                ))}
+                {hiddenCount > 0 && (
+                  <MorePill count={hiddenCount} onClick={(e) => { e.stopPropagation(); onSelectDate(dateStr); }} />
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="flex items-center gap-4 mt-4 px-1 flex-wrap">
+        {[
+          { label: "Signature", style: "gold-gradient" },
+          { label: "Upcoming", style: "bg-secondary" },
+          { label: "Past", style: "bg-muted" },
+        ].map(({ label, style }) => (
+          <span key={label} className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+            <span className={`w-2.5 h-2.5 rounded-[3px] flex-shrink-0 ${style}`} />
+            {label}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// ── Week view (mobile) ────────────────────────────────────────────────────────
+
+function getWeekStart(date: Date): Date {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() - d.getDay());
+  return d;
+}
+
+function addDays(date: Date, n: number): Date {
+  const d = new Date(date);
+  d.setDate(d.getDate() + n);
+  return d;
+}
+
+const WeekView = ({
+  weekStart, eventsByDate, todayStr,
+  onPrevWeek, onNextWeek, onGoToday, onSelectDate,
+}: {
+  weekStart: Date; eventsByDate: Record<string, MSAEvent[]>; todayStr: string;
+  onPrevWeek: () => void; onNextWeek: () => void; onGoToday: () => void;
+  onSelectDate: (date: string) => void;
+}) => {
+  const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
+
+  const weekLabel = (() => {
+    const end = addDays(weekStart, 6);
+    const sameMonth = weekStart.getMonth() === end.getMonth();
+    if (sameMonth) {
+      return `${weekStart.toLocaleString("en-US", { month: "long" })} ${weekStart.getDate()}–${end.getDate()}, ${end.getFullYear()}`;
+    }
+    return `${weekStart.toLocaleString("en-US", { month: "short" })} ${weekStart.getDate()} – ${end.toLocaleString("en-US", { month: "short" })} ${end.getDate()}, ${end.getFullYear()}`;
+  })();
+
+  const isCurrentWeek = days.some(d =>
+    formatDateStr(d.getFullYear(), d.getMonth(), d.getDate()) === todayStr
+  );
+
+  const handleEventClick = (ev: MSAEvent, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const action = resolveEventAction(ev);
+    if (action.href) {
+      if (action.external) window.open(action.href, "_blank", "noopener,noreferrer");
+      else window.location.assign(action.href);
+      return;
+    }
+    onSelectDate(ev.startDate);
+  };
+
+  return (
+    <div className="glass-card-strong p-4 rounded-2xl">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4 gap-2">
+        <button onClick={onPrevWeek} aria-label="Previous week"
+          className="glass-card w-8 h-8 flex items-center justify-center hover:border-primary/30 transition-colors rounded-xl flex-shrink-0">
+          <ChevronLeft size={16} className="text-foreground" />
+        </button>
+        <div className="flex flex-col items-center gap-1 min-w-0">
+          <h3 className="font-display text-sm font-bold text-foreground text-center leading-tight">{weekLabel}</h3>
+          {!isCurrentWeek && (
+            <button onClick={onGoToday}
+              className="inline-flex items-center gap-1 text-[10px] font-semibold text-primary border border-primary/25 bg-primary/[0.06] hover:bg-primary/[0.12] transition-colors px-2 py-0.5 rounded-full">
+              <CalendarClock size={10} /> Today
+            </button>
+          )}
+        </div>
+        <button onClick={onNextWeek} aria-label="Next week"
+          className="glass-card w-8 h-8 flex items-center justify-center hover:border-primary/30 transition-colors rounded-xl flex-shrink-0">
+          <ChevronRight size={16} className="text-foreground" />
+        </button>
+      </div>
+
+      {/* Day header row */}
+      <div className="grid grid-cols-7 gap-1 mb-1">
+        {days.map((d, i) => {
+          const dateStr = formatDateStr(d.getFullYear(), d.getMonth(), d.getDate());
+          const isToday = dateStr === todayStr;
+          return (
+            <div key={`hdr-${i}`} className="flex flex-col items-center gap-0.5 pb-1.5">
+              <span className="text-[9px] font-semibold text-muted-foreground uppercase tracking-wide">
+                {DAYS[d.getDay()]}
+              </span>
+              <span className={`text-xs font-bold leading-none w-6 h-6 flex items-center justify-center rounded-full
+                ${isToday ? "bg-primary text-primary-foreground" : "text-foreground"}`}>
+                {d.getDate()}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Event cells */}
+      <div className="grid grid-cols-7 gap-1">
+        {days.map((d, i) => {
+          const dateStr = formatDateStr(d.getFullYear(), d.getMonth(), d.getDate());
+          const dayEvents = eventsByDate[dateStr] || [];
+          const isToday = dateStr === todayStr;
+          const hasEvents = dayEvents.length > 0;
+          const visibleEvents = dayEvents.slice(0, 2);
+          const hiddenCount = Math.max(dayEvents.length - 2, 0);
+
+          return (
+            <div
+              key={`cell-${i}`}
+              onClick={() => hasEvents && onSelectDate(dateStr)}
+              className={`min-h-[72px] rounded-xl flex flex-col gap-[3px] p-1 border transition-all duration-200
+                ${isToday
+                  ? "border-primary/40 bg-primary/[0.07]"
+                  : hasEvents
+                  ? "border-primary/10 bg-primary/[0.02] cursor-pointer hover:bg-primary/[0.06] hover:border-primary/20"
+                  : "border-transparent"
+                }`}
+            >
+              {visibleEvents.map((ev, idx) => (
+                <EventChip
+                  key={`${ev.id}-${idx}`}
+                  event={ev}
+                  compact
+                  onClick={(e) => handleEventClick(ev, e)}
+                />
+              ))}
+              {hiddenCount > 0 && (
+                <MorePill
+                  count={hiddenCount}
+                  onClick={(e) => { e.stopPropagation(); onSelectDate(dateStr); }}
+                />
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Legend */}
+      <div className="flex items-center gap-3 mt-4 px-1 flex-wrap">
+        {[
+          { label: "Signature", style: "gold-gradient" },
+          { label: "Upcoming", style: "bg-secondary" },
+          { label: "Past", style: "bg-muted" },
+        ].map(({ label, style }) => (
+          <span key={label} className="flex items-center gap-1.5 text-[9px] text-muted-foreground">
+            <span className={`w-2 h-2 rounded-[2px] flex-shrink-0 ${style}`} />
+            {label}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// ── Root ──────────────────────────────────────────────────────────────────────
+
+const MonthCalendar = ({ events }: Props) => {
+  const today = new Date();
+  const isMobile = useIsMobile();
+
+  const [year, setYear] = useState(today.getFullYear());
+  const [month, setMonth] = useState(today.getMonth());
+  const [weekStart, setWeekStart] = useState(() => getWeekStart(today));
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+
+  const todayStr = formatDateStr(today.getFullYear(), today.getMonth(), today.getDate());
+  const monthLabel = new Date(year, month).toLocaleString("en-US", { month: "long", year: "numeric" });
+  const isCurrentMonth = year === today.getFullYear() && month === today.getMonth();
+
+  const eventsByDate = useMemo(() => {
+    const map: Record<string, MSAEvent[]> = {};
+    events.forEach((e) => {
+      if (!map[e.startDate]) map[e.startDate] = [];
+      map[e.startDate].push(e);
+    });
+    Object.keys(map).forEach(k => { map[k] = sortEvents(map[k]); });
+    return map;
+  }, [events]);
+
+  const prevMonth = useCallback(() => {
+    setSelectedDate(null);
+    if (month === 0) { setMonth(11); setYear(y => y - 1); } else setMonth(m => m - 1);
+  }, [month]);
+
+  const nextMonth = useCallback(() => {
+    setSelectedDate(null);
+    if (month === 11) { setMonth(0); setYear(y => y + 1); } else setMonth(m => m + 1);
+  }, [month]);
+
+  const goToTodayMonth = useCallback(() => {
+    setYear(today.getFullYear()); setMonth(today.getMonth()); setSelectedDate(null);
+  }, [today]);
+
+  const prevWeek = useCallback(() => { setSelectedDate(null); setWeekStart(w => addDays(w, -7)); }, []);
+  const nextWeek = useCallback(() => { setSelectedDate(null); setWeekStart(w => addDays(w, 7)); }, []);
+  const goToTodayWeek = useCallback(() => { setWeekStart(getWeekStart(today)); setSelectedDate(null); }, [today]);
+
+  return (
+    <div>
+      {isMobile ? (
+        <WeekView
+          weekStart={weekStart}
+          eventsByDate={eventsByDate}
+          todayStr={todayStr}
+          onPrevWeek={prevWeek}
+          onNextWeek={nextWeek}
+          onGoToday={goToTodayWeek}
+          onSelectDate={setSelectedDate}
+        />
+      ) : (
+        <MonthView
+          year={year}
+          month={month}
+          eventsByDate={eventsByDate}
+          todayStr={todayStr}
+          monthLabel={monthLabel}
+          isCurrentMonth={isCurrentMonth}
+          onPrev={prevMonth}
+          onNext={nextMonth}
+          onGoToday={goToTodayMonth}
+          onSelectDate={setSelectedDate}
+        />
+      )}
+
+      <AnimatePresence>
+        {selectedDate && (
+          <DayEventsPanel
+            date={selectedDate}
+            events={eventsByDate[selectedDate] || []}
+            onClose={() => setSelectedDate(null)}
+          />
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+export default MonthCalendar;
