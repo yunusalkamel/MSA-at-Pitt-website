@@ -14,6 +14,7 @@ import PrayerLocations from "./pages/PrayerLocations.tsx";
 import FAQ from "./pages/FAQ.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import { SpeedInsights } from "@vercel/speed-insights/react"
+import { Analytics } from "@vercel/analytics/react"
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,7 @@ const App = () => (
     <TooltipProvider>
       <Sonner />
       <SpeedInsights />
+      <Analytics />
       <BrowserRouter>
         <ScrollToTop />
         <Routes>
