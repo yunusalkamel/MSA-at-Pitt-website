@@ -12,6 +12,7 @@ import Resources from "./pages/Resources.tsx";
 import NewToPitt from "./pages/NewToPitt.tsx";
 import PrayerLocations from "./pages/PrayerLocations.tsx";
 import FAQ from "./pages/FAQ.tsx";
+import PrayerTimes from "./pages/PrayerTimes.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import { SpeedInsights } from "@vercel/speed-insights/react"
 import { Analytics } from "@vercel/analytics/react"
@@ -43,6 +44,7 @@ const App = () => (
           <Route path="/resources/new-to-pitt" element={<NewToPitt />} />
           <Route path="/resources/prayer-locations" element={<PrayerLocations />} />
           <Route path="/resources/faq" element={<FAQ />} />
+          <Route path="/prayer-times" element={<PrayerTimes />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <SpeedInsights />
