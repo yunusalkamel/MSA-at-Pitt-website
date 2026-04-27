@@ -31,8 +31,6 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Sonner />
-      <SpeedInsights />
-      <Analytics />
       <BrowserRouter>
         <ScrollToTop />
         <Routes>
@@ -47,6 +45,8 @@ const App = () => (
           <Route path="/resources/faq" element={<FAQ />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+        <SpeedInsights />
+        <Analytics />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
