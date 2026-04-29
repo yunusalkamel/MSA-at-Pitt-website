@@ -18,6 +18,12 @@ export default {
         body: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
         arabic: ['Amiri', 'serif'],
         script: ['Pinyon Script', 'cursive'],
+        burgues: ['Burgues Script', 'cursive'],
+        satoshi: ['Satoshi', 'system-ui', 'sans-serif'],
+        'dm-sans': ['DM Sans', 'system-ui', 'sans-serif'],
+        barlow: ['Barlow Condensed', 'system-ui', 'sans-serif'],
+        outfit: ['Outfit', 'system-ui', 'sans-serif'],
+        mono: ['Space Mono', 'monospace'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -63,8 +69,23 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        // ── Bridge v2 canonical palette ──────────────────────────────────
+        parchment: "#F8F3EA",
+        linen: "#EDE8DC",
+        ink: {
+          DEFAULT: "#0E0D0A",
+          mid: "#32312C",
+        },
+        "msa-blue": "#14345A",
+        "msa-gold": "#F2AB23",
+        "gold-pale": "#FBF0D0",
+        "gold-deep": "#8A6212",
+        "royal-deep": "#001E5A",
+        "royal-light": "#D4E3F7",
+        "jannah-light": "#C8E8DF",
+        // ── Legacy aliases (kept for backward compat) ────────────────────
         gold: {
-          DEFAULT: "hsl(40 100% 55%)",
+          DEFAULT: "#F2AB23",
           light: "hsl(45 100% 65%)",
           dark: "hsl(38 100% 45%)",
           deep: "#8A6212",
@@ -89,13 +110,13 @@ export default {
           mid: "#0D1528",
         },
         royal: {
-          DEFAULT: "hsl(222 90% 32%)",
-          deep: "hsl(222 100% 20%)",
+          DEFAULT: "#14345A",
+          deep: "#001E5A",
           light: "#D4E3F7",
         },
         emerald: {
-          DEFAULT: "hsl(153 58% 26%)",
-          light: "hsl(153 45% 35%)",
+          DEFAULT: "#0A5C46",
+          light: "#148066",
         },
         jannah: {
           DEFAULT: "#0A5C46",
@@ -103,8 +124,8 @@ export default {
           light: "#C8E8DF",
         },
         cream: {
-          DEFAULT: "hsl(36 33% 97%)",
-          dark: "hsl(36 20% 92%)",
+          DEFAULT: "#F8F3EA",
+          dark: "#EDE8DC",
         },
       },
       borderRadius: {

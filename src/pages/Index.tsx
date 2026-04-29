@@ -88,11 +88,11 @@ const StatItem = ({
 
   return (
     <div ref={ref} className={`text-center px-2 md:px-5 py-3.5 md:py-3 flex flex-col items-center gap-0.5 ${bordered ? "border-r border-border/30" : ""}`}>
-      <p className="text-foreground/70 text-[10px] md:text-[10px] font-semibold tracking-widest uppercase mb-0.5">{label}</p>
-      <p className="font-display font-bold text-gradient-gold leading-none text-2xl md:text-4xl lg:text-5xl">
+      <p className="eyebrow text-ink/50 mb-0.5">{label}</p>
+      <p className="font-outfit font-bold text-gradient-gold leading-none text-2xl md:text-4xl lg:text-5xl">
         {display}
       </p>
-      <p className="text-muted-foreground text-[10px] md:text-[10px] leading-tight mt-0.5">{sub}</p>
+      <p className="font-body text-muted-foreground text-[10px] leading-tight mt-0.5">{sub}</p>
     </div>
   );
 };
@@ -168,7 +168,7 @@ const Index = () => {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="text-xs uppercase tracking-[0.3em] text-primary/90 mb-5 font-semibold"
+            className="eyebrow text-msa-gold/90 mb-5"
           >
             Muslim Student Association · University of Pittsburgh
           </motion.p>
@@ -189,7 +189,7 @@ const Index = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8 }}
-            className="text-sm uppercase tracking-[0.2em] text-primary/70 font-semibold mb-5"
+            className="eyebrow text-msa-gold/65 mb-5"
           >
             Cultivate Community, Ignite Iman.
           </motion.p>
@@ -198,7 +198,7 @@ const Index = () => {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.9 }}
-            className="text-base md:text-lg text-accent-foreground/60 max-w-xl mx-auto mb-10 leading-relaxed font-light"
+            className="font-dm-sans text-base md:text-lg text-accent-foreground/60 max-w-xl mx-auto mb-10 leading-[1.75]"
           >
             Connecting Muslim students at Pitt through faith, friendship, and service.
             Everyone is welcome — wherever you're starting from.
@@ -247,7 +247,7 @@ const Index = () => {
       {/* ── Our Story ── */}
       <section ref={communityRef} className="section-padding pt-28 -mt-4 warm-surface relative overflow-hidden">
         <motion.div className="absolute inset-0 gradient-mesh-warm" style={{ y: communityBgY }} />
-        <div className="absolute inset-0 texture-cross" />
+        <div className="absolute inset-0 texture-khatam opacity-[0.6]" />
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="grid md:grid-cols-2 gap-16 items-center">
             <motion.div
@@ -269,17 +269,17 @@ const Index = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.55, delay: 0.15 }}
             >
-              <p className="text-xs uppercase tracking-[0.2em] text-secondary font-semibold mb-4">Our Story</p>
+              <p className="eyebrow text-jannah-mid mb-4">Our Story</p>
               <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-6 leading-tight">
                 More than<br />a club.
               </h2>
-              <p className="text-muted-foreground text-base leading-relaxed mb-4">
+              <p className="font-dm-sans text-muted-foreground text-base leading-[1.8] mb-4">
                 MSA at Pitt is one of the largest and most vibrant student organizations at the University of Pittsburgh. We're a community rooted in Islamic values, cultivating a transformative space for Muslim students — and open to absolutely everyone.
               </p>
-              <p className="text-muted-foreground text-base leading-relaxed mb-6">
+              <p className="font-dm-sans text-muted-foreground text-base leading-[1.8] mb-6">
                 Whether you've been Muslim your whole life, just took your shahada, or you're simply curious — knowledge precedes action, and every journey starts somewhere.
               </p>
-              <div className="liquid-glass p-5 mb-7 border-l-2 border-primary/30">
+              <div className="pull-quote-gold mb-7">
                 <ArabicVerse
                   arabic="وَتَعَاوَنُوا عَلَى الْبِرِّ وَالتَّقْوَىٰ"
                   translation="And cooperate in righteousness and piety."
@@ -387,7 +387,7 @@ const Index = () => {
       {/* ── Pillars ── */}
       <section ref={pillarsRef} className="section-padding warm-surface relative overflow-hidden">
         <motion.div className="absolute inset-0 gradient-mesh-warm" style={{ y: pillarsBgY }} />
-        <div className="absolute inset-0 texture-lines opacity-50" />
+        <div className="absolute inset-0 texture-khatam opacity-[0.55]" />
         <div className="max-w-7xl mx-auto relative z-10">
           <SectionHeading title="What drives us" label="Our Pillars" />
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -418,12 +418,12 @@ const Index = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <p className="text-xs uppercase tracking-[0.25em] text-secondary font-semibold mb-4">Get Involved</p>
+            <p className="eyebrow text-jannah-mid mb-4">Get Involved</p>
             <h2 className="font-display text-4xl md:text-6xl font-bold text-foreground mb-5 leading-tight">
               Ready to find<br />
               <span className="font-script text-gradient-gold" style={{ fontSize: '1.15em' }}>your people?</span>
             </h2>
-            <p className="text-muted-foreground text-base md:text-lg max-w-xl mx-auto mb-8 leading-relaxed">
+            <p className="font-dm-sans text-muted-foreground text-base md:text-lg max-w-xl mx-auto mb-8 leading-[1.8]">
               Join 200+ students cultivating community and igniting iman at Pitt. Whatever stage of the journey you're on — there's a place for you here.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center mb-8">
@@ -440,11 +440,11 @@ const Index = () => {
       </section>
 
       {/* ── Brand Stamp — abyss/royal dark section ── */}
-      <section className="relative overflow-hidden py-20 md:py-28">
+      <section className="grain relative overflow-hidden py-20 md:py-28">
         <div className="absolute inset-0 abyss-surface" />
         <BridgeBar />
-        {/* Khatam — barely visible grain, not a pattern */}
-        <KhatamOverlay variant="gold" size={56} opacity={0.35} />
+        {/* Khatam gold — per spec: reveals up close, disappears at a glance */}
+        <KhatamOverlay variant="gold" size={60} opacity={0.28} />
         {/* Crescent — quiet presence */}
         <CrescentWatermark color="#C9A84C" size={320} opacity={0.06} position="right" />
         {/* Atmospheric glows — Gala Navy depth + Jannah warmth */}
@@ -476,16 +476,16 @@ const Index = () => {
               viewport={{ once: true }}
               transition={{ delay: 0.15 }}
             >
-              <p className="text-[#C9A84C]/50 text-[10px] uppercase tracking-[0.3em] font-semibold mb-4">Muslim Student Association</p>
+              <p className="eyebrow mb-4" style={{ color: '#C9A84C', opacity: 0.55 }}>Muslim Student Association</p>
               <h2 className="font-display text-4xl md:text-5xl font-bold text-accent-foreground mb-5 leading-tight">
                 Cultivate Community,<br />
                 <span className="font-script text-gradient-aura" style={{ fontSize: '1.15em' }}>Ignite Iman.</span>
               </h2>
-              <p className="text-accent-foreground/45 text-base leading-relaxed mb-8">
+              <p className="font-dm-sans text-accent-foreground/45 text-base leading-[1.8] mb-8">
                 Over 28 years of faith, friendship, and service at the University of Pittsburgh — and we're just getting started.
               </p>
-              {/* Embedded closing ayat */}
-              <div className="border-l-2 border-[#11233C]/40 pl-5">
+              {/* Embedded closing ayat — pull-quote on dark: border-l in gold */}
+              <div className="border-l-2 pl-5" style={{ borderColor: 'rgba(242,171,35,.25)' }}>
                 <ArabicVerse
                   arabic="إِنَّمَا الْمُؤْمِنُونَ إِخْوَةٌ"
                   translation="The believers are but brothers."

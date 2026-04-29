@@ -18,7 +18,8 @@ const SectionHeading = ({ label, title, subtitle, center = true, className = "" 
       className={`mb-10 md:mb-12 ${center ? "text-center" : ""} ${className}`}
     >
       {label && (
-        <span className="text-xs uppercase tracking-[0.22em] text-secondary font-semibold mb-3 block">
+        // Eyebrow: Jakarta Sans 800, 11px, 0.13em tracking — per Bridge v2 spec
+        <span className="eyebrow text-jannah-mid mb-3 block">
           {label}
         </span>
       )}
@@ -26,7 +27,8 @@ const SectionHeading = ({ label, title, subtitle, center = true, className = "" 
         {title}
       </h2>
       {subtitle && (
-        <p className="mt-3 text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+        // Subtitle in DM Sans — reading sans for sustained body copy
+        <p className="font-dm-sans mt-3 text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
           {subtitle}
         </p>
       )}

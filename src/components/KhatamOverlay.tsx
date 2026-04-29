@@ -22,7 +22,7 @@ const STROKE_MAP: Record<string, string> = {
 
 const KhatamOverlay = ({
   variant = "gold",
-  size = 56,
+  size = 60,
   opacity = 1,
   className = "",
 }: {
@@ -33,7 +33,8 @@ const KhatamOverlay = ({
 }) => {
   const stroke = STROKE_MAP[variant] || STROKE_MAP.gold;
   const half = size / 2;
-  const inner = size * 0.464; // ~26/56 ratio
+  // Bridge v2 spec: 32.4/60 = 0.54 — two squares, 45° apart
+  const inner = size * 0.54;
   const offset = (size - inner) / 2;
   const patternId = useId();
 
@@ -46,18 +47,18 @@ const KhatamOverlay = ({
     >
       <defs>
         <pattern id={patternId} width={size} height={size} patternUnits="userSpaceOnUse">
-          {/* Center tile */}
-          <rect x={offset} y={offset} width={inner} height={inner} fill="none" stroke={stroke} strokeWidth=".85" />
-          <rect x={offset} y={offset} width={inner} height={inner} fill="none" stroke={stroke} strokeWidth=".85" transform={`rotate(45,${half},${half})`} />
-          {/* Corner tiles for seamless tiling */}
-          <rect x={offset - size} y={offset - size} width={inner} height={inner} fill="none" stroke={stroke} strokeWidth=".85" />
-          <rect x={offset - size} y={offset - size} width={inner} height={inner} fill="none" stroke={stroke} strokeWidth=".85" transform={`rotate(45,0,0)`} />
-          <rect x={offset + size} y={offset + size} width={inner} height={inner} fill="none" stroke={stroke} strokeWidth=".85" />
-          <rect x={offset + size} y={offset + size} width={inner} height={inner} fill="none" stroke={stroke} strokeWidth=".85" transform={`rotate(45,${size},${size})`} />
-          <rect x={offset + size} y={offset - size} width={inner} height={inner} fill="none" stroke={stroke} strokeWidth=".85" />
-          <rect x={offset + size} y={offset - size} width={inner} height={inner} fill="none" stroke={stroke} strokeWidth=".85" transform={`rotate(45,${size},0)`} />
-          <rect x={offset - size} y={offset + size} width={inner} height={inner} fill="none" stroke={stroke} strokeWidth=".85" />
-          <rect x={offset - size} y={offset + size} width={inner} height={inner} fill="none" stroke={stroke} strokeWidth=".85" transform={`rotate(45,0,${size})`} />
+          {/* Center tile — two squares at 45° */}
+          <rect x={offset} y={offset} width={inner} height={inner} fill="none" stroke={stroke} strokeWidth=".6" />
+          <rect x={offset} y={offset} width={inner} height={inner} fill="none" stroke={stroke} strokeWidth=".6" transform={`rotate(45,${half},${half})`} />
+          {/* Corner tiles for seamless edge continuity */}
+          <rect x={offset - size} y={offset - size} width={inner} height={inner} fill="none" stroke={stroke} strokeWidth=".6" />
+          <rect x={offset - size} y={offset - size} width={inner} height={inner} fill="none" stroke={stroke} strokeWidth=".6" transform={`rotate(45,0,0)`} />
+          <rect x={offset + size} y={offset + size} width={inner} height={inner} fill="none" stroke={stroke} strokeWidth=".6" />
+          <rect x={offset + size} y={offset + size} width={inner} height={inner} fill="none" stroke={stroke} strokeWidth=".6" transform={`rotate(45,${size},${size})`} />
+          <rect x={offset + size} y={offset - size} width={inner} height={inner} fill="none" stroke={stroke} strokeWidth=".6" />
+          <rect x={offset + size} y={offset - size} width={inner} height={inner} fill="none" stroke={stroke} strokeWidth=".6" transform={`rotate(45,${size},0)`} />
+          <rect x={offset - size} y={offset + size} width={inner} height={inner} fill="none" stroke={stroke} strokeWidth=".6" />
+          <rect x={offset - size} y={offset + size} width={inner} height={inner} fill="none" stroke={stroke} strokeWidth=".6" transform={`rotate(45,0,${size})`} />
         </pattern>
       </defs>
       <rect width="100%" height="100%" fill={`url(#${patternId})`} />
