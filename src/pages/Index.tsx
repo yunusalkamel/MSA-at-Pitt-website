@@ -49,11 +49,6 @@ function formatEventMonthDay(dateStr: string) {
   };
 }
 
-function useSectionParallax(ref: React.RefObject<HTMLElement | null>, amount = 14) {
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  return useTransform(scrollYProgress, [0, 1], [`-${amount}px`, `${amount}px`]);
-}
-
 // Subtle ornament that sits ON the natural boundary between two sections — zero layout height
 const SectionDivider = ({ className = "" }: { className?: string }) => (
   <div className={`relative h-0 z-20 ${className}`}>
@@ -99,15 +94,10 @@ const StatItem = ({
 
 const Index = () => {
   const heroRef = useRef<HTMLElement>(null);
-  const communityRef = useRef<HTMLElement>(null);
-  const pillarsRef = useRef<HTMLElement>(null);
 
   const { scrollYProgress: heroScroll } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
   const heroY = useTransform(heroScroll, [0, 1], ["0%", "32%"]);
   const heroOpacity = useTransform(heroScroll, [0, 0.75], [1, 0]);
-
-  const communityBgY = useSectionParallax(communityRef, 14);
-  const pillarsBgY = useSectionParallax(pillarsRef, 10);
   const { events: remoteEvents, loading: eventsLoading, error: eventsError } = useCalendarEvents();
 
   const sourceEvents = eventsError ? mockEvents : remoteEvents;
@@ -245,8 +235,8 @@ const Index = () => {
       </section>
 
       {/* ── Our Story ── */}
-      <section ref={communityRef} className="section-padding pt-28 -mt-4 warm-surface relative overflow-hidden">
-        <motion.div className="absolute inset-0 gradient-mesh-warm" style={{ y: communityBgY }} />
+      <section className="section-padding pt-28 -mt-4 warm-surface relative overflow-hidden">
+        <div className="absolute inset-0 gradient-mesh-warm" />
         <div className="absolute inset-0 texture-khatam opacity-[0.6]" />
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="grid md:grid-cols-2 gap-16 items-center">
@@ -385,8 +375,8 @@ const Index = () => {
       <SectionDivider />
 
       {/* ── Pillars ── */}
-      <section ref={pillarsRef} className="section-padding warm-surface relative overflow-hidden">
-        <motion.div className="absolute inset-0 gradient-mesh-warm" style={{ y: pillarsBgY }} />
+      <section className="section-padding warm-surface relative overflow-hidden">
+        <div className="absolute inset-0 gradient-mesh-warm" />
         <div className="absolute inset-0 texture-khatam opacity-[0.55]" />
         <div className="max-w-7xl mx-auto relative z-10">
           <SectionHeading title="What drives us" label="Our Pillars" />
@@ -419,7 +409,7 @@ const Index = () => {
             transition={{ duration: 0.6 }}
           >
             <p className="eyebrow text-jannah-mid mb-4">Get Involved</p>
-            <h2 className="font-display text-4xl md:text-6xl font-bold text-foreground mb-5 leading-tight">
+            <h2 className="font-display text-4xl md:text-6xl font-bold text-foreground mb-5 leading-snug pb-2">
               Ready to find<br />
               <span className="font-script text-gradient-gold" style={{ fontSize: '1.15em' }}>your people?</span>
             </h2>

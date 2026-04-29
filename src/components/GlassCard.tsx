@@ -15,9 +15,8 @@ const GlassCard = ({ children, className = "", hover = true, delay = 0, liquid =
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
-      whileHover={hover ? { y: -4, transition: { duration: 0.2 } } : undefined}
       transition={{ duration: 0.45, delay, ease: [0.22, 1, 0.36, 1] }}
-      className={`${hover ? (liquid ? "liquid-glass" : "glass-card-hover") : (liquid ? "liquid-glass" : "glass-card")} p-6 md:p-8 ${className}`}
+      className={`${hover ? (liquid ? "liquid-glass-hover" : "glass-card-hover") : (liquid ? "liquid-glass" : "glass-card")} p-6 md:p-8 ${className}`}
     >
       {children}
     </motion.div>
