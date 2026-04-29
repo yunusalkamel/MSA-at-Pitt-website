@@ -1,22 +1,23 @@
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/contexts/ThemeContext";
-import Index from "./pages/Index.tsx";
-import About from "./pages/About.tsx";
-import Events from "./pages/Events.tsx";
-import Gallery from "./pages/Gallery.tsx";
-import Join from "./pages/Join.tsx";
-import Resources from "./pages/Resources.tsx";
-import NewToPitt from "./pages/NewToPitt.tsx";
-import PrayerLocations from "./pages/PrayerLocations.tsx";
-import FAQ from "./pages/FAQ.tsx";
-import PrayerTimes from "./pages/PrayerTimes.tsx";
-import NotFound from "./pages/NotFound.tsx";
 import { SpeedInsights } from "@vercel/speed-insights/react"
 import { Analytics } from "@vercel/analytics/react"
+
+const Index = lazy(() => import("./pages/Index.tsx"));
+const About = lazy(() => import("./pages/About.tsx"));
+const Events = lazy(() => import("./pages/Events.tsx"));
+const Gallery = lazy(() => import("./pages/Gallery.tsx"));
+const Join = lazy(() => import("./pages/Join.tsx"));
+const Resources = lazy(() => import("./pages/Resources.tsx"));
+const NewToPitt = lazy(() => import("./pages/NewToPitt.tsx"));
+const PrayerLocations = lazy(() => import("./pages/PrayerLocations.tsx"));
+const FAQ = lazy(() => import("./pages/FAQ.tsx"));
+const PrayerTimes = lazy(() => import("./pages/PrayerTimes.tsx"));
+const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 const queryClient = new QueryClient();
 
@@ -36,19 +37,21 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <ScrollToTop />
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/events" element={<Events />} />
-          <Route path="/gallery" element={<Gallery />} />
-          <Route path="/join" element={<Join />} />
-          <Route path="/resources" element={<Resources />} />
-          <Route path="/resources/new-to-pitt" element={<NewToPitt />} />
-          <Route path="/resources/prayer-locations" element={<PrayerLocations />} />
-          <Route path="/resources/faq" element={<FAQ />} />
-          <Route path="/prayer-times" element={<PrayerTimes />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <Suspense fallback={<div className="min-h-screen bg-background" />}>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/events" element={<Events />} />
+            <Route path="/gallery" element={<Gallery />} />
+            <Route path="/join" element={<Join />} />
+            <Route path="/resources" element={<Resources />} />
+            <Route path="/resources/new-to-pitt" element={<NewToPitt />} />
+            <Route path="/resources/prayer-locations" element={<PrayerLocations />} />
+            <Route path="/resources/faq" element={<FAQ />} />
+            <Route path="/prayer-times" element={<PrayerTimes />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
         <SpeedInsights />
         <Analytics />
       </BrowserRouter>
