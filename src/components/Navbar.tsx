@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, ArrowRight, ChevronDown } from "lucide-react";
+import { Menu, X, ArrowRight, ChevronDown, Moon, Sun } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const navLinks = [
   { to: "/", label: "Home", exact: true },
@@ -24,6 +25,7 @@ const Navbar = () => {
   const [mobileResourcesOpen, setMobileResourcesOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
+  const { theme, toggle: toggleTheme } = useTheme();
 
   const isResourcesActive = location.pathname.startsWith("/resources");
 
@@ -64,13 +66,13 @@ const Navbar = () => {
         }`}
       >
         <div className="flex items-center justify-between h-14 md:h-16">
-          {/* Logo — MSA in Jannah Mid, AT PITT in MSA Blue, Jakarta 800 */}
+          {/* Logo — MSA in Jannah Mid/Light, AT PITT in MSA Blue/White, Jakarta 800 */}
           <Link
             to="/"
             className="font-body font-extrabold text-lg md:text-xl tracking-[0.1em] hover:opacity-80 transition-opacity"
           >
-            <span style={{ color: '#148066' }}>MSA</span>{' '}
-            <span style={{ color: '#14345A' }}>AT PITT</span>
+            <span className="text-jannah-mid dark:text-jannah-light">MSA</span>{' '}
+            <span className="text-msa-blue dark:text-white/90">AT PITT</span>
           </Link>
 
           {/* Desktop nav */}
@@ -84,14 +86,16 @@ const Navbar = () => {
                   key={link.to}
                   to={link.to}
                   className={`relative text-[14px] font-semibold font-body transition-colors duration-200 pb-0.5 ${
-                    isActive ? "text-jannah-mid" : "text-ink-mid/70 hover:text-ink"
+                    isActive
+                      ? "text-jannah-mid dark:text-msa-gold"
+                      : "text-ink-mid/70 dark:text-white/45 hover:text-ink dark:hover:text-white/80"
                   }`}
                 >
                   {link.label}
                   {isActive && (
                     <motion.div
                       layoutId="nav-underline"
-                      className="absolute -bottom-1 left-0 right-0 h-[1.5px] bg-jannah-mid rounded-full"
+                      className="absolute -bottom-1 left-0 right-0 h-[1.5px] bg-jannah-mid dark:bg-msa-gold rounded-full"
                     />
                   )}
                 </Link>
@@ -104,7 +108,9 @@ const Navbar = () => {
                 onClick={() => setResourcesOpen((o) => !o)}
                 onMouseEnter={() => setResourcesOpen(true)}
                 className={`relative text-[14px] font-semibold font-body transition-colors duration-200 pb-0.5 flex items-center gap-1 ${
-                  isResourcesActive ? "text-jannah-mid" : "text-ink-mid/70 hover:text-ink"
+                  isResourcesActive
+                    ? "text-jannah-mid dark:text-msa-gold"
+                    : "text-ink-mid/70 dark:text-white/45 hover:text-ink dark:hover:text-white/80"
                 }`}
               >
                 Resources
@@ -112,7 +118,7 @@ const Navbar = () => {
                 {isResourcesActive && (
                   <motion.div
                     layoutId="nav-underline"
-                    className="absolute -bottom-1 left-0 right-0 h-[1.5px] bg-jannah-mid rounded-full"
+                    className="absolute -bottom-1 left-0 right-0 h-[1.5px] bg-jannah-mid dark:bg-msa-gold rounded-full"
                   />
                 )}
               </button>
@@ -135,8 +141,8 @@ const Navbar = () => {
                           to={child.to}
                           className={`block px-3 py-2 rounded-lg text-sm font-semibold font-body transition-colors duration-150 ${
                             isChildActive
-                              ? "text-jannah-mid bg-jannah/[0.07]"
-                              : "text-ink hover:bg-jannah/[0.04] hover:text-jannah-mid"
+                              ? "text-jannah-mid dark:text-msa-gold bg-jannah/[0.07] dark:bg-msa-gold/[0.08]"
+                              : "text-ink dark:text-white/70 hover:bg-jannah/[0.04] dark:hover:bg-white/[0.04] hover:text-jannah-mid dark:hover:text-msa-gold"
                           }`}
                         >
                           {child.label}
@@ -147,6 +153,18 @@ const Navbar = () => {
                 )}
               </AnimatePresence>
             </div>
+
+            {/* Dark mode toggle */}
+            <button
+              onClick={toggleTheme}
+              aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              className="p-2 rounded-xl text-ink-mid/55 dark:text-white/40 hover:text-jannah-mid dark:hover:text-msa-gold transition-colors duration-200"
+            >
+              {theme === "dark"
+                ? <Sun size={16} strokeWidth={2} />
+                : <Moon size={16} strokeWidth={2} />
+              }
+            </button>
 
             <Link
               to="/join"
@@ -176,7 +194,7 @@ const Navbar = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="pointer-events-auto fixed inset-0 top-[72px] bg-background/98 backdrop-blur-xl z-[55] flex flex-col items-center justify-center gap-7 md:hidden"
+            className="pointer-events-auto fixed inset-0 top-[72px] bg-background/98 dark:bg-abyss/95 backdrop-blur-xl z-[55] flex flex-col items-center justify-center gap-7 md:hidden"
           >
             {navLinks.map((link, i) => {
               const isActive = link.exact
@@ -192,7 +210,9 @@ const Navbar = () => {
                   <Link
                     to={link.to}
                     className={`text-2xl font-display font-semibold transition-colors ${
-                      isActive ? "text-jannah-mid" : "text-ink"
+                      isActive
+                        ? "text-jannah-mid dark:text-msa-gold"
+                        : "text-ink dark:text-white/80"
                     }`}
                   >
                     {link.label}
@@ -211,7 +231,9 @@ const Navbar = () => {
               <button
                 onClick={() => setMobileResourcesOpen((o) => !o)}
                 className={`text-2xl font-display font-semibold transition-colors flex items-center gap-2 ${
-                  isResourcesActive ? "text-jannah-mid" : "text-ink"
+                  isResourcesActive
+                    ? "text-jannah-mid dark:text-msa-gold"
+                    : "text-ink dark:text-white/80"
                 }`}
               >
                 Resources
@@ -231,7 +253,9 @@ const Navbar = () => {
                         key={child.to}
                         to={child.to}
                         className={`text-lg font-display transition-colors ${
-                          location.pathname === child.to ? "text-jannah-mid" : "text-ink-mid/70"
+                          location.pathname === child.to
+                            ? "text-jannah-mid dark:text-msa-gold"
+                            : "text-ink-mid/70 dark:text-white/50"
                         }`}
                       >
                         {child.label}
@@ -242,10 +266,28 @@ const Navbar = () => {
               </AnimatePresence>
             </motion.div>
 
+            {/* Dark mode toggle */}
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.42 }}
+              transition={{ delay: 0.38 }}
+            >
+              <button
+                onClick={toggleTheme}
+                aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+                className="flex items-center gap-2 text-sm font-semibold font-body text-ink-mid/60 dark:text-white/45 hover:text-jannah-mid dark:hover:text-msa-gold transition-colors px-4 py-2 rounded-xl border border-border/40 dark:border-white/10"
+              >
+                {theme === "dark"
+                  ? <><Sun size={15} strokeWidth={2} /> Light mode</>
+                  : <><Moon size={15} strokeWidth={2} /> Dark mode</>
+                }
+              </button>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.45 }}
             >
               <Link to="/join" className="btn-premium text-lg px-8 py-3">
                 Join the MSA <ArrowRight size={16} />

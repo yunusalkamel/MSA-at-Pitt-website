@@ -19,7 +19,8 @@ const SectionHeading = ({ label, title, subtitle, center = true, className = "" 
     >
       {label && (
         // Eyebrow: Jakarta Sans 800, 11px, 0.13em tracking — per Bridge v2 spec
-        <span className="eyebrow text-jannah-mid mb-3 block">
+        // Dark mode: gold at 50% opacity (matches design file's dark label treatment)
+        <span className="eyebrow text-jannah-mid dark:text-msa-gold/60 mb-3 block">
           {label}
         </span>
       )}
