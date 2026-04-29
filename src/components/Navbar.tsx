@@ -64,12 +64,13 @@ const Navbar = () => {
         }`}
       >
         <div className="flex items-center justify-between h-14 md:h-16">
-          {/* Logo */}
+          {/* Logo — MSA in Jannah Mid, AT PITT in MSA Blue, Jakarta 800 */}
           <Link
             to="/"
-            className="font-display text-lg md:text-xl font-bold text-foreground tracking-tight hover:opacity-80 transition-opacity"
+            className="font-body font-extrabold text-lg md:text-xl tracking-[0.1em] hover:opacity-80 transition-opacity"
           >
-            MSA <span className="text-gradient-gold">at Pitt</span>
+            <span style={{ color: '#148066' }}>MSA</span>{' '}
+            <span style={{ color: '#14345A' }}>AT PITT</span>
           </Link>
 
           {/* Desktop nav */}
@@ -82,15 +83,15 @@ const Navbar = () => {
                 <Link
                   key={link.to}
                   to={link.to}
-                  className={`relative text-sm font-medium transition-colors duration-200 hover:text-foreground pb-0.5 ${
-                    isActive ? "text-foreground" : "text-muted-foreground"
+                  className={`relative text-[14px] font-semibold font-body transition-colors duration-200 pb-0.5 ${
+                    isActive ? "text-jannah-mid" : "text-ink-mid/70 hover:text-ink"
                   }`}
                 >
                   {link.label}
                   {isActive && (
                     <motion.div
                       layoutId="nav-underline"
-                      className="absolute -bottom-1 left-0 right-0 h-[1.5px] gold-gradient rounded-full"
+                      className="absolute -bottom-1 left-0 right-0 h-[1.5px] bg-jannah-mid rounded-full"
                     />
                   )}
                 </Link>
@@ -102,8 +103,8 @@ const Navbar = () => {
               <button
                 onClick={() => setResourcesOpen((o) => !o)}
                 onMouseEnter={() => setResourcesOpen(true)}
-                className={`relative text-sm font-medium transition-colors duration-200 hover:text-foreground pb-0.5 flex items-center gap-1 ${
-                  isResourcesActive ? "text-foreground" : "text-muted-foreground"
+                className={`relative text-[14px] font-semibold font-body transition-colors duration-200 pb-0.5 flex items-center gap-1 ${
+                  isResourcesActive ? "text-jannah-mid" : "text-ink-mid/70 hover:text-ink"
                 }`}
               >
                 Resources
@@ -111,7 +112,7 @@ const Navbar = () => {
                 {isResourcesActive && (
                   <motion.div
                     layoutId="nav-underline"
-                    className="absolute -bottom-1 left-0 right-0 h-[1.5px] gold-gradient rounded-full"
+                    className="absolute -bottom-1 left-0 right-0 h-[1.5px] bg-jannah-mid rounded-full"
                   />
                 )}
               </button>
@@ -132,10 +133,10 @@ const Navbar = () => {
                         <Link
                           key={child.to}
                           to={child.to}
-                          className={`block px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-150 ${
+                          className={`block px-3 py-2 rounded-lg text-sm font-semibold font-body transition-colors duration-150 ${
                             isChildActive
-                              ? "text-primary bg-primary/[0.08]"
-                              : "text-foreground hover:bg-primary/[0.05] hover:text-primary"
+                              ? "text-jannah-mid bg-jannah/[0.07]"
+                              : "text-ink hover:bg-jannah/[0.04] hover:text-jannah-mid"
                           }`}
                         >
                           {child.label}
@@ -191,7 +192,7 @@ const Navbar = () => {
                   <Link
                     to={link.to}
                     className={`text-2xl font-display font-semibold transition-colors ${
-                      isActive ? "text-primary" : "text-foreground"
+                      isActive ? "text-jannah-mid" : "text-ink"
                     }`}
                   >
                     {link.label}
@@ -210,7 +211,7 @@ const Navbar = () => {
               <button
                 onClick={() => setMobileResourcesOpen((o) => !o)}
                 className={`text-2xl font-display font-semibold transition-colors flex items-center gap-2 ${
-                  isResourcesActive ? "text-primary" : "text-foreground"
+                  isResourcesActive ? "text-jannah-mid" : "text-ink"
                 }`}
               >
                 Resources
@@ -230,7 +231,7 @@ const Navbar = () => {
                         key={child.to}
                         to={child.to}
                         className={`text-lg font-display transition-colors ${
-                          location.pathname === child.to ? "text-primary" : "text-muted-foreground"
+                          location.pathname === child.to ? "text-jannah-mid" : "text-ink-mid/70"
                         }`}
                       >
                         {child.label}
