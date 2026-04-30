@@ -17,6 +17,7 @@ const NewToPitt = lazy(() => import("./pages/NewToPitt.tsx"));
 const PrayerLocations = lazy(() => import("./pages/PrayerLocations.tsx"));
 const FAQ = lazy(() => import("./pages/FAQ.tsx"));
 const PrayerTimes = lazy(() => import("./pages/PrayerTimes.tsx"));
+const OrgChart = lazy(() => import("./pages/OrgChart.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 const queryClient = new QueryClient();
@@ -49,6 +50,7 @@ const App = () => (
             <Route path="/resources/prayer-locations" element={<PrayerLocations />} />
             <Route path="/resources/faq" element={<FAQ />} />
             <Route path="/prayer-times" element={<PrayerTimes />} />
+            <Route path="/board" element={<OrgChart />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
