@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
+import ScrollToTop from "./ScrollToTop";
 
 const Layout = ({ children }: { children: ReactNode }) => {
   return (
@@ -20,6 +21,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
       <Navbar />
       <main id="main-content" role="main" className="flex-1 relative z-10">{children}</main>
       <Footer />
+      <ScrollToTop />
     </div>
   );
 };
