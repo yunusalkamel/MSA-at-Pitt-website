@@ -159,7 +159,7 @@ const Index = () => {
             transition={{ delay: 0.65, duration: 0.7 }}
             className="mb-5"
           >
-            <span className="font-burgues text-gradient-gold inline-block" style={{ fontSize: 'clamp(3.2rem, 9vw, 7rem)', lineHeight: 1.2 }}>
+            <span className="font-script text-gradient-gold inline-block" style={{ fontSize: 'clamp(3.4rem, 9.5vw, 7.5rem)', lineHeight: 1.15 }}>
               From Home.
             </span>
           </motion.div>
@@ -398,8 +398,8 @@ const Index = () => {
             {/* Separate div — not clipped by the h2's overflow */}
             <div className="my-1 py-2">
               <span
-                className="font-burgues text-gradient-gold inline-block"
-                style={{ fontSize: 'clamp(3rem, 9vw, 5.5rem)', lineHeight: 1.25, paddingLeft: '0.2em', paddingRight: '0.3em' }}
+                className="font-display italic text-gradient-gold inline-block"
+                style={{ fontSize: 'clamp(3rem, 9vw, 5.5rem)', lineHeight: 1.2, paddingLeft: '0.05em', paddingRight: '0.1em' }}
               >
                 your people?
               </span>
@@ -454,7 +454,7 @@ const Index = () => {
                 Cultivate Community,
               </h2>
               <div className="mb-5">
-                <span className="font-burgues text-gradient-aura inline-block" style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)', lineHeight: 1.2 }}>
+                <span className="font-display italic text-gradient-aura inline-block" style={{ fontSize: 'clamp(2.6rem, 5.5vw, 4.2rem)', lineHeight: 1.15 }}>
                   Ignite Iman.
                 </span>
               </div>
