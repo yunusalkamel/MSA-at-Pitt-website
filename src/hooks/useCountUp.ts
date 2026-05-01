@@ -28,13 +28,17 @@ export function useCountUp(target: number, duration = 1800, startOnView = true) 
   useEffect(() => {
     if (!hasStarted) return;
     let startTime: number | null = null;
+    let lastUpdate = 0;
     const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
 
     const animate = (timestamp: number) => {
       if (!startTime) startTime = timestamp;
       const elapsed = timestamp - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      setCount(Math.floor(easeOut(progress) * target));
+      if (elapsed - lastUpdate > 100 || progress === 1) {
+        setCount(Math.floor(easeOut(progress) * target));
+        lastUpdate = elapsed;
+      }
       if (progress < 1) requestAnimationFrame(animate);
     };
 
