@@ -266,28 +266,10 @@ const Navbar = () => {
               </AnimatePresence>
             </motion.div>
 
-            {/* Dark mode toggle */}
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.38 }}
-            >
-              <button
-                onClick={toggleTheme}
-                aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-                className="flex items-center gap-2 text-sm font-semibold font-body text-ink-mid/60 dark:text-white/45 hover:text-jannah-mid dark:hover:text-msa-gold transition-colors px-4 py-2 rounded-xl border border-border/40 dark:border-white/10"
-              >
-                {theme === "dark"
-                  ? <><Sun size={15} strokeWidth={2} /> Light mode</>
-                  : <><Moon size={15} strokeWidth={2} /> Dark mode</>
-                }
-              </button>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.45 }}
             >
               <Link to="/join" className="btn-premium text-lg px-8 py-3">
                 Join the MSA <ArrowRight size={16} />
