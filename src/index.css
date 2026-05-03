@@ -403,6 +403,11 @@
     background: linear-gradient(180deg, transparent 0%, rgba(20,128,102,.05) 40%, rgba(20,128,102,.07) 60%, transparent 100%);
   }
 
+  /* ── Events scroll fade ── */
+  .events-fade-right {
+    background: linear-gradient(to right, transparent, #EDE8DC);
+  }
+
   /* ── Dividers ── */
   .glass-divider {
     height: 1px;
@@ -743,6 +748,9 @@
   background:
     radial-gradient(ellipse at 30% 50%, rgba(242,171,35,.07) 0%, transparent 60%),
     radial-gradient(ellipse at 70% 20%, rgba(247,197,90,.05) 0%, transparent 50%);
+}
+.dark .events-fade-right {
+  background: linear-gradient(to right, transparent, #0D1528);
 }
 
 /* Liquid glass → dark frost */

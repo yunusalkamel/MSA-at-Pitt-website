@@ -81,13 +81,12 @@ const Navbar = () => {
         }`}
       >
         <div className="flex items-center justify-between h-14 md:h-16">
-          {/* Logo — MSA in Jannah Mid/Light, AT PITT in MSA Blue/White, Jakarta 800 */}
           <Link
             to="/"
-            className="font-body font-extrabold text-lg md:text-xl tracking-[0.1em] hover:opacity-80 transition-opacity"
+            className="font-display font-bold text-xl md:text-2xl tracking-[0.06em] leading-none hover:opacity-80 transition-opacity"
           >
             <span className="text-jannah-mid dark:text-jannah-light">MSA</span>{' '}
-            <span className="text-msa-blue dark:text-white/90">AT PITT</span>
+            <span className="text-msa-blue dark:text-white/90">at Pitt</span>
           </Link>
 
           {/* Desktop nav */}

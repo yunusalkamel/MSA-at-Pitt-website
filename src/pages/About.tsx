@@ -12,11 +12,13 @@ import communityImg from "@/assets/about-community.jpg";
 import eventsImg from "@/assets/events-social.jpg";
 import patternImg from "@/assets/islamic-pattern.jpg";
 
-const whatWeDo = [
-  { icon: BookOpen, title: "Faith & Spirituality", desc: "Weekly Jummah, halaqas, Ramadan programming, and collaborations with the Islamic Center of Pittsburgh.", gradient: "from-[#F2AB23] to-[#C9A84C]" },
+const communityCards = [
   { icon: PartyPopper, title: "Social & Fun", desc: "Eid Socials, TopGolf outings, iftar gatherings of 150+ people, and dedicated brothers' & sisters' events.", gradient: "from-[#0A5C46] to-[#148066]" },
   { icon: HeartHandshake, title: "Support & Resources", desc: "Wellness resources, freshman survival tips, revert resources — we've got your back.", gradient: "from-[#14345A] to-[#11233C]" },
-  { icon: Globe, title: "Community Outreach", desc: "Service projects, volunteering, masjid partnerships, and giving back to Pittsburgh.", gradient: "from-[#8A6212] to-[#148066]" },
+];
+const imanCards = [
+  { icon: BookOpen, title: "Faith & Spirituality", desc: "Weekly Jummah, halaqas, Ramadan programming, and collaborations with the Islamic Center of Pittsburgh.", gradient: "from-[#F2AB23] to-[#C9A84C]" },
+  { icon: Globe, title: "Service & Da'wah", desc: "Service projects, volunteering, masjid partnerships, and giving back to Pittsburgh.", gradient: "from-[#8A6212] to-[#148066]" },
 ];
 
 const About = () => {
@@ -48,7 +50,7 @@ const About = () => {
             transition={{ delay: 0.18, duration: 0.6 }}
             className="font-display text-5xl font-bold text-accent-foreground mb-4 md:text-7xl tracking-tight"
           >
-            We are MSA <span className="text-gradient-gold italic">at Pitt.</span>
+            We're the MSA <span className="text-gradient-gold italic">at Pitt.</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 16 }}
@@ -142,6 +144,12 @@ const About = () => {
                   </p>
                 </div>
               </div>
+              <div className="liquid-glass p-4 mt-4 border-l-2 border-primary/30">
+                <p className="text-sm text-foreground italic leading-relaxed">
+                  "A man is upon the religion of his best friend, so let one of you look at whom he befriends."
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">— Prophet Muhammad ﷺ (Sunan al-Tirmidhi 2378)</p>
+              </div>
             </motion.div>
           </motion.div>
         </div>
@@ -158,16 +166,37 @@ const About = () => {
 
         <div className="max-w-7xl mx-auto relative z-10">
           <SectionHeading title="What We Do" label="Our Focus Areas" />
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {whatWeDo.map((item, i) => (
-              <GlassCard key={item.title} delay={i * 0.08}>
-                <div className={`bg-gradient-to-br ${item.gradient} w-14 h-14 rounded-xl flex items-center justify-center mb-4 shadow-lg`}>
-                  <item.icon className="text-white" size={24} />
-                </div>
-                <h3 className="font-display text-xl font-bold text-foreground mb-2">{item.title}</h3>
-                <p className="font-satoshi text-muted-foreground text-sm leading-relaxed">{item.desc}</p>
-              </GlassCard>
-            ))}
+          <div className="grid md:grid-cols-2 gap-10 md:gap-16">
+            {/* Left — Cultivate Community */}
+            <div>
+              <p className="font-display italic text-gradient-gold text-xl mb-6 tracking-wide">Cultivate Community.</p>
+              <div className="grid sm:grid-cols-2 gap-5">
+                {communityCards.map((item, i) => (
+                  <GlassCard key={item.title} delay={i * 0.08}>
+                    <div className={`bg-gradient-to-br ${item.gradient} w-14 h-14 rounded-xl flex items-center justify-center mb-4 shadow-lg`}>
+                      <item.icon className="text-white" size={24} />
+                    </div>
+                    <h3 className="font-display text-xl font-bold text-foreground mb-2">{item.title}</h3>
+                    <p className="font-satoshi text-muted-foreground text-sm leading-relaxed">{item.desc}</p>
+                  </GlassCard>
+                ))}
+              </div>
+            </div>
+            {/* Right — Ignite Iman */}
+            <div>
+              <p className="font-display italic text-gradient-aura text-xl mb-6 tracking-wide">Ignite Iman.</p>
+              <div className="grid sm:grid-cols-2 gap-5">
+                {imanCards.map((item, i) => (
+                  <GlassCard key={item.title} delay={0.16 + i * 0.08}>
+                    <div className={`bg-gradient-to-br ${item.gradient} w-14 h-14 rounded-xl flex items-center justify-center mb-4 shadow-lg`}>
+                      <item.icon className="text-white" size={24} />
+                    </div>
+                    <h3 className="font-display text-xl font-bold text-foreground mb-2">{item.title}</h3>
+                    <p className="font-satoshi text-muted-foreground text-sm leading-relaxed">{item.desc}</p>
+                  </GlassCard>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
