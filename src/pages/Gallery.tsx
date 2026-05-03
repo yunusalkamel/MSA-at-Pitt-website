@@ -131,21 +131,21 @@ const Gallery = () => {
         <div className="absolute top-0 right-1/4 w-96 h-96 rounded-full bg-primary/[0.06] blur-[120px]" />
         <div className="absolute bottom-0 left-1/4 w-80 h-80 rounded-full bg-secondary/[0.05] blur-[100px]" />
         <div className="max-w-6xl mx-auto relative z-10">
-          <AnimatePresence mode="wait">
+          <AnimatePresence>
             <motion.div
               key={activeFilter}
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.25 }}
+              transition={{ duration: 0.2 }}
               className="grid md:grid-cols-2 gap-6 md:gap-8"
             >
               {filtered.map((event, i) => (
                 <motion.div
                   key={event.title}
-                  initial={{ opacity: 0, y: 30 }}
+                  initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.07, duration: 0.4 }}
+                  transition={{ delay: i * 0.04, duration: 0.25 }}
                   className="group relative rounded-2xl overflow-hidden shadow-xl cursor-pointer aspect-[16/10]"
                 >
                   <img

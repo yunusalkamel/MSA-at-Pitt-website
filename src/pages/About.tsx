@@ -165,7 +165,7 @@ const About = () => {
                   <item.icon className="text-white" size={24} />
                 </div>
                 <h3 className="font-display text-xl font-bold text-foreground mb-2">{item.title}</h3>
-                <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed">{item.desc}</p>
+                <p className="font-satoshi text-muted-foreground text-sm leading-relaxed">{item.desc}</p>
               </GlassCard>
             ))}
           </div>

@@ -142,7 +142,7 @@ const Resources = () => {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.32 }}
-            className="font-dm-sans text-xl text-muted-foreground max-w-2xl mx-auto"
+            className="font-satoshi text-xl text-muted-foreground max-w-2xl mx-auto"
           >
             From navigating college to navigating your faith — here are resources to support you.
           </motion.p>

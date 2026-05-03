@@ -18,6 +18,21 @@ const resourcesChildren = [
   { to: "/resources/faq", label: "FAQ" },
 ];
 
+const prefetchRoute = (path: string) => {
+  const map: Record<string, () => Promise<unknown>> = {
+    "/": () => import("../pages/Index"),
+    "/about": () => import("../pages/About"),
+    "/events": () => import("../pages/Events"),
+    "/gallery": () => import("../pages/Gallery"),
+    "/resources": () => import("../pages/Resources"),
+    "/resources/new-to-pitt": () => import("../pages/NewToPitt"),
+    "/resources/prayer-locations": () => import("../pages/PrayerLocations"),
+    "/resources/faq": () => import("../pages/FAQ"),
+    "/join": () => import("../pages/Join"),
+  };
+  map[path]?.();
+};
+
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -85,6 +100,8 @@ const Navbar = () => {
                 <Link
                   key={link.to}
                   to={link.to}
+                  onMouseEnter={() => prefetchRoute(link.to)}
+                  onFocus={() => prefetchRoute(link.to)}
                   className={`relative text-[14px] font-semibold font-body transition-colors duration-200 pb-0.5 ${
                     isActive
                       ? "text-jannah-mid dark:text-msa-gold"
@@ -139,6 +156,8 @@ const Navbar = () => {
                         <Link
                           key={child.to}
                           to={child.to}
+                          onMouseEnter={() => prefetchRoute(child.to)}
+                          onFocus={() => prefetchRoute(child.to)}
                           className={`block px-3 py-2 rounded-lg text-sm font-semibold font-body transition-colors duration-150 ${
                             isChildActive
                               ? "text-jannah-mid dark:text-msa-gold bg-jannah/[0.07] dark:bg-msa-gold/[0.08]"

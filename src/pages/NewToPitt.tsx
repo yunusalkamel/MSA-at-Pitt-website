@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, MapPin, Utensils, BookOpen, Users, Briefcase, Trophy, Bus, Mic2 } from "lucide-react";
 import Layout from "@/components/Layout";
 import BridgeBar from "@/components/BridgeBar";
+import SectionDivider from "@/components/SectionDivider";
 import SectionHeading from "@/components/SectionHeading";
 import ArabicVerse from "@/components/ArabicVerse";
 import patternImg from "@/assets/islamic-pattern.jpg";
@@ -209,6 +210,8 @@ const NewToPitt = () => (
         </Section>
       </div>
     </section>
+
+    <SectionDivider />
 
     {/* Closing */}
     <section className="section-padding-sm gradient-section-emerald-soft">

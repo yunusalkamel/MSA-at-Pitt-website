@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, ChevronDown } from "lucide-react";
 import Layout from "@/components/Layout";
 import BridgeBar from "@/components/BridgeBar";
+import SectionDivider from "@/components/SectionDivider";
 import ArabicVerse from "@/components/ArabicVerse";
 import patternImg from "@/assets/islamic-pattern.jpg";
 
@@ -93,7 +94,7 @@ const AccordionItem = ({ item, index }: { item: FAQItem; index: number }) => {
             className="overflow-hidden"
           >
             <div className="px-6 pb-5 pt-0">
-              <p className="text-muted-foreground text-sm leading-relaxed">{item.a}</p>
+              <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed">{item.a}</p>
             </div>
           </motion.div>
         )}
@@ -111,13 +112,13 @@ const FAQ = () => (
           
           <BridgeBar />
       <div className="relative z-10 max-w-3xl mx-auto">
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xs uppercase tracking-[0.3em] text-primary font-semibold mb-5">
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="font-body text-xs uppercase tracking-[0.3em] text-primary font-semibold mb-5">
           Resources
         </motion.p>
         <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="font-display text-5xl md:text-7xl font-bold text-foreground mb-4">
           Frequently Asked <span className="text-gradient-gold">Questions</span>
         </motion.h1>
-        <motion.p initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-muted-foreground text-lg max-w-xl mx-auto leading-relaxed">
+        <motion.p initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="font-satoshi text-muted-foreground text-lg max-w-xl mx-auto leading-relaxed">
           Everything you need to know about MSA at Pitt.
         </motion.p>
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }} className="mt-6">
@@ -127,6 +128,8 @@ const FAQ = () => (
         </motion.div>
       </div>
     </section>
+
+    <SectionDivider />
 
     {/* FAQ Accordion */}
     <section className="section-padding relative overflow-hidden">
@@ -139,6 +142,8 @@ const FAQ = () => (
         ))}
       </div>
     </section>
+
+    <SectionDivider />
 
     {/* Closing */}
     <section className="section-padding-sm gradient-section-gold-soft">
