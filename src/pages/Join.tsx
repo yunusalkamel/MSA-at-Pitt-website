@@ -1,5 +1,6 @@
-import { motion } from "framer-motion";
-import { Instagram, ExternalLink, ArrowRight, CheckCircle2, Users, Calendar, Heart, MessageCircle } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
+import { Instagram, ExternalLink, ArrowRight, CheckCircle2, Users, Calendar, Heart, MessageCircle, Sparkles } from "lucide-react";
 import Layout from "@/components/Layout";
 import BridgeBar from "@/components/BridgeBar";
 import SectionDivider from "@/components/SectionDivider";
@@ -61,9 +62,48 @@ const whatHappensNext = [
   },
 ];
 
+const STORAGE_KEY = "msa-joined";
+
 const Join = () => {
+  const [joined, setJoined] = useState(false);
+  const [showBanner, setShowBanner] = useState(false);
+
+  useEffect(() => {
+    if (localStorage.getItem(STORAGE_KEY) === "true") setJoined(true);
+  }, []);
+
+  const handleJoined = () => {
+    localStorage.setItem(STORAGE_KEY, "true");
+    setJoined(true);
+    setShowBanner(true);
+    setTimeout(() => setShowBanner(false), 6000);
+  };
+
   return (
     <Layout>
+      {/* Post-join welcome banner */}
+      <AnimatePresence>
+        {showBanner && (
+          <motion.div
+            initial={{ opacity: 0, y: -16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -16 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className="fixed top-20 left-1/2 -translate-x-1/2 z-50 w-full max-w-lg px-4"
+          >
+            <div className="liquid-glass-strong rounded-2xl px-6 py-4 flex items-center gap-4 shadow-xl border border-primary/20">
+              <div className="w-10 h-10 rounded-full gold-gradient flex items-center justify-center flex-shrink-0">
+                <Sparkles size={18} className="text-primary-foreground" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-display font-bold text-foreground text-base leading-tight">Alhamdulillah — you're in!</p>
+                <p className="font-satoshi text-muted-foreground text-sm mt-0.5">Welcome to MSA at Pitt. Check your WhatsApp for what's next.</p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Hero */}
       <section className="relative py-32 md:py-44 overflow-hidden text-center">
         <div className="absolute inset-0 pointer-events-none">
@@ -137,9 +177,25 @@ const Join = () => {
                     <p className="font-dm-sans text-muted-foreground text-base leading-relaxed mb-5">{step.copy}</p>
 
                     {"cta" in step && step.cta && (
-                      <a href={step.href} target="_blank" rel="noopener noreferrer" className="btn-premium">
-                        {step.cta} <ArrowRight size={15} />
-                      </a>
+                      <div className="flex flex-col sm:flex-row items-start gap-3">
+                        <a href={step.href} target="_blank" rel="noopener noreferrer" className="btn-premium">
+                          {step.cta} <ArrowRight size={15} />
+                        </a>
+                        {!joined && step.num === "01" && (
+                          <button
+                            type="button"
+                            onClick={handleJoined}
+                            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors font-body font-semibold self-center"
+                          >
+                            <CheckCircle2 size={15} /> I've submitted it
+                          </button>
+                        )}
+                        {joined && step.num === "01" && (
+                          <span className="inline-flex items-center gap-2 text-sm text-jannah-mid dark:text-msa-gold font-body font-semibold self-center">
+                            <CheckCircle2 size={15} /> Registered ✓
+                          </span>
+                        )}
+                      </div>
                     )}
                     {"ctas" in step && step.ctas && (
                       <div className="flex flex-col sm:flex-row gap-3">

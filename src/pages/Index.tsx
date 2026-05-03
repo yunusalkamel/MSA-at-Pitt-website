@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import { ArrowRight, Heart, Users, Moon, HandHeart, Calendar } from "lucide-react";
 import { useMemo } from "react";
 import Layout from "@/components/Layout";
-import GlassCard from "@/components/GlassCard";
 import SectionHeading from "@/components/SectionHeading";
 import SectionDivider from "@/components/SectionDivider";
 import ArabicVerse from "@/components/ArabicVerse";
@@ -291,7 +290,12 @@ const Index = () => {
 
           {/* Horizontal scroll layout: events left, "see all" pinned right */}
           <div className="flex gap-4 items-stretch">
-            <div className="flex-1 min-w-0 overflow-x-auto pb-3" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(242,171,35,.25) transparent' }}>
+            {/* Scroll area + right-edge fade mask */}
+            <div className="flex-1 min-w-0 relative">
+              {/* Fade-out gradient where scroll meets the "see all" card */}
+              <div className="absolute right-0 top-0 bottom-3 w-20 pointer-events-none z-10"
+                style={{ background: 'linear-gradient(to right, transparent, var(--background))' }} />
+              <div className="overflow-x-auto pb-3 h-full" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(242,171,35,.25) transparent' }}>
               <div className="flex gap-4 min-w-max pr-2">
                 {eventsLoading && !eventsError ? (
                   <div className="w-72 glass-card p-6 flex flex-col items-center justify-center min-h-[220px]">
@@ -328,6 +332,7 @@ const Index = () => {
                   })
                 )}
               </div>
+              </div>
             </div>
 
             {/* "See all events" — always visible on the right quarter */}
@@ -361,24 +366,38 @@ const Index = () => {
         <div className="absolute inset-0 texture-khatam opacity-[0.55]" />
         <div className="max-w-7xl mx-auto relative z-10">
           <SectionHeading title="What drives us" label="Our Pillars" />
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {pillars.map((pillar, i) => (
-              <GlassCard key={pillar.title} delay={i * 0.08}>
+          {/* Pillars reveal as a group — staggered children signal "these belong together" */}
+          <motion.div
+            className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-60px" }}
+            variants={{
+              hidden: {},
+              visible: { transition: { staggerChildren: 0.1, delayChildren: 0.05 } },
+            }}
+          >
+            {pillars.map((pillar) => (
+              <motion.div
+                key={pillar.title}
+                variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4 } } }}
+                className="glass-card-hover p-6 md:p-8"
+              >
                 <div className="gold-gradient w-11 h-11 rounded-xl flex items-center justify-center mb-5 shadow-sm">
                   <pillar.icon className="text-primary-foreground" size={20} />
                 </div>
                 <h3 className="font-display text-xl font-bold text-foreground mb-2 leading-tight">{pillar.title}</h3>
                 <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed">{pillar.desc}</p>
-              </GlassCard>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
       <SectionDivider />
 
       {/* ── Join CTA ── */}
-      {/* Section is NOT overflow-hidden so Burgues script swashes don't clip */}
+      {/* Section is NOT overflow-hidden so italic Cormorant descenders don't clip */}
       <section className="section-padding gradient-section-gold-soft relative">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute inset-0 texture-dots" />
@@ -395,11 +414,11 @@ const Index = () => {
             <h2 className="font-display text-4xl md:text-6xl font-bold text-foreground leading-tight">
               Ready to find
             </h2>
-            {/* Separate div — not clipped by the h2's overflow */}
-            <div className="my-1 py-2">
+            {/* Wider container so italic Cormorant descenders don't clip at max-w-3xl boundary */}
+            <div className="my-1 py-2 -mx-8 overflow-visible">
               <span
                 className="font-display italic text-gradient-gold inline-block"
-                style={{ fontSize: 'clamp(3rem, 9vw, 5.5rem)', lineHeight: 1.2, paddingLeft: '0.05em', paddingRight: '0.1em' }}
+                style={{ fontSize: 'clamp(3rem, 9vw, 5.5rem)', lineHeight: 1.3, paddingLeft: '0.25em', paddingRight: '0.35em' }}
               >
                 your people?
               </span>
