@@ -9,36 +9,34 @@ interface Role {
   children?: Role[];
 }
 
-const board: Role = {
-  title: "President",
-  tier: "pres",
+const execBoard: Role[] = [
+  {
+    title: "Internal VP",
+    tier: "vp",
+    children: [
+      { title: "Brothers Social Chair", tier: "chair" },
+      { title: "Sisters Social Chair", tier: "chair" },
+      { title: "Marketing Chair", tier: "chair" },
+    ],
+  },
+  {
+    title: "External VP",
+    tier: "vp",
+    children: [
+      { title: "Advocacy Chair", tier: "chair" },
+      { title: "Brothers Dawah Chair", tier: "chair" },
+      { title: "Sisters Dawah Chair", tier: "chair" },
+    ],
+  },
+  { title: "Secretary", tier: "vp" },
+  { title: "Business Manager", tier: "vp" },
+];
+
+const cec: Role = {
+  title: "Community Engagement Council",
+  tier: "vp",
   children: [
-    {
-      title: "Internal VP",
-      tier: "vp",
-      children: [
-        { title: "Brothers Social Chair", tier: "chair" },
-        { title: "Sisters Social Chair", tier: "chair" },
-        { title: "Marketing Chair", tier: "chair" },
-      ],
-    },
-    {
-      title: "External VP",
-      tier: "vp",
-      children: [
-        { title: "Advocacy Chair", tier: "chair" },
-        { title: "Brothers Dawah Chair", tier: "chair" },
-        { title: "Sisters Dawah Chair", tier: "chair" },
-      ],
-    },
-    { title: "Secretary", tier: "vp" },
-    { title: "Business Manager", tier: "vp" },
-    {
-      title: "CEC",
-      tier: "vp",
-      note: "Community Engagement Council",
-      children: [{ title: "Attawheed · ICWP/MAP · ICP · MCCGP · PGMA", tier: "partner" }],
-    },
+    { title: "Attawheed · ICWP/MAP · ICP · MCCGP · PGMA", tier: "partner" },
   ],
 };
 
@@ -69,11 +67,13 @@ const styles = {
   },
 };
 
-const Connector = ({ h = "h-4" }: { h?: string }) => (
+const Connector = ({ h = "h-6" }: { h?: string }) => (
   <div className={`w-px ${h} bg-gradient-to-b from-border/60 to-border/25 mx-auto`} />
 );
 
-const DNode = ({ title, tier, note, delay = 0 }: { title: string; tier: keyof typeof styles; note?: string; delay?: number }) => (
+const DNode = ({ title, tier, note, delay = 0 }: {
+  title: string; tier: keyof typeof styles; note?: string; delay?: number;
+}) => (
   <motion.div
     initial={{ opacity: 0, y: 8 }}
     whileInView={{ opacity: 1, y: 0 }}
@@ -89,18 +89,16 @@ const DNode = ({ title, tier, note, delay = 0 }: { title: string; tier: keyof ty
   </motion.div>
 );
 
-const childGridCols = (n: number) =>
-  n === 1 ? "grid-cols-1" : n === 2 ? "grid-cols-2" : n === 3 ? "grid-cols-3" : "grid-cols-2";
+const allMobile = [...execBoard, cec];
 
 const OrgChart = () => {
-  const [openVp, setOpenVp] = useState<string | null>(board.children?.[0]?.title ?? null);
+  const [openVp, setOpenVp] = useState<string | null>(execBoard[0]?.title ?? null);
 
   return (
     <div className="glass-card-strong rounded-2xl overflow-hidden">
 
       {/* ── Mobile accordion ── */}
       <div className="md:hidden p-4 space-y-3">
-        {/* President */}
         <div className={`glass-card border rounded-xl px-4 py-3 text-center ${styles.pres.card}`}>
           <p className="font-body font-bold text-foreground text-sm">President</p>
           <span className={`inline-block text-[9px] font-body font-bold uppercase tracking-wider px-2 py-0.5 rounded-full mt-1 ${styles.pres.badge}`}>
@@ -108,7 +106,7 @@ const OrgChart = () => {
           </span>
         </div>
 
-        {board.children?.map((vp) => {
+        {allMobile.map((vp) => {
           const isOpen = openVp === vp.title;
           return (
             <div key={vp.title} className={`glass-card border rounded-xl overflow-hidden ${styles.vp.card}`}>
@@ -119,9 +117,7 @@ const OrgChart = () => {
               >
                 <div className="text-left">
                   <p className="font-body text-sm font-semibold text-foreground leading-tight">{vp.title}</p>
-                  {vp.note && (
-                    <p className="font-body text-[11px] text-muted-foreground italic mt-0.5">{vp.note}</p>
-                  )}
+                  {vp.note && <p className="font-body text-[11px] text-muted-foreground italic mt-0.5">{vp.note}</p>}
                   {!vp.note && vp.children?.length ? (
                     <p className="font-body text-[11px] text-muted-foreground mt-0.5">
                       {vp.children.length} position{vp.children.length !== 1 ? "s" : ""}
@@ -150,7 +146,6 @@ const OrgChart = () => {
                       {vp.children.map((child) => (
                         <div key={child.title} className={`rounded-lg border px-3 py-2.5 ${child.tier === "partner" ? styles.partner.card : styles.chair.card}`}>
                           <p className="font-body text-xs font-semibold text-foreground">{child.title}</p>
-                          {child.note && <p className="font-body text-[10px] text-muted-foreground/70 italic mt-0.5">{child.note}</p>}
                         </div>
                       ))}
                     </div>
@@ -164,10 +159,10 @@ const OrgChart = () => {
 
       {/* ── Desktop tree ── */}
       <div className="hidden md:block overflow-x-auto">
-        <div className="p-6 md:p-8" style={{ minWidth: "760px" }}>
+        <div className="p-8 md:p-10" style={{ minWidth: "820px" }}>
 
           {/* Legend */}
-          <div className="flex flex-wrap gap-2 justify-end mb-8">
+          <div className="flex flex-wrap gap-2 justify-end mb-10">
             {(["pres", "vp", "chair", "partner"] as const).map((tier) => (
               <span key={tier} className={`inline-flex items-center gap-1.5 text-[10px] font-body font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full ${styles[tier].badge}`}>
                 <span className={`w-1.5 h-1.5 rounded-full ${styles[tier].dot}`} />
@@ -177,53 +172,51 @@ const OrgChart = () => {
           </div>
 
           {/* President */}
-          <div className="flex justify-center mb-0">
-            <div className="w-36">
+          <div className="flex justify-center">
+            <div className="w-40">
               <DNode title="President" tier="pres" delay={0} />
             </div>
           </div>
-          <Connector h="h-6" />
+          <Connector h="h-8" />
 
-          {/* Horizontal connector bar */}
+          {/* Horizontal connector bar spanning 4 columns */}
           <div className="relative">
-            <div className="absolute top-0 left-[7%] right-[7%] h-px bg-border/45" />
+            <div className="absolute top-0 left-[10%] right-[10%] h-px bg-border/45" />
 
-            {/* 5 columns: External VP, Internal VP, Business Manager, Secretary, CEC */}
-            <div className="grid grid-cols-5 gap-3 pt-0">
-              {board.children!.map((vp, i) => (
+            {/* 4-column exec board */}
+            <div className="grid grid-cols-4 gap-6 pt-0">
+              {execBoard.map((vp, i) => (
                 <div key={vp.title} className="flex flex-col items-center">
-                  <Connector h="h-6" />
-                  <DNode title={vp.title} tier="vp" note={vp.note} delay={0.08 + i * 0.05} />
+                  <Connector h="h-8" />
+                  <DNode title={vp.title} tier="vp" delay={0.08 + i * 0.06} />
 
                   {vp.children && vp.children.length > 0 && (
                     <>
-                      <Connector h="h-4" />
-                      <div className="relative w-full">
-                        {vp.children.length > 1 && (
-                          <div className="absolute top-0 left-[10%] right-[10%] h-px bg-border/35" />
-                        )}
-                        <div className={`grid gap-2 pt-0 ${childGridCols(vp.children.length)}`}>
-                          {vp.children.map((child, j) => (
-                            <div key={child.title} className="flex flex-col items-center">
-                              <Connector h="h-4" />
-                              <motion.div
-                                initial={{ opacity: 0, y: 8 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: 0.18 + i * 0.05 + j * 0.04 }}
-                                className={`w-full glass-card border rounded-lg px-2 py-2 text-center ${child.tier === "partner" ? styles.partner.card : styles.chair.card}`}
-                              >
-                                <p className="text-[10px] font-body font-semibold text-foreground leading-tight mb-1">{child.title}</p>
-                                <span className={`inline-block text-[8px] font-body font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full ${child.tier === "partner" ? styles.partner.badge : styles.chair.badge}`}>
-                                  {child.tier === "partner" ? "Partners" : "Chair"}
-                                </span>
-                                {child.note && (
-                                  <p className="text-[8px] text-muted-foreground/65 font-medium italic mt-0.5">{child.note}</p>
-                                )}
-                              </motion.div>
-                            </div>
-                          ))}
+                      <Connector h="h-6" />
+                      {/* Horizontal mini-bar if multiple children */}
+                      {vp.children.length > 1 && (
+                        <div className="relative w-full">
+                          <div className="absolute top-0 left-[15%] right-[15%] h-px bg-border/30" />
                         </div>
+                      )}
+                      <div className="grid grid-cols-1 gap-2.5 w-full">
+                        {vp.children.map((child, j) => (
+                          <div key={child.title} className="flex flex-col items-center">
+                            <Connector h="h-4" />
+                            <motion.div
+                              initial={{ opacity: 0, y: 8 }}
+                              whileInView={{ opacity: 1, y: 0 }}
+                              viewport={{ once: true }}
+                              transition={{ delay: 0.2 + i * 0.06 + j * 0.04 }}
+                              className={`w-full glass-card border rounded-lg px-2.5 py-2 text-center ${styles.chair.card}`}
+                            >
+                              <p className="text-[10px] font-body font-semibold text-foreground leading-tight mb-1">{child.title}</p>
+                              <span className={`inline-block text-[8px] font-body font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full ${styles.chair.badge}`}>
+                                Chair
+                              </span>
+                            </motion.div>
+                          </div>
+                        ))}
                       </div>
                     </>
                   )}
@@ -231,6 +224,40 @@ const OrgChart = () => {
               ))}
             </div>
           </div>
+
+          {/* CEC — separate row, connected directly to President via long vertical line */}
+          <div className="mt-10 flex flex-col items-center">
+            <div className="relative flex flex-col items-center">
+              {/* Dashed vertical line from above, indicating a direct-to-president link */}
+              <div className="w-px h-10 border-l-2 border-dashed border-border/40" />
+              <p className="text-[9px] font-body text-muted-foreground/50 uppercase tracking-widest mb-2 -mt-1">Direct to President</p>
+              <div className="w-80">
+                <DNode title="Community Engagement Council" tier="vp" delay={0.35} />
+              </div>
+              {cec.children && (
+                <>
+                  <Connector h="h-5" />
+                  <div className="w-80">
+                    <motion.div
+                      initial={{ opacity: 0, y: 8 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: 0.42 }}
+                      className={`glass-card border rounded-lg px-4 py-2.5 text-center ${styles.partner.card}`}
+                    >
+                      <p className="text-[10px] font-body font-semibold text-foreground leading-tight mb-1">
+                        {cec.children[0].title}
+                      </p>
+                      <span className={`inline-block text-[8px] font-body font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full ${styles.partner.badge}`}>
+                        Partners
+                      </span>
+                    </motion.div>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
         </div>
       </div>
     </div>

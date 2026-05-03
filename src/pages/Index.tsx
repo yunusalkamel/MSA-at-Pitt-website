@@ -28,10 +28,12 @@ import {
   type MSAEvent,
 } from "@/data/events";
 
-const pillars = [
-  { icon: Moon, title: "Faith", desc: "Weekly Jummah, halaqas, and Ramadan programming — nurturing your tarbiyyah throughout college." },
+const communityPillars = [
   { icon: Users, title: "Brotherhood & Sisterhood", desc: "Lifelong bonds formed through dedicated brothers' and sisters' programming and shared everyday experiences." },
   { icon: Heart, title: "Community", desc: "Iftars, socials, TopGolf, sports — we show up for each other on and off campus." },
+];
+const imanPillars = [
+  { icon: Moon, title: "Faith", desc: "Weekly Jummah, halaqas, and Ramadan programming — nurturing your tarbiyyah throughout college." },
   { icon: HandHeart, title: "Service & Da'wah", desc: "Outreach, volunteering, and giving back to Pittsburgh — continuing to serve the Ummah beyond graduation." },
 ];
 
@@ -293,10 +295,14 @@ const Index = () => {
 
           {/* Horizontal scroll layout: events left, "see all" pinned right */}
           <div className="flex gap-4 items-stretch">
-            {/* Scroll area + right-edge fade mask */}
-            <div className="flex-1 min-w-0 relative">
-              {/* Fade-out gradient where scroll meets the "see all" card */}
-              <div className="events-fade-right absolute right-0 top-0 bottom-3 w-40 pointer-events-none z-10" />
+            {/* Scroll area with right-edge transparency mask */}
+            <div
+              className="flex-1 min-w-0"
+              style={{
+                maskImage: 'linear-gradient(to right, black 75%, transparent 100%)',
+                WebkitMaskImage: 'linear-gradient(to right, black 75%, transparent 100%)',
+              }}
+            >
               <div className="overflow-x-auto pb-3 h-full" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(242,171,35,.25) transparent' }}>
               <div className="flex gap-4 min-w-max pr-2">
                 {eventsLoading && !eventsError ? (
@@ -424,31 +430,56 @@ const Index = () => {
         <div className="absolute inset-0 texture-khatam opacity-[0.55]" />
         <div className="max-w-7xl mx-auto relative z-10">
           <SectionHeading title="What drives us" label="Our Pillars" />
-          {/* Pillars reveal as a group — staggered children signal "these belong together" */}
-          <motion.div
-            className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-60px" }}
-            variants={{
-              hidden: {},
-              visible: { transition: { staggerChildren: 0.1, delayChildren: 0.05 } },
-            }}
-          >
-            {pillars.map((pillar) => (
-              <motion.div
-                key={pillar.title}
-                variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4 } } }}
-                className="glass-card-hover p-6 md:p-8"
-              >
-                <div className="gold-gradient w-11 h-11 rounded-xl flex items-center justify-center mb-5 shadow-sm">
-                  <pillar.icon className="text-primary-foreground" size={20} />
-                </div>
-                <h3 className="font-display text-xl font-bold text-foreground mb-2 leading-tight">{pillar.title}</h3>
-                <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed">{pillar.desc}</p>
-              </motion.div>
-            ))}
-          </motion.div>
+          <div className="grid md:grid-cols-2 gap-10 md:gap-16">
+            {/* Left — Cultivate Community */}
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-60px" }}
+              variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.1, delayChildren: 0.05 } } }}
+            >
+              <p className="font-display italic text-gradient-gold text-xl mb-6 tracking-wide">Cultivate Community.</p>
+              <div className="grid sm:grid-cols-2 gap-5">
+                {communityPillars.map((pillar) => (
+                  <motion.div
+                    key={pillar.title}
+                    variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4 } } }}
+                    className="glass-card-hover p-6 md:p-8"
+                  >
+                    <div className="gold-gradient w-11 h-11 rounded-xl flex items-center justify-center mb-5 shadow-sm">
+                      <pillar.icon className="text-primary-foreground" size={20} />
+                    </div>
+                    <h3 className="font-display text-xl font-bold text-foreground mb-2 leading-tight">{pillar.title}</h3>
+                    <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed">{pillar.desc}</p>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+            {/* Right — Ignite Iman */}
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-60px" }}
+              variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.1, delayChildren: 0.12 } } }}
+            >
+              <p className="font-display italic text-gradient-aura text-xl mb-6 tracking-wide">Ignite Iman.</p>
+              <div className="grid sm:grid-cols-2 gap-5">
+                {imanPillars.map((pillar) => (
+                  <motion.div
+                    key={pillar.title}
+                    variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4 } } }}
+                    className="glass-card-hover p-6 md:p-8"
+                  >
+                    <div className="gold-gradient w-11 h-11 rounded-xl flex items-center justify-center mb-5 shadow-sm">
+                      <pillar.icon className="text-primary-foreground" size={20} />
+                    </div>
+                    <h3 className="font-display text-xl font-bold text-foreground mb-2 leading-tight">{pillar.title}</h3>
+                    <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed">{pillar.desc}</p>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
