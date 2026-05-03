@@ -328,9 +328,9 @@ const Join = () => {
         <div className="max-w-2xl mx-auto">
           <div className="glass-card-strong glass-glow p-7">
             <ArabicVerse
-              arabic="وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ"
-              translation="And whoever relies upon Allah — then He is sufficient for him."
-              reference="Quran 65:3"
+              arabic="يَا أَيُّهَا النَّاسُ إِنَّا خَلَقْنَاكُم مِّن ذَكَرٍ وَأُنثَىٰ وَجَعَلْنَاكُمْ شُعُوبًا وَقَبَائِلَ لِتَعَارَفُوا"
+              translation="O mankind, We created you from male and female and made you peoples and tribes that you may know one another."
+              reference="Quran 49:13"
             />
           </div>
         </div>

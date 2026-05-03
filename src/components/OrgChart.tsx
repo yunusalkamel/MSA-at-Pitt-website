@@ -14,30 +14,30 @@ const board: Role = {
   tier: "pres",
   children: [
     {
-      title: "External VP",
+      title: "Internal VP",
       tier: "vp",
       children: [
-        { title: "Advocacy Chair", tier: "chair" },
+        { title: "Brothers Social Chair", tier: "chair" },
+        { title: "Sisters Social Chair", tier: "chair" },
         { title: "Marketing Chair", tier: "chair" },
       ],
     },
     {
-      title: "Internal VP",
+      title: "External VP",
       tier: "vp",
       children: [
-        { title: "Brothers Social Chair", tier: "chair", note: "& Mentorship" },
-        { title: "Sisters Social Chair", tier: "chair", note: "& Mentorship" },
-        { title: "Brothers Dawah Chair", tier: "chair", note: "+ Chaplain" },
-        { title: "Sisters Dawah Chair", tier: "chair", note: "+ Chaplain" },
+        { title: "Advocacy Chair", tier: "chair" },
+        { title: "Brothers Dawah Chair", tier: "chair" },
+        { title: "Sisters Dawah Chair", tier: "chair" },
       ],
     },
-    { title: "Business Manager", tier: "vp" },
     { title: "Secretary", tier: "vp" },
+    { title: "Business Manager", tier: "vp" },
     {
       title: "CEC",
       tier: "vp",
       note: "Community Engagement Council",
-      children: [{ title: "Attawheed · ICWP/MAP · ICP · MCCGP", tier: "partner" }],
+      children: [{ title: "Attawheed · ICWP/MAP · ICP · MCCGP · PGMA", tier: "partner" }],
     },
   ],
 };

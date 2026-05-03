@@ -15,6 +15,9 @@ import { useCalendarEvents } from "@/hooks/useCalendarEvents";
 import heroImg from "@/assets/hero-gathering.jpg";
 import communityImg from "@/assets/about-community.jpg";
 import patternImg from "@/assets/islamic-pattern.jpg";
+import galleryKickoffImg from "@/assets/gallery-kickoff.jpg";
+import galleryIftarImg from "@/assets/gallery-iftar.jpg";
+import galleryTopgolfImg from "@/assets/gallery-topgolf.jpg";
 
 import {
   mockEvents,
@@ -293,8 +296,7 @@ const Index = () => {
             {/* Scroll area + right-edge fade mask */}
             <div className="flex-1 min-w-0 relative">
               {/* Fade-out gradient where scroll meets the "see all" card */}
-              <div className="absolute right-0 top-0 bottom-3 w-20 pointer-events-none z-10"
-                style={{ background: 'linear-gradient(to right, transparent, var(--background))' }} />
+              <div className="events-fade-right absolute right-0 top-0 bottom-3 w-40 pointer-events-none z-10" />
               <div className="overflow-x-auto pb-3 h-full" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(242,171,35,.25) transparent' }}>
               <div className="flex gap-4 min-w-max pr-2">
                 {eventsLoading && !eventsError ? (
@@ -360,6 +362,62 @@ const Index = () => {
 
       <SectionDivider />
 
+      {/* ── Gallery Preview ── */}
+      <section className="section-padding warm-surface relative overflow-hidden">
+        <div className="absolute inset-0 gradient-mesh-warm pointer-events-none" />
+        <div className="absolute inset-0 texture-dots opacity-40 pointer-events-none" />
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+            <SectionHeading title="Moments from MSA" label="Our Gallery" />
+            <Link to="/gallery" className="btn-premium-secondary text-sm px-5 py-2.5 self-start sm:self-auto flex-shrink-0">
+              Browse Gallery <ArrowRight size={14} />
+            </Link>
+          </div>
+
+          {/* Asymmetric grid: 1 wide left + 2 stacked right */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4" style={{ height: 'clamp(280px, 40vw, 460px)' }}>
+            <motion.div
+              className="col-span-1 md:col-span-2 relative rounded-2xl overflow-hidden group cursor-pointer"
+              initial={{ opacity: 0, scale: 0.97 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+            >
+              <img src={galleryKickoffImg} alt="MSA Fall Kickoff" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
+              <p className="absolute bottom-4 left-4 font-display text-white font-bold text-xl leading-tight drop-shadow-md">Fall Kickoff 2025</p>
+            </motion.div>
+
+            <div className="col-span-1 grid grid-rows-2 gap-3 md:gap-4">
+              <motion.div
+                className="relative rounded-2xl overflow-hidden group cursor-pointer"
+                initial={{ opacity: 0, x: 16 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.45, delay: 0.1 }}
+              >
+                <img src={galleryIftarImg} alt="Ramadan Iftar" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
+                <p className="absolute bottom-3 left-3 font-display text-white font-semibold text-sm drop-shadow-md">Ramadan Iftar</p>
+              </motion.div>
+              <motion.div
+                className="relative rounded-2xl overflow-hidden group cursor-pointer"
+                initial={{ opacity: 0, x: 16 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.45, delay: 0.18 }}
+              >
+                <img src={galleryTopgolfImg} alt="MSA TopGolf Night" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
+                <p className="absolute bottom-3 left-3 font-display text-white font-semibold text-sm drop-shadow-md">TopGolf Night</p>
+              </motion.div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <SectionDivider />
+
       {/* ── Pillars ── */}
       <section className="section-padding warm-surface relative overflow-hidden">
         <div className="absolute inset-0 gradient-mesh-warm" />
@@ -414,11 +472,10 @@ const Index = () => {
             <h2 className="font-display text-4xl md:text-6xl font-bold text-foreground leading-tight">
               Ready to find
             </h2>
-            {/* Wider container so italic Cormorant descenders don't clip at max-w-3xl boundary */}
             <div className="my-1 py-2 -mx-8 overflow-visible">
               <span
-                className="font-display italic text-gradient-gold inline-block"
-                style={{ fontSize: 'clamp(3rem, 9vw, 5.5rem)', lineHeight: 1.3, paddingLeft: '0.25em', paddingRight: '0.35em' }}
+                className="font-script text-gradient-gold inline-block"
+                style={{ fontSize: 'clamp(3.2rem, 9vw, 6rem)', lineHeight: 1.25, paddingLeft: '0.3em', paddingRight: '0.4em' }}
               >
                 your people?
               </span>
