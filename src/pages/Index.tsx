@@ -28,10 +28,13 @@ import {
   type MSAEvent,
 } from "@/data/events";
 
-const pillars = [
-  { icon: Moon, title: "Faith", desc: "Weekly Jummah, halaqas, and Ramadan programming — nurturing your tarbiyyah throughout college." },
+const communityPillars = [
   { icon: Users, title: "Brotherhood & Sisterhood", desc: "Lifelong bonds formed through dedicated brothers' and sisters' programming and shared everyday experiences." },
   { icon: Heart, title: "Community", desc: "Iftars, socials, TopGolf, sports — we show up for each other on and off campus." },
+];
+
+const imanPillars = [
+  { icon: Moon, title: "Faith", desc: "Weekly Jummah, halaqas, and Ramadan programming — nurturing your tarbiyyah throughout college." },
   { icon: HandHeart, title: "Service & Da'wah", desc: "Outreach, volunteering, and giving back to Pittsburgh — continuing to serve the Ummah beyond graduation." },
 ];
 
@@ -52,7 +55,6 @@ function formatEventMonthDay(dateStr: string) {
   };
 }
 
-// Space Mono per spec — statistics, numbers, data displays
 const StatItem = ({
   value,
   numericValue,
@@ -94,12 +96,11 @@ const Index = () => {
 
   return (
     <Layout>
-      {/* ── Hero ── */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
           <img src={heroImg} alt="MSA at Pitt community gathering" className="w-full h-full object-cover scale-110" width={1920} height={1080} />
           <div className="absolute inset-0 bg-gradient-to-b from-[#060B18]/90 via-[#0D1528]/55 to-[#14345A]/90" />
-          <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: '280px' }} />
+          <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: "280px" }} />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_80%_45%,rgba(20,128,102,.22)_0%,transparent_50%)]" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_15%_60%,rgba(242,171,35,.1)_0%,transparent_50%)]" />
         </div>
@@ -110,7 +111,6 @@ const Index = () => {
         <div className="absolute top-1/4 left-1/6 w-96 h-96 rounded-full bg-primary/12 blur-[140px] pointer-events-none" />
         <div className="absolute bottom-1/4 right-1/5 w-72 h-72 rounded-full bg-secondary/10 blur-[120px] pointer-events-none" />
 
-        {/* Hero content — single orchestrated entrance */}
         <motion.div
           className="relative z-10 text-center px-4 max-w-4xl mx-auto"
           initial={{ opacity: 0 }}
@@ -155,13 +155,14 @@ const Index = () => {
           >
             A Home Away
           </motion.h1>
+
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.65, duration: 0.7 }}
             className="mb-5"
           >
-            <span className="font-script text-gradient-gold inline-block" style={{ fontSize: 'clamp(3.4rem, 9.5vw, 7.5rem)', lineHeight: 1.15 }}>
+            <span className="font-script text-gradient-gold inline-block" style={{ fontSize: "clamp(3.4rem, 9.5vw, 7.5rem)", lineHeight: 1.15 }}>
               From Home.
             </span>
           </motion.div>
@@ -210,7 +211,6 @@ const Index = () => {
         </motion.div>
       </section>
 
-      {/* ── Stats Bar ── */}
       <section className="relative z-20 px-4 md:px-8 -mt-14 mb-[-6.5rem] bg-transparent">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -224,7 +224,6 @@ const Index = () => {
         </motion.div>
       </section>
 
-      {/* ── Our Story ── */}
       <section className="section-padding pt-28 -mt-4 warm-surface relative overflow-hidden">
         <div className="absolute inset-0 gradient-mesh-warm" />
         <div className="absolute inset-0 texture-khatam opacity-[0.6]" />
@@ -278,7 +277,6 @@ const Index = () => {
 
       <SectionDivider />
 
-      {/* ── Upcoming Events — horizontal scroll ── */}
       <section className="section-padding warm-surface-deep relative overflow-hidden">
         <div className="absolute inset-0 gradient-mesh-gold" />
         <div className="absolute inset-0 texture-dots" />
@@ -291,53 +289,60 @@ const Index = () => {
             </div>
           )}
 
-          {/* Horizontal scroll layout: events left, "see all" pinned right */}
           <div className="flex gap-4 items-stretch">
-            {/* Scroll area + right-edge fade mask */}
-            <div className="flex-1 min-w-0 relative">
-              {/* Fade-out gradient where scroll meets the "see all" card */}
-              <div className="events-fade-right absolute right-0 top-0 bottom-3 w-40 pointer-events-none z-10" />
-              <div className="overflow-x-auto pb-3 h-full" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(242,171,35,.25) transparent' }}>
-              <div className="flex gap-4 min-w-max pr-2">
-                {eventsLoading && !eventsError ? (
-                  <div className="w-72 glass-card p-6 flex flex-col items-center justify-center min-h-[220px]">
-                    <div className="w-7 h-7 rounded-full border-2 border-primary border-t-transparent animate-spin mb-3" />
-                    <p className="text-muted-foreground text-sm">Loading…</p>
-                  </div>
-                ) : upcomingScrollEvents.length === 0 ? (
-                  <div className="w-72 glass-card p-6 flex flex-col items-center justify-center min-h-[220px] text-center">
-                    <p className="font-display font-semibold text-xl text-foreground mb-2">No upcoming events yet</p>
-                    <p className="text-muted-foreground text-sm">New events are added regularly. Check back soon.</p>
-                  </div>
-                ) : (
-                  upcomingScrollEvents.map((event) => {
-                    const { month, day } = formatEventMonthDay(event.startDate);
-                    return (
-                      <div key={event.id} className="w-72 flex-shrink-0 glass-card p-6 flex flex-col">
-                        <div className="flex items-start gap-4 mb-4">
-                          <div className="gold-gradient text-primary-foreground w-14 h-14 rounded-xl flex flex-col items-center justify-center flex-shrink-0 shadow-md">
-                            <span className="text-[10px] font-semibold opacity-80 uppercase tracking-wide">{month}</span>
-                            <span className="font-display text-2xl font-bold leading-none">{day}</span>
+            <div
+              className="flex-1 min-w-0"
+              style={{
+                maskImage: "linear-gradient(to right, black 75%, transparent 100%)",
+                WebkitMaskImage: "linear-gradient(to right, black 75%, transparent 100%)",
+              }}
+            >
+              <div
+                className="overflow-x-auto pb-3 h-full"
+                style={{
+                  scrollbarWidth: "thin",
+                  scrollbarColor: "rgba(242,171,35,.25) transparent",
+                }}
+              >
+                <div className="flex gap-4 min-w-max pr-2">
+                  {eventsLoading && !eventsError ? (
+                    <div className="w-72 glass-card p-6 flex flex-col items-center justify-center min-h-[220px]">
+                      <div className="w-7 h-7 rounded-full border-2 border-primary border-t-transparent animate-spin mb-3" />
+                      <p className="text-muted-foreground text-sm">Loading…</p>
+                    </div>
+                  ) : upcomingScrollEvents.length === 0 ? (
+                    <div className="w-72 glass-card p-6 flex flex-col items-center justify-center min-h-[220px] text-center">
+                      <p className="font-display font-semibold text-xl text-foreground mb-2">No upcoming events yet</p>
+                      <p className="text-muted-foreground text-sm">New events are added regularly. Check back soon.</p>
+                    </div>
+                  ) : (
+                    upcomingScrollEvents.map((event) => {
+                      const { month, day } = formatEventMonthDay(event.startDate);
+                      return (
+                        <div key={event.id} className="w-72 flex-shrink-0 glass-card p-6 flex flex-col">
+                          <div className="flex items-start gap-4 mb-4">
+                            <div className="gold-gradient text-primary-foreground w-14 h-14 rounded-xl flex flex-col items-center justify-center flex-shrink-0 shadow-md">
+                              <span className="text-[10px] font-semibold opacity-80 uppercase tracking-wide">{month}</span>
+                              <span className="font-display text-2xl font-bold leading-none">{day}</span>
+                            </div>
+                            <div>
+                              <h3 className="font-display font-bold text-lg text-foreground leading-tight">{event.title}</h3>
+                              <p className="font-satoshi text-muted-foreground text-sm mt-0.5">{event.timeLabel}</p>
+                            </div>
                           </div>
-                          <div>
-                            <h3 className="font-display font-bold text-lg text-foreground leading-tight">{event.title}</h3>
-                            <p className="font-satoshi text-muted-foreground text-sm mt-0.5">{event.timeLabel}</p>
-                          </div>
+                          <p className="font-satoshi text-muted-foreground text-sm mb-1.5">📍 {event.location}</p>
+                          <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed mb-5 flex-1">{event.shortBlurb}</p>
+                          <a href={EVENT_SIGNUP_HUB_URL} target="_blank" rel="noopener noreferrer" className="btn-premium text-sm px-5 py-2 self-start">
+                            RSVP <ArrowRight size={13} />
+                          </a>
                         </div>
-                        <p className="font-satoshi text-muted-foreground text-sm mb-1.5">📍 {event.location}</p>
-                        <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed mb-5 flex-1">{event.shortBlurb}</p>
-                        <a href={EVENT_SIGNUP_HUB_URL} target="_blank" rel="noopener noreferrer" className="btn-premium text-sm px-5 py-2 self-start">
-                          RSVP <ArrowRight size={13} />
-                        </a>
-                      </div>
-                    );
-                  })
-                )}
-              </div>
+                      );
+                    })
+                  )}
+                </div>
               </div>
             </div>
 
-            {/* "See all events" — always visible on the right quarter */}
             <div className="w-52 md:w-60 flex-shrink-0 liquid-glass-hover flex flex-col items-center justify-center p-5 md:p-6 text-center group min-h-[220px] rounded-[var(--radius)]">
               <p className="font-display text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">See all events</p>
               <p className="font-dm-sans text-muted-foreground text-xs mb-4 leading-relaxed">Halaqas, speakers, sisters' events, and more.</p>
@@ -345,13 +350,11 @@ const Index = () => {
                 View All <ArrowRight size={13} />
               </Link>
               <div className="flex gap-3">
-                <a href={GOOGLE_CALENDAR_URL} target="_blank" rel="noopener noreferrer"
-                  className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1">
+                <a href={GOOGLE_CALENDAR_URL} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1">
                   <Calendar size={11} /> Google
                 </a>
                 <span className="text-border">·</span>
-                <a href={APPLE_CALENDAR_URL} target="_blank" rel="noopener noreferrer"
-                  className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1">
+                <a href={APPLE_CALENDAR_URL} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1">
                   <Calendar size={11} /> Apple
                 </a>
               </div>
@@ -362,7 +365,6 @@ const Index = () => {
 
       <SectionDivider />
 
-      {/* ── Gallery Preview ── */}
       <section className="section-padding warm-surface relative overflow-hidden">
         <div className="absolute inset-0 gradient-mesh-warm pointer-events-none" />
         <div className="absolute inset-0 texture-dots opacity-40 pointer-events-none" />
@@ -374,8 +376,7 @@ const Index = () => {
             </Link>
           </div>
 
-          {/* Asymmetric grid: 1 wide left + 2 stacked right */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4" style={{ height: 'clamp(280px, 40vw, 460px)' }}>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4" style={{ height: "clamp(280px, 40vw, 460px)" }}>
             <motion.div
               className="col-span-1 md:col-span-2 relative rounded-2xl overflow-hidden group cursor-pointer"
               initial={{ opacity: 0, scale: 0.97 }}
@@ -400,6 +401,7 @@ const Index = () => {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
                 <p className="absolute bottom-3 left-3 font-display text-white font-semibold text-sm drop-shadow-md">Ramadan Iftar</p>
               </motion.div>
+
               <motion.div
                 className="relative rounded-2xl overflow-hidden group cursor-pointer"
                 initial={{ opacity: 0, x: 16 }}
@@ -418,44 +420,84 @@ const Index = () => {
 
       <SectionDivider />
 
-      {/* ── Pillars ── */}
       <section className="section-padding warm-surface relative overflow-hidden">
         <div className="absolute inset-0 gradient-mesh-warm" />
         <div className="absolute inset-0 texture-khatam opacity-[0.55]" />
         <div className="max-w-7xl mx-auto relative z-10">
           <SectionHeading title="What drives us" label="Our Pillars" />
-          {/* Pillars reveal as a group — staggered children signal "these belong together" */}
-          <motion.div
-            className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-60px" }}
-            variants={{
-              hidden: {},
-              visible: { transition: { staggerChildren: 0.1, delayChildren: 0.05 } },
-            }}
-          >
-            {pillars.map((pillar) => (
-              <motion.div
-                key={pillar.title}
-                variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4 } } }}
-                className="glass-card-hover p-6 md:p-8"
-              >
-                <div className="gold-gradient w-11 h-11 rounded-xl flex items-center justify-center mb-5 shadow-sm">
-                  <pillar.icon className="text-primary-foreground" size={20} />
-                </div>
-                <h3 className="font-display text-xl font-bold text-foreground mb-2 leading-tight">{pillar.title}</h3>
-                <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed">{pillar.desc}</p>
-              </motion.div>
-            ))}
-          </motion.div>
+
+          <div className="grid md:grid-cols-2 gap-10 md:gap-16">
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-60px" }}
+              variants={{
+                hidden: {},
+                visible: { transition: { staggerChildren: 0.1, delayChildren: 0.05 } },
+              }}
+            >
+              <p className="font-display italic text-gradient-gold text-xl mb-6 tracking-wide">
+                Cultivate Community.
+              </p>
+
+              <div className="grid sm:grid-cols-2 gap-5">
+                {communityPillars.map((pillar) => (
+                  <motion.div
+                    key={pillar.title}
+                    variants={{
+                      hidden: { opacity: 0, y: 16 },
+                      visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+                    }}
+                    className="glass-card-hover p-6 md:p-8"
+                  >
+                    <div className="gold-gradient w-11 h-11 rounded-xl flex items-center justify-center mb-5 shadow-sm">
+                      <pillar.icon className="text-primary-foreground" size={20} />
+                    </div>
+                    <h3 className="font-display text-xl font-bold text-foreground mb-2 leading-tight">{pillar.title}</h3>
+                    <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed">{pillar.desc}</p>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-60px" }}
+              variants={{
+                hidden: {},
+                visible: { transition: { staggerChildren: 0.1, delayChildren: 0.12 } },
+              }}
+            >
+              <p className="font-display italic text-gradient-aura text-xl mb-6 tracking-wide">
+                Ignite Iman.
+              </p>
+
+              <div className="grid sm:grid-cols-2 gap-5">
+                {imanPillars.map((pillar) => (
+                  <motion.div
+                    key={pillar.title}
+                    variants={{
+                      hidden: { opacity: 0, y: 16 },
+                      visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+                    }}
+                    className="glass-card-hover p-6 md:p-8"
+                  >
+                    <div className="gold-gradient w-11 h-11 rounded-xl flex items-center justify-center mb-5 shadow-sm">
+                      <pillar.icon className="text-primary-foreground" size={20} />
+                    </div>
+                    <h3 className="font-display text-xl font-bold text-foreground mb-2 leading-tight">{pillar.title}</h3>
+                    <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed">{pillar.desc}</p>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
       <SectionDivider />
 
-      {/* ── Join CTA ── */}
-      {/* Section is NOT overflow-hidden so italic Cormorant descenders don't clip */}
       <section className="section-padding gradient-section-gold-soft relative">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute inset-0 texture-dots" />
@@ -475,7 +517,7 @@ const Index = () => {
             <div className="my-1 py-2 -mx-8 overflow-visible">
               <span
                 className="font-script text-gradient-gold inline-block"
-                style={{ fontSize: 'clamp(3.2rem, 9vw, 6rem)', lineHeight: 1.25, paddingLeft: '0.3em', paddingRight: '0.4em' }}
+                style={{ fontSize: "clamp(3.2rem, 9vw, 6rem)", lineHeight: 1.25, paddingLeft: "0.3em", paddingRight: "0.4em" }}
               >
                 your people?
               </span>
@@ -495,7 +537,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* ── Brand Stamp ── */}
       <section className="grain relative overflow-hidden py-20 md:py-28">
         <div className="absolute inset-0 abyss-surface" />
         <BridgeBar />
@@ -504,7 +545,7 @@ const Index = () => {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] rounded-full bg-[#11233C]/35 blur-[150px] pointer-events-none" />
         <div className="absolute top-1/3 left-1/3 w-[400px] h-[300px] rounded-full bg-[#14345A]/25 blur-[100px] pointer-events-none" />
         <div className="absolute bottom-1/4 right-1/4 w-[250px] h-[250px] rounded-full bg-[#148066]/10 blur-[100px] pointer-events-none" />
-        <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: '200px' }} />
+        <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: "200px" }} />
         <div className="absolute inset-0 texture-dots opacity-20" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-8 lg:px-16">
@@ -525,19 +566,19 @@ const Index = () => {
               viewport={{ once: true }}
               transition={{ delay: 0.15 }}
             >
-              <p className="eyebrow mb-4" style={{ color: '#C9A84C', opacity: 0.55 }}>Muslim Student Association</p>
+              <p className="eyebrow mb-4" style={{ color: "#C9A84C", opacity: 0.55 }}>Muslim Student Association</p>
               <h2 className="font-display text-4xl md:text-5xl font-bold text-accent-foreground mb-2 leading-tight">
                 Cultivate Community,
               </h2>
               <div className="mb-5">
-                <span className="font-display italic text-gradient-aura inline-block" style={{ fontSize: 'clamp(2.6rem, 5.5vw, 4.2rem)', lineHeight: 1.15 }}>
+                <span className="font-display italic text-gradient-aura inline-block" style={{ fontSize: "clamp(2.6rem, 5.5vw, 4.2rem)", lineHeight: 1.15 }}>
                   Ignite Iman.
                 </span>
               </div>
               <p className="font-dm-sans text-accent-foreground/45 text-base leading-[1.8] mb-8">
                 Over {yearsActive} years of faith, friendship, and service at the University of Pittsburgh — and we're just getting started.
               </p>
-              <div className="border-l-2 pl-5" style={{ borderColor: 'rgba(242,171,35,.25)' }}>
+              <div className="border-l-2 pl-5" style={{ borderColor: "rgba(242,171,35,.25)" }}>
                 <ArabicVerse
                   arabic="إِنَّمَا الْمُؤْمِنُونَ إِخْوَةٌ"
                   translation="The believers are but brothers."
