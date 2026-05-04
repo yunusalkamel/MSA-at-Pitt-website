@@ -220,8 +220,8 @@ const Index = () => {
         <TodayJummah />
       </section>
 
-      {/* ── Stats ─────────────────────────────────────────────── */}
-      <section className="relative z-20 px-4 md:px-8 mt-8 mb-2 bg-transparent">
+      {/* ── Stats — overlaps slightly into the warm section below ── */}
+      <section className="relative z-20 px-4 md:px-8 -mt-14 mb-[-5rem] bg-transparent">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.3, duration: 0.6 }} className="liquid-glass-stats rounded-3xl max-w-3xl mx-3 sm:mx-auto p-4 md:p-6 grid grid-cols-3 items-stretch gap-0 ring-1 ring-white/15 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.08)] overflow-hidden">
           <StatItem numericValue={d.statEventsPerSemester} suffix="+" label="Events per Semester" sub="halaqas, socials, speakers & more" bordered />
           <StatItem value={String(d.statFoundedYear)} label="Founded at Pitt" sub="community since day one" bordered />
@@ -229,8 +229,8 @@ const Index = () => {
         </motion.div>
       </section>
 
-      {/* ── Community / Our Story — proper breathing room ───────── */}
-      <section className="section-padding pt-32 md:pt-36 warm-surface relative overflow-hidden">
+      {/* ── Community / Our Story ── */}
+      <section className="section-padding pt-28 md:pt-32 warm-surface relative overflow-hidden">
         <div className="absolute inset-0 gradient-mesh-warm" />
         <div className="absolute inset-0 texture-khatam opacity-[0.6]" />
         <div className="max-w-7xl mx-auto relative z-10">
@@ -363,33 +363,25 @@ const Index = () => {
 
       <SectionDivider />
 
-      {/* ── Subscribe-to-calendar moment — its own surface ───────── */}
+      <SectionDivider />
+
+      {/* ── Subscribe-to-calendar moment ── */}
       <section className="py-14 md:py-20 relative overflow-hidden">
         <div className="absolute inset-0 gradient-section-emerald-soft" />
         <div className="max-w-4xl mx-auto px-4 relative z-10">
-          <div className="liquid-glass-strong rounded-3xl p-6 md:p-10 text-center">
+          <div className="liquid-glass-strong rounded-3xl p-6 md:p-10 text-center ring-1 ring-jannah-mid/20 shadow-[0_4px_40px_rgba(20,128,102,0.12)]">
             <p className="eyebrow text-jannah-mid dark:text-msa-gold/70 mb-3">Never miss an event</p>
             <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground leading-tight mb-3">
               Subscribe once. <span className="text-gradient-gold italic">Stay in sync forever.</span>
             </h2>
-            <p className="font-dm-sans text-muted-foreground text-base leading-relaxed max-w-2xl mx-auto mb-6">
-              Halaqas, Jummah, socials, iftars — every MSA event syncs straight to your calendar.
+            <p className="font-dm-sans text-muted-foreground text-base leading-relaxed max-w-2xl mx-auto mb-7">
+              Every halaqah, Jummah, social, and iftar — synced straight to your calendar automatically.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-              <a
-                href={LINKS.googleCalendarSubscribe}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-premium text-sm md:text-base px-6 py-3 w-full sm:w-auto justify-center"
-              >
+              <a href={LINKS.googleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="btn-premium text-sm md:text-base px-7 py-3.5 w-full sm:w-auto justify-center">
                 <Calendar size={15} /> Add to Google Calendar
               </a>
-              <a
-                href={LINKS.appleCalendarSubscribe}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-premium-secondary text-sm md:text-base px-6 py-3 w-full sm:w-auto justify-center"
-              >
+              <a href={LINKS.appleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="btn-premium-secondary text-sm md:text-base px-7 py-3.5 w-full sm:w-auto justify-center">
                 <Calendar size={15} /> Add to Apple Calendar
               </a>
             </div>
@@ -501,6 +493,8 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      <SectionDivider />
 
       {/* ── Partner logos — credibility surface ────────────────── */}
       <PartnerLogos />

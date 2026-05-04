@@ -12,6 +12,7 @@ import EventCard from "@/components/events/EventCard";
 import ViewSwitcher from "@/components/events/ViewSwitcher";
 import AgendaView from "@/components/events/AgendaView";
 import SectionHeading from "@/components/SectionHeading";
+import SectionDivider from "@/components/SectionDivider";
 import patternImg from "@/assets/islamic-pattern.jpg";
 import {
   mockEvents,
@@ -204,8 +205,8 @@ const Events = () => {
             <MonthCalendar events={filteredEvents} />
           )}
 
-          <div className="hidden md:flex flex-wrap items-center gap-3 mt-5 pt-4 border-t border-border/30">
-            <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">
+          <div className="hidden md:flex flex-wrap items-center gap-3 mt-6 pt-5 border-t border-border/40">
+            <span className="text-sm font-body font-bold text-foreground/75 uppercase tracking-[0.15em]">
               Sync to your calendar:
             </span>
             <a
@@ -213,27 +214,27 @@ const Events = () => {
               target="_blank"
               rel="noopener noreferrer"
               title="Opens Google Calendar — click '+' at the bottom right to subscribe"
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground glass-card px-3 py-1.5 rounded-full border-border/50 hover:border-border transition-all"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-foreground glass-card px-4 py-2 rounded-full border-primary/20 hover:border-primary/50 hover:text-primary transition-all shadow-sm"
             >
-              <Calendar size={11} /> Google Calendar
+              <Calendar size={13} /> Google Calendar
             </a>
             <a
               href={LINKS.appleCalendarSubscribe}
               target="_blank"
               rel="noopener noreferrer"
               title="Subscribes directly to your Apple Calendar"
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground glass-card px-3 py-1.5 rounded-full border-border/50 hover:border-border transition-all"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-foreground glass-card px-4 py-2 rounded-full border-primary/20 hover:border-primary/50 hover:text-primary transition-all shadow-sm"
             >
-              <Calendar size={11} /> Apple Calendar
+              <Calendar size={13} /> Apple Calendar
             </a>
             <div className="ml-auto">
               <a
                 href={LINKS.eventSignupHub}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-premium text-xs px-4 py-2"
+                className="btn-premium text-sm px-5 py-2.5"
               >
-                Event Signup Hub <ArrowRight size={12} />
+                Event Signup Hub <ArrowRight size={13} />
               </a>
             </div>
           </div>
@@ -241,6 +242,7 @@ const Events = () => {
       </section>
 
       {/* ── Desktop: Coming Up sits BELOW the calendar ── */}
+      {upcoming.length > 0 && <div className="hidden md:block"><SectionDivider /></div>}
       <div className="hidden md:block">{ComingUpBlock}</div>
 
       {/* ── Closing — Hadith on gathering for remembrance ── */}

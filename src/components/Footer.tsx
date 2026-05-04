@@ -10,21 +10,6 @@ const WhatsAppIcon = ({ size = 20 }: { size?: number }) => (
   </svg>
 );
 
-const navColumn = [
-  { to: "/about", label: "About" },
-  { to: "/events", label: "Events" },
-  { to: "/gallery", label: "Gallery" },
-  { to: "/join", label: "Join" },
-];
-
-const resourcesColumn = [
-  { to: "/resources", label: "All Resources" },
-  { to: "/resources/new-to-pitt", label: "New to Pitt" },
-  { to: "/resources/prayer-locations", label: "Prayer Locations" },
-  { to: "/prayer-times", label: "Prayer Times" },
-  { to: "/resources/faq", label: "FAQ" },
-];
-
 const Footer = () => {
   const currentYear = new Date().getFullYear();
   const copyrightYears = currentYear > 2025 ? `2025–${currentYear}` : "2025";
@@ -32,211 +17,105 @@ const Footer = () => {
   return (
     <footer
       className="relative overflow-hidden"
-      style={{ background: "linear-gradient(180deg, #14345A 0%, #0D2444 100%)" }}
+      style={{ background: "linear-gradient(160deg, #0F1F3A 0%, #14345A 45%, #0A1A2E 100%)" }}
       role="contentinfo"
     >
       <BridgeBar />
+      <KhatamOverlay variant="gold" size={60} opacity={0.14} />
 
-      {/* Khatam: gold on navy — subtle texture, never the focal point */}
-      <KhatamOverlay variant="gold" size={60} opacity={0.18} />
-
-      {/* Atmospheric depth (no crescent — kept restrained per spec) */}
       <div
         className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(ellipse at 50% 100%, rgba(20,128,102,.10) 0%, transparent 60%)",
-        }}
+        style={{ background: "radial-gradient(ellipse at 20% 100%, rgba(20,128,102,.12) 0%, transparent 55%), radial-gradient(ellipse at 80% 0%, rgba(242,171,35,.06) 0%, transparent 45%)" }}
       />
 
-      <div className="relative max-w-6xl mx-auto px-6 md:px-10 lg:px-16 py-16">
-        {/* ── Brand block — logo + motto, central ───────────────────────── */}
-        <div className="flex flex-col items-center text-center mb-12">
-          <Link
-            to="/"
-            className="inline-block mb-5 hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-msa-gold/60 rounded-full"
-          >
-            <img
-              src="/msa-logo-white.png"
-              alt="MSA at Pitt"
-              className="h-20 md:h-24 w-auto object-contain"
-              width={120}
-              height={120}
-            />
-          </Link>
+      <div className="relative max-w-6xl mx-auto px-6 md:px-10 lg:px-16 pt-12 pb-8">
 
-          <p
-            className="font-body font-extrabold text-2xl md:text-[1.7rem] tracking-[0.12em] leading-none mb-3"
-          >
-            <span style={{ color: "#C8E8DF" }}>MSA</span>{" "}
-            <span style={{ color: "rgba(255,255,255,.92)" }}>AT PITT</span>
-          </p>
+        {/* ── Top row: logo-left, links-center, socials-right ── */}
+        <div className="grid grid-cols-1 md:grid-cols-[auto_1fr_auto] gap-8 md:gap-12 items-start mb-10">
 
-          <p
-            className="font-display italic text-lg md:text-xl leading-snug"
-            style={{ color: "rgba(242,171,35,.85)" }}
-          >
-            Cultivate Community,&nbsp;
-            <span className="font-display italic" style={{ color: "rgba(242,171,35,1)" }}>
-              Ignite Iman.
-            </span>
-          </p>
-          <p
-            className="font-body text-xs md:text-sm tracking-wide mt-2"
-            style={{ color: "rgba(255,255,255,.42)" }}
-          >
-            Muslim Student Association · University of Pittsburgh
-          </p>
-        </div>
-
-        {/* ── Hairline divider ──────────────────────────────────────────── */}
-        <div
-          className="h-px mb-10"
-          style={{
-            backgroundImage:
-              "linear-gradient(90deg, transparent, rgba(242,171,35,.22), transparent)",
-          }}
-        />
-
-        {/* ── Three-column nav grid (desktop) / stacked (mobile) ────────── */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8 mb-12 text-center md:text-left">
-          {/* Column 1: Explore */}
-          <div className="flex flex-col items-center md:items-start gap-3">
-            <p
-              className="font-body text-[11px] font-semibold uppercase tracking-[0.18em]"
-              style={{ color: "rgba(242,171,35,.7)" }}
-            >
-              Explore
-            </p>
-            {navColumn.map((link) => (
-              <Link key={link.to} to={link.to} className="footer-link font-body text-sm">
-                {link.label}
-              </Link>
-            ))}
-          </div>
-
-          {/* Column 2: Resources */}
-          <div className="flex flex-col items-center md:items-start gap-3 md:border-l md:border-r md:px-6"
-               style={{ borderColor: "rgba(242,171,35,.12)" }}>
-            <p
-              className="font-body text-[11px] font-semibold uppercase tracking-[0.18em]"
-              style={{ color: "rgba(242,171,35,.7)" }}
-            >
-              Resources
-            </p>
-            {resourcesColumn.map((link) => (
-              <Link key={link.to} to={link.to} className="footer-link font-body text-sm">
-                {link.label}
-              </Link>
-            ))}
-          </div>
-
-          {/* Column 3: Connect */}
-          <div className="flex flex-col items-center md:items-start gap-3">
-            <p
-              className="font-body text-[11px] font-semibold uppercase tracking-[0.18em]"
-              style={{ color: "rgba(242,171,35,.7)" }}
-            >
-              Connect
-            </p>
-            <a
-              href={`mailto:${LINKS.email}`}
-              className="footer-link font-body text-sm"
-              aria-label="Email MSA at Pitt"
-            >
-              Email us
-            </a>
-            <Link to="/contact" className="footer-link font-body text-sm">
-              Contact
+          {/* Logo + tagline */}
+          <div className="flex flex-col items-center md:items-start gap-2">
+            <Link to="/" className="hover:opacity-85 transition-opacity">
+              <img src="/msa-logo-white.png" alt="MSA at Pitt" className="h-14 w-auto object-contain" />
             </Link>
-            <a
-              href={LINKS.linktree}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="footer-link font-body text-sm"
-            >
-              Linktree (RSVP hub)
-            </a>
+            <p className="font-body font-extrabold text-base tracking-[0.12em] leading-none">
+              <span style={{ color: "#C8E8DF" }}>MSA</span>{" "}
+              <span style={{ color: "rgba(255,255,255,.85)" }}>AT PITT</span>
+            </p>
+            <p className="font-display italic text-sm" style={{ color: "rgba(242,171,35,.75)" }}>
+              Cultivate Community, Ignite Iman.
+            </p>
+          </div>
 
-            {/* Social icons row */}
-            <div className="flex items-center gap-4 mt-1">
-              <a
-                href={LINKS.instagram}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Instagram"
-                className="footer-link inline-flex items-center"
-              >
+          {/* Nav links — two compact columns */}
+          <div className="flex flex-wrap justify-center md:justify-start gap-x-10 gap-y-6">
+            <div className="flex flex-col gap-2.5">
+              <p className="font-body text-[10px] font-bold uppercase tracking-[0.2em] mb-1" style={{ color: "rgba(242,171,35,.6)" }}>Explore</p>
+              {[
+                { to: "/about", l: "About" },
+                { to: "/events", l: "Events" },
+                { to: "/gallery", l: "Gallery" },
+                { to: "/join", l: "Join" },
+                { to: "/contact", l: "Contact" },
+              ].map(({ to, l }) => (
+                <Link key={to} to={to} className="footer-link font-body text-sm">{l}</Link>
+              ))}
+            </div>
+            <div className="flex flex-col gap-2.5">
+              <p className="font-body text-[10px] font-bold uppercase tracking-[0.2em] mb-1" style={{ color: "rgba(242,171,35,.6)" }}>Resources</p>
+              {[
+                { to: "/resources", l: "All Resources" },
+                { to: "/resources/new-to-pitt", l: "New to Pitt" },
+                { to: "/resources/prayer-locations", l: "Prayer Locations" },
+                { to: "/prayer-times", l: "Prayer Times" },
+                { to: "/resources/faq", l: "FAQ" },
+              ].map(({ to, l }) => (
+                <Link key={to} to={to} className="footer-link font-body text-sm">{l}</Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Social + contact */}
+          <div className="flex flex-col items-center md:items-end gap-3">
+            <p className="font-body text-[10px] font-bold uppercase tracking-[0.2em]" style={{ color: "rgba(242,171,35,.6)" }}>Connect</p>
+            <div className="flex items-center gap-4">
+              <a href={LINKS.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="footer-link inline-flex items-center">
                 <Instagram size={20} />
               </a>
-              <a
-                href={LINKS.whatsappAnnouncements}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="MSA WhatsApp announcements"
-                className="footer-link inline-flex items-center"
-              >
+              <a href={LINKS.whatsappAnnouncements} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" className="footer-link inline-flex items-center">
                 <WhatsAppIcon size={20} />
               </a>
             </div>
+            <a href={`mailto:${LINKS.email}`} className="footer-link font-body text-sm">{LINKS.email}</a>
+            <a href={LINKS.linktree} target="_blank" rel="noopener noreferrer" className="footer-link font-body text-sm">Linktree (RSVP hub)</a>
           </div>
         </div>
 
-        {/* ── Closing ayat — Quran 3:103 (unity) ────────────────────────── */}
-        <div
-          className="rounded-2xl px-6 py-6 md:px-10 md:py-7 text-center max-w-3xl mx-auto"
-          style={{
-            background: "rgba(255,255,255,.025)",
-            border: "1px solid rgba(242,171,35,.10)",
-          }}
-        >
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div
-              className="w-12 h-px"
-              style={{
-                backgroundImage:
-                  "linear-gradient(to right, transparent, rgba(242,171,35,.30))",
-              }}
-            />
-            <div
-              className="w-1 h-1 rounded-full"
-              style={{ background: "rgba(242,171,35,.5)" }}
-            />
-            <div
-              className="w-12 h-px"
-              style={{
-                backgroundImage:
-                  "linear-gradient(to left, transparent, rgba(242,171,35,.30))",
-              }}
-            />
+        {/* ── Divider ornament ── */}
+        <div className="relative h-px mb-8" style={{ background: "linear-gradient(90deg, transparent, rgba(242,171,35,.2) 30%, rgba(242,171,35,.2) 70%, transparent)" }}>
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full" style={{ background: "rgba(242,171,35,.45)" }} />
+            <span className="w-2 h-2 rounded-full" style={{ background: "rgba(242,171,35,.65)" }} />
+            <span className="w-1.5 h-1.5 rounded-full" style={{ background: "rgba(242,171,35,.45)" }} />
           </div>
+        </div>
 
+        {/* ── Closing verse — inline, not a card ── */}
+        <div className="text-center mb-6">
           <p
-            className="font-arabic text-2xl md:text-[1.85rem] mb-3 leading-[1.6]"
-            style={{ color: "rgba(242,171,35,.85)" }}
+            className="font-arabic text-xl md:text-2xl mb-2 leading-relaxed"
+            style={{ color: "rgba(242,171,35,.80)" }}
             dir="rtl"
           >
             وَاعْتَصِمُوا بِحَبْلِ اللَّهِ جَمِيعًا وَلَا تَفَرَّقُوا
           </p>
-          <p
-            className="font-display italic text-sm md:text-base leading-relaxed"
-            style={{ color: "rgba(255,255,255,.55)" }}
-          >
-            "And hold firmly to the rope of Allah, all together, and do not become divided."
-          </p>
-          <p
-            className="font-body text-[11px] tracking-[0.15em] uppercase mt-3"
-            style={{ color: "rgba(242,171,35,.55)" }}
-          >
-            Quran 3:103
+          <p className="font-display italic text-sm" style={{ color: "rgba(255,255,255,.45)" }}>
+            "And hold firmly to the rope of Allah, all together, and do not become divided." — <span style={{ color: "rgba(242,171,35,.55)" }}>Quran 3:103</span>
           </p>
         </div>
 
-        {/* ── Copyright ─────────────────────────────────────────────────── */}
-        <p
-          className="text-center font-body text-xs mt-10"
-          style={{ color: "rgba(255,255,255,.28)" }}
-        >
+        {/* ── Copyright ── */}
+        <p className="text-center font-body text-xs" style={{ color: "rgba(255,255,255,.22)" }}>
           © {copyrightYears} Muslim Student Association at the University of Pittsburgh
         </p>
       </div>
