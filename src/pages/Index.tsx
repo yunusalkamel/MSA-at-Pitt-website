@@ -83,7 +83,7 @@ const Index = () => {
   const upcomingScrollEvents = useMemo(() => getUpcomingWindow(sourceEvents, 15, 3), [sourceEvents]);
 
   // Merge CMS over fallback — if field exists in CMS use it, otherwise fallback
-  const d = { ...FALLBACK, ...cms };
+  const d = { ...FALLBACK, ...Object.fromEntries(Object.entries(cms ?? {}).filter(([, v]) => v != null)) };
 
   const heroImageUrl = cms?.heroImage ? urlFor(cms.heroImage).width(1920).height(1080).auto("format").url() : heroImg;
   const communityImageUrl = cms?.communityImage ? urlFor(cms.communityImage).width(1280).height(854).auto("format").url() : communityImg;
