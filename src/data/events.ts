@@ -24,187 +24,55 @@ export const EVENT_CONTENT_TAGS = [
   "Dawah",
   "Brothers",
   "Sisters",
-  "Careers",
-  "Speaker Event",
-  "Education & Service",
-  "Signature Event",
-  "Open to All",
+  "Joint",
+  "Signature",
+  "CEC",
+  "Jummah",
 ] as const;
 
 export type EventTag = (typeof EVENT_CONTENT_TAGS)[number];
 
 export const EVENT_TAGS = ["All", ...EVENT_CONTENT_TAGS, "Past Events"] as const;
 
-export const GOOGLE_CALENDAR_URL =
-  "https://calendar.google.com/calendar/embed?src=2use05cacfd5hu3q2p49q9dvmc%40group.calendar.google.com&ctz=America%2FNew_York";
+export { LINKS as EVENT_LINKS } from "@/config/links";
+import { LINKS } from "@/config/links";
 
-export const APPLE_CALENDAR_URL =
-  "https://experience.pitt.edu/msa/apple-calendar/";
+export const GOOGLE_CALENDAR_URL = LINKS.googleCalendarSubscribe;
+export const APPLE_CALENDAR_URL = LINKS.appleCalendarSubscribe;
+export const EVENT_SIGNUP_HUB_URL = LINKS.eventSignupHub;
 
-// Links to Linktree hub — all signup forms, chats, and resources in one place
-export const EVENT_SIGNUP_HUB_URL = "https://linktr.ee/msa.at.pitt";
+// ── Helpers for dynamic evergreen dates ───────────────────
+function getNextWeekday(targetDay: number): string {
+  const today = new Date();
+  const day = today.getDay();
+  const diff = (targetDay - day + 7) % 7 || 7;
+  const next = new Date(today);
+  next.setDate(today.getDate() + diff);
+  return next.toISOString().split("T")[0];
+}
 
-// ── Mock Data ──────────────────────────────────────────────
+// ── Mock / Fallback Data ───────────────────────────────────
 export const mockEvents: MSAEvent[] = [
   {
-    id: "1",
-    title: "MSA Annual Banquet 2026",
-    startDate: "2026-04-19",
-    timeLabel: "Saturday · 6:00 – 10:00 PM",
-    location: "University Club, University of Pittsburgh",
-    shortBlurb:
-      "Our flagship gala celebrating a year of growth, community, and faith. Keynote speaker, dinner, awards, and a night to remember.",
-    tags: ["Signature Event", "Social", "Speaker Event", "Open to All"],
-    audience: "Open to All",
-    featured: true,
-    ctaMode: "rsvp",
-    signupUrl: "https://forms.gle/hnUHffFFsyysX7vY6",
-    addToCalendarUrl: GOOGLE_CALENDAR_URL,
-    fullCalendarUrl: GOOGLE_CALENDAR_URL,
-  },
-  {
-    id: "2",
-    title: "MSA TopGolf 2026",
-    startDate: "2026-04-05",
-    timeLabel: "Sunday · 4:00 – 6:00 PM",
-    location: "TopGolf Pittsburgh, 400 Presto-Sygan Rd, Bridgeville, PA",
-    shortBlurb:
-      "Hit the links with the community! $16.67 for 2 hours (first-timers $22.67 incl. membership).",
-    tags: ["Social", "Open to All"],
-    audience: "Open to All",
-    ctaMode: "rsvp",
-    signupUrl: "https://forms.gle/hnUHffFFsyysX7vY6",
-    addToCalendarUrl: GOOGLE_CALENDAR_URL,
-  },
-  {
-    id: "3",
-    title: "Weekly Halaqa",
-    startDate: "2026-04-08",
-    timeLabel: "Tuesday · 7:00 – 8:30 PM",
-    location: "Cathedral of Learning, Room 232",
-    shortBlurb:
-      "Our weekly circle of knowledge — join us for a reflective session on Quranic themes and community discussion.",
-    tags: ["Education & Service", "Dawah", "Open to All"],
-    audience: "Open to All",
-    ctaMode: "rsvp",
-    addToCalendarUrl: GOOGLE_CALENDAR_URL,
-  },
-  {
-    id: "4",
-    title: "Sisters' Tea & Tafsir",
-    startDate: "2026-04-12",
-    timeLabel: "Saturday · 2:00 – 4:00 PM",
-    location: "William Pitt Union, Room 540",
-    shortBlurb:
-      "An afternoon of chai, conversation, and Quranic reflection in a warm, welcoming space for sisters.",
-    tags: ["Sisters", "Education & Service", "Dawah"],
-    audience: "Sisters",
-    ctaMode: "rsvp",
-    addToCalendarUrl: GOOGLE_CALENDAR_URL,
-  },
-  {
-    id: "5",
-    title: "Friday Prayer",
-    startDate: "2026-04-04",
+    id: "evergreen-jummah",
+    title: "Friday Prayer (Jummah)",
+    startDate: getNextWeekday(5), // 5 = Friday
     timeLabel: "Friday · 1:00 – 2:00 PM",
     location: "Nordy's Place, Cathedral of Learning",
-    shortBlurb: "Weekly congregational prayer open to all students, faculty, and staff.",
-    tags: ["Education & Service", "Open to All"],
+    shortBlurb: "Weekly congregational prayer open to all students, faculty, and staff. Check Instagram Stories Friday morning for location confirmation.",
+    tags: ["Jummah"],
     audience: "Open to All",
     ctaMode: "learn-more",
     addToCalendarUrl: GOOGLE_CALENDAR_URL,
   },
   {
-    id: "6",
-    title: "Career Night: Muslims in Tech",
-    startDate: "2026-04-15",
-    timeLabel: "Tuesday · 6:00 – 8:00 PM",
-    location: "Posvar Hall, Room 1501",
-    shortBlurb:
-      "Panel featuring Muslim professionals in the tech industry. Resume reviews, networking, and Q&A.",
-    tags: ["Careers", "Speaker Event", "Open to All"],
-    audience: "Open to All",
-    ctaMode: "signup",
-    signupUrl: "https://forms.gle/hnUHffFFsyysX7vY6",
-    addToCalendarUrl: GOOGLE_CALENDAR_URL,
-  },
-  {
-    id: "7",
-    title: "Brothers' Basketball Night",
-    startDate: "2026-04-10",
-    timeLabel: "Thursday · 8:00 – 10:00 PM",
-    location: "Trees Hall Gymnasium",
-    shortBlurb: "Pickup basketball and bonding — all skill levels welcome.",
-    tags: ["Brothers", "Social"],
-    audience: "Brothers",
-    ctaMode: "rsvp",
-    addToCalendarUrl: GOOGLE_CALENDAR_URL,
-  },
-  {
-    id: "8",
-    title: "Community Service Day",
-    startDate: "2026-04-20",
-    timeLabel: "Sunday · 9:00 AM – 1:00 PM",
-    location: "Pittsburgh Food Bank, 1 N Linden St",
-    shortBlurb:
-      "Give back to Pittsburgh — join us for a morning of service at the Greater Pittsburgh Community Food Bank.",
-    tags: ["Education & Service", "Open to All"],
-    audience: "Open to All",
-    ctaMode: "signup",
-    signupUrl: "https://forms.gle/hnUHffFFsyysX7vY6",
-    addToCalendarUrl: GOOGLE_CALENDAR_URL,
-  },
-  {
-    id: "9",
-    title: "MSA Eid Social 2026",
-    startDate: "2026-03-21",
-    timeLabel: "Saturday · 1:00 – 4:00 PM",
-    location: "Schenley Oval, Pittsburgh",
-    shortBlurb:
-      "Pizza, Halaqa, Mehndi, Volleyball, Spikeball — celebrate Eid together!",
-    tags: ["Social", "Open to All"],
-    audience: "Open to All",
-    isPast: true,
-    ctaMode: "view-photos",
-    galleryUrl: "/gallery",
-  },
-  {
-    id: "10",
-    title: "Iftar Dinner",
-    startDate: "2026-03-15",
-    timeLabel: "Sunday · 7:30 – 9:30 PM",
-    location: "William Pitt Union Ballroom",
-    shortBlurb:
-      "Break your fast with the MSA community. Catered dinner, reflections, and du'a.",
-    tags: ["Social", "Open to All"],
-    audience: "Open to All",
-    isPast: true,
-    ctaMode: "view-photos",
-    galleryUrl: "/gallery",
-  },
-  {
-    id: "11",
-    title: "Welcome Week Kickoff",
-    startDate: "2026-03-01",
-    timeLabel: "Monday · 5:00 – 7:00 PM",
-    location: "Schenley Plaza",
-    shortBlurb:
-      "Meet the MSA board, grab some free food, and find your community on campus.",
-    tags: ["Social", "Open to All"],
-    audience: "Open to All",
-    isPast: true,
-    ctaMode: "view-photos",
-    galleryUrl: "/gallery",
-  },
-  {
-    id: "12",
-    title: "Dawah Table: Islam Awareness Week Community Q&A and Student Resource Outreach",
-    startDate: "2026-04-14",
-    timeLabel: "Monday – Friday · 11:00 AM – 3:00 PM",
-    location: "William Pitt Union Main Lobby (beside the Plaza entrance and near Nordy's Place)",
-    shortBlurb:
-      "Stop by our table all week for conversations, free literature, and Q&A about Islam.",
-    tags: ["Dawah", "Education & Service", "Open to All"],
+    id: "evergreen-halaqa",
+    title: "Weekly Halaqa",
+    startDate: getNextWeekday(2), // 2 = Tuesday
+    timeLabel: "Tuesday · 7:00 – 8:30 PM",
+    location: "Cathedral of Learning",
+    shortBlurb: "Our weekly circle of knowledge — reflective discussion on Quranic themes and community conversation.",
+    tags: ["Dawah"],
     audience: "Open to All",
     ctaMode: "learn-more",
     addToCalendarUrl: GOOGLE_CALENDAR_URL,
@@ -216,12 +84,33 @@ export function getUpcomingEvents(events: MSAEvent[]): MSAEvent[] {
   return events.filter((e) => !e.isPast).sort((a, b) => a.startDate.localeCompare(b.startDate));
 }
 
+/**
+ * Returns events within the next `days` days.
+ * If fewer than `minimum` events fall in that window, falls back to the next `minimum` upcoming events.
+ */
+export function getUpcomingWindow(events: MSAEvent[], days = 15, minimum = 3): MSAEvent[] {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const cutoff = new Date(today.getTime() + days * 24 * 60 * 60 * 1000);
+  const sorted = events
+    .filter((e) => !e.isPast)
+    .filter((e) => new Date(e.startDate + "T12:00:00") >= today)
+    .sort((a, b) => a.startDate.localeCompare(b.startDate));
+
+  const inWindow = sorted.filter((e) => new Date(e.startDate + "T12:00:00") <= cutoff);
+  return inWindow.length >= minimum ? inWindow : sorted.slice(0, minimum);
+}
+
 export function getPastEvents(events: MSAEvent[]): MSAEvent[] {
   return events.filter((e) => e.isPast).sort((a, b) => b.startDate.localeCompare(a.startDate));
 }
 
 export function getFeaturedEvent(events: MSAEvent[]): MSAEvent | undefined {
-  return events.find((e) => e.featured);
+  // Prefer an event explicitly tagged "Signature" first, fall back to featured flag
+  return (
+    events.find((e) => !e.isPast && e.tags.includes("Signature")) ??
+    events.find((e) => !e.isPast && e.featured)
+  );
 }
 
 export function filterEventsByTags(events: MSAEvent[], selectedTags: string[]): MSAEvent[] {

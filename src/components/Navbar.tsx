@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
 import { Menu, X, ArrowRight, ChevronDown, Moon, Sun } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -38,8 +39,8 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [resourcesOpen, setResourcesOpen] = useState(false);
   const [mobileResourcesOpen, setMobileResourcesOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
+  const navigate = useNavigate();
   const { theme, toggle: toggleTheme } = useTheme();
 
   const isResourcesActive = location.pathname.startsWith("/resources");
@@ -56,17 +57,6 @@ const Navbar = () => {
     setResourcesOpen(false);
     setMobileResourcesOpen(false);
   }, [location.pathname]);
-
-  // Close dropdown on outside click
-  useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setResourcesOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, []);
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 flex justify-center px-4 pt-3 md:pt-4 pointer-events-none" role="navigation" aria-label="Main navigation">
@@ -118,59 +108,53 @@ const Navbar = () => {
               );
             })}
 
-            {/* Resources dropdown */}
-            <div ref={dropdownRef} className="relative">
-              <button
-                onClick={() => setResourcesOpen((o) => !o)}
-                onMouseEnter={() => setResourcesOpen(true)}
-                className={`relative text-[14px] font-semibold font-body transition-colors duration-200 pb-0.5 flex items-center gap-1 ${
-                  isResourcesActive
-                    ? "text-jannah-mid dark:text-msa-gold"
-                    : "text-ink-mid/70 dark:text-white/45 hover:text-ink dark:hover:text-white/80"
-                }`}
-              >
-                Resources
-                <ChevronDown size={13} className={`transition-transform duration-200 ${resourcesOpen ? "rotate-180" : ""}`} />
-                {isResourcesActive && (
-                  <motion.div
-                    layoutId="nav-underline"
-                    className="absolute -bottom-1 left-0 right-0 h-[1.5px] bg-jannah-mid dark:bg-msa-gold rounded-full"
-                  />
-                )}
-              </button>
+            {/* Resources dropdown — keyboard-accessible via Radix */}
+            <DropdownMenuPrimitive.Root open={resourcesOpen} onOpenChange={setResourcesOpen}>
+              <DropdownMenuPrimitive.Trigger asChild>
+                <button
+                  onMouseEnter={() => { setResourcesOpen(true); resourcesChildren.forEach(c => prefetchRoute(c.to)); }}
+                  className={`relative text-[14px] font-semibold font-body transition-colors duration-200 pb-0.5 flex items-center gap-1 outline-none group/res ${
+                    isResourcesActive
+                      ? "text-jannah-mid dark:text-msa-gold"
+                      : "text-ink-mid/70 dark:text-white/45 hover:text-ink dark:hover:text-white/80"
+                  }`}
+                >
+                  Resources
+                  <ChevronDown size={13} className={`transition-transform duration-200 ${resourcesOpen ? "rotate-180" : ""}`} />
+                  {isResourcesActive && (
+                    <motion.div
+                      layoutId="nav-underline"
+                      className="absolute -bottom-1 left-0 right-0 h-[1.5px] bg-jannah-mid dark:bg-msa-gold rounded-full"
+                    />
+                  )}
+                </button>
+              </DropdownMenuPrimitive.Trigger>
 
-              <AnimatePresence>
-                {resourcesOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 6 }}
-                    transition={{ duration: 0.15 }}
-                    onMouseLeave={() => setResourcesOpen(false)}
-                    className="absolute top-full right-0 mt-3 w-52 liquid-glass-strong rounded-xl p-2 shadow-xl"
-                  >
-                    {resourcesChildren.map((child) => {
-                      const isChildActive = location.pathname === child.to;
-                      return (
-                        <Link
-                          key={child.to}
-                          to={child.to}
-                          onMouseEnter={() => prefetchRoute(child.to)}
-                          onFocus={() => prefetchRoute(child.to)}
-                          className={`block px-3 py-2 rounded-lg text-sm font-semibold font-body transition-colors duration-150 ${
-                            isChildActive
-                              ? "text-jannah-mid dark:text-msa-gold bg-jannah/[0.07] dark:bg-msa-gold/[0.08]"
-                              : "text-ink dark:text-white/70 hover:bg-jannah/[0.04] dark:hover:bg-white/[0.04] hover:text-jannah-mid dark:hover:text-msa-gold"
-                          }`}
-                        >
-                          {child.label}
-                        </Link>
-                      );
-                    })}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+              <DropdownMenuPrimitive.Portal>
+                <DropdownMenuPrimitive.Content
+                  align="end"
+                  sideOffset={12}
+                  className="z-[60] w-52 liquid-glass-strong rounded-xl p-2 shadow-xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2"
+                >
+                  {resourcesChildren.map((child) => {
+                    const isChildActive = location.pathname === child.to;
+                    return (
+                      <DropdownMenuPrimitive.Item
+                        key={child.to}
+                        onSelect={() => { prefetchRoute(child.to); navigate(child.to); }}
+                        className={`px-3 py-2 rounded-lg text-sm font-semibold font-body transition-colors duration-150 outline-none cursor-default select-none ${
+                          isChildActive
+                            ? "text-jannah-mid dark:text-msa-gold bg-jannah/[0.07] dark:bg-msa-gold/[0.08]"
+                            : "text-ink dark:text-white/70 data-[highlighted]:bg-jannah/[0.04] dark:data-[highlighted]:bg-white/[0.04] data-[highlighted]:text-jannah-mid dark:data-[highlighted]:text-msa-gold"
+                        }`}
+                      >
+                        {child.label}
+                      </DropdownMenuPrimitive.Item>
+                    );
+                  })}
+                </DropdownMenuPrimitive.Content>
+              </DropdownMenuPrimitive.Portal>
+            </DropdownMenuPrimitive.Root>
 
             {/* Dark mode toggle */}
             <button
@@ -192,15 +176,24 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* Mobile toggle */}
-          <button
-            onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden text-foreground p-2 -mr-1"
-            aria-label="Toggle menu"
-            aria-expanded={mobileOpen}
-          >
-            {mobileOpen ? <X size={21} /> : <Menu size={21} />}
-          </button>
+          {/* Mobile: theme toggle + hamburger */}
+          <div className="flex items-center gap-2 md:hidden">
+            <button
+              onClick={toggleTheme}
+              aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              className="flex items-center justify-center w-9 h-9 rounded-xl bg-black/[0.06] dark:bg-white/[0.08] text-ink-mid/70 dark:text-white/60 hover:text-jannah-mid dark:hover:text-msa-gold hover:bg-primary/10 dark:hover:bg-msa-gold/10 transition-all duration-200"
+            >
+              {theme === "dark" ? <Sun size={17} strokeWidth={2} /> : <Moon size={17} strokeWidth={2} />}
+            </button>
+            <button
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className="flex items-center justify-center w-9 h-9 rounded-xl text-foreground hover:bg-black/[0.05] dark:hover:bg-white/[0.06] transition-colors -mr-1"
+              aria-label="Toggle menu"
+              aria-expanded={mobileOpen}
+            >
+              {mobileOpen ? <X size={21} /> : <Menu size={21} />}
+            </button>
+          </div>
         </div>
       </motion.div>
 
@@ -211,9 +204,23 @@ const Navbar = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="pointer-events-auto fixed inset-0 top-[72px] bg-background/98 dark:bg-abyss/95 backdrop-blur-xl z-[55] flex flex-col items-center justify-center gap-7 md:hidden"
+            transition={{ duration: 0.18 }}
+            className="pointer-events-auto fixed inset-0 top-[68px] bg-background/98 dark:bg-abyss/96 backdrop-blur-xl z-[55] flex flex-col items-center pt-10 pb-8 md:hidden overflow-y-auto"
           >
+            {/* Join CTA — top of menu */}
+            <motion.div
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.04 }}
+              className="mb-8"
+            >
+              <Link to="/join" className="btn-premium text-lg px-9 py-3.5">
+                Join the MSA <ArrowRight size={16} />
+              </Link>
+            </motion.div>
+
+            <div className="w-10 h-px bg-border/40 mb-8" />
+
             {navLinks.map((link, i) => {
               const isActive = link.exact
                 ? location.pathname === link.to
@@ -221,13 +228,14 @@ const Navbar = () => {
               return (
                 <motion.div
                   key={link.to}
-                  initial={{ opacity: 0, y: 16 }}
+                  initial={{ opacity: 0, y: 14 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.07 }}
+                  transition={{ delay: 0.1 + i * 0.06 }}
+                  className="mb-6"
                 >
                   <Link
                     to={link.to}
-                    className={`text-2xl font-display font-semibold transition-colors ${
+                    className={`text-3xl font-display font-semibold transition-colors ${
                       isActive
                         ? "text-jannah-mid dark:text-msa-gold"
                         : "text-ink dark:text-white/80"
@@ -241,21 +249,21 @@ const Navbar = () => {
 
             {/* Mobile Resources expandable */}
             <motion.div
-              initial={{ opacity: 0, y: 16 }}
+              initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: navLinks.length * 0.07 }}
-              className="flex flex-col items-center"
+              transition={{ delay: 0.1 + navLinks.length * 0.06 }}
+              className="flex flex-col items-center mb-6"
             >
               <button
                 onClick={() => setMobileResourcesOpen((o) => !o)}
-                className={`text-2xl font-display font-semibold transition-colors flex items-center gap-2 ${
+                className={`text-3xl font-display font-semibold transition-colors flex items-center gap-2 ${
                   isResourcesActive
                     ? "text-jannah-mid dark:text-msa-gold"
                     : "text-ink dark:text-white/80"
                 }`}
               >
                 Resources
-                <ChevronDown size={18} className={`transition-transform duration-200 ${mobileResourcesOpen ? "rotate-180" : ""}`} />
+                <ChevronDown size={20} className={`transition-transform duration-200 ${mobileResourcesOpen ? "rotate-180" : ""}`} />
               </button>
               <AnimatePresence>
                 {mobileResourcesOpen && (
@@ -264,13 +272,13 @@ const Navbar = () => {
                     animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
                     transition={{ duration: 0.2 }}
-                    className="overflow-hidden flex flex-col items-center gap-3 mt-3"
+                    className="overflow-hidden flex flex-col items-center gap-3 mt-4"
                   >
                     {resourcesChildren.map((child) => (
                       <Link
                         key={child.to}
                         to={child.to}
-                        className={`text-lg font-display transition-colors ${
+                        className={`text-xl font-display transition-colors ${
                           location.pathname === child.to
                             ? "text-jannah-mid dark:text-msa-gold"
                             : "text-ink-mid/70 dark:text-white/50"
@@ -282,16 +290,6 @@ const Navbar = () => {
                   </motion.div>
                 )}
               </AnimatePresence>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.38 }}
-            >
-              <Link to="/join" className="btn-premium text-lg px-8 py-3">
-                Join the MSA <ArrowRight size={16} />
-              </Link>
             </motion.div>
           </motion.div>
         )}

@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Heart, Users, Moon, HandHeart, Calendar } from "lucide-react";
 import { useMemo } from "react";
 import Layout from "@/components/Layout";
+import { usePageMeta } from "@/lib/usePageMeta";
 import SectionHeading from "@/components/SectionHeading";
 import SectionDivider from "@/components/SectionDivider";
 import ArabicVerse from "@/components/ArabicVerse";
@@ -21,12 +22,9 @@ import galleryTopgolfImg from "@/assets/gallery-topgolf.jpg";
 
 import {
   mockEvents,
-  getUpcomingEvents,
-  EVENT_SIGNUP_HUB_URL,
-  GOOGLE_CALENDAR_URL,
-  APPLE_CALENDAR_URL,
-  type MSAEvent,
+  getUpcomingWindow,
 } from "@/data/events";
+import { LINKS } from "@/config/links";
 
 const communityPillars = [
   { icon: Users, title: "Brotherhood & Sisterhood", desc: "Lifelong bonds formed through dedicated brothers' and sisters' programming and shared everyday experiences." },
@@ -37,15 +35,6 @@ const imanPillars = [
   { icon: Moon, title: "Faith", desc: "Weekly Jummah, halaqas, and Ramadan programming — nurturing your tarbiyyah throughout college." },
   { icon: HandHeart, title: "Service & Da'wah", desc: "Outreach, volunteering, and giving back to Pittsburgh — continuing to serve the Ummah beyond graduation." },
 ];
-
-const HOMEPAGE_SCROLL_LIMIT = 6;
-
-function isOnOrAfterToday(event: MSAEvent) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const eventDate = new Date(`${event.startDate}T12:00:00`);
-  return eventDate >= today;
-}
 
 function formatEventMonthDay(dateStr: string) {
   const eventDate = new Date(`${dateStr}T12:00:00`);
@@ -85,12 +74,17 @@ const StatItem = ({
 };
 
 const Index = () => {
+  usePageMeta({
+    title: "The MSA at Pitt — A Home Away From Home",
+    description: "Connecting Muslim students at Pitt through faith, friendship, and service. Everyone is welcome.",
+  });
+  const prefersReduced = useReducedMotion();
   const yearsActive = new Date().getFullYear() - 1997;
   const { events: remoteEvents, loading: eventsLoading, error: eventsError } = useCalendarEvents();
 
   const sourceEvents = eventsError ? mockEvents : remoteEvents;
   const upcomingScrollEvents = useMemo(
-    () => getUpcomingEvents(sourceEvents).filter(isOnOrAfterToday).slice(0, HOMEPAGE_SCROLL_LIMIT),
+    () => getUpcomingWindow(sourceEvents, 15, 3),
     [sourceEvents],
   );
 
@@ -201,14 +195,16 @@ const Index = () => {
           </motion.div>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 2, duration: 1 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
-        >
-          <div className="w-px h-12 bg-gradient-to-b from-primary/50 via-primary/20 to-transparent animate-pulse mx-auto" />
-        </motion.div>
+        {!prefersReduced && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 2, duration: 1 }}
+            className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
+          >
+            <div className="w-px h-12 bg-gradient-to-b from-primary/50 via-primary/20 to-transparent animate-pulse mx-auto" />
+          </motion.div>
+        )}
       </section>
 
       <section className="relative z-20 px-4 md:px-8 -mt-14 mb-[-6.5rem] bg-transparent">
@@ -218,7 +214,7 @@ const Index = () => {
           transition={{ delay: 1.3, duration: 0.6 }}
           className="liquid-glass-stats rounded-3xl max-w-3xl mx-3 sm:mx-auto p-4 md:p-6 grid grid-cols-3 items-stretch gap-0 ring-1 ring-white/15 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.08)] overflow-hidden"
         >
-          <StatItem numericValue={50} suffix="+" label="Events per Semester" sub="halaqas, socials & more" bordered />
+          <StatItem numericValue={50} suffix="+" label="Events per Semester" sub="halaqas, socials, speakers & more" bordered />
           <StatItem value="1997" label="Founded at Pitt" sub="community since day one" bordered />
           <StatItem numericValue={400} suffix="+" label="Community Members" sub="and growing every year" />
         </motion.div>
@@ -230,8 +226,8 @@ const Index = () => {
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="grid md:grid-cols-2 gap-16 items-center">
             <motion.div
-              initial={{ opacity: 0, x: -24 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              initial={prefersReduced ? false : { opacity: 0, x: -24 }}
+              whileInView={prefersReduced ? undefined : { opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.55 }}
               className="relative group"
@@ -243,8 +239,8 @@ const Index = () => {
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, x: 24 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              initial={prefersReduced ? false : { opacity: 0, x: 24 }}
+              whileInView={prefersReduced ? undefined : { opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.55, delay: 0.15 }}
             >
@@ -289,7 +285,45 @@ const Index = () => {
             </div>
           )}
 
-          <div className="flex gap-4 items-stretch">
+          {/* Mobile: vertical stack */}
+          <div className="md:hidden flex flex-col gap-3">
+            {eventsLoading && !eventsError ? (
+              <div className="glass-card p-6 flex items-center justify-center min-h-[120px]">
+                <div className="w-6 h-6 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+              </div>
+            ) : upcomingScrollEvents.slice(0, 3).map((event) => {
+              const { month, day } = formatEventMonthDay(event.startDate);
+              return (
+                <div key={event.id} className="glass-card p-4 flex gap-4">
+                  <div className="gold-gradient text-primary-foreground w-12 h-12 rounded-xl flex flex-col items-center justify-center flex-shrink-0">
+                    <span className="text-[9px] font-semibold uppercase tracking-wide opacity-80">{month}</span>
+                    <span className="font-display text-xl font-bold leading-none">{day}</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-display font-bold text-base text-foreground leading-tight truncate">{event.title}</h3>
+                    <p className="font-satoshi text-muted-foreground text-xs mt-0.5">{event.timeLabel}</p>
+                    <p className="font-satoshi text-muted-foreground text-xs">📍 {event.location}</p>
+                  </div>
+                </div>
+              );
+            })}
+            <Link to="/events" className="btn-premium w-full justify-center mt-1">
+              View all events <ArrowRight size={14} />
+            </Link>
+            <div className="flex justify-center gap-5 mt-1">
+              <a href={LINKS.googleCalendarSubscribe} target="_blank" rel="noopener noreferrer"
+                className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1">
+                <Calendar size={11} /> Google Calendar
+              </a>
+              <a href={LINKS.appleCalendarSubscribe} target="_blank" rel="noopener noreferrer"
+                className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1">
+                <Calendar size={11} /> Apple Calendar
+              </a>
+            </div>
+          </div>
+
+          {/* Desktop: horizontal scroll */}
+          <div className="hidden md:flex gap-4 items-stretch">
             <div
               className="flex-1 min-w-0"
               style={{
@@ -332,7 +366,7 @@ const Index = () => {
                           </div>
                           <p className="font-satoshi text-muted-foreground text-sm mb-1.5">📍 {event.location}</p>
                           <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed mb-5 flex-1">{event.shortBlurb}</p>
-                          <a href={EVENT_SIGNUP_HUB_URL} target="_blank" rel="noopener noreferrer" className="btn-premium text-sm px-5 py-2 self-start">
+                          <a href={LINKS.eventSignupHub} target="_blank" rel="noopener noreferrer" className="btn-premium text-sm px-5 py-2 self-start">
                             RSVP <ArrowRight size={13} />
                           </a>
                         </div>
@@ -350,11 +384,11 @@ const Index = () => {
                 View All <ArrowRight size={13} />
               </Link>
               <div className="flex gap-3">
-                <a href={GOOGLE_CALENDAR_URL} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1">
+                <a href={LINKS.googleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1">
                   <Calendar size={11} /> Google
                 </a>
                 <span className="text-border">·</span>
-                <a href={APPLE_CALENDAR_URL} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1">
+                <a href={LINKS.appleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1">
                   <Calendar size={11} /> Apple
                 </a>
               </div>
@@ -379,8 +413,8 @@ const Index = () => {
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4" style={{ height: "clamp(280px, 40vw, 460px)" }}>
             <motion.div
               className="col-span-1 md:col-span-2 relative rounded-2xl overflow-hidden group cursor-pointer"
-              initial={{ opacity: 0, scale: 0.97 }}
-              whileInView={{ opacity: 1, scale: 1 }}
+              initial={prefersReduced ? false : { opacity: 0, scale: 0.97 }}
+              whileInView={prefersReduced ? undefined : { opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
             >
@@ -392,8 +426,8 @@ const Index = () => {
             <div className="col-span-1 grid grid-rows-2 gap-3 md:gap-4">
               <motion.div
                 className="relative rounded-2xl overflow-hidden group cursor-pointer"
-                initial={{ opacity: 0, x: 16 }}
-                whileInView={{ opacity: 1, x: 0 }}
+                initial={prefersReduced ? false : { opacity: 0, x: 16 }}
+                whileInView={prefersReduced ? undefined : { opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.45, delay: 0.1 }}
               >
@@ -404,8 +438,8 @@ const Index = () => {
 
               <motion.div
                 className="relative rounded-2xl overflow-hidden group cursor-pointer"
-                initial={{ opacity: 0, x: 16 }}
-                whileInView={{ opacity: 1, x: 0 }}
+                initial={prefersReduced ? false : { opacity: 0, x: 16 }}
+                whileInView={prefersReduced ? undefined : { opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.45, delay: 0.18 }}
               >

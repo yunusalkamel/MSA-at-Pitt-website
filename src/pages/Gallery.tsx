@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
-import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useTransform, useReducedMotion } from "framer-motion";
+import { usePageMeta } from "@/lib/usePageMeta";
 import { Grid3X3, Leaf, Sun, Calendar, Star, Eye } from "lucide-react";
 import Layout from "@/components/Layout";
 import ArabicVerse from "@/components/ArabicVerse";
@@ -43,6 +44,11 @@ const filters: { key: FilterCategory; label: string; icon: typeof Grid3X3 }[] = 
 ];
 
 const Gallery = () => {
+  usePageMeta({
+    title: "Gallery — MSA at Pitt",
+    description: "Moments from kickoffs, iftars, halaqas, and socials throughout the year.",
+  });
+  const prefersReduced = useReducedMotion();
   const [activeFilter, setActiveFilter] = useState<FilterCategory>("all");
 
   const heroRef = useRef<HTMLElement>(null);
@@ -124,13 +130,13 @@ const Gallery = () => {
       </section>
 
       {/* Gallery Grid */}
-      <section className="section-padding relative overflow-hidden">
+      <section className="section-padding relative">
         <div className="absolute inset-0 steps-surface" />
         <div className="absolute inset-0 texture-dots opacity-60" />
 
         <div className="absolute top-0 right-1/4 w-96 h-96 rounded-full bg-primary/[0.06] blur-[120px]" />
         <div className="absolute bottom-0 left-1/4 w-80 h-80 rounded-full bg-secondary/[0.05] blur-[100px]" />
-        <div className="max-w-6xl mx-auto relative z-10">
+        <div className="max-w-6xl mx-auto relative z-10 pb-4">
           <AnimatePresence>
             <motion.div
               key={activeFilter}
@@ -140,6 +146,7 @@ const Gallery = () => {
               transition={{ duration: 0.2 }}
               className="grid md:grid-cols-2 gap-6 md:gap-8"
             >
+              {/* CMS-NOTE: Replace galleryEvents with Sanity query — type: GalleryAlbum, fields: title, coverImage, photoCount, tags, albumUrl */}
               {filtered.map((event, i) => (
                 <motion.div
                   key={event.title}

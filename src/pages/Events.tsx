@@ -1,6 +1,7 @@
-import { useMemo, useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { Calendar, ArrowRight } from "lucide-react";
+import { useMemo, useRef, useState, useEffect } from "react";
+import { motion, useReducedMotion } from "framer-motion";
+import { Calendar, ArrowRight, RefreshCw } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
 import Layout from "@/components/Layout";
 import ArabicVerse from "@/components/ArabicVerse";
 import EventsHero from "@/components/events/EventsHero";
@@ -8,46 +9,59 @@ import FeaturedEventCard from "@/components/events/FeaturedEventCard";
 import EventsFilterBar from "@/components/events/EventsFilterBar";
 import MonthCalendar from "@/components/events/MonthCalendar";
 import EventCard from "@/components/events/EventCard";
+import ViewSwitcher from "@/components/events/ViewSwitcher";
+import AgendaView from "@/components/events/AgendaView";
 import SectionHeading from "@/components/SectionHeading";
 import patternImg from "@/assets/islamic-pattern.jpg";
 import {
   mockEvents,
   getFeaturedEvent,
-  getUpcomingEvents,
-  GOOGLE_CALENDAR_URL,
-  APPLE_CALENDAR_URL,
-  EVENT_SIGNUP_HUB_URL,
+  getUpcomingWindow,
 } from "@/data/events";
+import { LINKS } from "@/config/links";
 import { useCalendarEvents } from "@/hooks/useCalendarEvents";
-import type { MSAEvent } from "@/data/events";
-import { useState } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { usePageMeta } from "@/lib/usePageMeta";
 
-function getUpcomingWindow(events: MSAEvent[], days = 21): MSAEvent[] {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const cutoff = new Date(today.getTime() + days * 24 * 60 * 60 * 1000);
-  return events
-    .filter((e) => {
-      if (e.isPast) return false;
-      const d = new Date(e.startDate + "T12:00:00");
-      return d >= today && d <= cutoff;
-    })
-    .sort((a, b) => a.startDate.localeCompare(b.startDate));
-}
+type View = "agenda" | "calendar";
 
 const Events = () => {
+  usePageMeta({
+    title: "Events — MSA at Pitt",
+    description: "Halaqas, iftars, socials, and more. Subscribe once, never miss a moment.",
+  });
+  const prefersReduced = useReducedMotion();
+  const isMobile = useIsMobile();
+  const [view, setView] = useState<View>("calendar");
   const [selectedTags, setSelectedTags] = useState<string[]>(["All"]);
-  const { events: remoteEvents, loading, error } = useCalendarEvents();
+  const [, forceUpdate] = useState(0);
+  const { events: remoteEvents, loading, error, lastSyncedAt, refresh } = useCalendarEvents();
+
+  // Set default view based on mobile/desktop after mount
+  useEffect(() => {
+    setView(isMobile ? "agenda" : "calendar");
+  }, [isMobile]);
+
+  // Tick every 30s to keep "X minutes ago" fresh
+  useEffect(() => {
+    const id = setInterval(() => forceUpdate((n) => n + 1), 30_000);
+    return () => clearInterval(id);
+  }, []);
 
   const sourceEvents = error ? mockEvents : remoteEvents;
   const featured = getFeaturedEvent(sourceEvents);
-  const upcoming = useMemo(() => getUpcomingWindow(sourceEvents, 21), [sourceEvents]);
-  const allEvents = useMemo(() => getUpcomingEvents(sourceEvents), [sourceEvents]);
+  const upcoming = useMemo(() => getUpcomingWindow(sourceEvents, 15, 3), [sourceEvents]);
 
-  // Filtered events for the calendar
-  const calendarEvents = useMemo(() => {
+  const filteredEvents = useMemo(() => {
     if (selectedTags.includes("All")) return sourceEvents;
-    return sourceEvents.filter((e) => e.tags.some((t) => selectedTags.includes(t)));
+    if (selectedTags.includes("Past Events")) {
+      const other = selectedTags.filter((t) => t !== "Past Events");
+      const past = sourceEvents.filter((e) => e.isPast);
+      return other.length === 0 ? past : past.filter((e) => e.tags.some((t) => other.includes(t)));
+    }
+    return sourceEvents
+      .filter((e) => !e.isPast)
+      .filter((e) => e.tags.some((t) => selectedTags.includes(t)));
   }, [selectedTags, sourceEvents]);
 
   const upcomingScrollRef = useRef<HTMLDivElement>(null);
@@ -56,13 +70,16 @@ const Events = () => {
     <Layout>
       <EventsHero />
 
-      {/* Signature event — immediately after hero */}
+      {/* Featured/Signature event — immediately after hero */}
       {featured && (
         <section className="section-padding pt-10 pb-10 gradient-mesh-warm relative overflow-hidden">
           <div className="absolute inset-0 texture-dots" />
-  
           <div className="max-w-5xl mx-auto relative z-10">
-            <SectionHeading title="Signature Event" label="Don't Miss" />
+            {featured.tags.includes("Signature") ? (
+              <SectionHeading title="Signature Event" label="Don't Miss" />
+            ) : (
+              <SectionHeading title="Featured Event" label="Coming Up" />
+            )}
             <FeaturedEventCard event={featured} />
           </div>
         </section>
@@ -70,7 +87,7 @@ const Events = () => {
 
       <div className="glass-divider-thick" />
 
-      {/* Calendar — the main view */}
+      {/* Main events section */}
       <section className="section-padding warm-surface relative overflow-hidden">
         <div className="absolute inset-0 gradient-mesh-warm" />
         <div className="absolute inset-0 texture-cross opacity-50" />
@@ -79,15 +96,54 @@ const Events = () => {
 
           {error && (
             <div className="mb-5 rounded-xl border border-primary/20 bg-primary/[0.06] px-4 py-3 text-sm text-foreground/80">
-              Showing our curated event schedule. Live sync will resume automatically.
+              Live calendar temporarily unavailable — showing recurring events only.{" "}
+              <a href={LINKS.linktree} target="_blank" rel="noopener noreferrer" className="text-primary font-semibold hover:underline">
+                See Linktree for the full schedule →
+              </a>
             </div>
           )}
 
-          {/* Filter chips */}
-          <div className="flex justify-center mb-6">
+          {/* View switcher + sync indicator */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+            <ViewSwitcher view={view} onChange={setView} />
+
+            <div className="flex items-center gap-2 text-xs text-muted-foreground/60 font-body">
+              <span
+                className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                style={{ background: lastSyncedAt && Date.now() - lastSyncedAt < 10 * 60 * 1000 ? "#148066" : "#F2AB23" }}
+              />
+              {lastSyncedAt
+                ? `Synced ${formatDistanceToNow(new Date(lastSyncedAt), { addSuffix: true })}`
+                : "Connecting to calendar…"}
+              <button
+                onClick={refresh}
+                disabled={loading}
+                aria-label="Refresh calendar"
+                className="ml-1 hover:text-primary transition-colors disabled:opacity-40"
+              >
+                <RefreshCw size={11} className={loading ? "animate-spin" : ""} />
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile calendar subscribe — above event list */}
+          <div className="md:hidden flex justify-center gap-3 mb-4">
+            <a href={LINKS.googleCalendarSubscribe} target="_blank" rel="noopener noreferrer"
+              className="btn-premium-secondary text-sm px-4 py-2 flex-1 justify-center">
+              <Calendar size={13} /> Google Calendar
+            </a>
+            <a href={LINKS.appleCalendarSubscribe} target="_blank" rel="noopener noreferrer"
+              className="btn-premium-secondary text-sm px-4 py-2 flex-1 justify-center">
+              <Calendar size={13} /> Apple Calendar
+            </a>
+          </div>
+
+          {/* Filter bar — sticky in agenda view */}
+          <div className={`flex justify-center mb-6 ${view === "agenda" ? "sticky top-[68px] md:top-[76px] z-30 py-2 backdrop-blur-sm" : ""}`}>
             <EventsFilterBar selected={selectedTags} onChange={setSelectedTags} />
           </div>
 
+          {/* Active view */}
           {loading && !error ? (
             <div className="glass-card-strong p-16 text-center rounded-2xl">
               <div className="flex flex-col items-center gap-3">
@@ -95,17 +151,19 @@ const Events = () => {
                 <p className="text-muted-foreground text-sm">Loading events…</p>
               </div>
             </div>
+          ) : view === "agenda" ? (
+            <AgendaView events={filteredEvents} />
           ) : (
-            <MonthCalendar events={calendarEvents} />
+            <MonthCalendar events={filteredEvents} />
           )}
 
-          {/* Sync calendar — understated, right below the calendar */}
-          <div className="flex flex-wrap items-center gap-3 mt-5 pt-4 border-t border-border/30">
+          {/* Sync calendar — desktop only, below the calendar */}
+          <div className="hidden md:flex flex-wrap items-center gap-3 mt-5 pt-4 border-t border-border/30">
             <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">
               Sync to your calendar:
             </span>
             <a
-              href={GOOGLE_CALENDAR_URL}
+              href={LINKS.googleCalendarSubscribe}
               target="_blank"
               rel="noopener noreferrer"
               title="Opens Google Calendar — click '+' at the bottom right to subscribe"
@@ -114,7 +172,7 @@ const Events = () => {
               <Calendar size={11} /> Google Calendar
             </a>
             <a
-              href={APPLE_CALENDAR_URL}
+              href={LINKS.appleCalendarSubscribe}
               target="_blank"
               rel="noopener noreferrer"
               title="Subscribes directly to your Apple Calendar"
@@ -124,7 +182,7 @@ const Events = () => {
             </a>
             <div className="ml-auto">
               <a
-                href={EVENT_SIGNUP_HUB_URL}
+                href={LINKS.eventSignupHub}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-premium text-xs px-4 py-2"
@@ -141,7 +199,6 @@ const Events = () => {
         <section className="section-padding warm-surface-deep relative overflow-hidden">
           <div className="absolute inset-0 gradient-section-gold-soft opacity-70" />
           <div className="max-w-5xl mx-auto relative z-10">
-            {/* Count badge — no "next 15 days" label */}
             <div className="flex items-center gap-3 mb-6">
               <h3 className="font-display text-2xl md:text-3xl font-bold text-foreground">Coming Up</h3>
               <span className="liquid-glass text-xs font-bold text-primary px-3 py-1 rounded-full">
@@ -149,7 +206,6 @@ const Events = () => {
               </span>
             </div>
 
-            {/* Horizontal scroll */}
             <div
               ref={upcomingScrollRef}
               className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide"
@@ -158,8 +214,8 @@ const Events = () => {
               {upcoming.map((event, i) => (
                 <motion.div
                   key={event.id}
-                  initial={{ opacity: 0, x: 20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
+                  initial={prefersReduced ? false : { opacity: 0, x: 20 }}
+                  whileInView={prefersReduced ? undefined : { opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.06, duration: 0.4 }}
                   className="flex-shrink-0 w-[280px] md:w-[320px] snap-start"
@@ -172,10 +228,9 @@ const Events = () => {
         </section>
       )}
 
-      {/* Closing ayat — relevant to gathering and taking action */}
+      {/* Closing ayat */}
       <section className="section-padding-sm gradient-section-emerald-soft relative overflow-hidden">
         <div className="absolute inset-0 opacity-[0.025]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: '200px' }} />
-
         <div className="max-w-2xl mx-auto relative z-10">
           <div className="glass-card-strong glass-glow p-7">
             <ArabicVerse

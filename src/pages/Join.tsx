@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { Instagram, ExternalLink, ArrowRight, CheckCircle2, Users, Calendar, Heart, MessageCircle, Sparkles } from "lucide-react";
 import Layout from "@/components/Layout";
@@ -6,6 +6,8 @@ import BridgeBar from "@/components/BridgeBar";
 import SectionDivider from "@/components/SectionDivider";
 import ArabicVerse from "@/components/ArabicVerse";
 import patternImg from "@/assets/islamic-pattern.jpg";
+import { LINKS } from "@/config/links";
+import { usePageMeta } from "@/lib/usePageMeta";
 
 const steps = [
   {
@@ -13,22 +15,22 @@ const steps = [
     headline: "Make it official.",
     copy: "Fill out the MSA registration form to stay in the loop, receive announcements, and be counted as part of our community.",
     cta: "Register Now",
-    href: "https://forms.gle/qVYQb5F4eu3y3DTZ7",
+    href: LINKS.registrationForm,
   },
   {
     num: "02",
     headline: "Stay in the loop.",
     copy: "Join our main WhatsApp announcements chat for event updates, reminders, and everything MSA.",
     cta: "Join Announcements Chat",
-    href: "https://chat.whatsapp.com/GuWsLzCvRggF9Ua6tWrkJL",
+    href: LINKS.whatsappAnnouncements,
   },
   {
     num: "03",
     headline: "Find your people.",
-    copy: "Brothers' and sisters' community chats — a direct line to your community for conversation, events, and friendship.",
-    ctas: [
-      { label: "Brothers Chat", href: "", comingSoon: true },
-      { label: "Sisters Chat", href: "", comingSoon: true },
+    copy: "Brothers' and sisters' community chats are invite-based — meet a board member at any MSA event and you'll be added. Can't make it in person? DM us on Instagram or email us and we'll get you in.",
+    links: [
+      { label: "Instagram DM", href: LINKS.instagram },
+      { label: "Email Us", href: `mailto:${LINKS.email}` },
     ],
   },
   {
@@ -65,6 +67,11 @@ const whatHappensNext = [
 const STORAGE_KEY = "msa-joined";
 
 const Join = () => {
+  usePageMeta({
+    title: "Join the MSA — MSA at Pitt",
+    description: "Whatever stage of the journey you're on, there's a place for you here. Join hundreds of students at Pitt.",
+  });
+  const prefersReduced = useReducedMotion();
   const [joined, setJoined] = useState(false);
   const [showBanner, setShowBanner] = useState(false);
 
@@ -105,7 +112,7 @@ const Join = () => {
       </AnimatePresence>
 
       {/* Hero */}
-      <section className="relative py-32 md:py-44 overflow-hidden text-center">
+      <section className="relative py-32 md:py-44 overflow-x-hidden text-center">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0 gradient-mesh-gold" />
           <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: '220px' }} />
@@ -130,7 +137,7 @@ const Join = () => {
           >
             Ready to be part of
             <br />
-            <span className="text-gradient-gold italic">something bigger?</span>
+            <span className="inline-block text-gradient-gold italic pb-1">something bigger?</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 16 }}
@@ -155,8 +162,8 @@ const Join = () => {
             {steps.map((step, i) => (
               <motion.div
                 key={step.num}
-                initial={{ opacity: 0, y: 18 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={prefersReduced ? false : { opacity: 0, y: 18 }}
+                whileInView={prefersReduced ? undefined : { opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-40px" }}
                 transition={{ duration: 0.42, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
                 className="relative"
@@ -197,27 +204,21 @@ const Join = () => {
                         )}
                       </div>
                     )}
-                    {"ctas" in step && step.ctas && (
+                    {"links" in step && step.links && (
                       <div className="flex flex-col sm:flex-row gap-3">
-                        {step.ctas.map((c) =>
-                          c.comingSoon ? (
-                            <span key={c.label} className="inline-flex items-center justify-center gap-2 rounded-full px-6 py-2.5 font-body font-semibold text-sm text-muted-foreground bg-muted/60 border border-border/50 cursor-default">
-                              {c.label} — Coming Soon
-                            </span>
-                          ) : (
-                            <a key={c.label} href={c.href} target="_blank" rel="noopener noreferrer" className="btn-premium">
-                              {c.label} <ArrowRight size={15} />
-                            </a>
-                          )
-                        )}
+                        {step.links.map((c) => (
+                          <a key={c.label} href={c.href} target="_blank" rel="noopener noreferrer" className="btn-premium-secondary text-sm px-5 py-2.5">
+                            {c.label} <ArrowRight size={14} />
+                          </a>
+                        ))}
                       </div>
                     )}
                     {step.socials && (
                       <div className="flex flex-wrap gap-3">
-                        <a href="https://instagram.com/msa.at.pitt" target="_blank" rel="noopener noreferrer" className="btn-premium-secondary text-sm px-5 py-2.5">
+                        <a href={LINKS.instagram} target="_blank" rel="noopener noreferrer" className="btn-premium-secondary text-sm px-5 py-2.5">
                           <Instagram size={15} /> Instagram
                         </a>
-                        <a href="https://linktr.ee/msa.at.pitt" target="_blank" rel="noopener noreferrer" className="btn-premium-secondary text-sm px-5 py-2.5">
+                        <a href={LINKS.linktree} target="_blank" rel="noopener noreferrer" className="btn-premium-secondary text-sm px-5 py-2.5">
                           <ExternalLink size={15} /> Linktree
                         </a>
                       </div>
@@ -288,7 +289,7 @@ const Join = () => {
               </p>
             </div>
             <a
-              href="https://forms.gle/qVYQb5F4eu3y3DTZ7"
+              href={LINKS.registrationForm}
               target="_blank"
               rel="noopener noreferrer"
               className="btn-premium flex-shrink-0"

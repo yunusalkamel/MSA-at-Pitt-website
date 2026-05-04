@@ -11,7 +11,7 @@ const baseEvent: MSAEvent = {
   timeLabel: "Sunday · 7:00 – 8:00 PM",
   location: "Cathedral of Learning",
   shortBlurb: "Join our weekly halaqa and reflection circle.",
-  tags: ["Education & Service", "Open to All"],
+  tags: ["Dawah"],
   ctaMode: "rsvp",
   signupUrl: "https://example.com/rsvp",
   addToCalendarUrl: "https://calendar.google.com/example",
@@ -37,7 +37,7 @@ describe("EventCardBase variants", () => {
         ...baseEvent,
         id: "featured",
         featured: true,
-        tags: ["Signature Event", "Social", "Open to All"],
+        tags: ["Signature", "Social"],
       },
       "featured",
     );

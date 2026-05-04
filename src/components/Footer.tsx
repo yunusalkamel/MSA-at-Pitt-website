@@ -3,7 +3,7 @@ import { Instagram } from "lucide-react";
 import KhatamOverlay from "@/components/KhatamOverlay";
 import CrescentWatermark from "@/components/CrescentWatermark";
 import BridgeBar from "@/components/BridgeBar";
-import { useTheme } from "@/contexts/ThemeContext";
+import { LINKS } from "@/config/links";
 
 const WhatsAppIcon = ({ size = 20 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -17,38 +17,33 @@ const footerLinks = [
   { to: "/events", label: "Events" },
   { to: "/join", label: "Join" },
   { to: "/resources", label: "Resources" },
+  { to: "/contact", label: "Contact" },
 ];
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
   const copyrightYears = currentYear > 2025 ? `2025–${currentYear}` : "2025";
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
 
   return (
     <footer
-      className="relative overflow-hidden transition-colors duration-500"
-      style={{
-        background: isDark
-          ? "linear-gradient(180deg, #060B18 0%, #0D1528 100%)"
-          : "#F8F3EA",
-      }}
+      className="relative overflow-hidden"
+      style={{ background: "linear-gradient(180deg, #14345A 0%, #0D2444 100%)" }}
       role="contentinfo"
     >
       <BridgeBar />
 
-      {/* Khatam: navy on parchment, gold on dark */}
+      {/* Khatam: gold on navy always */}
       <KhatamOverlay
-        variant={isDark ? "gold" : "navy"}
+        variant="gold"
         size={60}
-        opacity={isDark ? 0.22 : 0.8}
+        opacity={0.18}
       />
 
-      {/* Crescent watermark — 6% opacity, bottom-right per spec */}
+      {/* Crescent watermark */}
       <CrescentWatermark
-        color={isDark ? "#C9A84C" : "#14345A"}
+        color="#C9A84C"
         size={180}
-        opacity={0.06}
+        opacity={0.07}
         position="bottom-right"
       />
 
@@ -56,9 +51,7 @@ const Footer = () => {
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: isDark
-            ? "radial-gradient(ellipse at 80% 100%, rgba(20,128,102,.08) 0%, transparent 55%)"
-            : "radial-gradient(ellipse at 80% 100%, rgba(20,52,90,.04) 0%, transparent 60%)",
+          background: "radial-gradient(ellipse at 80% 100%, rgba(20,128,102,.08) 0%, transparent 55%)",
         }}
       />
 
@@ -66,75 +59,44 @@ const Footer = () => {
         {/* Footer ayat — Cormorant italic per spec */}
         <div className="text-center mb-10">
           <div className="flex items-center justify-center gap-3 mb-3">
-            <div
-              className="w-10 h-px bg-gradient-to-r from-transparent"
-              style={{ backgroundImage: `linear-gradient(to right, transparent, ${isDark ? "rgba(242,171,35,.2)" : "rgba(20,52,90,.2)"})` }}
-            />
-            <div
-              className="w-1 h-1 rounded-full"
-              style={{ background: isDark ? "rgba(242,171,35,.4)" : "rgba(20,52,90,.35)" }}
-            />
-            <div
-              className="w-10 h-px"
-              style={{ backgroundImage: `linear-gradient(to left, transparent, ${isDark ? "rgba(242,171,35,.2)" : "rgba(20,52,90,.2)"})` }}
-            />
+            <div className="w-10 h-px" style={{ backgroundImage: "linear-gradient(to right, transparent, rgba(242,171,35,.25))" }} />
+            <div className="w-1 h-1 rounded-full" style={{ background: "rgba(242,171,35,.45)" }} />
+            <div className="w-10 h-px" style={{ backgroundImage: "linear-gradient(to left, transparent, rgba(242,171,35,.25))" }} />
           </div>
 
-          <p
-            className="font-arabic text-xl md:text-2xl mb-2"
-            style={{ color: isDark ? "rgba(242,171,35,.7)" : "#14345A", opacity: isDark ? 1 : 0.65 }}
-            dir="rtl"
-          >
+          <p className="font-arabic text-xl md:text-2xl mb-2" style={{ color: "rgba(242,171,35,.75)" }} dir="rtl">
             رَبَّنَا تَقَبَّلْ مِنَّا إِنَّكَ أَنتَ السَّمِيعُ الْعَلِيمُ
           </p>
-
-          {/* Cormorant italic tagline per Bridge v2 spec */}
-          <p
-            className="font-display italic text-sm"
-            style={{ color: isDark ? "rgba(255,255,255,.35)" : "#32312C", opacity: isDark ? 1 : 0.5 }}
-          >
+          <p className="font-display italic text-sm" style={{ color: "rgba(255,255,255,.38)" }}>
             "Our Lord, accept from us. Indeed, You are the All-Hearing, the All-Knowing." — Quran 2:127
           </p>
 
           <div className="flex items-center justify-center gap-3 mt-3">
-            <div
-              className="w-6 h-px"
-              style={{ backgroundImage: `linear-gradient(to right, transparent, ${isDark ? "rgba(242,171,35,.1)" : "rgba(20,52,90,.12)"})` }}
-            />
-            <div
-              className="w-1 h-1 rounded-full"
-              style={{ background: isDark ? "rgba(242,171,35,.22)" : "rgba(20,52,90,.2)" }}
-            />
-            <div
-              className="w-6 h-px"
-              style={{ backgroundImage: `linear-gradient(to left, transparent, ${isDark ? "rgba(242,171,35,.1)" : "rgba(20,52,90,.12)"})` }}
-            />
+            <div className="w-6 h-px" style={{ backgroundImage: "linear-gradient(to right, transparent, rgba(242,171,35,.12))" }} />
+            <div className="w-1 h-1 rounded-full" style={{ background: "rgba(242,171,35,.25)" }} />
+            <div className="w-6 h-px" style={{ backgroundImage: "linear-gradient(to left, transparent, rgba(242,171,35,.12))" }} />
           </div>
         </div>
 
-        <div
-          className="h-px mb-8"
-          style={{
-            backgroundImage: isDark
-              ? "linear-gradient(90deg, transparent, rgba(242,171,35,.15), transparent)"
-              : "linear-gradient(90deg, transparent, rgba(20,52,90,.12), transparent)",
-          }}
-        />
+        <div className="h-px mb-8" style={{ backgroundImage: "linear-gradient(90deg, transparent, rgba(242,171,35,.15), transparent)" }} />
 
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-          <div>
-            {/* Logo wordmark — Jakarta 800, adaptive colors */}
-            <Link
-              to="/"
-              className="font-body font-extrabold text-xl tracking-[0.1em] hover:opacity-80 transition-opacity"
-            >
-              <span style={{ color: isDark ? "#C8E8DF" : "#148066" }}>MSA</span>{" "}
-              <span style={{ color: isDark ? "rgba(255,255,255,.9)" : "#14345A" }}>AT PITT</span>
+          <div className="flex flex-col items-center md:items-start gap-2">
+            {/* MSA logo mark */}
+            <Link to="/" className="group flex items-center gap-3 hover:opacity-85 transition-opacity">
+              <img
+                src="/msa-logo-white.png"
+                alt="MSA at Pitt"
+                className="h-9 w-auto object-contain"
+              />
+              <div>
+                <p className="font-body font-extrabold text-xl tracking-[0.1em] leading-none">
+                  <span style={{ color: "#C8E8DF" }}>MSA</span>{" "}
+                  <span style={{ color: "rgba(255,255,255,.9)" }}>AT PITT</span>
+                </p>
+              </div>
             </Link>
-            <p
-              className="font-body text-sm mt-1"
-              style={{ color: isDark ? "rgba(255,255,255,.38)" : "#32312C", opacity: isDark ? 1 : 0.55 }}
-            >
+            <p className="font-body text-sm" style={{ color: "rgba(255,255,255,.38)" }}>
               Muslim Student Association · University of Pittsburgh
             </p>
           </div>
@@ -144,10 +106,7 @@ const Footer = () => {
               <Link
                 key={link.to}
                 to={link.to}
-                className="font-body text-sm transition-all"
-                style={{ color: isDark ? "rgba(255,255,255,.45)" : "#32312C", opacity: isDark ? 1 : 0.65 }}
-                onMouseEnter={e => (e.currentTarget.style.color = isDark ? "#148066" : "#148066")}
-                onMouseLeave={e => (e.currentTarget.style.color = isDark ? "rgba(255,255,255,.45)" : "#32312C")}
+                className="footer-link font-body text-sm"
               >
                 {link.label}
               </Link>
@@ -156,57 +115,42 @@ const Footer = () => {
 
           <div className="flex items-center gap-4">
             <a
-              href="mailto:msa.at.pitt@gmail.com"
-              className="font-body text-sm transition-all"
+              href={`mailto:${LINKS.email}`}
+              className="footer-link font-body text-sm"
               aria-label="Email MSA at Pitt"
-              style={{ color: isDark ? "rgba(255,255,255,.45)" : "#32312C", opacity: isDark ? 1 : 0.65 }}
-              onMouseEnter={e => (e.currentTarget.style.color = "#148066")}
-              onMouseLeave={e => (e.currentTarget.style.color = isDark ? "rgba(255,255,255,.45)" : "#32312C")}
             >
               Email
             </a>
             <a
-              href="https://chat.whatsapp.com/GuWsLzCvRggF9Ua6tWrkJL"
+              href={LINKS.whatsappAnnouncements}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="MSA WhatsApp announcements"
-              className="transition-all"
-              style={{ color: isDark ? "rgba(255,255,255,.45)" : "#32312C", opacity: isDark ? 1 : 0.65 }}
-              onMouseEnter={e => (e.currentTarget.style.color = "#148066")}
-              onMouseLeave={e => (e.currentTarget.style.color = isDark ? "rgba(255,255,255,.45)" : "#32312C")}
+              className="footer-link inline-flex items-center"
             >
               <WhatsAppIcon size={19} />
             </a>
             <a
-              href="https://instagram.com/msa.at.pitt"
+              href={LINKS.instagram}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Instagram"
-              className="transition-all"
-              style={{ color: isDark ? "rgba(255,255,255,.45)" : "#32312C", opacity: isDark ? 1 : 0.65 }}
-              onMouseEnter={e => (e.currentTarget.style.color = "#148066")}
-              onMouseLeave={e => (e.currentTarget.style.color = isDark ? "rgba(255,255,255,.45)" : "#32312C")}
+              className="footer-link inline-flex items-center"
             >
               <Instagram size={19} />
             </a>
             <a
-              href="https://linktr.ee/msa.at.pitt"
+              href={LINKS.linktree}
               target="_blank"
               rel="noopener noreferrer"
-              className="font-body text-sm transition-all"
-              style={{ color: isDark ? "rgba(255,255,255,.45)" : "#32312C", opacity: isDark ? 1 : 0.65 }}
-              onMouseEnter={e => (e.currentTarget.style.color = "#148066")}
-              onMouseLeave={e => (e.currentTarget.style.color = isDark ? "rgba(255,255,255,.45)" : "#32312C")}
+              className="footer-link font-body text-sm"
             >
               Linktree
             </a>
           </div>
         </div>
 
-        <p
-          className="text-center font-body text-xs mt-8"
-          style={{ color: isDark ? "rgba(255,255,255,.22)" : "#32312C", opacity: isDark ? 1 : 0.38 }}
-        >
+        <p className="text-center font-body text-xs mt-8" style={{ color: "rgba(255,255,255,.22)" }}>
           © {copyrightYears} Muslim Student Association at the University of Pittsburgh
         </p>
       </div>
