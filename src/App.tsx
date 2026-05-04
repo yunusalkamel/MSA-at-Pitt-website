@@ -4,13 +4,14 @@ import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/contexts/ThemeContext";
-import { SpeedInsights } from "@vercel/speed-insights/react"
-import { Analytics } from "@vercel/analytics/react"
+import { SpeedInsights } from "@vercel/speed-insights/react";
+import { Analytics } from "@vercel/analytics/react";
 
 const Index = lazy(() => import("./pages/Index.tsx"));
 const About = lazy(() => import("./pages/About.tsx"));
 const Events = lazy(() => import("./pages/Events.tsx"));
 const Gallery = lazy(() => import("./pages/Gallery.tsx"));
+const GalleryAlbum = lazy(() => import("./pages/GalleryAlbum.tsx"));
 const Join = lazy(() => import("./pages/Join.tsx"));
 const Resources = lazy(() => import("./pages/Resources.tsx"));
 const NewToPitt = lazy(() => import("./pages/NewToPitt.tsx"));
@@ -22,7 +23,6 @@ const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 const queryClient = new QueryClient();
 
-/** Scrolls to the top instantly on every route change */
 const ScrollToTop = () => {
   const { pathname } = useLocation();
   useEffect(() => {
@@ -33,32 +33,33 @@ const ScrollToTop = () => {
 
 const App = () => (
   <ThemeProvider>
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Sonner />
-      <BrowserRouter>
-        <ScrollToTop />
-        <Suspense fallback={<div className="min-h-screen bg-background" />}>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/events" element={<Events />} />
-            <Route path="/gallery" element={<Gallery />} />
-            <Route path="/join" element={<Join />} />
-            <Route path="/resources" element={<Resources />} />
-            <Route path="/resources/new-to-pitt" element={<NewToPitt />} />
-            <Route path="/resources/prayer-locations" element={<PrayerLocations />} />
-            <Route path="/resources/faq" element={<FAQ />} />
-            <Route path="/prayer-times" element={<PrayerTimes />} />
-            <Route path="/board" element={<OrgChart />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Suspense>
-        <SpeedInsights />
-        <Analytics />
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Sonner />
+        <BrowserRouter>
+          <ScrollToTop />
+          <Suspense fallback={<div className="min-h-screen bg-background" />}>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/events" element={<Events />} />
+              <Route path="/gallery" element={<Gallery />} />
+              <Route path="/gallery/:slug" element={<GalleryAlbum />} />
+              <Route path="/join" element={<Join />} />
+              <Route path="/resources" element={<Resources />} />
+              <Route path="/resources/new-to-pitt" element={<NewToPitt />} />
+              <Route path="/resources/prayer-locations" element={<PrayerLocations />} />
+              <Route path="/resources/faq" element={<FAQ />} />
+              <Route path="/prayer-times" element={<PrayerTimes />} />
+              <Route path="/board" element={<OrgChart />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
+          <SpeedInsights />
+          <Analytics />
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
   </ThemeProvider>
 );
 

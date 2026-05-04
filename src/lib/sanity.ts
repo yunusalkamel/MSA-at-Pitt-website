@@ -2,39 +2,37 @@ import { createClient } from "@sanity/client";
 import imageUrlBuilder from "@sanity/image-url";
 import type { SanityImageSource } from "@sanity/image-url/lib/types/types";
 
-// ─── FILL THESE IN ────────────────────────────────────────────────────────────
-// Same values as in your sanity-studio/sanity.config.ts
 const PROJECT_ID = "rwdbbktc";
 const DATASET = "production";
-// ──────────────────────────────────────────────────────────────────────────────
 
 export const sanityClient = createClient({
   projectId: PROJECT_ID,
   dataset: DATASET,
   apiVersion: "2024-01-01",
-  useCdn: true, // serve from cache — content updates appear within ~60 seconds
+  useCdn: true,
 });
 
 const builder = imageUrlBuilder(sanityClient);
 
 /**
- * Build a Sanity CDN image URL with optional transformations.
- *
- * Usage:
- *   urlFor(data.heroImage).width(1920).auto("format").url()
- *   urlFor(data.coverImage).width(800).height(500).fit("crop").url()
+ * Turns a Sanity image reference into a real URL.
+ * Usage: urlFor(data.heroImage).width(1920).auto("format").url()
  */
 export const urlFor = (source: SanityImageSource) => builder.image(source);
 
 // ── GROQ Queries ──────────────────────────────────────────────────────────────
+// These are the questions we ask Sanity to get data back.
+// Each one maps to a section your team can edit in the Studio.
 
 export const QUERIES = {
+  // Site-wide announcement bar
   announcement: `
     *[_type == "announcement" && _id == "announcement-main"][0] {
       isActive, message, type, linkLabel, linkUrl
     }
   `,
 
+  // Homepage — hero, stats, pillars, community section
   homePage: `
     *[_type == "homePage" && _id == "home-page"][0] {
       heroImage, heroHeadline, heroSubheadline, heroBody,
@@ -45,6 +43,7 @@ export const QUERIES = {
     }
   `,
 
+  // About page — hero, mission text, pillar cards
   aboutPage: `
     *[_type == "aboutPage" && _id == "about-page"][0] {
       heroImage, heroHeadline, heroSubheadline, heroTagline,
@@ -54,6 +53,7 @@ export const QUERIES = {
     }
   `,
 
+  // Resources page — cards, Jummah info, Imam bio
   resourcesPage: `
     *[_type == "resourcesPage" && _id == "resources-page"][0] {
       heroHeadline, heroSubheadline,
@@ -63,10 +63,12 @@ export const QUERIES = {
     }
   `,
 
+  // FAQ — list of questions and answers
   faqItems: `
     *[_type == "faqItem"] | order(order asc) { question, answer }
   `,
 
+  // Board leadership — all roles and names for org chart
   leadership: `
     *[_type == "leadership" && _id == "leadership-current"][0] {
       academicYear,
@@ -77,9 +79,35 @@ export const QUERIES = {
     }
   `,
 
+  // Gallery — all albums for the main grid
   galleryAlbums: `
     *[_type == "galleryAlbum"] | order(coalesce(order, 9999) asc, eventDate desc) {
-      title, coverImage, photoCount, category, audience, albumUrl, eventDate
+      title,
+      "slug": slug.current,
+      coverImage,
+      photoCount,
+      "photoCount": count(photos),
+      category,
+      audience,
+      eventDate
+    }
+  `,
+
+  // Single album by slug — for the album detail page
+  galleryAlbumBySlug: `
+    *[_type == "galleryAlbum" && slug.current == $slug][0] {
+      title,
+      "slug": slug.current,
+      coverImage,
+      category,
+      audience,
+      eventDate,
+      "photos": photos[] {
+        "url": image.asset->url,
+        "width": image.asset->metadata.dimensions.width,
+        "height": image.asset->metadata.dimensions.height,
+        caption
+      }
     }
   `,
 };
