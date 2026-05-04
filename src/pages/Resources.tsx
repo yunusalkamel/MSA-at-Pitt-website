@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { BookOpen, Heart, Moon, MessageSquare, Calendar, Link as LinkIcon, Apple, ArrowRight, Clock, Mail, ExternalLink } from "lucide-react";
+import { BookOpen, Heart, Moon, MessageSquare, Calendar, Link as LinkIcon, Apple, ArrowRight, Clock, Mail, ExternalLink, Sun } from "lucide-react";
 import Layout from "@/components/Layout";
 import SectionHeading from "@/components/SectionHeading";
 import SectionDivider from "@/components/SectionDivider";
@@ -8,6 +8,14 @@ import ArabicVerse from "@/components/ArabicVerse";
 import patternImg from "@/assets/islamic-pattern.jpg";
 
 const resources = [
+  {
+    icon: Clock, emoji: "🕌", title: "Prayer Times",
+    desc: "Solar prayer time calculator for Pittsburgh — Fajr through Isha, plus Jummah, Ramadan, and academic-break shading.",
+    backDesc: "Computed locally for accuracy (ISNA method, Pittsburgh coordinates) — no API delay, no internet needed once loaded. Drag to scroll through the year.",
+    cta: "Open Prayer Times", href: "/prayer-times",
+    internal: true,
+    gradient: "from-[#0A5C46] to-[#148066]",
+  },
   {
     icon: BookOpen, emoji: "📘", title: "Tips for Freshmen",
     desc: "New to Pitt? MSA students who've been there share what they wish they'd known.",
@@ -63,9 +71,15 @@ const FlipCard = ({ resource, index }: { resource: typeof resources[0]; index: n
         <h3 className="font-display text-lg font-bold text-foreground mb-1.5">{resource.title}</h3>
         <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed mb-2">{resource.desc}</p>
         <p className="font-dm-sans text-muted-foreground/70 text-xs leading-relaxed mb-4">{resource.backDesc}</p>
-        <a href={resource.href} target="_blank" rel="noopener noreferrer" className="btn-premium text-sm self-start">
-          {resource.cta} <ArrowRight size={14} />
-        </a>
+        {(resource as { internal?: boolean }).internal ? (
+          <a href={resource.href} className="btn-premium text-sm self-start">
+            {resource.cta} <ArrowRight size={14} />
+          </a>
+        ) : (
+          <a href={resource.href} target="_blank" rel="noopener noreferrer" className="btn-premium text-sm self-start">
+            {resource.cta} <ArrowRight size={14} />
+          </a>
+        )}
       </div>
 
       {/* Desktop: flip */}
@@ -92,15 +106,25 @@ const FlipCard = ({ resource, index }: { resource: typeof resources[0]; index: n
               <h3 className="font-display text-xl font-bold text-white mb-3">{resource.title}</h3>
               <p className="font-dm-sans text-white/85 text-sm leading-relaxed">{resource.backDesc}</p>
             </div>
-            <a
-              href={resource.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-white/30 transition-colors self-start mt-4"
-            >
-              {resource.cta} <ArrowRight size={14} />
-            </a>
+            {(resource as { internal?: boolean }).internal ? (
+              <a
+                href={resource.href}
+                onClick={(e) => e.stopPropagation()}
+                className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-white/30 transition-colors self-start mt-4"
+              >
+                {resource.cta} <ArrowRight size={14} />
+              </a>
+            ) : (
+              <a
+                href={resource.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-white/30 transition-colors self-start mt-4"
+              >
+                {resource.cta} <ArrowRight size={14} />
+              </a>
+            )}
           </div>
         </div>
       </div>

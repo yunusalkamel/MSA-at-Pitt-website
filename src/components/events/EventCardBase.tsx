@@ -9,9 +9,15 @@ interface Props {
   event: MSAEvent;
   variant?: "standard" | "featured";
   index?: number;
+  /**
+   * For "featured" variant only — controls whether the gold "Signature Event"
+   * sash on the left rail is shown. Defaults to false. Pass `true` only when
+   * the event is *actually* tagged Signature (caller's responsibility).
+   */
+  showSignatureBadge?: boolean;
 }
 
-const EventCardBase = ({ event, variant = "standard", index = 0 }: Props) => {
+const EventCardBase = ({ event, variant = "standard", index = 0, showSignatureBadge = false }: Props) => {
   const day = new Date(event.startDate + "T12:00:00").getDate();
   const month = new Date(event.startDate + "T12:00:00")
     .toLocaleString("en-US", { month: "short" })
@@ -70,19 +76,30 @@ const EventCardBase = ({ event, variant = "standard", index = 0 }: Props) => {
 
         <div className="relative glass-card-strong p-0 overflow-hidden rounded-2xl">
           <div className="flex flex-col lg:flex-row">
-            <div className="lg:w-56 shrink-0 gold-gradient flex flex-col items-center justify-center py-8 lg:py-0 gap-1">
-              <Star size={20} className="text-primary-foreground/80 mb-1" />
-              <span className="text-primary-foreground/80 text-xs font-semibold tracking-[0.15em] uppercase">
-                Signature Event
+            {/* Left rail: gold for Signature, neutral primary for plain "Up Next" featured */}
+            <div className={`lg:w-56 shrink-0 flex flex-col items-center justify-center py-8 lg:py-0 gap-1 ${
+              showSignatureBadge ? "gold-gradient" : "bg-gradient-to-br from-primary/20 to-secondary/15"
+            }`}>
+              {showSignatureBadge && (
+                <>
+                  <Star size={20} className="text-primary-foreground/80 mb-1" />
+                  <span className="text-primary-foreground/80 text-xs font-semibold tracking-[0.15em] uppercase">
+                    Signature Event
+                  </span>
+                </>
+              )}
+              <span className={`font-display text-5xl font-bold leading-none ${showSignatureBadge ? "text-primary-foreground mt-1" : "text-foreground"}`}>
+                {day}
               </span>
-              <span className="font-display text-5xl font-bold text-primary-foreground leading-none mt-1">{day}</span>
-              <span className="text-primary-foreground/90 text-sm font-semibold tracking-wider">{month}</span>
+              <span className={`text-sm font-semibold tracking-wider ${showSignatureBadge ? "text-primary-foreground/90" : "text-muted-foreground"}`}>
+                {month}
+              </span>
             </div>
 
             <div className="flex-1 p-7 md:p-10">
               <div className="flex flex-wrap gap-2 mb-4">
                 {event.tags.map((tag) => (
-                  <span key={tag} className="tag-chip-gold">
+                  <span key={tag} className={tag === "Signature" ? "tag-chip-gold" : "tag-chip"}>
                     {tag}
                   </span>
                 ))}
@@ -151,7 +168,16 @@ const EventCardBase = ({ event, variant = "standard", index = 0 }: Props) => {
           <div className="flex-1 p-5 md:p-6 min-w-0">
             <div className="flex flex-wrap gap-1.5 mb-3">
               {event.tags.slice(0, 3).map((tag) => (
-                <span key={tag} className={tag === "Signature Event" ? "tag-chip-gold" : isPast ? "tag-chip-muted" : "tag-chip"}>
+                <span
+                  key={tag}
+                  className={
+                    tag === "Signature"
+                      ? "tag-chip-gold"
+                      : isPast
+                      ? "tag-chip-muted"
+                      : "tag-chip"
+                  }
+                >
                   {tag}
                 </span>
               ))}

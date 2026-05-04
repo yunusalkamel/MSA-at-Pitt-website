@@ -112,7 +112,7 @@ const Join = () => {
       </AnimatePresence>
 
       {/* Hero */}
-      <section className="relative py-32 md:py-44 overflow-x-hidden text-center">
+      <section className="relative pt-28 pb-12 md:pt-36 md:pb-16 overflow-x-hidden text-center">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0 gradient-mesh-gold" />
           <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: '220px' }} />
@@ -133,25 +133,42 @@ const Join = () => {
             initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
-            className="font-display text-5xl md:text-7xl font-bold text-foreground mb-6 leading-tight"
+            className="font-display text-5xl md:text-7xl font-bold text-foreground mb-6 leading-tight px-2"
           >
             Ready to be part of
             <br />
-            <span className="inline-block text-gradient-gold italic pb-1">something bigger?</span>
+            <span className="inline-block text-gradient-gold italic pb-2">something bigger?</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.35 }}
-            className="font-dm-sans text-base md:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed"
+            className="font-dm-sans text-base md:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed mb-8"
           >
             No matter who you are or where you're coming from, there's a place for you in MSA at Pitt.
           </motion.p>
+
+          {/* Soft visual bridge — eyebrow + ornament — pulls Step 01 closer */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.55 }}
+            className="flex flex-col items-center gap-2"
+          >
+            <div className="flex items-center gap-3 w-32">
+              <div className="flex-1 h-px bg-gradient-to-r from-transparent to-primary/35" />
+              <div className="w-1 h-1 rounded-full bg-primary/55" />
+              <div className="flex-1 h-px bg-gradient-to-l from-transparent to-primary/35" />
+            </div>
+            <p className="font-body text-[11px] uppercase tracking-[0.22em] text-jannah-mid dark:text-msa-gold/70 font-semibold">
+              4 steps · 2 minutes
+            </p>
+          </motion.div>
         </div>
       </section>
 
-      {/* Steps */}
-      <section className="section-padding relative overflow-hidden">
+      {/* Steps — pulled in tight to the hero */}
+      <section className="pt-4 pb-20 md:pt-8 md:pb-28 px-4 md:px-8 lg:px-16 xl:px-24 relative overflow-hidden">
         <div className="absolute inset-0 steps-surface pointer-events-none" />
         <div className="absolute inset-0 texture-cross opacity-25 pointer-events-none" />
         <div className="absolute top-1/4 -left-20 w-96 h-96 rounded-full bg-primary/[0.07] blur-[100px] pointer-events-none" />
@@ -324,14 +341,14 @@ const Join = () => {
         </div>
       </section>
 
-      {/* Closing Ayat */}
+      {/* Closing — Hadith on benefit to others, fits Join page */}
       <section className="section-padding-sm gradient-section-emerald-soft">
         <div className="max-w-2xl mx-auto">
           <div className="glass-card-strong glass-glow p-7">
             <ArabicVerse
-              arabic="يَا أَيُّهَا النَّاسُ إِنَّا خَلَقْنَاكُم مِّن ذَكَرٍ وَأُنثَىٰ وَجَعَلْنَاكُمْ شُعُوبًا وَقَبَائِلَ لِتَعَارَفُوا"
-              translation="O mankind, We created you from male and female and made you peoples and tribes that you may know one another."
-              reference="Quran 49:13"
+              arabic="خَيْرُ النَّاسِ أَنْفَعُهُمْ لِلنَّاسِ"
+              translation="The best of people are those who are most beneficial to others."
+              reference="Hadith · Sahih al-Jami 3289"
             />
           </div>
         </div>

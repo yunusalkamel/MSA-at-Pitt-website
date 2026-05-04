@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
-import ScrollToTop from "./ScrollToTop";
+import BackToTop from "./BackToTop";
 
 // Note: AnnouncementBar is rendered inside Navbar so it always
 // appears above the floating pill and never behind it.
@@ -23,7 +23,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
       <Navbar />
       <main id="main-content" role="main" className="flex-1 relative z-10">{children}</main>
       <Footer />
-      <ScrollToTop />
+      <BackToTop />
     </div>
   );
 };

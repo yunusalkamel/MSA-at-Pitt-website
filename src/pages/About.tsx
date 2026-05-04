@@ -6,8 +6,8 @@ import SectionHeading from "@/components/SectionHeading";
 import SectionDivider from "@/components/SectionDivider";
 import ArabicVerse from "@/components/ArabicVerse";
 import OrgChart from "@/components/OrgChart";
-import CrescentWatermark from "@/components/CrescentWatermark";
 import BridgeBar from "@/components/BridgeBar";
+import { usePageMeta } from "@/lib/usePageMeta";
 import communityImg from "@/assets/about-community.jpg";
 import eventsImg from "@/assets/events-social.jpg";
 import patternImg from "@/assets/islamic-pattern.jpg";
@@ -22,6 +22,10 @@ const imanCards = [
 ];
 
 const About = () => {
+  usePageMeta({
+    title: "About — MSA at Pitt",
+    description: "We host the prayer space, organize the iftars, run the halaqas, and put on the events that fill the year. Founded 1997.",
+  });
   return (
     <Layout>
       {/* Hero */}
@@ -33,7 +37,7 @@ const About = () => {
           <BridgeBar />
         </div>
 
-        <CrescentWatermark color="#F2AB23" size={280} opacity={0.04} position="right" />
+        {/* Crescent removed — kept only on a couple of secondary surfaces per spec */}
 
         <div className="relative z-10 text-center px-4 max-w-3xl mx-auto">
           <motion.div
@@ -103,7 +107,7 @@ const About = () => {
 
             <SectionHeading title="Our Mission" />
             <p className="font-dm-sans text-muted-foreground text-lg leading-relaxed">
-              The Muslim Student Association at the University of Pittsburgh exists to foster a welcoming and inclusive community for Muslim students and allies. We strive to strengthen faith, build lasting bonds, celebrate our heritage, and serve those around us — all while making Pitt feel like home.
+              MSA at Pitt is the spiritual and social home for Muslim students at the University of Pittsburgh. We host the prayer space, organize the iftars, run the halaqas, and put on the events that fill the year — so faith, friendship, and service feel like the default of college life, not the exception.
             </p>
           </div>
 
@@ -216,14 +220,14 @@ const About = () => {
       {/* Topic change: Leadership → Closing */}
       <SectionDivider />
 
-      {/* Closing Ayat */}
+      {/* Closing — 49:13 (peoples and tribes meeting one another) fits About */}
       <section className="section-padding-sm gradient-section-gold-soft">
         <div className="max-w-3xl mx-auto">
           <div className="glass-card-strong glass-glow p-8 md:p-12">
             <ArabicVerse
-              arabic="وَاعْتَصِمُوا بِحَبْلِ اللَّهِ جَمِيعًا وَلَا تَفَرَّقُوا"
-              translation="And hold firmly to the rope of Allah all together and do not become divided."
-              reference="Quran 3:103"
+              arabic="يَا أَيُّهَا النَّاسُ إِنَّا خَلَقْنَاكُم مِّن ذَكَرٍ وَأُنثَىٰ وَجَعَلْنَاكُمْ شُعُوبًا وَقَبَائِلَ لِتَعَارَفُوا"
+              translation="O mankind, We created you from male and female and made you peoples and tribes that you may know one another."
+              reference="Quran 49:13"
             />
           </div>
         </div>

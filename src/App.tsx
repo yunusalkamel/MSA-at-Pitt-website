@@ -13,6 +13,7 @@ const Events = lazy(() => import("./pages/Events.tsx"));
 const Gallery = lazy(() => import("./pages/Gallery.tsx"));
 const GalleryAlbum = lazy(() => import("./pages/GalleryAlbum.tsx"));
 const Join = lazy(() => import("./pages/Join.tsx"));
+const Contact = lazy(() => import("./pages/Contact.tsx"));
 const Resources = lazy(() => import("./pages/Resources.tsx"));
 const NewToPitt = lazy(() => import("./pages/NewToPitt.tsx"));
 const PrayerLocations = lazy(() => import("./pages/PrayerLocations.tsx"));
@@ -46,9 +47,11 @@ const App = () => (
               <Route path="/gallery" element={<Gallery />} />
               <Route path="/gallery/:slug" element={<GalleryAlbum />} />
               <Route path="/join" element={<Join />} />
+              <Route path="/contact" element={<Contact />} />
               <Route path="/resources" element={<Resources />} />
               <Route path="/resources/new-to-pitt" element={<NewToPitt />} />
               <Route path="/resources/prayer-locations" element={<PrayerLocations />} />
+              <Route path="/resources/prayer-times" element={<PrayerTimes />} />
               <Route path="/resources/faq" element={<FAQ />} />
               <Route path="/prayer-times" element={<PrayerTimes />} />
               <Route path="/board" element={<OrgChart />} />

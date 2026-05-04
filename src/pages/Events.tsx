@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState, useEffect } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Calendar, ArrowRight, RefreshCw } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
@@ -25,6 +25,16 @@ import { usePageMeta } from "@/lib/usePageMeta";
 
 type View = "agenda" | "calendar";
 
+/** Self-ticking relative-time string. Only this small subcomponent re-renders. */
+const RelativeTime = ({ at }: { at: number }) => {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setTick((n) => n + 1), 30_000);
+    return () => clearInterval(id);
+  }, []);
+  return <>{`Synced ${formatDistanceToNow(new Date(at), { addSuffix: true })}`}</>;
+};
+
 const Events = () => {
   usePageMeta({
     title: "Events — MSA at Pitt",
@@ -34,22 +44,16 @@ const Events = () => {
   const isMobile = useIsMobile();
   const [view, setView] = useState<View>("calendar");
   const [selectedTags, setSelectedTags] = useState<string[]>(["All"]);
-  const [, forceUpdate] = useState(0);
   const { events: remoteEvents, loading, error, lastSyncedAt, refresh } = useCalendarEvents();
 
-  // Set default view based on mobile/desktop after mount
   useEffect(() => {
     setView(isMobile ? "agenda" : "calendar");
   }, [isMobile]);
 
-  // Tick every 30s to keep "X minutes ago" fresh
-  useEffect(() => {
-    const id = setInterval(() => forceUpdate((n) => n + 1), 30_000);
-    return () => clearInterval(id);
-  }, []);
-
   const sourceEvents = error ? mockEvents : remoteEvents;
   const featured = getFeaturedEvent(sourceEvents);
+  // Only show the "Signature" treatment if the event is *actually* tagged Signature
+  const isSignature = !!featured && featured.tags.includes("Signature");
   const upcoming = useMemo(() => getUpcomingWindow(sourceEvents, 15, 3), [sourceEvents]);
 
   const filteredEvents = useMemo(() => {
@@ -66,26 +70,62 @@ const Events = () => {
 
   const upcomingScrollRef = useRef<HTMLDivElement>(null);
 
+  // ── Reusable "Coming Up" block — rendered above events on mobile, below on desktop ──
+  const ComingUpBlock = upcoming.length > 0 && (
+    <section className="section-padding warm-surface-deep relative overflow-hidden">
+      <div className="absolute inset-0 gradient-section-gold-soft opacity-70" />
+      <div className="max-w-5xl mx-auto relative z-10">
+        <div className="flex items-center gap-3 mb-6">
+          <h3 className="font-display text-2xl md:text-3xl font-bold text-foreground">Coming Up</h3>
+          <span className="liquid-glass text-xs font-bold text-primary px-3 py-1 rounded-full">
+            {upcoming.length} event{upcoming.length !== 1 ? "s" : ""}
+          </span>
+        </div>
+        <div
+          ref={upcomingScrollRef}
+          className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        >
+          {upcoming.map((event, i) => (
+            <motion.div
+              key={event.id}
+              initial={prefersReduced ? false : { opacity: 0, x: 20 }}
+              whileInView={prefersReduced ? undefined : { opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.06, duration: 0.4 }}
+              className="flex-shrink-0 w-[280px] md:w-[320px] snap-start"
+            >
+              <EventCard event={event} index={i} />
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+
   return (
     <Layout>
       <EventsHero />
 
-      {/* Featured/Signature event — immediately after hero */}
+      {/* ── Featured/Signature event — only shows Signature treatment when actually tagged Signature ── */}
       {featured && (
         <section className="section-padding pt-10 pb-10 gradient-mesh-warm relative overflow-hidden">
           <div className="absolute inset-0 texture-dots" />
           <div className="max-w-5xl mx-auto relative z-10">
-            {featured.tags.includes("Signature") ? (
+            {isSignature ? (
               <SectionHeading title="Signature Event" label="Don't Miss" />
             ) : (
               <SectionHeading title="Featured Event" label="Coming Up" />
             )}
-            <FeaturedEventCard event={featured} />
+            <FeaturedEventCard event={featured} showSignatureBadge={isSignature} />
           </div>
         </section>
       )}
 
       <div className="glass-divider-thick" />
+
+      {/* ── Mobile: Coming Up sits ABOVE the calendar ── */}
+      <div className="md:hidden">{ComingUpBlock}</div>
 
       {/* Main events section */}
       <section className="section-padding warm-surface relative overflow-hidden">
@@ -110,23 +150,32 @@ const Events = () => {
             <div className="flex items-center gap-2 text-xs text-muted-foreground/60 font-body">
               <span
                 className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                style={{ background: lastSyncedAt && Date.now() - lastSyncedAt < 10 * 60 * 1000 ? "#148066" : "#F2AB23" }}
+                style={{
+                  background:
+                    lastSyncedAt && Date.now() - lastSyncedAt < 10 * 60 * 1000
+                      ? "#148066"
+                      : "#F2AB23",
+                }}
               />
-              {lastSyncedAt
-                ? `Synced ${formatDistanceToNow(new Date(lastSyncedAt), { addSuffix: true })}`
-                : "Connecting to calendar…"}
+              {lastSyncedAt ? (
+                <RelativeTime at={lastSyncedAt} />
+              ) : loading ? (
+                "Connecting to calendar…"
+              ) : (
+                "Calendar synced"
+              )}
               <button
                 onClick={refresh}
                 disabled={loading}
                 aria-label="Refresh calendar"
-                className="ml-1 hover:text-primary transition-colors disabled:opacity-40"
+                className="ml-1 hover:text-primary transition-colors disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-msa-gold/60 rounded"
               >
                 <RefreshCw size={11} className={loading ? "animate-spin" : ""} />
               </button>
             </div>
           </div>
 
-          {/* Mobile calendar subscribe — above event list */}
+          {/* Mobile calendar subscribe */}
           <div className="md:hidden flex justify-center gap-3 mb-4">
             <a href={LINKS.googleCalendarSubscribe} target="_blank" rel="noopener noreferrer"
               className="btn-premium-secondary text-sm px-4 py-2 flex-1 justify-center">
@@ -138,12 +187,10 @@ const Events = () => {
             </a>
           </div>
 
-          {/* Filter bar — sticky in agenda view */}
           <div className={`flex justify-center mb-6 ${view === "agenda" ? "sticky top-[68px] md:top-[76px] z-30 py-2 backdrop-blur-sm" : ""}`}>
             <EventsFilterBar selected={selectedTags} onChange={setSelectedTags} />
           </div>
 
-          {/* Active view */}
           {loading && !error ? (
             <div className="glass-card-strong p-16 text-center rounded-2xl">
               <div className="flex flex-col items-center gap-3">
@@ -157,7 +204,6 @@ const Events = () => {
             <MonthCalendar events={filteredEvents} />
           )}
 
-          {/* Sync calendar — desktop only, below the calendar */}
           <div className="hidden md:flex flex-wrap items-center gap-3 mt-5 pt-4 border-t border-border/30">
             <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">
               Sync to your calendar:
@@ -194,49 +240,18 @@ const Events = () => {
         </div>
       </section>
 
-      {/* Upcoming events — horizontal scroll of cards */}
-      {upcoming.length > 0 && (
-        <section className="section-padding warm-surface-deep relative overflow-hidden">
-          <div className="absolute inset-0 gradient-section-gold-soft opacity-70" />
-          <div className="max-w-5xl mx-auto relative z-10">
-            <div className="flex items-center gap-3 mb-6">
-              <h3 className="font-display text-2xl md:text-3xl font-bold text-foreground">Coming Up</h3>
-              <span className="liquid-glass text-xs font-bold text-primary px-3 py-1 rounded-full">
-                {upcoming.length} event{upcoming.length !== 1 ? "s" : ""}
-              </span>
-            </div>
+      {/* ── Desktop: Coming Up sits BELOW the calendar ── */}
+      <div className="hidden md:block">{ComingUpBlock}</div>
 
-            <div
-              ref={upcomingScrollRef}
-              className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide"
-              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-            >
-              {upcoming.map((event, i) => (
-                <motion.div
-                  key={event.id}
-                  initial={prefersReduced ? false : { opacity: 0, x: 20 }}
-                  whileInView={prefersReduced ? undefined : { opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.06, duration: 0.4 }}
-                  className="flex-shrink-0 w-[280px] md:w-[320px] snap-start"
-                >
-                  <EventCard event={event} index={i} />
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Closing ayat */}
+      {/* ── Closing — Hadith on gathering for remembrance ── */}
       <section className="section-padding-sm gradient-section-emerald-soft relative overflow-hidden">
         <div className="absolute inset-0 opacity-[0.025]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: '200px' }} />
         <div className="max-w-2xl mx-auto relative z-10">
           <div className="glass-card-strong glass-glow p-7">
             <ArabicVerse
-              arabic="وَسَارِعُوا إِلَىٰ مَغْفِرَةٍ مِّن رَّبِّكُمْ وَجَنَّةٍ"
-              translation="And hasten toward forgiveness from your Lord and a Garden."
-              reference="Quran 3:133"
+              arabic="مَا اجْتَمَعَ قَوْمٌ يَذْكُرُونَ اللَّهَ إِلَّا حَفَّتْهُمُ الْمَلَائِكَةُ"
+              translation="No people gather to remember Allah without the angels surrounding them, mercy enveloping them, and tranquility descending upon them."
+              reference="Hadith · Muslim 2700"
             />
           </div>
         </div>
