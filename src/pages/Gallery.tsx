@@ -93,7 +93,7 @@ const Gallery = () => {
             animate={{ opacity: 1, y: 0 }}
             className="font-display text-5xl md:text-7xl font-bold text-foreground mb-4"
           >
-            Event <span className="text-gradient-gold">Gallery</span>
+            Event <span className="text-gradient-gold inline-block pb-1">Gallery</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 10 }}

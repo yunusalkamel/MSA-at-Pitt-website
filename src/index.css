@@ -698,6 +698,13 @@
   .parallax-layer { will-change: transform; transform: translateZ(0); }
   .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
   .scrollbar-hide::-webkit-scrollbar { display: none; }
+
+  /* Footer links — white/45 at rest, jannah-mid on hover */
+  .footer-link {
+    color: rgba(255, 255, 255, 0.45);
+    transition: color 0.2s ease;
+  }
+  .footer-link:hover { color: #148066; }
 }
 
 /* ══════════════════════════════════════════════════════════════════

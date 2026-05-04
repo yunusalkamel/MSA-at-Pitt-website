@@ -65,7 +65,7 @@ const StatItem = ({
   return (
     <div ref={ref} className={`text-center px-2 md:px-5 py-3.5 md:py-3 flex flex-col items-center gap-0.5 ${bordered ? "border-r border-border/30" : ""}`}>
       <p className="eyebrow text-ink/50 dark:text-white/40 mb-0.5">{label}</p>
-      <p className="font-mono font-bold text-gradient-gold leading-none text-2xl md:text-4xl lg:text-5xl">
+      <p className="font-mono font-bold text-gradient-gold leading-none text-2xl md:text-4xl lg:text-5xl pb-1">
         {display}
       </p>
       <p className="font-body text-muted-foreground text-[10px] leading-tight mt-0.5">{sub}</p>
@@ -156,7 +156,7 @@ const Index = () => {
             transition={{ delay: 0.65, duration: 0.7 }}
             className="mb-5"
           >
-            <span className="font-script text-gradient-gold inline-block" style={{ fontSize: "clamp(3.4rem, 9.5vw, 7.5rem)", lineHeight: 1.15 }}>
+            <span className="font-script text-gradient-gold inline-block pb-2" style={{ fontSize: "clamp(3.4rem, 9.5vw, 7.5rem)", lineHeight: 1.15 }}>
               From Home.
             </span>
           </motion.div>
@@ -470,7 +470,7 @@ const Index = () => {
                 visible: { transition: { staggerChildren: 0.1, delayChildren: 0.05 } },
               }}
             >
-              <p className="font-display italic text-gradient-gold text-xl mb-6 tracking-wide">
+              <p className="font-display italic text-gradient-gold inline-block pb-1 text-xl mb-6 tracking-wide">
                 Cultivate Community.
               </p>
 
@@ -503,7 +503,7 @@ const Index = () => {
                 visible: { transition: { staggerChildren: 0.1, delayChildren: 0.12 } },
               }}
             >
-              <p className="font-display italic text-gradient-aura text-xl mb-6 tracking-wide">
+              <p className="font-display italic text-gradient-aura inline-block pb-1 text-xl mb-6 tracking-wide">
                 Ignite Iman.
               </p>
 
@@ -551,7 +551,7 @@ const Index = () => {
             <div className="my-1 py-2 -mx-8 overflow-visible">
               <span
                 className="font-script text-gradient-gold inline-block"
-                style={{ fontSize: "clamp(3.2rem, 9vw, 6rem)", lineHeight: 1.25, paddingLeft: "0.3em", paddingRight: "0.4em" }}
+                style={{ fontSize: "clamp(3.2rem, 9vw, 6rem)", lineHeight: 1.25, paddingLeft: "0.3em", paddingRight: "0.4em", paddingBottom: "0.1em" }}
               >
                 your people?
               </span>
@@ -605,7 +605,7 @@ const Index = () => {
                 Cultivate Community,
               </h2>
               <div className="mb-5">
-                <span className="font-display italic text-gradient-aura inline-block" style={{ fontSize: "clamp(2.6rem, 5.5vw, 4.2rem)", lineHeight: 1.15 }}>
+                <span className="font-display italic text-gradient-aura inline-block" style={{ fontSize: "clamp(2.6rem, 5.5vw, 4.2rem)", lineHeight: 1.15, paddingBottom: "0.1em" }}>
                   Ignite Iman.
                 </span>
               </div>

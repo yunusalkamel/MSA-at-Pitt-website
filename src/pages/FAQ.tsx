@@ -116,7 +116,7 @@ const FAQ = () => (
           Resources
         </motion.p>
         <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="font-display text-5xl md:text-7xl font-bold text-foreground mb-4">
-          Frequently Asked <span className="text-gradient-gold">Questions</span>
+          Frequently Asked <span className="text-gradient-gold inline-block pb-1">Questions</span>
         </motion.h1>
         <motion.p initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="font-satoshi text-muted-foreground text-lg max-w-xl mx-auto leading-relaxed">
           Everything you need to know about MSA at Pitt.

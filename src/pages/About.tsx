@@ -50,7 +50,7 @@ const About = () => {
             transition={{ delay: 0.18, duration: 0.6 }}
             className="font-display text-5xl font-bold text-accent-foreground mb-4 md:text-7xl tracking-tight"
           >
-            We're the MSA <span className="text-gradient-gold italic">at Pitt.</span>
+            We're the MSA <span className="text-gradient-gold italic inline-block pb-1">at Pitt.</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 16 }}
@@ -91,7 +91,7 @@ const About = () => {
                 <div className="w-1 h-1 rounded-full bg-primary/50" />
                 <div className="flex-1 h-px bg-gradient-to-l from-transparent to-primary/35" />
               </div>
-              <p className="font-arabic text-3xl md:text-4xl text-gradient-gold" dir="rtl">
+              <p className="font-arabic text-3xl md:text-4xl text-gradient-gold inline-block pb-2" dir="rtl">
                 بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
               </p>
               <div className="flex items-center gap-3 w-40">
@@ -128,7 +128,7 @@ const About = () => {
               transition={{ delay: 0.15, duration: 0.55 }}
             >
               <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-6">
-                Who We <span className="text-gradient-gold">Are</span>
+                Who We <span className="text-gradient-gold inline-block pb-1">Are</span>
               </h2>
               <p className="font-dm-sans text-muted-foreground text-lg leading-relaxed mb-4">
                 MSA at Pitt is one of the University of Pittsburgh's largest and most active student organizations. We host everything from weekly halaqas and Friday Jummah to TopGolf outings, Eid celebrations, and iftars that fill entire halls.
@@ -169,7 +169,7 @@ const About = () => {
           <div className="grid md:grid-cols-2 gap-10 md:gap-16">
             {/* Left — Cultivate Community */}
             <div>
-              <p className="font-display italic text-gradient-gold text-xl mb-6 tracking-wide">Cultivate Community.</p>
+              <p className="font-display italic text-gradient-gold inline-block pb-1 text-xl mb-6 tracking-wide">Cultivate Community.</p>
               <div className="grid sm:grid-cols-2 gap-5">
                 {communityCards.map((item, i) => (
                   <GlassCard key={item.title} delay={i * 0.08}>
@@ -184,7 +184,7 @@ const About = () => {
             </div>
             {/* Right — Ignite Iman */}
             <div>
-              <p className="font-display italic text-gradient-aura text-xl mb-6 tracking-wide">Ignite Iman.</p>
+              <p className="font-display italic text-gradient-aura inline-block pb-1 text-xl mb-6 tracking-wide">Ignite Iman.</p>
               <div className="grid sm:grid-cols-2 gap-5">
                 {imanCards.map((item, i) => (
                   <GlassCard key={item.title} delay={0.16 + i * 0.08}>

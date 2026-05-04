@@ -542,7 +542,7 @@ const PrayerTimes = () => {
         <div className="relative z-10 max-w-3xl mx-auto">
           <motion.p initial={{opacity:0}} animate={{opacity:1}} className="text-xs uppercase tracking-[0.3em] text-primary font-semibold mb-5">Pittsburgh</motion.p>
           <motion.h1 initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} className="font-display text-5xl md:text-7xl font-bold text-foreground mb-4">
-            Prayer <span className="text-gradient-gold">Times</span>
+            Prayer <span className="text-gradient-gold inline-block pb-1">Times</span>
           </motion.h1>
           <motion.p initial={{opacity:0,y:14}} animate={{opacity:1,y:0}} transition={{delay:.2}} className="text-muted-foreground text-lg max-w-xl mx-auto leading-relaxed">
             Annual timing trends for the Pittsburgh area

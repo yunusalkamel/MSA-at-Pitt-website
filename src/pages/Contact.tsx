@@ -73,7 +73,7 @@ const Contact = () => {
             className="font-display text-5xl md:text-7xl font-bold text-foreground mb-6 leading-tight"
           >
             We read every message,{" "}
-            <span className="text-gradient-gold italic">insha'Allah.</span>
+            <span className="text-gradient-gold italic inline-block pb-1">insha'Allah.</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 16 }}

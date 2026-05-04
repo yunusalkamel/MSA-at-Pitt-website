@@ -50,7 +50,7 @@ const EventsHero = () => {
           transition={{ duration: 0.6 }}
           className="font-display text-5xl md:text-7xl font-bold text-accent-foreground mb-5"
         >
-          Our <span className="text-gradient-gold">Events</span>
+          Our <span className="text-gradient-gold inline-block pb-1">Events</span>
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: 20 }}

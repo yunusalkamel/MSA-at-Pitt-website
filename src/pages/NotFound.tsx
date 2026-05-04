@@ -18,7 +18,7 @@ const NotFound = () => (
         className="relative z-10 w-full max-w-lg"
       >
         <div className="glass-card-strong glass-glow p-8 md:p-12 text-center">
-          <p className="font-display text-7xl md:text-8xl font-bold text-gradient-gold mb-2">404</p>
+          <p className="font-display text-7xl md:text-8xl font-bold text-gradient-gold inline-block pb-2 mb-2">404</p>
           <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-3">Page Not Found</h1>
           <p className="text-muted-foreground text-base mb-8 leading-relaxed">
             The page you're looking for may have moved or doesn't exist. Let's get you back on track.

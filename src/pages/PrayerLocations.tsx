@@ -76,7 +76,7 @@ const PrayerLocations = () => (
           Resources
         </motion.p>
         <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="font-display text-5xl md:text-7xl font-bold text-foreground mb-4">
-          Prayer <span className="text-gradient-gold">Locations</span>
+          Prayer <span className="text-gradient-gold inline-block pb-1">Locations</span>
         </motion.h1>
         <motion.p initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-muted-foreground text-lg max-w-xl mx-auto leading-relaxed">
           On-campus prayer spaces and nearby masajid for the Pitt community.

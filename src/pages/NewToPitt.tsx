@@ -136,7 +136,7 @@ const NewToPitt = () => (
           Resources
         </motion.p>
         <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="font-display text-5xl md:text-7xl font-bold text-foreground mb-4">
-          New to <span className="text-gradient-gold">Pitt?</span>
+          New to <span className="text-gradient-gold inline-block pb-1">Pitt?</span>
         </motion.h1>
         <motion.p initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-muted-foreground text-lg max-w-xl mx-auto leading-relaxed">
           Tips from MSA students who were sitting exactly where you are not too long ago. Take what's useful and don't hesitate to reach out.
