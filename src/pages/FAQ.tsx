@@ -7,13 +7,16 @@ import BridgeBar from "@/components/BridgeBar";
 import SectionDivider from "@/components/SectionDivider";
 import ArabicVerse from "@/components/ArabicVerse";
 import patternImg from "@/assets/islamic-pattern.jpg";
+import { useSanityData } from "@/hooks/useSanityData";
+import { QUERIES } from "@/lib/sanity";
 
 interface FAQItem {
   q: string;
   a: string;
 }
 
-const faqs: FAQItem[] = [
+// ── Fallback content (shown while Sanity loads or if fetch fails) ──────────────
+const FALLBACK_FAQS: FAQItem[] = [
   {
     q: "Do I have to be Muslim to join MSA?",
     a: "Not at all. MSA at Pitt is open to absolutely everyone — Muslim or not, practicing or not, curious or committed. We mean it when we say everyone is welcome.",
@@ -60,42 +63,41 @@ const faqs: FAQItem[] = [
   },
 ];
 
-const AccordionItem = ({ item, index }: { item: FAQItem; index: number }) => {
+const FAQItem = ({ item, index }: { item: FAQItem; index: number }) => {
   const [open, setOpen] = useState(false);
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.35, delay: index * 0.04 }}
-      className="liquid-glass-hover rounded-2xl overflow-hidden"
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.04 }}
+      className="border border-border/50 rounded-2xl overflow-hidden"
     >
       <button
-        onClick={() => setOpen((o) => !o)}
-        className="w-full text-left px-6 py-5 flex items-center justify-between gap-4"
+        onClick={() => setOpen((v) => !v)}
+        className="w-full flex items-center justify-between gap-4 p-5 md:p-6 text-left bg-background/60 hover:bg-background/90 transition-colors"
         aria-expanded={open}
       >
-        <span className="font-display text-base md:text-lg font-semibold text-foreground leading-snug pr-4">
+        <span className="font-display text-base md:text-lg font-semibold text-foreground">
           {item.q}
         </span>
         <ChevronDown
           size={18}
-          className={`text-primary flex-shrink-0 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          className={`flex-shrink-0 text-primary transition-transform duration-300 ${open ? "rotate-180" : ""}`}
         />
       </button>
-      <AnimatePresence initial={false}>
+      <AnimatePresence>
         {open && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25, ease: "easeInOut" }}
+            transition={{ duration: 0.22, ease: "easeInOut" }}
             className="overflow-hidden"
           >
-            <div className="px-6 pb-5 pt-0">
-              <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed">{item.a}</p>
-            </div>
+            <p className="px-5 md:px-6 pb-5 md:pb-6 pt-1 font-body text-muted-foreground text-sm md:text-base leading-relaxed">
+              {item.a}
+            </p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -103,61 +105,82 @@ const AccordionItem = ({ item, index }: { item: FAQItem; index: number }) => {
   );
 };
 
-const FAQ = () => (
-  <Layout>
-    {/* Hero */}
-    <section className="relative py-28 md:py-36 text-center px-4 overflow-hidden">
-      <div className="absolute inset-0 gradient-mesh-gold" />
-      <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: "200px" }} />
-          
+const FAQ = () => {
+  const { data: sanityFAQs } = useSanityData<{ question: string; answer: string }[]>(
+    QUERIES.faqItems
+  );
+
+  // Map Sanity shape → local shape, or fall back to hardcoded list
+  const faqs: FAQItem[] =
+    sanityFAQs && sanityFAQs.length > 0
+      ? sanityFAQs.map((item) => ({ q: item.question, a: item.answer }))
+      : FALLBACK_FAQS;
+
+  return (
+    <Layout>
+      {/* Hero */}
+      <section className="relative py-32 md:py-40 overflow-hidden">
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: "200px" }} />
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-secondary/5" />
           <BridgeBar />
-      <div className="relative z-10 max-w-3xl mx-auto">
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="font-body text-xs uppercase tracking-[0.3em] text-primary font-semibold mb-5">
-          Resources
-        </motion.p>
-        <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="font-display text-5xl md:text-7xl font-bold text-foreground mb-4">
-          Frequently Asked <span className="text-gradient-gold inline-block pb-1">Questions</span>
-        </motion.h1>
-        <motion.p initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="font-satoshi text-muted-foreground text-lg max-w-xl mx-auto leading-relaxed">
-          Everything you need to know about MSA at Pitt.
-        </motion.p>
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }} className="mt-6">
-          <Link to="/resources" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
-            <ArrowLeft size={14} /> Back to Resources
-          </Link>
-        </motion.div>
-      </div>
-    </section>
-
-    <SectionDivider />
-
-    {/* FAQ Accordion */}
-    <section className="section-padding relative overflow-hidden">
-      <div className="absolute inset-0 steps-surface" />
-      <div className="absolute inset-0 texture-dots opacity-50" />
-      
-      <div className="max-w-3xl mx-auto relative z-10 space-y-3">
-        {faqs.map((item, i) => (
-          <AccordionItem key={i} item={item} index={i} />
-        ))}
-      </div>
-    </section>
-
-    <SectionDivider />
-
-    {/* Closing */}
-    <section className="section-padding-sm gradient-section-gold-soft">
-      <div className="max-w-2xl mx-auto">
-        <div className="glass-card-strong glass-glow p-8 md:p-12">
-          <ArabicVerse
-            arabic="فَاسْأَلُوا أَهْلَ الذِّكْرِ إِن كُنتُمْ لَا تَعْلَمُونَ"
-            translation="So ask the people of knowledge if you do not know."
-            reference="Quran 16:43"
-          />
         </div>
-      </div>
-    </section>
-  </Layout>
-);
+        <div className="relative z-10 text-center px-4 max-w-3xl mx-auto">
+          <motion.h1
+            initial={{ opacity: 0, y: 28 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="font-display text-5xl md:text-7xl font-bold text-foreground mb-4"
+          >
+            Got <span className="text-gradient-gold italic inline-block pb-1">questions?</span>
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="font-satoshi text-xl text-muted-foreground"
+          >
+            We've tried to answer everything. If you don't see your question here, reach out.
+          </motion.p>
+        </div>
+      </section>
+
+      {/* FAQ List */}
+      <section className="section-padding relative">
+        <div className="absolute inset-0 steps-surface" />
+        <div className="max-w-3xl mx-auto relative z-10">
+          <div className="flex flex-col gap-3">
+            {faqs.map((item, i) => (
+              <FAQItem key={i} item={item} index={i} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <SectionDivider />
+
+      <section className="section-padding-sm gradient-section-gold-soft">
+        <div className="max-w-2xl mx-auto">
+          <div className="glass-card-strong glass-glow p-8 md:p-12">
+            <ArabicVerse
+              arabic="وَإِذَا سَأَلَكَ عِبَادِي عَنِّي فَإِنِّي قَرِيبٌ"
+              translation="When My servants ask about Me, I am near."
+              reference="Quran 2:186"
+            />
+          </div>
+        </div>
+      </section>
+
+      <section className="section-padding-sm text-center">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 font-body text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ArrowLeft size={14} />
+          Back to home
+        </Link>
+      </section>
+    </Layout>
+  );
+};
 
 export default FAQ;

@@ -7,7 +7,10 @@ import ArabicVerse from "@/components/ArabicVerse";
 import CrescentWatermark from "@/components/CrescentWatermark";
 import BridgeBar from "@/components/BridgeBar";
 import patternImg from "@/assets/islamic-pattern.jpg";
+import { useSanityData } from "@/hooks/useSanityData";
+import { QUERIES, urlFor } from "@/lib/sanity";
 
+// Local fallback images (used while Sanity loads or if fetch fails)
 import kickoffImg from "@/assets/gallery-kickoff.jpg";
 import iftarImg from "@/assets/gallery-iftar.jpg";
 import eidImg from "@/assets/gallery-eid.jpg";
@@ -17,31 +20,40 @@ import sistersImg from "@/assets/gallery-sisters.jpg";
 
 type FilterCategory = "all" | "fall" | "spring" | "weekly" | "special";
 
-interface GalleryEvent {
+interface GalleryAlbum {
   title: string;
-  photos: number;
+  photoCount?: number;
   category: FilterCategory[];
-  tag: string;
-  image: string;
-  link?: string;
+  audience?: string;
+  albumUrl?: string;
+  coverImage?: string; // resolved URL from Sanity or local import
+  _raw?: unknown; // raw Sanity image ref for urlFor
 }
 
-const galleryEvents: GalleryEvent[] = [
-  { title: "MSA Fall Kickoff 2025", photos: 120, category: ["fall"], tag: "Brothers & Sisters", image: kickoffImg },
-  { title: "Ramadan Iftar Night", photos: 85, category: ["spring"], tag: "Brothers & Sisters", image: iftarImg },
-  { title: "Eid Social 2026", photos: 64, category: ["spring", "special"], tag: "Brothers & Sisters", image: eidImg },
-  { title: "MSA TopGolf Night", photos: 42, category: ["spring", "special"], tag: "Brothers & Sisters", image: topgolfImg },
-  { title: "Weekly Halaqa", photos: 30, category: ["weekly"], tag: "Brothers & Sisters", image: halaqaImg },
-  { title: "Sisters' Social Night", photos: 38, category: ["fall", "special"], tag: "Sisters", image: sistersImg },
+// ── Fallback data ─────────────────────────────────────────────────────────────
+const FALLBACK_ALBUMS: GalleryAlbum[] = [
+  { title: "MSA Fall Kickoff 2025", photoCount: 120, category: ["fall"], audience: "Brothers & Sisters", coverImage: kickoffImg },
+  { title: "Ramadan Iftar Night", photoCount: 85, category: ["spring"], audience: "Brothers & Sisters", coverImage: iftarImg },
+  { title: "Eid Social 2026", photoCount: 64, category: ["spring", "special"], audience: "Brothers & Sisters", coverImage: eidImg },
+  { title: "MSA TopGolf Night", photoCount: 42, category: ["spring", "special"], audience: "Brothers & Sisters", coverImage: topgolfImg },
+  { title: "Weekly Halaqa", photoCount: 30, category: ["weekly"], audience: "Brothers & Sisters", coverImage: halaqaImg },
+  { title: "Sisters' Social Night", photoCount: 38, category: ["fall", "special"], audience: "Sisters", coverImage: sistersImg },
 ];
 
 const filters: { key: FilterCategory; label: string; icon: typeof Grid3X3 }[] = [
   { key: "all", label: "All Events", icon: Grid3X3 },
-  { key: "fall", label: "Fall 2025", icon: Leaf },
-  { key: "spring", label: "Spring 2026", icon: Sun },
+  { key: "fall", label: "Fall", icon: Leaf },
+  { key: "spring", label: "Spring", icon: Sun },
   { key: "weekly", label: "MSA Weekly", icon: Calendar },
   { key: "special", label: "Special Events", icon: Star },
 ];
+
+const categoryLabel = (album: GalleryAlbum) => {
+  if (album.category.includes("special")) return "✨ Special";
+  if (album.category.includes("weekly")) return "📅 Weekly";
+  if (album.category[0] === "fall") return "🍂 Fall";
+  return "🌸 Spring";
+};
 
 const Gallery = () => {
   usePageMeta({
@@ -56,37 +68,44 @@ const Gallery = () => {
   const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
   const contentOpacity = useTransform(scrollYProgress, [0, 0.75], [1, 0]);
 
+  // ── Sanity data ─────────────────────────────────────────────────────────────
+  const { data: sanityAlbums } = useSanityData<
+    { title: string; coverImage: unknown; photoCount?: number; category: string[]; audience?: string; albumUrl?: string }[]
+  >(QUERIES.galleryAlbums);
+
+  const albums: GalleryAlbum[] =
+    sanityAlbums && sanityAlbums.length > 0
+      ? sanityAlbums.map((a) => ({
+          title: a.title,
+          photoCount: a.photoCount,
+          category: (a.category ?? []) as FilterCategory[],
+          audience: a.audience,
+          albumUrl: a.albumUrl,
+          // Build a 800×500 CDN URL from the Sanity image reference
+          coverImage: a.coverImage
+            ? urlFor(a.coverImage).width(800).height(500).fit("crop").auto("format").url()
+            : undefined,
+        }))
+      : FALLBACK_ALBUMS;
+
   const filtered =
     activeFilter === "all"
-      ? galleryEvents
-      : galleryEvents.filter((e) => e.category.includes(activeFilter));
-
-  const categoryLabel = (event: GalleryEvent) => {
-    if (event.category.includes("special")) return "✨ Special";
-    if (event.category.includes("weekly")) return "📅 Weekly";
-    if (event.category[0] === "fall") return "🍂 Fall";
-    return "🌸 Spring";
-  };
+      ? albums
+      : albums.filter((a) => a.category.includes(activeFilter));
 
   return (
     <Layout>
-      {/* Hero — consolidated into a single parallax section */}
+      {/* Hero */}
       <section ref={heroRef} className="relative min-h-[50vh] flex flex-col items-center justify-center pt-28 pb-16 md:pt-36 md:pb-20 text-center px-4 overflow-hidden">
         <motion.div className="absolute inset-0" style={{ y: bgY }}>
           <div className="absolute inset-0 bg-accent" />
-          <div
-            className="absolute inset-0 opacity-[0.04]"
-            style={{ backgroundImage: `url(${patternImg})`, backgroundSize: "200px" }}
-          />
-
+          <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: "200px" }} />
           <BridgeBar />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/[0.04] to-transparent" />
           <div className="absolute top-1/3 left-1/5 w-64 h-64 rounded-full bg-primary/10 blur-[90px]" />
           <div className="absolute bottom-1/4 right-1/4 w-56 h-56 rounded-full bg-secondary/8 blur-[80px]" />
         </motion.div>
-        {/* Crescent watermark */}
         <CrescentWatermark color="#F2AB23" size={260} opacity={0.06} position="right" />
-
         <motion.div className="relative z-10 max-w-3xl mx-auto" style={{ opacity: contentOpacity }}>
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
@@ -133,9 +152,9 @@ const Gallery = () => {
       <section className="section-padding relative">
         <div className="absolute inset-0 steps-surface" />
         <div className="absolute inset-0 texture-dots opacity-60" />
-
         <div className="absolute top-0 right-1/4 w-96 h-96 rounded-full bg-primary/[0.06] blur-[120px]" />
         <div className="absolute bottom-0 left-1/4 w-80 h-80 rounded-full bg-secondary/[0.05] blur-[100px]" />
+
         <div className="max-w-6xl mx-auto relative z-10 pb-4">
           <AnimatePresence>
             <motion.div
@@ -146,42 +165,56 @@ const Gallery = () => {
               transition={{ duration: 0.2 }}
               className="grid md:grid-cols-2 gap-6 md:gap-8"
             >
-              {/* CMS-NOTE: Replace galleryEvents with Sanity query — type: GalleryAlbum, fields: title, coverImage, photoCount, tags, albumUrl */}
-              {filtered.map((event, i) => (
+              {filtered.map((album, i) => (
                 <motion.div
-                  key={event.title}
+                  key={album.title}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.04, duration: 0.25 }}
                   className="group relative rounded-2xl overflow-hidden shadow-xl cursor-pointer aspect-[16/10]"
                 >
-                  <img
-                    src={event.image}
-                    alt={event.title}
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    loading="lazy"
-                    width={800}
-                    height={500}
-                  />
+                  {album.coverImage && (
+                    <img
+                      src={album.coverImage}
+                      alt={album.title}
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      loading="lazy"
+                      width={800}
+                      height={500}
+                    />
+                  )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
                   <div className="absolute inset-0 bg-gradient-to-t from-primary/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
                   <div className="absolute bottom-0 left-0 right-0 p-5 md:p-7 z-10">
                     <h3 className="font-display text-xl md:text-2xl font-bold text-white mb-1 drop-shadow-lg">
-                      {event.title}
+                      {album.title}
                     </h3>
                     <p className="text-white/75 text-sm mb-4">
-                      {event.photos} photos · {event.tag}
+                      {album.photoCount ? `${album.photoCount} photos · ` : ""}{album.audience ?? "Brothers & Sisters"}
                     </p>
-                    <span className="inline-flex items-center gap-2 gold-gradient text-primary-foreground px-4 py-2 rounded-full text-sm font-semibold shadow-lg group-hover:scale-105 transition-transform duration-300">
-                      <Eye size={14} />
-                      View Photos
-                    </span>
+                    {album.albumUrl ? (
+                      <a
+                        href={album.albumUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 gold-gradient text-primary-foreground px-4 py-2 rounded-full text-sm font-semibold shadow-lg group-hover:scale-105 transition-transform duration-300"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Eye size={14} />
+                        View Photos
+                      </a>
+                    ) : (
+                      <span className="inline-flex items-center gap-2 gold-gradient text-primary-foreground px-4 py-2 rounded-full text-sm font-semibold shadow-lg">
+                        <Eye size={14} />
+                        View Photos
+                      </span>
+                    )}
                   </div>
 
                   <div className="absolute top-4 right-4 z-10">
                     <span className="liquid-glass-pill px-3 py-1 text-xs font-semibold text-foreground">
-                      {categoryLabel(event)}
+                      {categoryLabel(album)}
                     </span>
                   </div>
                 </motion.div>
