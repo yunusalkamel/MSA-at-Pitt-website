@@ -1,7 +1,6 @@
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { ArrowRight, CalendarPlus, Clock, ExternalLink, MapPin, X } from "lucide-react";
 import type { MSAEvent } from "@/data/events";
-import { LINKS } from "@/config/links";
 
 interface Props {
   event: MSAEvent | null;
@@ -12,8 +11,10 @@ const EventDetailSheet = ({ event, onClose }: Props) => {
   if (!event) return null;
 
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`;
-  const actionUrl = event.signupUrl || event.fullCalendarUrl || LINKS.linktree;
-  const isRsvp = !!event.signupUrl;
+
+  // Use the pre-computed clickUrl; show "RSVP" label only when there's an explicit RSVP URL
+  const actionUrl = event.clickUrl;
+  const isRsvp = !!event.rsvpUrl;
 
   return (
     <DialogPrimitive.Root open={!!event} onOpenChange={(open) => { if (!open) onClose(); }}>

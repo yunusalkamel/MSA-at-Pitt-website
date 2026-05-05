@@ -1,6 +1,25 @@
+import { parseDescription } from "./parse-description.ts";
+import { classifyByRules } from "./classify-rules.ts";
+
 const CALENDAR_ID = "2use05cacfd5hu3q2p49q9dvmc@group.calendar.google.com";
 const OUTPUT_TIMEZONE = "America/New_York";
 const PUBLIC_ICS_URL = `https://calendar.google.com/calendar/ical/${encodeURIComponent(CALENDAR_ID)}/public/basic.ics`;
+
+// Central MSA public Google Calendar URL — used as clickUrl fallback for Jummah/meetings
+// and as calendarFallbackUrl for all events.
+export const MSA_CALENDAR_URL =
+  "https://calendar.google.com/calendar/embed?src=2use05cacfd5hu3q2p49q9dvmc%40group.calendar.google.com&ctz=America%2FNew_York";
+
+// Linktree — default clickUrl when no RSVP link and event is not Jummah/meeting
+export const LINKTREE_URL = "https://linktr.ee/msa.at.pitt";
+
+// ── Shared types ───────────────────────────────────────────────
+type AudienceTag = "brothers" | "sisters" | "joint" | "general";
+type EventCategory =
+  | "jumuah" | "dawah" | "sports" | "social" | "halaqa"
+  | "signature" | "ramadan" | "career" | "service"
+  | "meeting" | "fundraiser" | "other";
+type EventTag = string;
 
 type MSAEvent = {
   id: string;
@@ -11,14 +30,41 @@ type MSAEvent = {
   location: string;
   shortBlurb: string;
   description?: string;
-  tags: string[];
-  audience?: "Brothers" | "Sisters" | "Mixed" | "Open to All";
+  // Structured classification
+  audience: AudienceTag;
+  categories: EventCategory[];
+  isSignature: boolean;
+  tagSource: "explicit" | "rules" | "ai" | "uncategorized";
+  confidence: number;
+  // URLs
+  rsvpUrl?: string;
+  googleCalendarUrl?: string;
+  calendarFallbackUrl: string;
+  clickUrl: string;
+  // Display
+  tags: EventTag[];
+  // Backward compat
   featured?: boolean;
   isPast?: boolean;
   ctaMode?: "rsvp" | "signup" | "join-now" | "view-photos" | "learn-more";
   signupUrl?: string;
   addToCalendarUrl?: string;
   fullCalendarUrl?: string;
+};
+
+export type ClassifiedBlock = {
+  block: Record<string, string>;
+  classification: SyncClassification;
+  needsAI: boolean;
+};
+
+export type SyncClassification = {
+  audience: AudienceTag;
+  categories: EventCategory[];
+  isSignature: boolean;
+  tagSource: "explicit" | "rules" | "uncategorized";
+  confidence: number;
+  rsvpUrl?: string;
 };
 
 export class CalendarFeedError extends Error {
@@ -31,6 +77,7 @@ export class CalendarFeedError extends Error {
   }
 }
 
+// ── Date/time formatters ───────────────────────────────────────
 const ymdFormatter = new Intl.DateTimeFormat("en-CA", {
   year: "numeric",
   month: "2-digit",
@@ -53,6 +100,7 @@ function toYMD(date: Date): string {
   return ymdFormatter.format(date);
 }
 
+// ── ICS text utilities ─────────────────────────────────────────
 function unfoldIcs(ics: string): string[] {
   const raw = ics.replace(/\r\n/g, "\n").split("\n");
   const lines: string[] = [];
@@ -74,7 +122,6 @@ function decodeText(value: string): string {
     .replace(/\\,/g, ",")
     .replace(/\\;/g, ";")
     .replace(/\\\\/g, "\\")
-    // Strip HTML tags (Google Calendar ICS sometimes includes <a>, <br>, etc.)
     .replace(/<br\s*\/?>/gi, "\n")
     .replace(/<[^>]+>/g, "")
     .replace(/&amp;/gi, "&")
@@ -85,6 +132,7 @@ function decodeText(value: string): string {
     .trim();
 }
 
+// ── Timezone helpers ───────────────────────────────────────────
 function getOffsetMs(date: Date, timeZone: string): number {
   const parts = new Intl.DateTimeFormat("en-US", {
     timeZone,
@@ -131,11 +179,9 @@ function parseDateToken(token: string, tzid?: string): Date | null {
     const y = Number(clean.slice(0, 4));
     const m = Number(clean.slice(4, 6));
     const d = Number(clean.slice(6, 8));
-    // Use noon UTC so timezone formatting does not shift this all-day date to the prior day.
     return new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
   }
 
-  // UTC format: 20260410T140000Z
   if (/^\d{8}T\d{6}Z$/.test(clean)) {
     const y = Number(clean.slice(0, 4));
     const m = Number(clean.slice(4, 6));
@@ -146,7 +192,6 @@ function parseDateToken(token: string, tzid?: string): Date | null {
     return new Date(Date.UTC(y, m - 1, d, hh, mm, ss));
   }
 
-  // Local time with TZID: 20260410T140000 (no Z)
   if (/^\d{8}T\d{6}$/.test(clean)) {
     const y = Number(clean.slice(0, 4));
     const m = Number(clean.slice(4, 6));
@@ -157,7 +202,6 @@ function parseDateToken(token: string, tzid?: string): Date | null {
     try {
       return zonedLocalToUtcDate(y, m, d, hh, mm, ss, tzid || OUTPUT_TIMEZONE);
     } catch {
-      // Fallback: treat as UTC
       return new Date(Date.UTC(y, m - 1, d, hh, mm, ss));
     }
   }
@@ -165,27 +209,7 @@ function parseDateToken(token: string, tzid?: string): Date | null {
   return null;
 }
 
-function inferAudience(summary: string): MSAEvent["audience"] {
-  const lower = summary.toLowerCase();
-  if (lower.includes("sisters")) return "Sisters";
-  if (lower.includes("brothers")) return "Brothers";
-  return "Open to All";
-}
-
-function inferTags(summary: string, description: string): string[] {
-  const blob = `${summary} ${description}`.toLowerCase();
-  const tags = new Set<string>(["Open to All"]);
-
-  if (blob.includes("halaqa") || blob.includes("quran") || blob.includes("tafsir")) tags.add("Education & Service");
-  if (blob.includes("career") || blob.includes("network")) tags.add("Careers");
-  if (blob.includes("speaker") || blob.includes("lecture") || blob.includes("panel")) tags.add("Speaker Event");
-  if (blob.includes("service") || blob.includes("volunteer")) tags.add("Education & Service");
-  if (blob.includes("social") || blob.includes("iftar") || blob.includes("eid") || blob.includes("banquet")) tags.add("Social");
-  if (blob.includes("dawah")) tags.add("Dawah");
-
-  return [...tags];
-}
-
+// ── Display helpers ────────────────────────────────────────────
 function formatTimeLabel(start: Date, end: Date | null, allDay: boolean): string {
   if (allDay) {
     return `${dayFormatter.format(start)} · All day`;
@@ -206,6 +230,90 @@ function extractExternalUrl(text: string): string | undefined {
   return undefined;
 }
 
+// ── Classification → display tags mapping ─────────────────────
+function deriveDisplayTags(
+  audience: AudienceTag,
+  categories: EventCategory[],
+  isSignature: boolean,
+): string[] {
+  const tags: string[] = [];
+
+  if (audience === "brothers") tags.push("Brothers");
+  else if (audience === "sisters") tags.push("Sisters");
+  else if (audience === "joint") tags.push("Joint");
+
+  for (const cat of categories) {
+    switch (cat) {
+      case "jumuah":     tags.push("Jummah"); break;
+      case "social":     tags.push("Social"); break;
+      case "dawah":      tags.push("Dawah"); break;
+      case "sports":     tags.push("Sports"); break;
+      case "halaqa":     tags.push("Halaqa"); break;
+      case "ramadan":    tags.push("Ramadan"); break;
+      case "career":     tags.push("Career"); break;
+      case "service":    tags.push("Service"); break;
+      case "signature":  break; // handled via isSignature below
+    }
+  }
+
+  if (isSignature) tags.push("Signature");
+
+  return [...new Set(tags)];
+}
+
+// ── Click URL computation ──────────────────────────────────────
+function computeClickUrl(
+  rsvpUrl: string | undefined,
+  categories: EventCategory[],
+  googleCalendarUrl: string | undefined,
+): string {
+  if (rsvpUrl) return rsvpUrl;
+  // Jummah and public meetings link to the calendar event (or MSA calendar page)
+  if (categories.includes("jumuah") || categories.includes("meeting")) {
+    return googleCalendarUrl ?? MSA_CALENDAR_URL;
+  }
+  return LINKTREE_URL;
+}
+
+// ── Per-event sync classification (no network calls) ──────────
+/**
+ * Classifies an event block synchronously using description hashtags then keyword rules.
+ * Returns the classification plus a `needsAI` flag when confidence is low.
+ */
+export function classifyIcsBlock(block: Record<string, string>): SyncClassification {
+  const title = decodeText(block.SUMMARY || "");
+  const description = decodeText(block.DESCRIPTION || "");
+  const location = decodeText(block.LOCATION || "");
+
+  // 1. Try explicit hashtags first
+  const parsed = parseDescription(description, title);
+  if (parsed.tagSource === "explicit") {
+    const audience: AudienceTag = parsed.audience ?? "general";
+    const categories: EventCategory[] = parsed.categories.length > 0 ? parsed.categories : ["other"];
+    return {
+      audience,
+      categories,
+      isSignature: parsed.isSignature,
+      tagSource: "explicit",
+      confidence: 1.0,
+      rsvpUrl: parsed.rsvpUrl,
+    };
+  }
+
+  // 2. Fall back to keyword rules
+  const rules = classifyByRules(title, description, location);
+  const needsAI = rules.confidence < 0.75;
+  return {
+    audience: rules.audience,
+    categories: rules.categories,
+    isSignature: rules.isSignature,
+    tagSource: needsAI ? "uncategorized" : "rules",
+    confidence: rules.confidence,
+    rsvpUrl: parsed.rsvpUrl, // RSVP URL from description even without hashtags
+  };
+}
+
+// ── ICS block normalization ────────────────────────────────────
 function parseWallClockParts(token: string): { year: number; month: number; day: number; hour: number; minute: number; second: number } | null {
   const clean = token.trim();
   if (!/^\d{8}T\d{6}Z?$/.test(clean)) return null;
@@ -220,7 +328,11 @@ function parseWallClockParts(token: string): { year: number; month: number; day:
   };
 }
 
-function normalizeIcsEvent(eventBlock: Record<string, string>, nowYmd: string): MSAEvent | null {
+export function normalizeIcsEvent(
+  eventBlock: Record<string, string>,
+  nowYmd: string,
+  classification: SyncClassification,
+): MSAEvent | null {
   const title = decodeText(eventBlock.SUMMARY || "MSA Event");
   const description = decodeText(eventBlock.DESCRIPTION || "More details coming soon.");
   const location = decodeText(eventBlock.LOCATION || "Location to be announced");
@@ -230,7 +342,6 @@ function normalizeIcsEvent(eventBlock: Record<string, string>, nowYmd: string): 
 
   if (!dtStartRaw) return null;
 
-  // Extract TZID if present
   const tzidMatch = (eventBlock.__DTSTART_META || "").match(/TZID=([^:;]+)/);
   const tzid = tzidMatch ? tzidMatch[1] : undefined;
 
@@ -243,12 +354,13 @@ function normalizeIcsEvent(eventBlock: Record<string, string>, nowYmd: string): 
   const allDay = /VALUE=DATE/.test(eventBlock.__DTSTART_META || "") || /^\d{8}$/.test(dtStartRaw);
   const startDate = toYMD(start);
 
-  const directUrl = decodeText(eventBlock.URL || "");
-  const signupUrl =
-    extractExternalUrl(directUrl) ||
-    extractExternalUrl(eventBlock.DESCRIPTION || "") ||
-    extractExternalUrl(description) ||
-    extractExternalUrl(location);
+  // Google Calendar event URL from the ICS URL field (may be absent for recurring instances)
+  const directUrlRaw = decodeText(eventBlock.URL || "");
+  const googleCalendarUrl = extractExternalUrl(directUrlRaw) || undefined;
+
+  const { audience, categories, isSignature, tagSource, confidence, rsvpUrl } = classification;
+  const clickUrl = computeClickUrl(rsvpUrl, categories, googleCalendarUrl);
+  const tags = deriveDisplayTags(audience, categories, isSignature);
 
   return {
     id: decodeText(eventBlock.UID || `${startDate}-${title}`),
@@ -259,16 +371,29 @@ function normalizeIcsEvent(eventBlock: Record<string, string>, nowYmd: string): 
     location,
     shortBlurb: description,
     description,
-    tags: inferTags(title, description),
-    audience: inferAudience(title),
+    // Structured
+    audience,
+    categories,
+    isSignature,
+    tagSource,
+    confidence,
+    // URLs
+    rsvpUrl,
+    googleCalendarUrl,
+    calendarFallbackUrl: MSA_CALENDAR_URL,
+    clickUrl,
+    // Display
+    tags,
+    // Backward compat
     isPast: startDate < nowYmd,
-    ctaMode: signupUrl ? "signup" : "learn-more",
-    signupUrl,
+    ctaMode: rsvpUrl ? "signup" : "learn-more",
+    signupUrl: rsvpUrl,
     addToCalendarUrl: `https://calendar.google.com/calendar/u/0/r?cid=${encodeURIComponent(CALENDAR_ID)}`,
-    fullCalendarUrl: `https://calendar.google.com/calendar/u/0/r?cid=${encodeURIComponent(CALENDAR_ID)}`,
+    fullCalendarUrl: clickUrl,
   };
 }
 
+// ── ICS parsing ────────────────────────────────────────────────
 function parseIcsEvents(icsText: string): Record<string, string>[] {
   const lines = unfoldIcs(icsText);
   const events: Record<string, string>[] = [];
@@ -312,19 +437,17 @@ function parseIcsEvents(icsText: string): Record<string, string>[] {
   return events;
 }
 
+// ── RRULE expansion ────────────────────────────────────────────
 const DAY_TO_UTC_INDEX: Record<string, number> = {
-  SU: 0,
-  MO: 1,
-  TU: 2,
-  WE: 3,
-  TH: 4,
-  FR: 5,
-  SA: 6,
+  SU: 0, MO: 1, TU: 2, WE: 3, TH: 4, FR: 5, SA: 6,
 };
 
 function utcDayStart(date: Date): Date {
   return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
 }
+
+// utcDayStart is defined but used only as a helper — suppress unused warning via reference
+void utcDayStart;
 
 function localWeekday(date: Date, timeZone: string): number {
   const token = new Intl.DateTimeFormat("en-US", {
@@ -354,26 +477,19 @@ function formatUtcToken(date: Date): string {
   return `${date.getUTCFullYear()}${pad(date.getUTCMonth() + 1)}${pad(date.getUTCDate())}T${pad(date.getUTCHours())}${pad(date.getUTCMinutes())}${pad(date.getUTCSeconds())}Z`;
 }
 
-// ── RRULE expansion ──────────────────────────────────────────
 function expandRecurringEvents(events: Record<string, string>[]): Record<string, string>[] {
   const expanded: Record<string, string>[] = [];
-  const MAX_HORIZON_MS = 365 * 24 * 60 * 60 * 1000; // 1 year ahead
+  const MAX_HORIZON_MS = 365 * 24 * 60 * 60 * 1000;
   const horizonDate = new Date(Date.now() + MAX_HORIZON_MS);
 
-  // ── Collect RECURRENCE-ID overrides ────────────────────────
-  // When a single instance of a recurring event is edited in Google Calendar,
-  // a new VEVENT is created with the same UID and a RECURRENCE-ID pointing to
-  // the original date. We must skip that date during RRULE expansion so the
-  // override instance is the only one that survives.
+  // Collect RECURRENCE-ID overrides (edited single instances of recurring events)
   const overrideDatesByUid = new Map<string, Set<string>>();
   for (const ev of events) {
     const recIdEntry = Object.entries(ev).find(([k]) => k.startsWith("RECURRENCE-ID"));
     if (!recIdEntry) continue;
-
     const [recIdKey, recIdValue] = recIdEntry;
     const baseUid = ev.UID;
     if (!baseUid) continue;
-
     const tzMatch = recIdKey.match(/TZID=([^:;]+)/);
     const tz = tzMatch ? tzMatch[1] : undefined;
     const parsed = parseDateToken(recIdValue, tz);
@@ -384,7 +500,6 @@ function expandRecurringEvents(events: Record<string, string>[]): Record<string,
   }
 
   for (const ev of events) {
-    // Override instances (RECURRENCE-ID present) are standalone — push as-is
     const hasRecurrenceId = Object.keys(ev).some((k) => k.startsWith("RECURRENCE-ID"));
     if (hasRecurrenceId) {
       expanded.push(ev);
@@ -397,7 +512,6 @@ function expandRecurringEvents(events: Record<string, string>[]): Record<string,
       continue;
     }
 
-    // Parse RRULE components
     const parts: Record<string, string> = {};
     rrule.split(";").forEach((p) => {
       const [k, v] = p.split("=");
@@ -432,7 +546,6 @@ function expandRecurringEvents(events: Record<string, string>[]): Record<string,
     let current = new Date(startDate.getTime());
     let occurrences = 0;
 
-    // Collect EXDATE values to skip
     const exdates = new Set<string>();
     const exdateRaw = Object.entries(ev)
       .filter(([k]) => k.startsWith("EXDATE"))
@@ -445,7 +558,6 @@ function expandRecurringEvents(events: Record<string, string>[]): Record<string,
       });
     }
 
-    // Also skip dates that have RECURRENCE-ID overrides (edited single instances)
     const overrides = ev.UID ? overrideDatesByUid.get(ev.UID) : undefined;
     if (overrides) {
       for (const ymd of overrides) exdates.add(ymd);
@@ -458,7 +570,6 @@ function expandRecurringEvents(events: Record<string, string>[]): Record<string,
       .map((token) => DAY_TO_UTC_INDEX[token])
       .filter((value): value is number => typeof value === "number");
 
-    // Parse BYDAY with ordinal prefixes for MONTHLY (e.g. "3FR" → { ordinal: 3, weekday: 5 })
     const byDayWithOrdinal = (parts.BYDAY || "")
       .split(",")
       .map((token) => {
@@ -491,7 +602,6 @@ function expandRecurringEvents(events: Record<string, string>[]): Record<string,
     };
 
     if (freq === "WEEKLY" && byDay.length > 0) {
-      // Use the Eastern Time date (not UTC) so late-evening events don't shift to the next day
       const startYmd = toYMD(startDate);
       const [sY, sM, sD] = startYmd.split('-').map(Number);
       const startDay = new Date(Date.UTC(sY, sM - 1, sD, 12, 0, 0));
@@ -504,21 +614,13 @@ function expandRecurringEvents(events: Record<string, string>[]): Record<string,
 
         const occurrence = startWallClock
           ? zonedLocalToUtcDate(
-              day.getUTCFullYear(),
-              day.getUTCMonth() + 1,
-              day.getUTCDate(),
-              startWallClock.hour,
-              startWallClock.minute,
-              startWallClock.second,
+              day.getUTCFullYear(), day.getUTCMonth() + 1, day.getUTCDate(),
+              startWallClock.hour, startWallClock.minute, startWallClock.second,
               tzid || OUTPUT_TIMEZONE,
             )
           : new Date(Date.UTC(
-              day.getUTCFullYear(),
-              day.getUTCMonth(),
-              day.getUTCDate(),
-              startDate.getUTCHours(),
-              startDate.getUTCMinutes(),
-              startDate.getUTCSeconds(),
+              day.getUTCFullYear(), day.getUTCMonth(), day.getUTCDate(),
+              startDate.getUTCHours(), startDate.getUTCMinutes(), startDate.getUTCSeconds(),
             ));
         if (occurrence < startDate) continue;
         pushInstance(occurrence);
@@ -526,22 +628,18 @@ function expandRecurringEvents(events: Record<string, string>[]): Record<string,
       continue;
     }
 
-    // ── MONTHLY with BYDAY ordinal (e.g. BYDAY=3FR → 3rd Friday of each month) ──
     if (freq === "MONTHLY" && byDayWithOrdinal.length > 0) {
-      // Iterate month by month from the start date
       const startYmd = toYMD(startDate);
       const [startY, startM] = startYmd.split('-').map(Number);
       let curY = startY;
-      let curM = startM; // 1-indexed
+      let curM = startM;
 
       while (occurrences < count) {
         for (const { ordinal, weekday } of byDayWithOrdinal) {
-          // Find the Nth weekday (or -Nth from end) in curY/curM
-          const daysInMonth = new Date(Date.UTC(curY, curM, 0)).getUTCDate(); // curM is 1-indexed, so (curY, curM, 0) = last day of curM
+          const daysInMonth = new Date(Date.UTC(curY, curM, 0)).getUTCDate();
           let targetDay: number | null = null;
 
           if (ordinal > 0) {
-            // Positive ordinal: 1st, 2nd, 3rd... weekday from start of month
             let matchCount = 0;
             for (let d = 1; d <= daysInMonth; d++) {
               const probe = new Date(Date.UTC(curY, curM - 1, d, 12, 0, 0));
@@ -551,7 +649,6 @@ function expandRecurringEvents(events: Record<string, string>[]): Record<string,
               }
             }
           } else {
-            // Negative ordinal: -1 = last weekday, -2 = second to last, etc.
             const absOrd = Math.abs(ordinal);
             let matchCount = 0;
             for (let d = daysInMonth; d >= 1; d--) {
@@ -581,11 +678,8 @@ function expandRecurringEvents(events: Record<string, string>[]): Record<string,
           }
         }
 
-        // Advance to next month (respecting interval)
         curM += interval;
         while (curM > 12) { curM -= 12; curY++; }
-
-        // Safety: bail if we've gone past the horizon
         if (new Date(Date.UTC(curY, curM - 1, 1)) > horizonDate) break;
       }
       continue;
@@ -607,7 +701,14 @@ function expandRecurringEvents(events: Record<string, string>[]): Record<string,
   return expanded;
 }
 
-export async function fetchCalendarEventsFromPublicIcs(): Promise<MSAEvent[]> {
+// ── Public API ─────────────────────────────────────────────────
+
+/**
+ * Fetches the public ICS feed, expands recurring events, and returns each block
+ * alongside a sync classification (hashtag-based or rules-based).
+ * The caller (index.ts) handles the optional AI fallback step.
+ */
+export async function fetchAndClassifyBlocks(): Promise<ClassifiedBlock[]> {
   const response = await fetch(PUBLIC_ICS_URL);
 
   if (!response.ok) {
@@ -626,12 +727,26 @@ export async function fetchCalendarEventsFromPublicIcs(): Promise<MSAEvent[]> {
     throw new CalendarFeedError("No events were parsed from the public iCal feed", "ics_parse");
   }
 
-  // Expand recurring events (RRULE)
-  const allEvents = expandRecurringEvents(parsed);
+  const allBlocks = expandRecurringEvents(parsed);
 
+  return allBlocks.map((block) => {
+    const classification = classifyIcsBlock(block);
+    const needsAI =
+      classification.tagSource === "uncategorized" || classification.confidence < 0.75;
+    return { block, classification, needsAI };
+  });
+}
+
+/**
+ * Converts a classified block into a normalized MSAEvent, then marks Gala as featured.
+ */
+export function normalizeBlocks(
+  classifiedBlocks: ClassifiedBlock[],
+): MSAEvent[] {
   const nowYmd = toYMD(new Date());
-  const normalized = allEvents
-    .map((block) => normalizeIcsEvent(block, nowYmd))
+
+  const normalized = classifiedBlocks
+    .map(({ block, classification }) => normalizeIcsEvent(block, nowYmd, classification))
     .filter((event): event is MSAEvent => Boolean(event))
     .sort((a, b) => a.startDate.localeCompare(b.startDate));
 
@@ -644,14 +759,16 @@ export async function fetchCalendarEventsFromPublicIcs(): Promise<MSAEvent[]> {
     ).values(),
   );
 
-  // Mark MSA Gala as the featured/signature event, fallback to first upcoming
+  // Mark MSA Gala as the featured/signature event; fall back to first upcoming
   const galaIdx = deduped.findIndex((event) => !event.isPast && /\bMSA\s+Gala\b/i.test(event.title));
   const featuredIdx = galaIdx >= 0 ? galaIdx : deduped.findIndex((event) => !event.isPast);
   if (featuredIdx >= 0) {
+    const ev = deduped[featuredIdx];
     deduped[featuredIdx] = {
-      ...deduped[featuredIdx],
+      ...ev,
       featured: true,
-      tags: Array.from(new Set(["Signature Event", ...deduped[featuredIdx].tags])),
+      isSignature: true,
+      tags: Array.from(new Set(["Signature", ...ev.tags])),
     };
   }
 
