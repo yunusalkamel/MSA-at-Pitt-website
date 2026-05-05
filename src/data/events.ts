@@ -1,33 +1,73 @@
+// ── Structured classification types ───────────────────────────
+export type AudienceTag = "brothers" | "sisters" | "joint" | "general";
+
+export type EventCategory =
+  | "jumuah"
+  | "dawah"
+  | "sports"
+  | "social"
+  | "halaqa"
+  | "signature"
+  | "ramadan"
+  | "career"
+  | "service"
+  | "meeting"
+  | "fundraiser"
+  | "other";
+
+// ── Main event type ────────────────────────────────────────────
 export interface MSAEvent {
   id: string;
   title: string;
-  startDate: string; // ISO date
+  startDate: string; // ISO date (YYYY-MM-DD)
   endDate?: string;
   timeLabel: string;
   location: string;
   shortBlurb: string;
   description?: string;
+
+  // Structured classification (new)
+  audience: AudienceTag;
+  categories: EventCategory[];
+  isSignature: boolean;
+  tagSource: "explicit" | "rules" | "ai" | "uncategorized";
+  confidence: number; // 0.0–1.0
+
+  // URL fields (new)
+  rsvpUrl?: string;            // RSVP/signup URL parsed from the description
+  googleCalendarUrl?: string;  // direct link to this event in Google Calendar (from ICS URL field, may be absent)
+  calendarFallbackUrl: string; // central MSA Google Calendar URL — always set
+  clickUrl: string;            // computed: rsvpUrl → gcal → linktree
+
+  // Display tags derived from audience + categories (for backward compat with filter bar + tag chips)
   tags: EventTag[];
-  audience?: "Brothers" | "Sisters" | "Mixed" | "Open to All";
+
+  // Legacy / backward compat aliases — kept so existing components don't break
   featured?: boolean;
   isPast?: boolean;
   ctaMode?: "rsvp" | "signup" | "join-now" | "view-photos" | "learn-more";
-  signupUrl?: string;
+  signupUrl?: string;    // ← same value as rsvpUrl; kept for backward compat
   galleryUrl?: string;
   addToCalendarUrl?: string;
-  fullCalendarUrl?: string;
+  fullCalendarUrl?: string; // ← same value as clickUrl; kept for backward compat
   coverImage?: string;
 }
 
+// ── Display tags (for filter bar + tag chips) ─────────────────
 export const EVENT_CONTENT_TAGS = [
-  "Social",
+  "Jummah",
+  "Halaqa",
   "Dawah",
+  "Social",
+  "Sports",
+  "Ramadan",
+  "Career",
+  "Service",
+  "Signature",
   "Brothers",
   "Sisters",
   "Joint",
-  "Signature",
-  "CEC",
-  "Jummah",
+  "CEC", // kept for backward compatibility with any existing event data that uses this tag
 ] as const;
 
 export type EventTag = (typeof EVENT_CONTENT_TAGS)[number];
@@ -41,7 +81,7 @@ export const GOOGLE_CALENDAR_URL = LINKS.googleCalendarSubscribe;
 export const APPLE_CALENDAR_URL = LINKS.appleCalendarSubscribe;
 export const EVENT_SIGNUP_HUB_URL = LINKS.eventSignupHub;
 
-// ── Helpers for dynamic evergreen dates ───────────────────
+// ── Helpers for dynamic evergreen dates ───────────────────────
 function getNextWeekday(targetDay: number): string {
   const today = new Date();
   const day = today.getDay();
@@ -51,7 +91,7 @@ function getNextWeekday(targetDay: number): string {
   return next.toISOString().split("T")[0];
 }
 
-// ── Mock / Fallback Data ───────────────────────────────────
+// ── Mock / Fallback Data ───────────────────────────────────────
 export const mockEvents: MSAEvent[] = [
   {
     id: "evergreen-jummah",
@@ -60,8 +100,18 @@ export const mockEvents: MSAEvent[] = [
     timeLabel: "Friday · 1:00 – 2:00 PM",
     location: "Nordy's Place, Cathedral of Learning",
     shortBlurb: "Weekly congregational prayer open to all students, faculty, and staff. Check Instagram Stories Friday morning for location confirmation.",
+    // Structured classification
+    audience: "general",
+    categories: ["jumuah"],
+    isSignature: false,
+    tagSource: "rules",
+    confidence: 0.9,
+    // URLs
+    calendarFallbackUrl: GOOGLE_CALENDAR_URL,
+    clickUrl: GOOGLE_CALENDAR_URL, // Jummah → calendar, not linktree
+    // Display
     tags: ["Jummah"],
-    audience: "Open to All",
+    // Backward compat
     ctaMode: "learn-more",
     addToCalendarUrl: GOOGLE_CALENDAR_URL,
   },
@@ -72,8 +122,18 @@ export const mockEvents: MSAEvent[] = [
     timeLabel: "Tuesday · 7:00 – 8:30 PM",
     location: "Cathedral of Learning",
     shortBlurb: "Our weekly circle of knowledge — reflective discussion on Quranic themes and community conversation.",
-    tags: ["Dawah"],
-    audience: "Open to All",
+    // Structured classification
+    audience: "general",
+    categories: ["halaqa"],
+    isSignature: false,
+    tagSource: "rules",
+    confidence: 0.8,
+    // URLs
+    calendarFallbackUrl: GOOGLE_CALENDAR_URL,
+    clickUrl: LINKS.linktree,
+    // Display
+    tags: ["Halaqa"],
+    // Backward compat
     ctaMode: "learn-more",
     addToCalendarUrl: GOOGLE_CALENDAR_URL,
   },

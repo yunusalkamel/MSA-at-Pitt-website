@@ -23,34 +23,8 @@ function normalizeUrl(url?: string): string | undefined {
   }
 }
 
-function parseUrlFromDescription(description?: string): string | undefined {
-  if (!description) return undefined;
-
-  const hrefMatch = description.match(/href\s*=\s*["']([^"']+)["']/i);
-  if (hrefMatch?.[1]) {
-    const normalized = normalizeUrl(hrefMatch[1]);
-    if (normalized) return normalized;
-  }
-
-  const inlineMatch = description.match(/https?:\/\/[^\s<>"]+/);
-  if (inlineMatch?.[0]) {
-    const normalized = normalizeUrl(inlineMatch[0]);
-    if (normalized) return normalized;
-  }
-
-  return undefined;
-}
-
-function getCtaLabel(mode?: MSAEvent["ctaMode"]): string {
-  if (mode === "signup") return "Sign Up";
-  if (mode === "join-now") return "Join Now";
-  if (mode === "learn-more") return "Learn More";
-  return "RSVP";
-}
-
 export function resolveEventAction(event: MSAEvent): EventAction {
-  const ctaMode = event.ctaMode ?? "rsvp";
-
+  // Past events with a gallery URL get a "View Photos" action
   const galleryUrl = normalizeUrl(event.galleryUrl);
   if (event.isPast && galleryUrl) {
     return {
@@ -61,22 +35,21 @@ export function resolveEventAction(event: MSAEvent): EventAction {
     };
   }
 
-  const primaryUrl = [event.signupUrl, event.fullCalendarUrl, event.addToCalendarUrl, parseUrlFromDescription(event.description)]
-    .map((candidate) => normalizeUrl(candidate))
-    .find(Boolean);
-
-  if (primaryUrl) {
+  // Use the pre-computed clickUrl (set server-side: rsvpUrl → gcal → linktree)
+  const url = normalizeUrl(event.clickUrl);
+  if (url) {
+    const isRsvp = !!event.rsvpUrl;
     return {
-      kind: ctaMode === "learn-more" ? "learn-more" : "signup",
-      label: getCtaLabel(ctaMode),
-      href: primaryUrl,
-      external: !primaryUrl.startsWith("/"),
+      kind: isRsvp ? "signup" : "learn-more",
+      label: isRsvp ? "RSVP" : "View Details",
+      href: url,
+      external: !url.startsWith("/"),
     };
   }
 
   return {
     kind: "details",
-    label: ctaMode === "learn-more" ? "Learn More" : "Details",
+    label: "Details",
     external: false,
   };
 }
