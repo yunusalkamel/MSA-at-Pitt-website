@@ -10,25 +10,25 @@ const FilterBtn = ({
   tag,
   isActive,
   onClick,
+  dimmed = false,
 }: {
   tag: string;
   isActive: boolean;
   onClick: () => void;
+  dimmed?: boolean;
 }) => (
   <button
     onClick={onClick}
     className={`min-h-9 px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all duration-200 border
       ${isActive
         ? "gold-gradient text-primary-foreground border-transparent shadow-sm"
+        : dimmed
+        ? "bg-transparent border-border/40 text-muted-foreground/60 hover:border-border/70 hover:text-muted-foreground"
         : "bg-transparent border-border/60 text-muted-foreground hover:border-border hover:text-foreground"
       }`}
   >
     {tag}
   </button>
-);
-
-const Divider = () => (
-  <span className="w-px h-5 bg-border/50 self-center flex-shrink-0 mx-0.5" />
 );
 
 const EventsFilterBar = ({ selected, onChange }: Props) => {
@@ -49,24 +49,25 @@ const EventsFilterBar = ({ selected, onChange }: Props) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 0.2 }}
-      className="flex flex-wrap gap-1.5 justify-center items-center"
+      className="flex flex-col gap-2 items-center"
     >
-      {/* All */}
-      <FilterBtn tag="All" isActive={isActive("All")} onClick={() => toggle("All")} />
+      {/* Row 1 — Event categories */}
+      <div className="flex flex-wrap gap-1.5 justify-center items-center">
+        <FilterBtn tag="All" isActive={isActive("All")} onClick={() => toggle("All")} />
+        {CATEGORY_CONTENT_TAGS.map((tag) => (
+          <FilterBtn key={tag} tag={tag} isActive={isActive(tag)} onClick={() => toggle(tag)} />
+        ))}
+      </div>
 
-      <Divider />
-
-      {/* Category tags */}
-      {CATEGORY_CONTENT_TAGS.filter((t) => t !== "CEC").map((tag) => (
-        <FilterBtn key={tag} tag={tag} isActive={isActive(tag)} onClick={() => toggle(tag)} />
-      ))}
-
-      <Divider />
-
-      {/* Audience tags */}
-      {AUDIENCE_TAGS.map((tag) => (
-        <FilterBtn key={tag} tag={tag} isActive={isActive(tag)} onClick={() => toggle(tag)} />
-      ))}
+      {/* Row 2 — Audience */}
+      <div className="flex flex-wrap gap-1.5 justify-center items-center">
+        <span className="text-[9px] uppercase tracking-[0.18em] font-bold text-muted-foreground/40 mr-0.5 select-none">
+          Audience
+        </span>
+        {AUDIENCE_TAGS.map((tag) => (
+          <FilterBtn key={tag} tag={tag} isActive={isActive(tag)} onClick={() => toggle(tag)} dimmed />
+        ))}
+      </div>
     </motion.div>
   );
 };

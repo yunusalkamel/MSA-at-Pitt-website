@@ -69,11 +69,10 @@ export const CATEGORY_CONTENT_TAGS = [
   "CEC",
 ] as const;
 
-// Audience-based tags (who the event is for)
+// Audience-based tags (who the event is for) — Joint is displayed as General
 export const AUDIENCE_TAGS = [
   "Brothers",
   "Sisters",
-  "Joint",
   "General",
 ] as const;
 
@@ -119,7 +118,7 @@ export const mockEvents: MSAEvent[] = [
     calendarFallbackUrl: GOOGLE_CALENDAR_URL,
     clickUrl: GOOGLE_CALENDAR_URL, // Jummah → calendar, not linktree
     // Display
-    tags: ["Jummah", "General"],
+    tags: ["Jummah", "General"] as EventTag[],
     // Backward compat
     ctaMode: "learn-more",
     addToCalendarUrl: GOOGLE_CALENDAR_URL,
@@ -141,7 +140,7 @@ export const mockEvents: MSAEvent[] = [
     calendarFallbackUrl: GOOGLE_CALENDAR_URL,
     clickUrl: LINKS.linktree,
     // Display
-    tags: ["Halaqa", "General"],
+    tags: ["Halaqa", "General"] as EventTag[],
     // Backward compat
     ctaMode: "learn-more",
     addToCalendarUrl: GOOGLE_CALENDAR_URL,

@@ -240,8 +240,7 @@ function deriveDisplayTags(
 
   if (audience === "brothers") tags.push("Brothers");
   else if (audience === "sisters") tags.push("Sisters");
-  else if (audience === "joint") tags.push("Joint");
-  else tags.push("General");
+  else tags.push("General"); // joint and general both display as "General"
 
   for (const cat of categories) {
     switch (cat) {
