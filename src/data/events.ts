@@ -1,5 +1,5 @@
 // ── Structured classification types ───────────────────────────
-export type AudienceTag = "brothers" | "sisters" | "joint" | "general";
+export type AudienceTag = "brothers" | "sisters" | "general";
 
 export type EventCategory =
   | "jumuah"
@@ -13,6 +13,7 @@ export type EventCategory =
   | "service"
   | "meeting"
   | "fundraiser"
+  | "cec"
   | "other";
 
 // ── Main event type ────────────────────────────────────────────

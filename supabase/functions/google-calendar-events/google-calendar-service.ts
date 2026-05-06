@@ -18,7 +18,7 @@ type AudienceTag = "brothers" | "sisters" | "joint" | "general";
 type EventCategory =
   | "jumuah" | "dawah" | "sports" | "social" | "halaqa"
   | "signature" | "ramadan" | "career" | "service"
-  | "meeting" | "fundraiser" | "other";
+  | "meeting" | "fundraiser" | "cec" | "other";
 type EventTag = string;
 
 type MSAEvent = {
@@ -252,7 +252,9 @@ function deriveDisplayTags(
       case "ramadan":    tags.push("Ramadan"); break;
       case "career":     tags.push("Career"); break;
       case "service":    tags.push("Service"); break;
+      case "cec":        tags.push("CEC"); break;
       case "signature":  break; // handled via isSignature below
+      case "meeting":    break; // no display tag for internal meetings
     }
   }
 
@@ -759,12 +761,13 @@ export function normalizeBlocks(
     ).values(),
   );
 
-  // Mark MSA Gala as the featured/signature event; fall back to first upcoming
+  // Mark the first upcoming signature event as featured (MSA Gala preferred, then any Signature-tagged event).
+  // Never promote a non-signature event to signature.
   const galaIdx = deduped.findIndex((event) => !event.isPast && /\bMSA\s+Gala\b/i.test(event.title));
-  const featuredIdx = galaIdx >= 0 ? galaIdx : deduped.findIndex((event) => !event.isPast);
-  if (featuredIdx >= 0) {
-    const ev = deduped[featuredIdx];
-    deduped[featuredIdx] = {
+  const sigIdx = galaIdx >= 0 ? galaIdx : deduped.findIndex((event) => !event.isPast && event.isSignature);
+  if (sigIdx >= 0) {
+    const ev = deduped[sigIdx];
+    deduped[sigIdx] = {
       ...ev,
       featured: true,
       isSignature: true,
