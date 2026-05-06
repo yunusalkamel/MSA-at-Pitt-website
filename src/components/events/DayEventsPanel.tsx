@@ -9,9 +9,10 @@ interface Props {
   date: string;
   events: MSAEvent[];
   onClose: () => void;
+  onEventSelect?: (event: MSAEvent) => void;
 }
 
-const DayEventsPanel = ({ date, events, onClose }: Props) => {
+const DayEventsPanel = ({ date, events, onClose, onEventSelect }: Props) => {
   useEffect(() => {
     const onEscape = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     // Also prevent body scroll while panel is open
@@ -31,6 +32,10 @@ const DayEventsPanel = ({ date, events, onClose }: Props) => {
   });
 
   const openEventLink = (event: MSAEvent) => {
+    if (onEventSelect) {
+      onEventSelect(event);
+      return;
+    }
     const action = resolveEventAction(event);
     if (!action.href) return;
     if (action.external) {

@@ -12,20 +12,11 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const IMPLEMENTATION = "ics_no_key_v3";
+const IMPLEMENTATION = "ics_no_key_v4";
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5-minute in-memory cache
 
 let cachedResponse: string | null = null;
 let cacheTimestamp = 0;
-
-// Events are eligible for AI classification if they are upcoming or within the last 30 days.
-const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
-
-function isEligibleForAi(startDateYmd: string): boolean {
-  const eventDate = new Date(startDateYmd + "T12:00:00");
-  const cutoff = new Date(Date.now() - THIRTY_DAYS_MS);
-  return eventDate >= cutoff;
-}
 
 /**
  * For blocks that need AI, checks the DB cache first, then calls Gemini for uncached ones.
@@ -124,10 +115,8 @@ Deno.serve(async (req) => {
     // 1. Fetch ICS feed + sync classify all events (hashtags → rules)
     const classifiedBlocks = await fetchAndClassifyBlocks();
 
-    // 2. Collect blocks that need AI and are within the eligibility window
-    const aiCandidates = classifiedBlocks.filter(
-      (b) => b.needsAI && isEligibleForAi(b.block.DTSTART || ""),
-    );
+    // 2. Collect all blocks that need AI classification (no date window restriction)
+    const aiCandidates = classifiedBlocks.filter((b) => b.needsAI);
 
     // 3. Apply AI classification (checks DB cache first, calls Gemini for misses)
     await applyAiClassification(aiCandidates);

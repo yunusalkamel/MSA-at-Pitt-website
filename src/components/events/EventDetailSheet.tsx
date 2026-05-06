@@ -2,6 +2,14 @@ import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { ArrowRight, CalendarPlus, Clock, ExternalLink, MapPin, X } from "lucide-react";
 import type { MSAEvent } from "@/data/events";
 
+const AiSparkle = () => (
+  <span
+    title="AI-assisted tag"
+    className="inline-block ml-0.5 opacity-25 select-none pointer-events-none text-[7px] leading-none align-super"
+    aria-hidden="true"
+  >✦</span>
+);
+
 interface Props {
   event: MSAEvent | null;
   onClose: () => void;
@@ -12,9 +20,11 @@ const EventDetailSheet = ({ event, onClose }: Props) => {
 
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`;
 
-  // Use the pre-computed clickUrl; show "RSVP" label only when there's an explicit RSVP URL
+  // Use the pre-computed clickUrl; determine button label
   const actionUrl = event.clickUrl;
   const isRsvp = !!event.rsvpUrl;
+  const isRecurring = event.categories?.includes("jumuah") || event.categories?.includes("meeting");
+  const actionLabel = isRsvp ? "RSVP" : isRecurring ? "View on Calendar" : "More Details";
 
   return (
     <DialogPrimitive.Root open={!!event} onOpenChange={(open) => { if (!open) onClose(); }}>
@@ -53,7 +63,9 @@ const EventDetailSheet = ({ event, onClose }: Props) => {
             {/* Tags */}
             <div className="flex flex-wrap gap-1.5 mb-3 pr-8">
               {event.tags.map((tag) => (
-                <span key={tag} className={tag === "Signature" ? "tag-chip-gold" : "tag-chip"}>{tag}</span>
+                <span key={tag} className={tag === "Signature" ? "tag-chip-gold" : "tag-chip"}>
+                  {tag}{event.tagSource === "ai" && <AiSparkle />}
+                </span>
               ))}
             </div>
 
@@ -95,11 +107,7 @@ const EventDetailSheet = ({ event, onClose }: Props) => {
                 rel="noopener noreferrer"
                 className="btn-premium flex-1 justify-center"
               >
-                {isRsvp ? (
-                  <>RSVP <ArrowRight size={13} /></>
-                ) : (
-                  <>More Details <ExternalLink size={13} /></>
-                )}
+                {actionLabel} {isRsvp ? <ArrowRight size={13} /> : <ExternalLink size={13} />}
               </a>
               {event.addToCalendarUrl && (
                 <a

@@ -17,7 +17,7 @@ const Footer = () => {
   return (
     <footer
       className="relative overflow-hidden"
-      style={{ background: "linear-gradient(160deg, #0F1F3A 0%, #14345A 45%, #0A1A2E 100%)" }}
+      style={{ background: "linear-gradient(160deg, #0D1528 0%, #101E38 45%, #0A1220 100%)" }}
       role="contentinfo"
     >
       <BridgeBar />
