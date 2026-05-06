@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Clock, ExternalLink, CalendarClock, MapPin } from "lucide-react";
 import type { MSAEvent } from "@/data/events";
 import DayEventsPanel from "./DayEventsPanel";
-import { resolveEventAction } from "./resolveEventAction";
+import EventDetailSheet from "./EventDetailSheet";
 import { DAYS, getDaysInMonth, getFirstDayOfMonth, formatDateStr, getTimeOnly, sortEvents } from "./calendar-utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -20,22 +20,20 @@ const EventChip = ({
   compact?: boolean;
   onClick: (e: React.MouseEvent) => void;
 }) => {
-  const link = resolveEventAction(event).href;
   const isFeatured = event.featured;
   const isPast = event.isPast;
   const chipStyle = isFeatured
     ? "gold-gradient text-primary-foreground"
     : isPast
-    ? "bg-muted/80 text-foreground/60"
+    ? "bg-secondary/40 text-secondary-foreground/60"
     : "bg-secondary/90 text-secondary-foreground";
 
   return (
     <button
       onClick={onClick}
       title={`${event.title} · ${getTimeOnly(event.timeLabel)}${event.location ? ` · ${event.location}` : ""}`}
-      className={`w-full rounded-md px-2 py-1.5 text-left overflow-hidden
-        ${chipStyle} ${link ? "cursor-pointer hover:opacity-85" : "cursor-default"}
-        transition-opacity duration-150 ${compact ? "min-h-[36px]" : "min-h-[46px]"}`}
+      className={`w-full rounded-md px-2 py-1.5 text-left overflow-hidden cursor-pointer
+        ${chipStyle} hover:opacity-85 transition-opacity duration-150 ${compact ? "min-h-[36px]" : "min-h-[46px]"}`}
     >
       <div className={`font-semibold leading-tight truncate ${compact ? "text-[10px]" : "text-[11px]"}`}>
         {event.title}
@@ -43,7 +41,7 @@ const EventChip = ({
       <div className="flex items-center gap-1 mt-0.5 opacity-80">
         <Clock size={8} className="shrink-0" />
         <span className="text-[9px] truncate">{getTimeOnly(event.timeLabel)}</span>
-        {link && <ExternalLink size={8} className="shrink-0 opacity-50 ml-auto" />}
+        <ExternalLink size={8} className="shrink-0 opacity-50 ml-auto" />
       </div>
       {!compact && event.location && (
         <div className="hidden md:flex items-center gap-0.5 mt-[1px] opacity-70">
@@ -73,12 +71,13 @@ const MorePill = ({ count, onClick }: { count: number; onClick: (e: React.MouseE
 
 const MonthView = ({
   year, month, eventsByDate, todayStr, monthLabel, isCurrentMonth,
-  onPrev, onNext, onGoToday, onSelectDate,
+  onPrev, onNext, onGoToday, onSelectDate, onEventSelect,
 }: {
   year: number; month: number; eventsByDate: Record<string, MSAEvent[]>;
   todayStr: string; monthLabel: string; isCurrentMonth: boolean;
   onPrev: () => void; onNext: () => void; onGoToday: () => void;
   onSelectDate: (date: string) => void;
+  onEventSelect: (event: MSAEvent) => void;
 }) => {
   const daysInMonth = getDaysInMonth(year, month);
   const firstDay = getFirstDayOfMonth(year, month);
@@ -90,13 +89,7 @@ const MonthView = ({
 
   const handleEventClick = (ev: MSAEvent, e: React.MouseEvent) => {
     e.stopPropagation();
-    const action = resolveEventAction(ev);
-    if (action.href) {
-      if (action.external) window.open(action.href, "_blank", "noopener,noreferrer");
-      else window.location.assign(action.href);
-      return;
-    }
-    onSelectDate(ev.startDate);
+    onEventSelect(ev);
   };
 
   return (
@@ -175,11 +168,11 @@ const MonthView = ({
 
       <div className="flex items-center gap-4 mt-4 px-1 flex-wrap">
         {[
-          { label: "Signature", style: "gold-gradient" },
-          { label: "Upcoming", style: "bg-secondary" },
-          { label: "Past", style: "bg-muted" },
-        ].map(({ label, style }) => (
-          <span key={label} className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+          { label: "Signature", style: "gold-gradient", textStyle: "" },
+          { label: "Upcoming", style: "bg-secondary", textStyle: "" },
+          { label: "Past", style: "bg-secondary/40", textStyle: "opacity-60" },
+        ].map(({ label, style, textStyle }) => (
+          <span key={label} className={`flex items-center gap-1.5 text-[10px] text-muted-foreground ${textStyle}`}>
             <span className={`w-2.5 h-2.5 rounded-[3px] flex-shrink-0 ${style}`} />
             {label}
           </span>
@@ -206,11 +199,12 @@ function addDays(date: Date, n: number): Date {
 
 const WeekView = ({
   weekStart, eventsByDate, todayStr,
-  onPrevWeek, onNextWeek, onGoToday, onSelectDate,
+  onPrevWeek, onNextWeek, onGoToday, onSelectDate, onEventSelect,
 }: {
   weekStart: Date; eventsByDate: Record<string, MSAEvent[]>; todayStr: string;
   onPrevWeek: () => void; onNextWeek: () => void; onGoToday: () => void;
   onSelectDate: (date: string) => void;
+  onEventSelect: (event: MSAEvent) => void;
 }) => {
   const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
@@ -229,13 +223,7 @@ const WeekView = ({
 
   const handleEventClick = (ev: MSAEvent, e: React.MouseEvent) => {
     e.stopPropagation();
-    const action = resolveEventAction(ev);
-    if (action.href) {
-      if (action.external) window.open(action.href, "_blank", "noopener,noreferrer");
-      else window.location.assign(action.href);
-      return;
-    }
-    onSelectDate(ev.startDate);
+    onEventSelect(ev);
   };
 
   return (
@@ -324,11 +312,11 @@ const WeekView = ({
       {/* Legend */}
       <div className="flex items-center gap-3 mt-4 px-1 flex-wrap">
         {[
-          { label: "Signature", style: "gold-gradient" },
-          { label: "Upcoming", style: "bg-secondary" },
-          { label: "Past", style: "bg-muted" },
-        ].map(({ label, style }) => (
-          <span key={label} className="flex items-center gap-1.5 text-[9px] text-muted-foreground">
+          { label: "Signature", style: "gold-gradient", textStyle: "" },
+          { label: "Upcoming", style: "bg-secondary", textStyle: "" },
+          { label: "Past", style: "bg-secondary/40", textStyle: "opacity-60" },
+        ].map(({ label, style, textStyle }) => (
+          <span key={label} className={`flex items-center gap-1.5 text-[9px] text-muted-foreground ${textStyle}`}>
             <span className={`w-2 h-2 rounded-[2px] flex-shrink-0 ${style}`} />
             {label}
           </span>
@@ -348,6 +336,7 @@ const MonthCalendar = ({ events }: Props) => {
   const [month, setMonth] = useState(today.getMonth());
   const [weekStart, setWeekStart] = useState(() => getWeekStart(today));
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<MSAEvent | null>(null);
 
   const todayStr = formatDateStr(today.getFullYear(), today.getMonth(), today.getDate());
   const monthLabel = new Date(year, month).toLocaleString("en-US", { month: "long", year: "numeric" });
@@ -392,6 +381,7 @@ const MonthCalendar = ({ events }: Props) => {
           onNextWeek={nextWeek}
           onGoToday={goToTodayWeek}
           onSelectDate={setSelectedDate}
+          onEventSelect={setSelectedEvent}
         />
       ) : (
         <MonthView
@@ -405,6 +395,7 @@ const MonthCalendar = ({ events }: Props) => {
           onNext={nextMonth}
           onGoToday={goToTodayMonth}
           onSelectDate={setSelectedDate}
+          onEventSelect={setSelectedEvent}
         />
       )}
 
@@ -414,9 +405,12 @@ const MonthCalendar = ({ events }: Props) => {
             date={selectedDate}
             events={eventsByDate[selectedDate] || []}
             onClose={() => setSelectedDate(null)}
+            onEventSelect={setSelectedEvent}
           />
         )}
       </AnimatePresence>
+
+      <EventDetailSheet event={selectedEvent} onClose={() => setSelectedEvent(null)} />
     </div>
   );
 };

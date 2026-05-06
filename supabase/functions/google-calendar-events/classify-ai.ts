@@ -85,7 +85,7 @@ export async function classifyWithGemini(
     return null;
   }
 
-  const model = Deno.env.get("GEMINI_MODEL") ?? "gemini-2.5-flash-lite";
+  const model = Deno.env.get("GEMINI_MODEL") ?? "gemini-2.0-flash-lite";
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
   const userContent = [
@@ -118,8 +118,8 @@ export async function classifyWithGemini(
   const controller = new AbortController();
   const timeout = setTimeout(() => {
     controller.abort();
-    console.warn("[classify-ai] Gemini request timed out after 5s");
-  }, 5000);
+    console.warn("[classify-ai] Gemini request timed out after 12s");
+  }, 12000);
 
   try {
     const response = await fetch(url, {
@@ -137,9 +137,16 @@ export async function classifyWithGemini(
     }
 
     const json = await response.json();
-    const rawText: string | undefined =
-      json?.candidates?.[0]?.content?.parts?.[0]?.text;
+    const candidate = json?.candidates?.[0]?.content?.parts?.[0];
 
+    if (!candidate) {
+      console.warn("[classify-ai] Gemini returned no candidate content");
+      return null;
+    }
+
+    // With responseMimeType=application/json, text contains a JSON string.
+    // With structured output, the parsed object may also be directly in candidate.
+    const rawText: string | undefined = candidate.text;
     if (!rawText) {
       console.warn("[classify-ai] Gemini returned no text in response");
       return null;
@@ -149,8 +156,9 @@ export async function classifyWithGemini(
     try {
       parsed = JSON.parse(rawText);
     } catch {
-      console.warn("[classify-ai] Gemini response was not valid JSON");
-      return null;
+      // rawText might itself be a stringified JSON already — try direct use
+      parsed = rawText;
+      console.warn("[classify-ai] Gemini response was not valid JSON, attempting direct use");
     }
 
     const validated = validateAiResponse(parsed);
