@@ -1,11 +1,11 @@
 // Gemini AI classifier — optional fallback only. Returns null on any failure.
 // The calendar works perfectly when this returns null; callers must handle that.
 
-type AudienceTag = "brothers" | "sisters" | "joint" | "general";
+type AudienceTag = "brothers" | "sisters" | "general";
 type EventCategory =
   | "jumuah" | "dawah" | "sports" | "social" | "halaqa"
   | "signature" | "ramadan" | "career" | "service"
-  | "meeting" | "fundraiser" | "other";
+  | "meeting" | "fundraiser" | "cec" | "other";
 
 export type AiClassification = {
   audience: AudienceTag;
@@ -21,11 +21,11 @@ export type GeminiInput = {
   start: string;
 };
 
-const VALID_AUDIENCES = new Set<string>(["brothers", "sisters", "joint", "general"]);
+const VALID_AUDIENCES = new Set<string>(["brothers", "sisters", "general"]);
 const VALID_CATEGORIES = new Set<string>([
   "jumuah", "dawah", "sports", "social", "halaqa",
   "signature", "ramadan", "career", "service",
-  "meeting", "fundraiser", "other",
+  "meeting", "fundraiser", "cec", "other",
 ]);
 
 const SYSTEM_PROMPT = `You are a classifier for a Muslim Students Association (MSA) event calendar.
@@ -33,30 +33,34 @@ Given an event's title, description, location, and start time, classify it.
 
 Respond with ONLY valid JSON in exactly this shape:
 {
-  "audience": "brothers" | "sisters" | "joint" | "general",
-  "categories": Array of one or more: "jumuah" | "dawah" | "sports" | "social" | "halaqa" | "signature" | "ramadan" | "career" | "service" | "meeting" | "fundraiser" | "other",
+  "audience": "brothers" | "sisters" | "general",
+  "categories": Array of one or more: "jumuah" | "dawah" | "sports" | "social" | "halaqa" | "signature" | "ramadan" | "career" | "service" | "meeting" | "fundraiser" | "cec" | "other",
   "isSignature": boolean,
   "confidence": number between 0.0 and 1.0
 }
 
+IMPORTANT: Every event MUST have an audience value. Never omit it.
+
 Definitions:
-- audience: "brothers" = men only, "sisters" = women only, "joint" = both, "general" = unclear/open
+- audience: "brothers" = men only event, "sisters" = women only event, "general" = open to everyone / mixed / unclear (use this for all joint or general events)
 - jumuah: Friday congregational prayer
 - halaqa: Islamic study circle, Quran/hadith discussion
 - dawah: outreach, tabling, spreading awareness
-- sports: any athletic or recreational sport
-- social: casual gatherings, dinners, game nights, hangouts
-- signature: major annual or high-profile event (gala, banquet, fast-a-thon)
+- sports: any athletic or recreational sport (default audience to "brothers" unless explicitly mixed/sisters)
+- social: casual gatherings, dinners, game nights, hangouts, eid celebrations, potlucks
+- signature: major annual or high-profile event (gala, banquet, fast-a-thon, major eid dinner)
 - ramadan: iftar, taraweeh, suhoor, or other Ramadan-specific events
 - career: professional development, resume workshops, networking
-- service: volunteering, community service, charity
+- service: volunteering, community service, charity, food pantry, food bank, ICP, clothing drives
 - meeting: PUBLIC general body or community meetings only (NOT internal officer/exec meetings)
-- fundraiser: donation drives, fundraising events
+- fundraiser: donation drives, fundraising events, bake sales
+- cec: Community Engagement Center events — outreach to youth, other mosques/masjids, homeless outreach, after-school/mentorship programs, interfaith, downtown community programs
 - other: does not clearly fit any category above
 - isSignature: true only for major signature/annual events
 - confidence: your confidence in this classification (0.0 = unsure, 1.0 = certain)
 
-Use "other" when uncertain. Prefer lower confidence over wrong categories.`;
+Use "other" only when the event truly does not fit any category. Most events fit at least one category.
+Always pick the most specific category — do not default to "other" if a better match exists.`;
 
 function validateAiResponse(raw: unknown): AiClassification | null {
   if (!raw || typeof raw !== "object") return null;
@@ -103,7 +107,7 @@ export async function classifyWithGemini(
       responseSchema: {
         type: "OBJECT",
         properties: {
-          audience: { type: "STRING" },
+          audience: { type: "STRING", enum: ["brothers", "sisters", "general"] },
           categories: { type: "ARRAY", items: { type: "STRING" } },
           isSignature: { type: "BOOLEAN" },
           confidence: { type: "NUMBER" },
@@ -145,7 +149,6 @@ export async function classifyWithGemini(
     }
 
     // With responseMimeType=application/json, text contains a JSON string.
-    // With structured output, the parsed object may also be directly in candidate.
     const rawText: string | undefined = candidate.text;
     if (!rawText) {
       console.warn("[classify-ai] Gemini returned no text in response");
@@ -156,7 +159,6 @@ export async function classifyWithGemini(
     try {
       parsed = JSON.parse(rawText);
     } catch {
-      // rawText might itself be a stringified JSON already — try direct use
       parsed = rawText;
       console.warn("[classify-ai] Gemini response was not valid JSON, attempting direct use");
     }

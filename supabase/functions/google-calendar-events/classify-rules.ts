@@ -5,7 +5,7 @@ type AudienceTag = "brothers" | "sisters" | "joint" | "general";
 type EventCategory =
   | "jumuah" | "dawah" | "sports" | "social" | "halaqa"
   | "signature" | "ramadan" | "career" | "service"
-  | "meeting" | "fundraiser" | "other";
+  | "meeting" | "fundraiser" | "cec" | "other";
 
 export type RulesClassification = {
   audience: AudienceTag;
@@ -72,16 +72,28 @@ const CATEGORY_KEYWORDS: Array<{ category: EventCategory; keywords: string[]; si
     category: "meeting",
     keywords: ["gbm", "general body meeting", "general body", "town hall", "open forum", "info session", "orientation", "welcome back"],
   },
+  {
+    // Community Engagement Center — outreach to youth, other mosques, homeless/downtown
+    category: "cec",
+    keywords: [
+      "cec", "community engagement", "youth outreach", "youth program", "youth event",
+      "mosque outreach", "masjid outreach", "interfaith", "homeless outreach", "downtown outreach",
+      "after-school", "afterschool", "mentorship", "tutoring", "kids program",
+    ],
+  },
 ];
 
 const BROTHERS_KEYWORDS = ["brothers", "brotherhood", " men ", "boys"];
 const SISTERS_KEYWORDS = ["sisters", "sisterhood", " women ", "girls"];
 const JOINT_KEYWORDS = ["joint", "everyone", "community", "all welcome", "open to all"];
+const SPORTS_KEYWORDS = ["basketball", "soccer", "football", "volleyball", "sports", "tournament", "fitness", "gym", "swimming", "tennis", "cricket", "badminton", "ping pong", "table tennis", "archery", "hiking"];
 
-function inferAudience(blob: string): AudienceTag {
+function inferAudience(blob: string, matchedCategories: EventCategory[]): AudienceTag {
   if (BROTHERS_KEYWORDS.some((kw) => blob.includes(kw))) return "brothers";
   if (SISTERS_KEYWORDS.some((kw) => blob.includes(kw))) return "sisters";
   if (JOINT_KEYWORDS.some((kw) => blob.includes(kw))) return "joint";
+  // Sports events default to brothers unless overridden by explicit keywords above
+  if (matchedCategories.includes("sports") || SPORTS_KEYWORDS.some((kw) => blob.includes(kw))) return "brothers";
   return "general";
 }
 
@@ -92,7 +104,6 @@ export function classifyByRules(
 ): RulesClassification {
   const blob = ` ${title} ${description} ${location} `.toLowerCase();
 
-  const audience = inferAudience(blob);
   const matchedCategories: EventCategory[] = [];
   let isSignature = false;
 
@@ -102,6 +113,8 @@ export function classifyByRules(
       if (signature) isSignature = true;
     }
   }
+
+  const audience = inferAudience(blob, matchedCategories);
 
   const categories: EventCategory[] = matchedCategories.length > 0
     ? matchedCategories

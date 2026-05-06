@@ -109,17 +109,13 @@ const Events = () => {
     <Layout>
       <EventsHero />
 
-      {/* ── Featured/Signature event — only shows Signature treatment when actually tagged Signature ── */}
-      {featured && (
+      {/* ── Signature event hero — only shown when there is a real signature event ── */}
+      {featured && isSignature && (
         <section className="section-padding pt-10 pb-10 gradient-mesh-warm relative overflow-hidden">
           <div className="absolute inset-0 texture-dots" />
           <div className="max-w-5xl mx-auto relative z-10">
-            {isSignature ? (
-              <SectionHeading title="Signature Event" label="Don't Miss" />
-            ) : (
-              <SectionHeading title="Featured Event" label="Coming Up" />
-            )}
-            <FeaturedEventCard event={featured} showSignatureBadge={isSignature} />
+            <SectionHeading title="Signature Event" label="Don't Miss" />
+            <FeaturedEventCard event={featured} showSignatureBadge={true} />
           </div>
         </section>
       )}
