@@ -19,50 +19,58 @@ export type RulesClassification = {
 const CATEGORY_KEYWORDS: Array<{ category: EventCategory; keywords: string[]; signature?: true }> = [
   {
     category: "jumuah",
-    keywords: ["jumuah", "jummah", "jumua", "friday prayer", "khutbah"],
+    keywords: ["jumuah", "jummah", "jumua", "friday prayer", "khutbah", "jumu'ah"],
   },
   {
     category: "sports",
-    keywords: ["basketball", "soccer", "football", "volleyball", "sports", "tournament", "fitness", "gym"],
+    keywords: ["basketball", "soccer", "football", "volleyball", "sports", "tournament", "fitness", "gym", "swimming", "tennis", "cricket", "badminton", "ping pong", "table tennis", "archery", "hiking"],
   },
   {
     category: "halaqa",
-    keywords: ["halaqa", "quran", "seerah", "tafsir", "hadith", "ilm", "class", "lesson", "study circle"],
+    keywords: ["halaqa", "quran", "seerah", "tafsir", "hadith", "ilm", "class", "lesson", "study circle", "islamic studies", "islamic class", "knowledge"],
   },
   {
     category: "dawah",
-    keywords: ["dawah", "da'wah", "tabling", "outreach"],
+    keywords: ["dawah", "da'wah", "tabling", "outreach", "awareness", "info booth", "information booth"],
   },
   {
     // Public, high-profile events only
     category: "signature",
     signature: true,
-    keywords: ["banquet", "gala", "fast-a-thon", "fastathon", "keynote", "iftar dinner", "annual dinner"],
+    keywords: ["banquet", "gala", "fast-a-thon", "fastathon", "keynote", "iftar dinner", "annual dinner", "annual gala", "end of year", "end-of-year"],
   },
   {
     category: "ramadan",
-    keywords: ["ramadan", "iftar", "suhoor", "taraweeh", "qiyam", "laylatul qadr"],
+    keywords: ["ramadan", "iftar", "suhoor", "taraweeh", "qiyam", "laylatul qadr", "laylat al-qadr", "fast", "fasting", "eid", "eid al-fitr", "eid al-adha", "eid mubarak", "eid celebration", "eid party"],
   },
   {
     category: "career",
-    keywords: ["career", "resume", "internship", "professional", "networking", "job fair", "interview"],
+    keywords: ["career", "resume", "internship", "professional", "networking", "job fair", "interview", "linkedin", "workshop", "professional development", "grad school"],
   },
   {
     category: "service",
-    keywords: ["volunteer", "service", "charity", "cleanup", "food drive", "community service"],
+    keywords: [
+      "volunteer", "service", "charity", "cleanup", "food drive", "community service",
+      "food pantry", "pantry", "food bank", "clothing drive", "clothing donation",
+      "icp", "shelter", "soup kitchen", "habitat", "donation drop", "giveback",
+    ],
   },
   {
     category: "fundraiser",
-    keywords: ["fundraiser", "donation", "fundraising", "zakat", "sadaqah campaign"],
+    keywords: ["fundraiser", "donation", "fundraising", "zakat", "sadaqah campaign", "bake sale", "car wash", "gofundme", "crowdfund", "raise money"],
   },
   {
     category: "social",
-    keywords: ["social", "game night", "bonfire", "potluck", "dinner", "hangout", "picnic", "movie night", "bowling"],
+    keywords: [
+      "social", "game night", "bonfire", "potluck", "dinner", "hangout", "picnic", "movie night", "bowling",
+      "trivia", "paint", "escape room", "laser tag", "karaoke", "cookout", "bbq", "barbecue",
+      "brunch", "lunch", "coffee", "ice cream", "dessert night", "fun night",
+    ],
   },
   {
     // Public-facing meetings only — NOT internal board/exec/officer/committee meetings
     category: "meeting",
-    keywords: ["gbm", "general body meeting", "general body", "town hall", "open forum", "info session", "orientation"],
+    keywords: ["gbm", "general body meeting", "general body", "town hall", "open forum", "info session", "orientation", "welcome back"],
   },
 ];
 

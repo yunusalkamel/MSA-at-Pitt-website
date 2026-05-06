@@ -25,7 +25,7 @@ const EventChip = ({
   const chipStyle = isFeatured
     ? "gold-gradient text-primary-foreground"
     : isPast
-    ? "bg-secondary/40 text-secondary-foreground/60"
+    ? "bg-secondary/40 text-secondary-foreground/60 dark:bg-secondary/20 dark:text-secondary-foreground/40"
     : "bg-secondary/90 text-secondary-foreground";
 
   return (

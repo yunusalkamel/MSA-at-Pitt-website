@@ -54,7 +54,9 @@ export interface MSAEvent {
 }
 
 // ── Display tags (for filter bar + tag chips) ─────────────────
-export const EVENT_CONTENT_TAGS = [
+
+// Category-based tags (what kind of event)
+export const CATEGORY_CONTENT_TAGS = [
   "Jummah",
   "Halaqa",
   "Dawah",
@@ -64,11 +66,18 @@ export const EVENT_CONTENT_TAGS = [
   "Career",
   "Service",
   "Signature",
+  "CEC",
+] as const;
+
+// Audience-based tags (who the event is for)
+export const AUDIENCE_TAGS = [
   "Brothers",
   "Sisters",
   "Joint",
-  "CEC", // kept for backward compatibility with any existing event data that uses this tag
+  "General",
 ] as const;
+
+export const EVENT_CONTENT_TAGS = [...CATEGORY_CONTENT_TAGS, ...AUDIENCE_TAGS] as const;
 
 export type EventTag = (typeof EVENT_CONTENT_TAGS)[number];
 
@@ -110,7 +119,7 @@ export const mockEvents: MSAEvent[] = [
     calendarFallbackUrl: GOOGLE_CALENDAR_URL,
     clickUrl: GOOGLE_CALENDAR_URL, // Jummah → calendar, not linktree
     // Display
-    tags: ["Jummah"],
+    tags: ["Jummah", "General"],
     // Backward compat
     ctaMode: "learn-more",
     addToCalendarUrl: GOOGLE_CALENDAR_URL,
@@ -132,7 +141,7 @@ export const mockEvents: MSAEvent[] = [
     calendarFallbackUrl: GOOGLE_CALENDAR_URL,
     clickUrl: LINKS.linktree,
     // Display
-    tags: ["Halaqa"],
+    tags: ["Halaqa", "General"],
     // Backward compat
     ctaMode: "learn-more",
     addToCalendarUrl: GOOGLE_CALENDAR_URL,

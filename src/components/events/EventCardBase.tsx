@@ -5,6 +5,14 @@ import type { MSAEvent } from "@/data/events";
 import { linkifyText } from "@/lib/linkify";
 import { resolveEventAction } from "./resolveEventAction";
 
+const AiSparkle = () => (
+  <span
+    title="AI-assisted tag"
+    className="inline-block ml-0.5 opacity-25 select-none pointer-events-none text-[7px] leading-none align-super"
+    aria-hidden="true"
+  >✦</span>
+);
+
 interface Props {
   event: MSAEvent;
   variant?: "standard" | "featured";
@@ -100,7 +108,7 @@ const EventCardBase = ({ event, variant = "standard", index = 0, showSignatureBa
               <div className="flex flex-wrap gap-2 mb-4">
                 {event.tags.map((tag) => (
                   <span key={tag} className={tag === "Signature" ? "tag-chip-gold" : "tag-chip"}>
-                    {tag}
+                    {tag}{event.tagSource === "ai" && <AiSparkle />}
                   </span>
                 ))}
               </div>
@@ -178,7 +186,7 @@ const EventCardBase = ({ event, variant = "standard", index = 0, showSignatureBa
                       : "tag-chip"
                   }
                 >
-                  {tag}
+                  {tag}{event.tagSource === "ai" && <AiSparkle />}
                 </span>
               ))}
               {event.tags.length > 3 && <span className="text-[10px] text-muted-foreground/70 flex items-center">+{event.tags.length - 3}</span>}
