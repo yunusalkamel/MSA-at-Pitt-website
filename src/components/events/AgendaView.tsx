@@ -3,6 +3,14 @@ import { Clock, MapPin } from "lucide-react";
 import type { MSAEvent } from "@/data/events";
 import EventDetailSheet from "./EventDetailSheet";
 
+const AiSparkle = () => (
+  <span
+    title="AI-assisted tag"
+    className="inline-block ml-0.5 opacity-25 select-none pointer-events-none text-[7px] leading-none align-super"
+    aria-hidden="true"
+  >✦</span>
+);
+
 function groupEvents(events: MSAEvent[]) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -107,7 +115,7 @@ const AgendaView = ({ events }: { events: MSAEvent[] }) => {
                     </div>
                     {event.tags[0] && (
                       <span className={`flex-shrink-0 hidden sm:block ${group.isPast ? "opacity-50" : ""} ${event.tags[0] === "Signature" ? "tag-chip-gold" : "tag-chip"}`}>
-                        {event.tags[0]}
+                        {event.tags[0]}{event.tagSource === "ai" && <AiSparkle />}
                       </span>
                     )}
                   </button>

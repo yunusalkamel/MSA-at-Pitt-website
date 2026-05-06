@@ -60,13 +60,14 @@ const Events = () => {
   const filteredEvents = useMemo(() => {
     if (selectedTags.includes("All")) return sourceEvents;
     if (selectedTags.includes("Past Events")) {
+      // "Past Events" alone → only past; "Past Events" + tags → intersection of past + tags
       const other = selectedTags.filter((t) => t !== "Past Events");
       const past = sourceEvents.filter((e) => e.isPast);
       return other.length === 0 ? past : past.filter((e) => e.tags.some((t) => other.includes(t)));
     }
-    return sourceEvents
-      .filter((e) => !e.isPast)
-      .filter((e) => e.tags.some((t) => selectedTags.includes(t)));
+    // Category/audience filters show ALL matching events (past + upcoming)
+    // AgendaView groups past events at the bottom automatically
+    return sourceEvents.filter((e) => e.tags.some((t) => selectedTags.includes(t)));
   }, [selectedTags, sourceEvents]);
 
   const upcomingScrollRef = useRef<HTMLDivElement>(null);
