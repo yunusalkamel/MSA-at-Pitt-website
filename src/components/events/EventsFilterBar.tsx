@@ -67,11 +67,6 @@ const EventsFilterBar = ({ selected, onChange }: Props) => {
       {AUDIENCE_TAGS.map((tag) => (
         <FilterBtn key={tag} tag={tag} isActive={isActive(tag)} onClick={() => toggle(tag)} />
       ))}
-
-      <Divider />
-
-      {/* Past Events */}
-      <FilterBtn tag="Past Events" isActive={isActive("Past Events")} onClick={() => toggle("Past Events")} />
     </motion.div>
   );
 };

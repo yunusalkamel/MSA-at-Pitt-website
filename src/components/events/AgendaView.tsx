@@ -89,7 +89,7 @@ const AgendaView = ({ events }: { events: MSAEvent[] }) => {
                     onClick={() => setSelected(event)}
                     className={`w-full text-left rounded-2xl px-4 py-3.5 flex items-center gap-4 group transition-all duration-200
                       ${group.isPast
-                        ? "bg-muted/30 border border-border/20 hover:bg-muted/50 opacity-70"
+                        ? "bg-muted/30 border border-border/20 hover:bg-muted/50 opacity-70 dark:opacity-35"
                         : "liquid-glass-hover"
                       }`}
                   >
