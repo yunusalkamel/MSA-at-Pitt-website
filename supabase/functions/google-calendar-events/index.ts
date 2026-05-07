@@ -27,6 +27,7 @@ async function applyAiClassification(
   candidates: ClassifiedBlock[],
 ): Promise<void> {
   if (candidates.length === 0) return;
+  console.log(`[ai] ${candidates.length} events need classification`);
 
   // Build cache lookup entries using the ICS UID and LAST-MODIFIED fields
   const cacheEntries = candidates.map((c) => ({
@@ -40,6 +41,9 @@ async function applyAiClassification(
   } catch {
     // Cache read failure is non-fatal
   }
+
+  const uncachedCount = candidates.filter((c) => !cachedResults.has(c.block.UID || c.block.DTSTART || "unknown")).length;
+  console.log(`[ai] ${cachedResults.size} cache hits, ${uncachedCount} need Gemini (~${Math.ceil(uncachedCount * 2.2)}s)`);
 
   // Process each candidate sequentially to avoid Gemini rate limits (429).
   // Cache hits are instant; only uncached events actually call Gemini.
@@ -93,8 +97,9 @@ async function applyAiClassification(
     }
     item.needsAI = false;
 
-    // Small pause between Gemini calls to stay well under the 30 RPM free-tier limit
-    await new Promise((r) => setTimeout(r, 300));
+    // 2200ms between calls keeps us at ~27 RPM, safely under Gemini free tier (30 RPM).
+    // With ~30 events this adds ~66s on first load; after that everything is cached.
+    await new Promise((r) => setTimeout(r, 2200));
   }
 }
 
