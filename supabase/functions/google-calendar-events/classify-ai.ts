@@ -134,11 +134,13 @@ export async function classifyWithGemini(
       signal: controller.signal,
     });
 
-    // Single retry on 429 — wait for the Retry-After header or 8s, then try once more
-    if (response.status === 429) {
-      const retryAfter = Number(response.headers.get("Retry-After") ?? "8");
-      const waitMs = Math.min(retryAfter * 1000, 8000);
-      console.warn(`[classify-ai] Gemini 429 — retrying after ${waitMs}ms`);
+    // Retry on 429 with exponential backoff (up to 3 attempts total)
+    let attempt = 0;
+    while (response.status === 429 && attempt < 2) {
+      attempt++;
+      const retryAfter = Number(response.headers.get("Retry-After") ?? String(attempt * 10));
+      const waitMs = Math.min(retryAfter * 1000, attempt * 12000);
+      console.warn(`[classify-ai] Gemini 429 — attempt ${attempt}, retrying after ${waitMs}ms`);
       await new Promise((r) => setTimeout(r, waitMs));
       response = await fetch(url, {
         method: "POST",

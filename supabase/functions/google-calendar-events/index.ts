@@ -13,6 +13,9 @@ const corsHeaders = {
 };
 
 const IMPLEMENTATION = "ics_no_key_v4";
+// Max new Gemini calls per invocation — prevents 429 floods when many events appear at once.
+// Uncapped events fall back to rules-based tags and get AI-classified on future requests.
+const MAX_GEMINI_CALLS_PER_INVOCATION = 8;
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5-minute in-memory cache
 
 let cachedResponse: string | null = null;
@@ -42,11 +45,14 @@ async function applyAiClassification(
     // Cache read failure is non-fatal
   }
 
-  const uncachedCount = candidates.filter((c) => !cachedResults.has(c.block.UID || c.block.DTSTART || "unknown")).length;
-  console.log(`[ai] ${cachedResults.size} cache hits, ${uncachedCount} need Gemini (~${Math.ceil(uncachedCount * 2.2)}s)`);
+  const uncachedCandidates = candidates.filter((c) => !cachedResults.has(c.block.UID || c.block.DTSTART || "unknown"));
+  const uncachedCount = uncachedCandidates.length;
+  const geminiCallCount = Math.min(uncachedCount, MAX_GEMINI_CALLS_PER_INVOCATION);
+  console.log(`[ai] ${cachedResults.size} cache hits, ${uncachedCount} need Gemini (capped at ${geminiCallCount}, ~${Math.ceil(geminiCallCount * 2.2)}s)`);
 
   // Process each candidate sequentially to avoid Gemini rate limits (429).
-  // Cache hits are instant; only uncached events actually call Gemini.
+  // Cache hits are instant; only uncached events actually call Gemini (capped per invocation).
+  let geminiCallsMade = 0;
   for (const item of candidates) {
     const eventId = item.block.UID || item.block.DTSTART || "unknown";
     const eventUpdated = item.block["LAST-MODIFIED"] || "";
@@ -66,7 +72,14 @@ async function applyAiClassification(
       continue;
     }
 
-    // No cache — call Gemini (sequential to stay under rate limit)
+    // No cache — call Gemini only if under the per-invocation cap
+    if (geminiCallsMade >= MAX_GEMINI_CALLS_PER_INVOCATION) {
+      item.classification = { ...item.classification, tagSource: "uncategorized" };
+      item.needsAI = false;
+      continue;
+    }
+
+    geminiCallsMade++;
     const title = item.block.SUMMARY || "";
     const description = item.block.DESCRIPTION || "";
     const location = item.block.LOCATION || "";
