@@ -65,6 +65,7 @@ const CATEGORY_KEYWORDS: Array<{ category: EventCategory; keywords: string[]; si
       "social", "game night", "bonfire", "potluck", "dinner", "hangout", "picnic", "movie night", "bowling",
       "trivia", "paint", "escape room", "laser tag", "karaoke", "cookout", "bbq", "barbecue",
       "brunch", "lunch", "coffee", "ice cream", "dessert night", "fun night",
+      "takeover", "instagram takeover", "social media takeover",
     ],
   },
   {

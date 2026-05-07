@@ -56,7 +56,7 @@ Definitions:
 - fundraiser: donation drives, fundraising events, bake sales
 - cec: Community Engagement Center events — outreach to youth, other mosques/masjids, homeless outreach, after-school/mentorship programs, interfaith, downtown community programs
 - other: does not clearly fit any category above
-- isSignature: true only for major signature/annual events
+- isSignature: true ONLY for major annual events like gala, banquet, fast-a-thon, or large-scale eid dinner. Social events, sports, takeovers, and regular halaqas are NEVER isSignature.
 - confidence: your confidence in this classification (0.0 = unsure, 1.0 = certain)
 
 Use "other" only when the event truly does not fit any category. Most events fit at least one category.
