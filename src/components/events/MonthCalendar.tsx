@@ -122,20 +122,20 @@ const MonthView = ({
 
       <div className="grid grid-cols-7 gap-1">
         {cells.map((day, i) => {
-          if (day === null) return <div key={`empty-${i}`} className="min-h-[100px] md:min-h-[116px]" />;
+          if (day === null) return <div key={`empty-${i}`} className="min-h-[42px]" />;
 
           const dateStr = formatDateStr(year, month, day);
           const dayEvents = eventsByDate[dateStr] || [];
           const isToday = dateStr === todayStr;
           const hasEvents = dayEvents.length > 0;
-          const visibleEvents = dayEvents.slice(0, 2);
-          const hiddenCount = Math.max(dayEvents.length - 2, 0);
+          const compact = dayEvents.length >= 3;
 
           return (
             <div
               key={dateStr}
               onClick={() => hasEvents && onSelectDate(dateStr)}
-              className={`relative min-h-[100px] md:min-h-[116px] rounded-xl flex flex-col items-start p-1.5 md:p-2 border transition-all duration-200 overflow-hidden
+              className={`relative rounded-xl flex flex-col items-start p-1.5 md:p-2 border transition-all duration-200 overflow-hidden
+                ${!hasEvents ? "min-h-[42px]" : ""}
                 ${isToday
                   ? "border-primary/50 bg-primary/[0.08] shadow-[0_0_14px_hsl(var(--primary)/0.12)]"
                   : hasEvents
@@ -153,13 +153,10 @@ const MonthView = ({
                 ${isToday ? "text-primary" : hasEvents ? "text-foreground" : "text-muted-foreground"}`}>
                 {day}
               </span>
-              <div className="w-full flex flex-col gap-[3px] flex-1 min-h-0">
-                {visibleEvents.map((ev, idx) => (
-                  <EventChip key={`${ev.id}-${idx}`} event={ev} onClick={(e) => handleEventClick(ev, e)} />
+              <div className="w-full flex flex-col gap-[3px]">
+                {dayEvents.map((ev, idx) => (
+                  <EventChip key={`${ev.id}-${idx}`} event={ev} compact={compact} onClick={(e) => handleEventClick(ev, e)} />
                 ))}
-                {hiddenCount > 0 && (
-                  <MorePill count={hiddenCount} onClick={(e) => { e.stopPropagation(); onSelectDate(dateStr); }} />
-                )}
               </div>
             </div>
           );
@@ -405,7 +402,10 @@ const MonthCalendar = ({ events }: Props) => {
             date={selectedDate}
             events={eventsByDate[selectedDate] || []}
             onClose={() => setSelectedDate(null)}
-            onEventSelect={setSelectedEvent}
+            onEventSelect={(ev) => {
+              setSelectedDate(null);
+              setSelectedEvent(ev);
+            }}
           />
         )}
       </AnimatePresence>

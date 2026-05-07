@@ -65,16 +65,16 @@ export function useCalendarEvents() {
     const isFresh = cached && Date.now() - cached.syncedAt < CACHE_MAX_AGE_MS;
     if (isFresh) {
       setLoading(false);
-      return () => {
-        cancelled = true;
-      };
+    } else {
+      void (async () => {
+        if (cancelled) return;
+        await load();
+      })();
     }
-    void (async () => {
-      if (cancelled) return;
-      await load();
-    })();
+    const interval = setInterval(() => void load(), CACHE_MAX_AGE_MS);
     return () => {
       cancelled = true;
+      clearInterval(interval);
     };
   }, [load]);
 
