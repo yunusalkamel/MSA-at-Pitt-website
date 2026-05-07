@@ -134,13 +134,12 @@ export async function classifyWithGemini(
       signal: controller.signal,
     });
 
-    // Retry on 429 with exponential backoff (up to 3 attempts total)
-    let attempt = 0;
-    while (response.status === 429 && attempt < 2) {
-      attempt++;
-      const retryAfter = Number(response.headers.get("Retry-After") ?? String(attempt * 10));
-      const waitMs = Math.min(retryAfter * 1000, attempt * 12000);
-      console.warn(`[classify-ai] Gemini 429 — attempt ${attempt}, retrying after ${waitMs}ms`);
+    // Single retry on 429 — short wait so we don't stall the whole invocation.
+    // The 8-call cap + 2.2s inter-call delay keeps us well under rate limits normally.
+    if (response.status === 429) {
+      const retryAfter = Number(response.headers.get("Retry-After") ?? "4");
+      const waitMs = Math.min(retryAfter * 1000, 5000);
+      console.warn(`[classify-ai] Gemini 429 — retrying after ${waitMs}ms`);
       await new Promise((r) => setTimeout(r, waitMs));
       response = await fetch(url, {
         method: "POST",
