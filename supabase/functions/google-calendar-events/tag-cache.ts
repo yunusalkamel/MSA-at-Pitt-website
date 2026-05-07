@@ -91,11 +91,10 @@ export async function getCachedTagsBatch(
     const updatedByEntry = new Map(entries.map((e) => [e.id, e.updated]));
 
     for (const row of rows) {
-      const expectedUpdated = updatedByEntry.get(row.google_event_id);
-      if (expectedUpdated !== undefined && row.google_event_updated === expectedUpdated) {
-        result.set(row.google_event_id, rowToClassification(row));
-      }
-      // Mismatched google_event_updated → event changed, skip stale cache row
+      // Accept cached result regardless of google_event_updated — stale AI tags are far
+      // better than a Gemini 429 flood when many events change simultaneously (e.g. a
+      // recurring series edit). New events (no row yet) still trigger a fresh Gemini call.
+      result.set(row.google_event_id, rowToClassification(row));
     }
   } catch (err) {
     console.warn(`[tag-cache] Cache read error: ${err instanceof Error ? err.message : String(err)}`);

@@ -119,19 +119,34 @@ export async function classifyWithGemini(
     },
   };
 
+  const TIMEOUT_MS = 15000;
   const controller = new AbortController();
   const timeout = setTimeout(() => {
     controller.abort();
-    console.warn("[classify-ai] Gemini request timed out after 12s");
-  }, 12000);
+    console.warn("[classify-ai] Gemini request timed out after 15s");
+  }, TIMEOUT_MS);
 
   try {
-    const response = await fetch(url, {
+    let response = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
       signal: controller.signal,
     });
+
+    // Single retry on 429 — wait for the Retry-After header or 8s, then try once more
+    if (response.status === 429) {
+      const retryAfter = Number(response.headers.get("Retry-After") ?? "8");
+      const waitMs = Math.min(retryAfter * 1000, 8000);
+      console.warn(`[classify-ai] Gemini 429 — retrying after ${waitMs}ms`);
+      await new Promise((r) => setTimeout(r, waitMs));
+      response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+    }
 
     clearTimeout(timeout);
 
