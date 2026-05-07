@@ -41,60 +41,61 @@ async function applyAiClassification(
     // Cache read failure is non-fatal
   }
 
-  // Process each candidate: use cache or call Gemini
-  await Promise.all(
-    candidates.map(async (item) => {
-      const eventId = item.block.UID || item.block.DTSTART || "unknown";
-      const eventUpdated = item.block["LAST-MODIFIED"] || "";
+  // Process each candidate sequentially to avoid Gemini rate limits (429).
+  // Cache hits are instant; only uncached events actually call Gemini.
+  for (const item of candidates) {
+    const eventId = item.block.UID || item.block.DTSTART || "unknown";
+    const eventUpdated = item.block["LAST-MODIFIED"] || "";
 
-      // Cache hit — use stored AI result
-      const cached = cachedResults.get(eventId);
-      if (cached) {
-        item.classification = {
-          ...item.classification,
-          audience: cached.audience,
-          categories: cached.categories,
-          isSignature: cached.isSignature,
-          confidence: cached.confidence,
-          tagSource: "ai",
-        };
-        item.needsAI = false;
-        return;
-      }
-
-      // No cache — call Gemini
-      const title = item.block.SUMMARY || "";
-      const description = item.block.DESCRIPTION || "";
-      const location = item.block.LOCATION || "";
-      const start = item.block.DTSTART || "";
-
-      const aiResult = await classifyWithGemini({ title, description, location, start });
-
-      if (aiResult && aiResult.confidence >= 0.7) {
-        // Store result in DB cache so subsequent loads are fast
-        try {
-          await setCachedTags(eventId, eventUpdated, aiResult, title);
-        } catch {
-          // Cache write failure is non-fatal
-        }
-        item.classification = {
-          ...item.classification,
-          audience: aiResult.audience,
-          categories: aiResult.categories,
-          isSignature: aiResult.isSignature,
-          confidence: aiResult.confidence,
-          tagSource: "ai",
-        };
-      } else {
-        // AI unavailable or low confidence — keep rules result, mark uncategorized
-        item.classification = {
-          ...item.classification,
-          tagSource: "uncategorized",
-        };
-      }
+    // Cache hit — use stored AI result, no network call needed
+    const cached = cachedResults.get(eventId);
+    if (cached) {
+      item.classification = {
+        ...item.classification,
+        audience: cached.audience,
+        categories: cached.categories,
+        isSignature: cached.isSignature,
+        confidence: cached.confidence,
+        tagSource: "ai",
+      };
       item.needsAI = false;
-    }),
-  );
+      continue;
+    }
+
+    // No cache — call Gemini (sequential to stay under rate limit)
+    const title = item.block.SUMMARY || "";
+    const description = item.block.DESCRIPTION || "";
+    const location = item.block.LOCATION || "";
+    const start = item.block.DTSTART || "";
+
+    const aiResult = await classifyWithGemini({ title, description, location, start });
+
+    if (aiResult && aiResult.confidence >= 0.7) {
+      // Store in DB so this event is never sent to Gemini again
+      try {
+        await setCachedTags(eventId, eventUpdated, aiResult, title);
+      } catch {
+        // Cache write failure is non-fatal
+      }
+      item.classification = {
+        ...item.classification,
+        audience: aiResult.audience,
+        categories: aiResult.categories,
+        isSignature: aiResult.isSignature,
+        confidence: aiResult.confidence,
+        tagSource: "ai",
+      };
+    } else {
+      item.classification = {
+        ...item.classification,
+        tagSource: "uncategorized",
+      };
+    }
+    item.needsAI = false;
+
+    // Small pause between Gemini calls to stay well under the 30 RPM free-tier limit
+    await new Promise((r) => setTimeout(r, 300));
+  }
 }
 
 Deno.serve(async (req) => {
