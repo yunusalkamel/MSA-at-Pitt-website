@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Instagram } from "lucide-react";
+import { Instagram, Facebook } from "lucide-react";
 import KhatamOverlay from "@/components/KhatamOverlay";
 import BridgeBar from "@/components/BridgeBar";
 import { LINKS } from "@/config/links";
@@ -30,16 +30,16 @@ const Footer = () => {
 
       <div className="relative max-w-6xl mx-auto px-6 md:px-10 lg:px-16 pt-12 pb-8">
 
-        {/* ── Top row: logo-left | links-center | motto-right ── */}
+        {/* ── Top row: logo-left | nav-center | motto+contact-right ── */}
         <div className="grid grid-cols-1 lg:grid-cols-[auto_1fr_auto] gap-10 lg:gap-14 items-start mb-10">
 
-          {/* Left: logo + name + description */}
+          {/* Left: logo + name + description — bigger */}
           <div className="flex flex-col items-center lg:items-start gap-3">
             <Link to="/" className="hover:opacity-85 transition-opacity">
-              <img src="/msa-logo-white.png" alt="MSA at Pitt" className="h-20 md:h-24 w-auto object-contain" />
+              <img src="/msa-logo-white.png" alt="MSA at Pitt" className="h-24 md:h-28 w-auto object-contain" />
             </Link>
             <p
-              className="font-display text-2xl md:text-3xl font-bold leading-tight"
+              className="font-display text-3xl md:text-4xl font-bold leading-tight"
               style={{ color: "rgba(255,255,255,.9)" }}
             >
               MSA at Pitt
@@ -54,64 +54,70 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Center: three nav columns */}
-          <div className="grid grid-cols-3 gap-4 lg:gap-8">
+          {/* Center: Explore + Resources only */}
+          <div className="flex gap-10 lg:gap-16 justify-center">
 
-            {/* Explore — left aligned */}
+            {/* Explore */}
             <div className="flex flex-col gap-2.5 items-start">
               <p className="font-body text-[10px] font-bold uppercase tracking-[0.2em] mb-1" style={{ color: "rgba(242,171,35,.6)" }}>Explore</p>
               {[
-                { to: "/about",   l: "About"  },
-                { to: "/events",  l: "Events" },
+                { to: "/about",   l: "About"   },
+                { to: "/events",  l: "Events"  },
                 { to: "/gallery", l: "Gallery" },
-                { to: "/join",    l: "Join"   },
+                { to: "/join",    l: "Join"    },
               ].map(({ to, l }) => (
                 <Link key={to} to={to} className="footer-link font-body text-sm">{l}</Link>
               ))}
             </div>
 
-            {/* Resources — center aligned */}
-            <div className="flex flex-col gap-2.5 items-center text-center">
+            {/* Resources */}
+            <div className="flex flex-col gap-2.5 items-start">
               <p className="font-body text-[10px] font-bold uppercase tracking-[0.2em] mb-1" style={{ color: "rgba(242,171,35,.6)" }}>Resources</p>
               {[
-                { to: "/resources",                    l: "All Resources"     },
-                { to: "/resources/new-to-pitt",        l: "New to Pitt"       },
-                { to: "/resources/prayer-locations",   l: "Prayer Locations"  },
-                { to: "/prayer-times",                 l: "Prayer Times"      },
-                { to: "/resources/faq",                l: "FAQ"               },
+                { to: "/resources",                  l: "All Resources"    },
+                { to: "/resources/new-to-pitt",      l: "New to Pitt"      },
+                { to: "/resources/prayer-locations", l: "Prayer Locations" },
+                { to: "/prayer-times",               l: "Prayer Times"     },
+                { to: "/resources/faq",              l: "FAQ"              },
               ].map(({ to, l }) => (
-                <Link key={to} to={to} className="footer-link font-body text-sm text-center">{l}</Link>
+                <Link key={to} to={to} className="footer-link font-body text-sm">{l}</Link>
               ))}
-            </div>
-
-            {/* Contact — right aligned */}
-            <div className="flex flex-col gap-2.5 items-end text-right">
-              <p className="font-body text-[10px] font-bold uppercase tracking-[0.2em] mb-1" style={{ color: "rgba(242,171,35,.6)" }}>Contact</p>
-              <a href={`mailto:${LINKS.email}`} className="footer-link font-body text-sm">{LINKS.email}</a>
-              <a href={LINKS.instagram} target="_blank" rel="noopener noreferrer" className="footer-link font-body text-sm inline-flex items-center gap-1.5 justify-end">
-                <Instagram size={12} /> Instagram
-              </a>
-              <a href={LINKS.whatsappAnnouncements} target="_blank" rel="noopener noreferrer" className="footer-link font-body text-sm inline-flex items-center gap-1.5 justify-end">
-                <WhatsAppIcon size={12} /> WhatsApp
-              </a>
-              <a href={LINKS.linktree} target="_blank" rel="noopener noreferrer" className="footer-link font-body text-sm">Linktree</a>
             </div>
           </div>
 
-          {/* Right: motto — Cormorant Garamond, right-aligned, matches closing section size */}
-          <div className="text-center lg:text-right">
-            <h2
-              className="font-display text-3xl md:text-[2.6rem] font-bold text-accent-foreground leading-tight"
-            >
-              Cultivate Community,
-            </h2>
-            <div>
-              <span
-                className="font-display italic text-gradient-aura inline-block"
-                style={{ fontSize: "clamp(2.4rem, 3.5vw, 3.8rem)", lineHeight: 1.2, paddingBottom: "0.15em" }}
-              >
-                Ignite Iman.
-              </span>
+          {/* Right: motto + contact below */}
+          <div className="flex flex-col items-center lg:items-end gap-5">
+            {/* Motto */}
+            <div className="text-center lg:text-right">
+              <h2 className="font-display text-3xl md:text-[2.6rem] font-bold text-accent-foreground leading-tight">
+                Cultivate Community,
+              </h2>
+              <div>
+                <span
+                  className="font-display italic text-gradient-aura inline-block"
+                  style={{ fontSize: "clamp(2.4rem, 3.5vw, 3.8rem)", lineHeight: 1.2, paddingBottom: "0.15em" }}
+                >
+                  Ignite Iman.
+                </span>
+              </div>
+            </div>
+
+            {/* Contact links */}
+            <div className="flex flex-col items-center lg:items-end gap-2.5">
+              <p className="font-body text-[10px] font-bold uppercase tracking-[0.2em]" style={{ color: "rgba(242,171,35,.6)" }}>Contact</p>
+              <a href={`mailto:${LINKS.email}`} className="footer-link font-body text-sm">{LINKS.email}</a>
+              <div className="flex items-center gap-4 mt-1">
+                <a href={LINKS.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="footer-link inline-flex items-center">
+                  <Instagram size={18} />
+                </a>
+                <a href={LINKS.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="footer-link inline-flex items-center">
+                  <Facebook size={18} />
+                </a>
+                <a href={LINKS.whatsappAnnouncements} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" className="footer-link inline-flex items-center">
+                  <WhatsAppIcon size={18} />
+                </a>
+              </div>
+              <a href={LINKS.linktree} target="_blank" rel="noopener noreferrer" className="footer-link font-body text-sm">Linktree</a>
             </div>
           </div>
         </div>
@@ -125,7 +131,7 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* ── Closing verse — inline, not a card ── */}
+        {/* ── Closing verse ── */}
         <div className="text-center mb-6">
           <p
             className="font-arabic text-xl md:text-2xl mb-2 leading-relaxed"
