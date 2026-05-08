@@ -20,10 +20,12 @@ const EventChip = ({
   compact?: boolean;
   onClick: (e: React.MouseEvent) => void;
 }) => {
-  const isFeatured = event.featured;
+  const isSignature = event.featured || event.isSignature;
   const isPast = event.isPast;
-  const chipStyle = isFeatured
+  const chipStyle = isSignature && !isPast
     ? "gold-gradient text-primary-foreground"
+    : isSignature && isPast
+    ? "border border-primary/35 bg-primary/[0.06] text-foreground/60"
     : isPast
     ? "bg-secondary/40 text-secondary-foreground/60 dark:bg-secondary/20 dark:text-secondary-foreground/40"
     : "bg-secondary/90 text-secondary-foreground";
@@ -122,20 +124,20 @@ const MonthView = ({
 
       <div className="grid grid-cols-7 gap-1">
         {cells.map((day, i) => {
-          if (day === null) return <div key={`empty-${i}`} className="min-h-[100px] md:min-h-[116px]" />;
+          if (day === null) return <div key={`empty-${i}`} className="min-h-[42px]" />;
 
           const dateStr = formatDateStr(year, month, day);
           const dayEvents = eventsByDate[dateStr] || [];
           const isToday = dateStr === todayStr;
           const hasEvents = dayEvents.length > 0;
-          const visibleEvents = dayEvents.slice(0, 2);
-          const hiddenCount = Math.max(dayEvents.length - 2, 0);
+          const compact = dayEvents.length >= 3;
 
           return (
             <div
               key={dateStr}
               onClick={() => hasEvents && onSelectDate(dateStr)}
-              className={`relative min-h-[100px] md:min-h-[116px] rounded-xl flex flex-col items-start p-1.5 md:p-2 border transition-all duration-200 overflow-hidden
+              className={`relative rounded-xl flex flex-col items-start p-1.5 md:p-2 border transition-all duration-200 overflow-hidden
+                ${!hasEvents ? "min-h-[42px]" : ""}
                 ${isToday
                   ? "border-primary/50 bg-primary/[0.08] shadow-[0_0_14px_hsl(var(--primary)/0.12)]"
                   : hasEvents
@@ -153,13 +155,10 @@ const MonthView = ({
                 ${isToday ? "text-primary" : hasEvents ? "text-foreground" : "text-muted-foreground"}`}>
                 {day}
               </span>
-              <div className="w-full flex flex-col gap-[3px] flex-1 min-h-0">
-                {visibleEvents.map((ev, idx) => (
-                  <EventChip key={`${ev.id}-${idx}`} event={ev} onClick={(e) => handleEventClick(ev, e)} />
+              <div className="w-full flex flex-col gap-[3px]">
+                {dayEvents.map((ev, idx) => (
+                  <EventChip key={`${ev.id}-${idx}`} event={ev} compact={compact} onClick={(e) => handleEventClick(ev, e)} />
                 ))}
-                {hiddenCount > 0 && (
-                  <MorePill count={hiddenCount} onClick={(e) => { e.stopPropagation(); onSelectDate(dateStr); }} />
-                )}
               </div>
             </div>
           );
@@ -275,8 +274,6 @@ const WeekView = ({
           const dayEvents = eventsByDate[dateStr] || [];
           const isToday = dateStr === todayStr;
           const hasEvents = dayEvents.length > 0;
-          const visibleEvents = dayEvents.slice(0, 2);
-          const hiddenCount = Math.max(dayEvents.length - 2, 0);
 
           return (
             <div
@@ -290,7 +287,7 @@ const WeekView = ({
                   : "border-transparent"
                 }`}
             >
-              {visibleEvents.map((ev, idx) => (
+              {dayEvents.map((ev, idx) => (
                 <EventChip
                   key={`${ev.id}-${idx}`}
                   event={ev}
@@ -298,12 +295,6 @@ const WeekView = ({
                   onClick={(e) => handleEventClick(ev, e)}
                 />
               ))}
-              {hiddenCount > 0 && (
-                <MorePill
-                  count={hiddenCount}
-                  onClick={(e) => { e.stopPropagation(); onSelectDate(dateStr); }}
-                />
-              )}
             </div>
           );
         })}
@@ -329,6 +320,7 @@ const WeekView = ({
 // ── Root ──────────────────────────────────────────────────────────────────────
 
 const MonthCalendar = ({ events }: Props) => {
+  const hasAnyEvents = events.length > 0;
   const today = new Date();
   const isMobile = useIsMobile();
 
@@ -397,6 +389,13 @@ const MonthCalendar = ({ events }: Props) => {
           onSelectDate={setSelectedDate}
           onEventSelect={setSelectedEvent}
         />
+      )}
+
+      {!hasAnyEvents && (
+        <div className="glass-card mt-4 p-8 text-center rounded-2xl">
+          <p className="font-display text-lg font-semibold text-foreground mb-1">No events found</p>
+          <p className="text-muted-foreground text-sm">Try a different filter or check back soon.</p>
+        </div>
       )}
 
       <AnimatePresence>

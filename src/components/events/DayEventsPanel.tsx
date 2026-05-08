@@ -87,7 +87,7 @@ const DayEventsPanel = ({ date, events, onClose, onEventSelect }: Props) => {
           {events.map((event, index) => {
             const action = resolveEventAction(event);
             const link = action.href;
-            const isFeatured = event.featured;
+            const isFeatured = event.featured || event.isSignature;
             const isPast = event.isPast;
 
             return (
