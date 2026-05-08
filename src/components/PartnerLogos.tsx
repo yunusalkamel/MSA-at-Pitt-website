@@ -19,7 +19,8 @@ const PARTNERS: Partner[] = [
   // Mosques
   { name: "Attawheed Islamic Center",               shortName: "Attawheed",   src: "/partners/attawheed.png",  group: "Mosque" },
   { name: "Islamic Center of Pittsburgh",           shortName: "ICP",         src: "/partners/icp.png",        group: "Mosque" },
-  { name: "Islamic Center of Western PA / MAP",     shortName: "ICWP / MAP",  src: "/partners/icwp-map.png",   group: "Mosque" },
+  { name: "Islamic Center of Western PA",            shortName: "ICWP",        src: "/partners/icwp.png",       group: "Mosque" },
+  { name: "Muslim Association of Pittsburgh",        shortName: "MAP",         src: "/partners/map.png",        group: "Mosque" },
   { name: "Muslim Community Center Greater Pgh",    shortName: "MCCGP",       src: "/partners/mccgp.png",      group: "Mosque" },
   // Education
   { name: "Miftaah Institute",                      shortName: "Miftaah",     src: "/partners/miftaah.png",    group: "Education" },
