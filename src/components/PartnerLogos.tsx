@@ -12,7 +12,7 @@ interface Partner {
 
 const PARTNERS: Partner[] = [
   // Mosques
-  { name: "Attawheed Islamic Center",              shortName: "Attawheed",  src: "/partners/attawheed.jpg",  href: "https://attawheed.org",      group: "Mosque" },
+  { name: "Attawheed Islamic Center",              shortName: "Attawheed",  src: "/partners/attawheed.jpg",  href: "https://attawheed.org",      group: "Mosque",      hasBackground: true },
   { name: "Islamic Center of Pittsburgh",          shortName: "ICP",        src: "/partners/icp.jpeg",       href: "https://icp-pgh.org",        group: "Mosque",      hasBackground: true },
   { name: "Islamic Center of Western PA",          shortName: "ICWP",       src: "/partners/icwp.jpeg",      href: "https://icwpa.org",          group: "Mosque",      hasBackground: true },
   { name: "Muslim Association of Pittsburgh",      shortName: "MAP",        src: "/partners/map.png",        href: "https://mapitt.org",         group: "Mosque" },
@@ -32,7 +32,7 @@ const PARTNERS: Partner[] = [
   { name: "Human Development Foundation",          shortName: "HDF",        src: "/partners/hdf.png",        href: "https://hdf.com",            group: "Community" },
 ];
 
-const SCROLL_SPEED = 45; // px per second
+const SCROLL_SPEED = 30; // px per second
 
 const PartnerTile = ({ partner }: { partner: Partner }) => (
   <a
@@ -87,7 +87,7 @@ const PartnerLogos = () => {
   const loop = [...PARTNERS, ...PARTNERS];
   const x = useMotionValue(0);
   const isDragging = useRef(false);
-  const hasMoved = useRef(false);
+  const didDrag = useRef(false);
   const innerRef = useRef<HTMLDivElement>(null);
   const dragStartClientX = useRef(0);
   const dragStartMotionX = useRef(0);
@@ -102,7 +102,7 @@ const PartnerLogos = () => {
 
   const handlePointerDown = (e: React.PointerEvent) => {
     isDragging.current = true;
-    hasMoved.current = false;
+    didDrag.current = false;
     dragStartClientX.current = e.clientX;
     dragStartMotionX.current = x.get();
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
@@ -111,7 +111,7 @@ const PartnerLogos = () => {
   const handlePointerMove = (e: React.PointerEvent) => {
     if (!isDragging.current || !innerRef.current) return;
     const delta = e.clientX - dragStartClientX.current;
-    if (Math.abs(delta) > 4) hasMoved.current = true;
+    if (Math.abs(delta) > 6) didDrag.current = true;
     const halfWidth = innerRef.current.scrollWidth / 2;
     let next = dragStartMotionX.current + delta;
     while (next < -halfWidth) next += halfWidth;
@@ -119,11 +119,7 @@ const PartnerLogos = () => {
     x.set(next);
   };
 
-  const stopDrag = (e: React.PointerEvent) => {
-    if (hasMoved.current) e.preventDefault();
-    isDragging.current = false;
-    hasMoved.current = false;
-  };
+  const stopDrag = () => { isDragging.current = false; };
 
   return (
     <section className="py-10 md:py-14 overflow-hidden relative">
@@ -145,8 +141,15 @@ const PartnerLogos = () => {
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={stopDrag}
-        onPointerCancel={(e) => { isDragging.current = false; hasMoved.current = false; }}
-        onPointerLeave={(e) => { isDragging.current = false; hasMoved.current = false; }}
+        onPointerCancel={() => { isDragging.current = false; didDrag.current = false; }}
+        onPointerLeave={() => { isDragging.current = false; }}
+        onClickCapture={(e) => {
+          if (didDrag.current) {
+            e.preventDefault();
+            e.stopPropagation();
+            didDrag.current = false;
+          }
+        }}
       >
         <motion.div
           ref={innerRef}
