@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
  *
  * Drop real logo files into /public/partners/ — filenames listed below.
  * Logos work best as white-on-transparent PNG or SVG.
+ * For JPG/background logos, set hasBackground: true to apply circular crop.
  */
 
 interface Partner {
@@ -13,24 +14,26 @@ interface Partner {
   shortName: string;
   src?: string;
   group: "Mosque" | "Education" | "University" | "MSA Chapter" | "Community";
+  hasBackground?: boolean; // true for logos with non-transparent backgrounds
 }
 
 const PARTNERS: Partner[] = [
   // Mosques
   { name: "Attawheed Islamic Center",               shortName: "Attawheed",   src: "/partners/attawheed.png",  group: "Mosque" },
-  { name: "Islamic Center of Pittsburgh",           shortName: "ICP",         src: "/partners/icp.png",        group: "Mosque" },
-  { name: "Islamic Center of Western PA",            shortName: "ICWP",        src: "/partners/icwp.png",       group: "Mosque" },
-  { name: "Muslim Association of Pittsburgh",        shortName: "MAP",         src: "/partners/map.png",        group: "Mosque" },
-  { name: "Muslim Community Center Greater Pgh",    shortName: "MCCGP",       src: "/partners/mccgp.png",      group: "Mosque" },
+  { name: "Islamic Center of Pittsburgh",           shortName: "ICP",         src: "/partners/icp.jpeg",       group: "Mosque",      hasBackground: true },
+  { name: "Islamic Center of Western PA",           shortName: "ICWP",        src: "/partners/icwp.jpeg",      group: "Mosque",      hasBackground: true },
+  { name: "Muslim Association of Pittsburgh",       shortName: "MAP",         src: "/partners/map.png",        group: "Mosque" },
+  { name: "Muslim Community Center Greater Pgh",   shortName: "MCCGP",       src: "/partners/mccgp.jpg",      group: "Mosque",      hasBackground: true },
   // Education
   { name: "Miftaah Institute",                      shortName: "Miftaah",     src: "/partners/miftaah.png",    group: "Education" },
   { name: "Qalam Institute",                        shortName: "Qalam",       src: "/partners/qalam.png",      group: "Education" },
-  { name: "AlMaghrib Institute",                    shortName: "AlMaghrib",   src: "/partners/almaghrib.png",  group: "Education" },
+  { name: "AlMaghrib Institute",                    shortName: "AlMaghrib",   src: "/partners/almaghrib.jpg",  group: "Education",   hasBackground: true },
   // University
   { name: "University of Pittsburgh",               shortName: "Pitt",        src: "/partners/pitt.png",       group: "University" },
   // MSA Chapters
-  { name: "CMU MSA",                                shortName: "CMU MSA",     src: "/partners/cmu-msa.png",    group: "MSA Chapter" },
-  { name: "Duquesne MSA",                           shortName: "Duq MSA",     src: "/partners/duq-msa.png",    group: "MSA Chapter" },
+  { name: "CMU MSA",                                shortName: "CMU MSA",     src: "/partners/cmu-msa.jpg",    group: "MSA Chapter", hasBackground: true },
+  { name: "Duquesne MSA",                           shortName: "Duq MSA",     src: "/partners/duq-msa.jpg",    group: "MSA Chapter", hasBackground: true },
+  { name: "AMMSA",                                  shortName: "AMMSA",       src: "/partners/ammsa.png",      group: "MSA Chapter" },
   // Community orgs
   { name: "Sudanese American Professional Assoc.",  shortName: "SAPA",        src: "/partners/sapa.png",       group: "Community" },
   { name: "Human Development Foundation",           shortName: "HDF",         src: "/partners/hdf.png",        group: "Community" },
@@ -42,15 +45,31 @@ const PartnerTile = ({ partner }: { partner: Partner }) => {
       {/* Logo — fixed height container so tiles stay aligned */}
       <div className="h-9 md:h-10 flex items-center justify-center">
         {partner.src ? (
-          <img
-            src={partner.src}
-            alt={partner.name}
-            className="max-h-full w-auto object-contain opacity-50 group-hover:opacity-90 transition-all duration-300 grayscale group-hover:grayscale-0 dark:invert"
-            loading="lazy"
-            onError={(e) => {
-              (e.currentTarget as HTMLImageElement).style.display = "none";
-            }}
-          />
+          partner.hasBackground ? (
+            /* Circular crop for logos with non-transparent backgrounds */
+            <div className="h-9 w-9 md:h-10 md:w-10 rounded-full overflow-hidden flex-shrink-0 opacity-50 group-hover:opacity-90 transition-all duration-300 grayscale group-hover:grayscale-0">
+              <img
+                src={partner.src}
+                alt={partner.name}
+                className="h-full w-full object-cover"
+                loading="lazy"
+                onError={(e) => {
+                  (e.currentTarget.parentElement as HTMLElement).style.display = "none";
+                }}
+              />
+            </div>
+          ) : (
+            /* Transparent PNG — show as-is with invert for dark mode */
+            <img
+              src={partner.src}
+              alt={partner.name}
+              className="max-h-full w-auto object-contain opacity-50 group-hover:opacity-90 transition-all duration-300 grayscale group-hover:grayscale-0 dark:invert"
+              loading="lazy"
+              onError={(e) => {
+                (e.currentTarget as HTMLImageElement).style.display = "none";
+              }}
+            />
+          )
         ) : (
           /* Wordmark placeholder if no image file yet */
           <div
