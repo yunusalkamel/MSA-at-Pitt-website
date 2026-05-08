@@ -160,7 +160,7 @@ const Navbar = () => {
                   <DropdownMenuPrimitive.Content
                     align="end"
                     sideOffset={12}
-                    className="z-[60] w-56 liquid-glass-strong rounded-2xl p-2 shadow-xl overflow-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2"
+                    className="z-[60] w-56 liquid-glass-strong rounded-2xl p-2 shadow-xl [clip-path:inset(0_round_1rem)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2"
                   >
                     {resourcesChildren.map((child) => {
                       const isChildActive = location.pathname === child.to;

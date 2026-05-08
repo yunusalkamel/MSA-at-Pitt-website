@@ -1,5 +1,6 @@
 export const LINKS = {
   instagram: "https://instagram.com/msa.at.pitt",
+  facebook: "https://facebook.com/msaatpitt",
   linktree: "https://linktr.ee/msa.at.pitt",
   whatsappAnnouncements: "https://chat.whatsapp.com/GuWsLzCvRggF9Ua6tWrkJL",
   registrationForm: "https://forms.gle/qVYQb5F4eu3y3DTZ7",
