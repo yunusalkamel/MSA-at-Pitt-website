@@ -33,7 +33,7 @@ const PARTNERS: Partner[] = [
   // MSA Chapters
   { name: "CMU MSA",                                shortName: "CMU MSA",     src: "/partners/cmu-msa.jpg",    group: "MSA Chapter", hasBackground: true },
   { name: "Duquesne MSA",                           shortName: "Duq MSA",     src: "/partners/duq-msa.jpg",    group: "MSA Chapter", hasBackground: true },
-  { name: "AMMSA",                                  shortName: "AMMSA",       src: "/partners/ammsa.png",      group: "MSA Chapter" },
+  { name: "American Muslim Medical Student Assoc.", shortName: "AMMSA",       src: "/partners/ammsa.png",      group: "MSA Chapter" },
   // Community orgs
   { name: "Sudanese American Professional Assoc.",  shortName: "SAPA",        src: "/partners/sapa.png",       group: "Community" },
   { name: "Human Development Foundation",           shortName: "HDF",         src: "/partners/hdf.png",        group: "Community" },
