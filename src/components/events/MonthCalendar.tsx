@@ -20,10 +20,12 @@ const EventChip = ({
   compact?: boolean;
   onClick: (e: React.MouseEvent) => void;
 }) => {
-  const isFeatured = event.featured;
+  const isSignature = event.featured || event.isSignature;
   const isPast = event.isPast;
-  const chipStyle = isFeatured
+  const chipStyle = isSignature && !isPast
     ? "gold-gradient text-primary-foreground"
+    : isSignature && isPast
+    ? "border border-primary/35 bg-primary/[0.06] text-foreground/60"
     : isPast
     ? "bg-secondary/40 text-secondary-foreground/60 dark:bg-secondary/20 dark:text-secondary-foreground/40"
     : "bg-secondary/90 text-secondary-foreground";

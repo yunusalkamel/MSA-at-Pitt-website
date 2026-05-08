@@ -77,8 +77,9 @@ function EventRow({ event, isPast, onClick }: { event: MSAEvent; isPast?: boolea
   const d = new Date(event.startDate + "T12:00:00");
   const dayLabel = d.toLocaleString("en-US", { weekday: "short" });
   const isSignature = event.isSignature || event.featured;
-  // Signature events keep full gold styling even when past
+  const pastSignature = isPast && isSignature;
   const mutedPast = isPast && !isSignature;
+  const liveSignature = isSignature && !isPast;
   // Show category tags (skip audience tags like Brothers/Sisters/General)
   const categoryTags = event.tags.filter((t) => !AUDIENCE_TAGS.has(t));
   const audienceTag = event.tags.find((t) => AUDIENCE_TAGS.has(t));
@@ -87,43 +88,45 @@ function EventRow({ event, isPast, onClick }: { event: MSAEvent; isPast?: boolea
     <button
       onClick={onClick}
       className={`w-full text-left rounded-2xl px-4 py-3.5 flex items-center gap-4 group transition-all duration-200
-        ${isSignature
+        ${liveSignature
           ? "gold-gradient border border-primary/40 shadow-md hover:opacity-95"
+          : pastSignature
+          ? "border border-primary/30 bg-primary/[0.05] opacity-70 hover:opacity-90"
           : mutedPast
           ? "bg-muted/30 border border-border/20 hover:bg-muted/50 opacity-70 dark:opacity-35"
           : "liquid-glass-hover"
         }`}
     >
       <div className="flex-shrink-0 w-16 text-center">
-        <p className={`font-body text-[10px] font-semibold uppercase tracking-wider ${isSignature ? "text-primary-foreground/70" : "text-muted-foreground"}`}>{dayLabel}</p>
-        <p className={`font-display text-lg font-bold leading-none ${isSignature ? "text-primary-foreground" : mutedPast ? "text-foreground/60" : "text-foreground"}`}>{d.getDate()}</p>
-        <p className={`font-body text-[10px] uppercase ${isSignature ? "text-primary-foreground/70" : "text-muted-foreground"}`}>{d.toLocaleString("en-US", { month: "short" })}</p>
+        <p className={`font-body text-[10px] font-semibold uppercase tracking-wider ${liveSignature ? "text-primary-foreground/70" : "text-muted-foreground"}`}>{dayLabel}</p>
+        <p className={`font-display text-lg font-bold leading-none ${liveSignature ? "text-primary-foreground" : mutedPast || pastSignature ? "text-foreground/60" : "text-foreground"}`}>{d.getDate()}</p>
+        <p className={`font-body text-[10px] uppercase ${liveSignature ? "text-primary-foreground/70" : "text-muted-foreground"}`}>{d.toLocaleString("en-US", { month: "short" })}</p>
       </div>
       <div className="flex-1 min-w-0">
         <p className={`font-display font-bold text-base leading-tight line-clamp-1 transition-colors
-          ${isSignature ? "text-primary-foreground" : mutedPast ? "text-foreground/60" : "text-foreground group-hover:text-primary"}`}>
+          ${liveSignature ? "text-primary-foreground" : mutedPast || pastSignature ? "text-foreground/60" : "text-foreground group-hover:text-primary"}`}>
           {event.title}
         </p>
         <div className="flex items-center gap-3 mt-0.5">
-          <span className={`font-satoshi text-xs flex items-center gap-1 ${isSignature ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
-            <Clock size={10} className={isSignature ? "text-primary-foreground/60" : "text-primary/60"} />{event.timeLabel}
+          <span className={`font-satoshi text-xs flex items-center gap-1 ${liveSignature ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
+            <Clock size={10} className={liveSignature ? "text-primary-foreground/60" : "text-primary/60"} />{event.timeLabel}
           </span>
-          <span className={`font-satoshi text-xs flex items-center gap-1 truncate ${isSignature ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
-            <MapPin size={10} className={`flex-shrink-0 ${isSignature ? "text-primary-foreground/60" : "text-secondary/60"}`} />
+          <span className={`font-satoshi text-xs flex items-center gap-1 truncate ${liveSignature ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
+            <MapPin size={10} className={`flex-shrink-0 ${liveSignature ? "text-primary-foreground/60" : "text-secondary/60"}`} />
             <span className="truncate">{event.location}</span>
           </span>
         </div>
       </div>
-      <div className="flex-shrink-0 hidden sm:flex flex-col items-end gap-1">
+      <div className="flex-shrink-0 hidden sm:flex flex-row items-center gap-1.5 flex-wrap justify-end max-w-[160px]">
         {audienceTag && (
-          <span className={`text-[10px] font-semibold uppercase tracking-wide ${isSignature ? "text-primary-foreground/70" : mutedPast ? "text-muted-foreground/50" : "text-muted-foreground/60"}`}>
+          <span className={`text-[10px] font-semibold uppercase tracking-wide ${liveSignature ? "text-primary-foreground/70" : "text-muted-foreground/50"}`}>
             {audienceTag}
           </span>
         )}
-        {categoryTags.slice(0, 2).map((tag, i) => (
+        {categoryTags.slice(0, 3).map((tag, i) => (
           <span
             key={tag}
-            className={`${isSignature ? "border border-primary-foreground/30 bg-primary-foreground/10 text-primary-foreground px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wide" : tag === "Signature" ? "tag-chip-gold" : "tag-chip"} ${mutedPast ? "opacity-50" : ""}`}
+            className={`${liveSignature ? "border border-primary-foreground/30 bg-primary-foreground/10 text-primary-foreground px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wide" : pastSignature ? "border border-primary/25 bg-primary/[0.07] text-primary/70 px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wide" : tag === "Signature" ? "tag-chip-gold" : "tag-chip"} ${mutedPast ? "opacity-50" : ""}`}
           >
             {tag}{i === categoryTags.length - 1 && event.tagSource === "ai" && <AiSparkle />}
           </span>
