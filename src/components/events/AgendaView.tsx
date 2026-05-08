@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Clock, MapPin, ChevronDown, ChevronUp } from "lucide-react";
 import type { MSAEvent } from "@/data/events";
 import EventDetailSheet from "./EventDetailSheet";
@@ -110,70 +110,58 @@ function EventRow({ event, isPast, onClick }: { event: MSAEvent; isPast?: boolea
   );
 }
 
-const AgendaView = ({ events }: { events: MSAEvent[] }) => {
+const AgendaView = ({ events, autoShowPast = false }: { events: MSAEvent[]; autoShowPast?: boolean }) => {
   const [selected, setSelected] = useState<MSAEvent | null>(null);
   const [showPast, setShowPast] = useState(false);
   const [pastWindow, setPastWindow] = useState<PastWindow>(30);
 
-  const { upcomingGroups, pastGroups } = useMemo(
-    () => groupEvents(events, showPast ? pastWindow : undefined),
-    [events, showPast, pastWindow],
-  );
+  // Auto-expand past section when a tag filter is active
+  useEffect(() => {
+    if (autoShowPast) setShowPast(true);
+  }, [autoShowPast]);
 
-  if (upcomingGroups.length === 0 && !showPast) {
-    return (
-      <div className="glass-card p-10 text-center">
-        <p className="font-display text-xl font-semibold text-foreground mb-2">No upcoming events</p>
-        <p className="text-muted-foreground text-sm">Check back soon or subscribe to the calendar.</p>
-      </div>
-    );
-  }
+  // When autoShowPast, skip the window cutoff — parent already filtered
+  const pastWindowDays = autoShowPast ? undefined : (showPast ? pastWindow : undefined);
+
+  const { upcomingGroups, pastGroups } = useMemo(
+    () => groupEvents(events, pastWindowDays),
+    [events, pastWindowDays],
+  );
 
   return (
     <>
       <div className="space-y-6">
-        {upcomingGroups.map((group) => (
-          <div key={group.label}>
-            <div className="sticky top-[112px] md:top-[120px] z-20 py-2 mb-2">
-              <span className="eyebrow text-jannah-mid dark:text-msa-gold/70">{group.label}</span>
-            </div>
-            <div className="space-y-2">
-              {group.events.map((event) => (
-                <EventRow key={event.id} event={event} onClick={() => setSelected(event)} />
-              ))}
-            </div>
+        {/* Past events toggle — at top, hidden when auto-managed by tag filter */}
+        {!autoShowPast && (
+          <div className="flex flex-col items-center gap-3">
+            <button
+              onClick={() => setShowPast((v) => !v)}
+              className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground/60 hover:text-muted-foreground transition-colors"
+            >
+              {showPast ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+              {showPast ? "Hide past events" : "Show past events"}
+            </button>
+            {showPast && (
+              <div className="flex gap-1.5">
+                {PAST_WINDOW_LABELS.map(({ days, label }) => (
+                  <button
+                    key={days}
+                    onClick={() => setPastWindow(days)}
+                    className={`px-3 py-1 rounded-full text-[11px] font-semibold transition-all border
+                      ${pastWindow === days
+                        ? "gold-gradient text-primary-foreground border-transparent"
+                        : "bg-transparent border-border/40 text-muted-foreground/60 hover:border-border/70 hover:text-muted-foreground"
+                      }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
-        ))}
+        )}
 
-        {/* Past events toggle */}
-        <div className="pt-2 flex flex-col items-center gap-3">
-          <button
-            onClick={() => setShowPast((v) => !v)}
-            className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground/60 hover:text-muted-foreground transition-colors"
-          >
-            {showPast ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
-            {showPast ? "Hide past events" : "Show past events"}
-          </button>
-
-          {showPast && (
-            <div className="flex gap-1.5">
-              {PAST_WINDOW_LABELS.map(({ days, label }) => (
-                <button
-                  key={days}
-                  onClick={() => setPastWindow(days)}
-                  className={`px-3 py-1 rounded-full text-[11px] font-semibold transition-all border
-                    ${pastWindow === days
-                      ? "gold-gradient text-primary-foreground border-transparent"
-                      : "bg-transparent border-border/40 text-muted-foreground/60 hover:border-border/70 hover:text-muted-foreground"
-                    }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
+        {/* Past events — shown above upcoming when toggled/auto */}
         {showPast && pastGroups.map((group) => (
           <div key={group.label}>
             <div className="sticky top-[112px] md:top-[120px] z-20 py-2 mb-2">
@@ -188,7 +176,28 @@ const AgendaView = ({ events }: { events: MSAEvent[] }) => {
         ))}
 
         {showPast && pastGroups.length === 0 && (
-          <p className="text-center text-xs text-muted-foreground/50 pb-4">No past events in this window.</p>
+          <p className="text-center text-xs text-muted-foreground/50 pb-2">No past events in this window.</p>
+        )}
+
+        {/* Upcoming events */}
+        {upcomingGroups.map((group) => (
+          <div key={group.label}>
+            <div className="sticky top-[112px] md:top-[120px] z-20 py-2 mb-2">
+              <span className="eyebrow text-jannah-mid dark:text-msa-gold/70">{group.label}</span>
+            </div>
+            <div className="space-y-2">
+              {group.events.map((event) => (
+                <EventRow key={event.id} event={event} onClick={() => setSelected(event)} />
+              ))}
+            </div>
+          </div>
+        ))}
+
+        {upcomingGroups.length === 0 && (!showPast || pastGroups.length === 0) && (
+          <div className="glass-card p-10 text-center">
+            <p className="font-display text-xl font-semibold text-foreground mb-2">No events found</p>
+            <p className="text-muted-foreground text-sm">Try a different filter or check back soon.</p>
+          </div>
         )}
       </div>
       <EventDetailSheet event={selected} onClose={() => setSelected(null)} />

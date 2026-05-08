@@ -252,6 +252,7 @@ function deriveDisplayTags(
       case "ramadan":    tags.push("Ramadan"); break;
       case "career":     tags.push("Career"); break;
       case "service":    tags.push("Service"); break;
+      case "fundraiser": tags.push("Fundraiser"); break;
       case "cec":        tags.push("CEC"); break;
       case "signature":  break; // handled via isSignature below
       case "meeting":    break; // no display tag for internal meetings
@@ -291,11 +292,21 @@ export function classifyIcsBlock(block: Record<string, string>): SyncClassificat
   const parsed = parseDescription(description, title);
   if (parsed.tagSource === "explicit") {
     const audience: AudienceTag = parsed.audience ?? "general";
-    const categories: EventCategory[] = parsed.categories.length > 0 ? parsed.categories : ["other"];
+    // If hashtags only set audience (e.g. #brothers on a soccer event), still run rules
+    // for category detection rather than defaulting to ["other"].
+    let categories: EventCategory[];
+    let isSignature = parsed.isSignature;
+    if (parsed.categories.length > 0) {
+      categories = parsed.categories;
+    } else {
+      const rules = classifyByRules(title, description, location);
+      categories = rules.categories.length > 0 ? rules.categories : ["other"];
+      isSignature = isSignature || rules.isSignature;
+    }
     return {
       audience,
       categories,
-      isSignature: parsed.isSignature,
+      isSignature,
       tagSource: "explicit",
       confidence: 1.0,
       rsvpUrl: parsed.rsvpUrl,
