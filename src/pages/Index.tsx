@@ -2,12 +2,12 @@ import { Link } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Heart, Users, Moon, HandHeart, Calendar, Instagram } from "lucide-react";
 import { useMemo } from "react";
+import InstagramWidget from "@/components/InstagramWidget";
 import Layout from "@/components/Layout";
 import { usePageMeta } from "@/lib/usePageMeta";
 import SectionHeading from "@/components/SectionHeading";
 import SectionDivider from "@/components/SectionDivider";
 import ArabicVerse from "@/components/ArabicVerse";
-import InstagramWidget from "@/components/InstagramWidget";
 import KhatamOverlay from "@/components/KhatamOverlay";
 import BridgeBar from "@/components/BridgeBar";
 import PortableTextRenderer from "@/components/PortableTextRenderer";
@@ -511,7 +511,6 @@ const Index = () => {
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
             <p className="eyebrow text-jannah-mid dark:text-msa-gold/70 mb-4">Get Involved</p>
             <h2 className="font-display text-4xl md:text-6xl font-bold text-foreground leading-tight">Ready to find</h2>
-            {/* Padded container prevents script descender from clipping */}
             <div className="my-1 py-4 px-6 -mx-8 overflow-visible">
               <span className="font-script text-gradient-gold inline-block" style={{ fontSize: "clamp(3.2rem, 9vw, 6rem)", lineHeight: 1.3, paddingLeft: "0.3em", paddingRight: "0.4em", paddingBottom: "0.15em" }}>your people?</span>
             </div>
@@ -524,92 +523,6 @@ const Index = () => {
             </div>
             <div className="flex justify-center"><InstagramWidget /></div>
           </motion.div>
-        </div>
-      </section>
-
-      {/* ── Closing — hybridized footer style: dark gradient, large logo, motto, vertical divider on desktop ── */}
-      <section
-        className="grain relative overflow-hidden py-16 md:py-24"
-        style={{ background: "linear-gradient(180deg, #11233C 0%, #14345A 60%, #0D2444 100%)" }}
-      >
-        <BridgeBar />
-        <KhatamOverlay variant="gold" size={60} opacity={0.22} />
-        {/* Moon motif removed per spec */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] rounded-full bg-[#11233C]/35 blur-[150px] pointer-events-none" />
-        <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: "200px" }} />
-
-        <div className="relative z-10 max-w-5xl mx-auto px-6 md:px-10 lg:px-16">
-          <div className="grid md:grid-cols-[1fr_auto_1fr] gap-8 md:gap-10 items-center">
-            {/* Left: logo (~half footer's logo size) */}
-            <motion.div
-              initial={{ opacity: 0, x: -16 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="flex justify-center md:justify-end"
-            >
-              <img
-                src="/msa-logo-white.png"
-                alt="MSA at Pitt logo"
-                className="w-32 md:w-40 mix-blend-screen"
-                width={160}
-                height={160}
-              />
-            </motion.div>
-
-            {/* Center: vertical divider on desktop only */}
-            <div
-              className="hidden md:block self-stretch w-px"
-              style={{
-                background:
-                  "linear-gradient(to bottom, transparent, rgba(242,171,35,.30), transparent)",
-              }}
-            />
-
-            {/* Right: motto + verse */}
-            <motion.div
-              initial={{ opacity: 0, x: 16 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.15 }}
-              className="text-center md:text-left"
-            >
-              <p
-                className="eyebrow mb-3"
-                style={{ color: "#C9A84C", opacity: 0.75 }}
-              >
-                Muslim Student Association · University of Pittsburgh
-              </p>
-              <h2 className="font-display text-3xl md:text-[2.6rem] font-bold text-accent-foreground mb-1 leading-tight">
-                Cultivate Community,
-              </h2>
-              <div className="mb-5 px-1">
-                <span
-                  className="font-display italic text-gradient-aura inline-block"
-                  style={{ fontSize: "clamp(2.4rem, 5vw, 3.8rem)", lineHeight: 1.2, paddingBottom: "0.15em" }}
-                >
-                  Ignite Iman.
-                </span>
-              </div>
-              {/* Hadith on brotherhood — distinct from Footer's 3:103 */}
-              <div
-                className="border-l-2 pl-5"
-                style={{ borderColor: "rgba(242,171,35,.25)" }}
-              >
-                <p
-                  className="font-display italic text-base md:text-[1.05rem] leading-[1.7]"
-                  style={{ color: "rgba(255,255,255,.55)" }}
-                >
-                  "The believers in their mutual kindness, compassion, and sympathy are like one body — when one limb suffers, the whole body responds."
-                </p>
-                <p
-                  className="font-body text-[11px] tracking-[0.15em] uppercase mt-2"
-                  style={{ color: "rgba(242,171,35,.55)" }}
-                >
-                  Hadith · Bukhari & Muslim
-                </p>
-              </div>
-            </motion.div>
-          </div>
         </div>
       </section>
     </Layout>
