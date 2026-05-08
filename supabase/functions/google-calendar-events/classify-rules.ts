@@ -52,7 +52,7 @@ const CATEGORY_KEYWORDS: Array<{ category: EventCategory; keywords: string[]; si
     keywords: [
       "volunteer", "service", "charity", "cleanup", "food drive", "community service",
       "food pantry", "pantry", "food bank", "clothing drive", "clothing donation",
-      "icp", "shelter", "soup kitchen", "habitat", "donation drop", "giveback",
+      "shelter", "soup kitchen", "habitat", "donation drop", "giveback",
     ],
   },
   {

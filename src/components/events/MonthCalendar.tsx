@@ -404,7 +404,10 @@ const MonthCalendar = ({ events }: Props) => {
             date={selectedDate}
             events={eventsByDate[selectedDate] || []}
             onClose={() => setSelectedDate(null)}
-            onEventSelect={setSelectedEvent}
+            onEventSelect={(ev) => {
+              setSelectedDate(null);
+              setSelectedEvent(ev);
+            }}
           />
         )}
       </AnimatePresence>

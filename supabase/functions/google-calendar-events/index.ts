@@ -51,8 +51,10 @@ async function applyAiClassification(
   console.log(`[ai] ${cachedResults.size} cache hits, ${uncachedCount} need Gemini (capped at ${geminiCallCount}, ~${Math.ceil(geminiCallCount * 2.2)}s)`);
 
   // Process each candidate sequentially to avoid Gemini rate limits (429).
-  // Cache hits are instant; only uncached events actually call Gemini (capped per invocation).
+  // Cache hits are instant; only uncached events call Gemini (capped per invocation).
+  // Circuit breaker: first 429 stops all further Gemini calls for this invocation.
   let geminiCallsMade = 0;
+  let rateLimitHit = false;
   for (const item of candidates) {
     const eventId = item.block.UID || item.block.DTSTART || "unknown";
     const eventUpdated = item.block["LAST-MODIFIED"] || "";
@@ -72,8 +74,8 @@ async function applyAiClassification(
       continue;
     }
 
-    // No cache — call Gemini only if under the per-invocation cap
-    if (geminiCallsMade >= MAX_GEMINI_CALLS_PER_INVOCATION) {
+    // No cache — skip if over cap or rate limit already hit this invocation
+    if (geminiCallsMade >= MAX_GEMINI_CALLS_PER_INVOCATION || rateLimitHit) {
       item.classification = { ...item.classification, tagSource: "uncategorized" };
       item.needsAI = false;
       continue;
@@ -87,8 +89,13 @@ async function applyAiClassification(
 
     const aiResult = await classifyWithGemini({ title, description, location, start });
 
+    if (aiResult === null && geminiCallsMade === 1) {
+      // First call failed (likely 429) — trip the circuit breaker for this invocation
+      rateLimitHit = true;
+      console.warn("[ai] Gemini unavailable — skipping remaining calls for this invocation");
+    }
+
     if (aiResult && aiResult.confidence >= 0.7) {
-      // Store in DB so this event is never sent to Gemini again
       try {
         await setCachedTags(eventId, eventUpdated, aiResult, title);
       } catch {
@@ -103,16 +110,14 @@ async function applyAiClassification(
         tagSource: "ai",
       };
     } else {
-      item.classification = {
-        ...item.classification,
-        tagSource: "uncategorized",
-      };
+      item.classification = { ...item.classification, tagSource: "uncategorized" };
     }
     item.needsAI = false;
 
-    // 2200ms between calls keeps us at ~27 RPM, safely under Gemini free tier (30 RPM).
-    // With ~30 events this adds ~66s on first load; after that everything is cached.
-    await new Promise((r) => setTimeout(r, 2200));
+    if (!rateLimitHit) {
+      // 2200ms between calls keeps us at ~27 RPM, safely under Gemini free tier (30 RPM).
+      await new Promise((r) => setTimeout(r, 2200));
+    }
   }
 }
 
