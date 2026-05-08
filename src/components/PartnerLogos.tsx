@@ -5,38 +5,43 @@ interface Partner {
   name: string;
   shortName: string;
   src?: string;
+  href: string;
   group: "Mosque" | "Education" | "University" | "MSA Chapter" | "Community";
   hasBackground?: boolean;
 }
 
 const PARTNERS: Partner[] = [
   // Mosques
-  { name: "Attawheed Islamic Center",              shortName: "Attawheed",  src: "/partners/attawheed.png",  group: "Mosque" },
-  { name: "Islamic Center of Pittsburgh",          shortName: "ICP",        src: "/partners/icp.jpeg",       group: "Mosque",      hasBackground: true },
-  { name: "Islamic Center of Western PA",          shortName: "ICWP",       src: "/partners/icwp.jpeg",      group: "Mosque",      hasBackground: true },
-  { name: "Muslim Association of Pittsburgh",      shortName: "MAP",        src: "/partners/map.png",        group: "Mosque" },
-  { name: "Muslim Community Center Greater Pgh",   shortName: "MCCGP",      src: "/partners/mccgp.jpg",      group: "Mosque",      hasBackground: true },
+  { name: "Attawheed Islamic Center",              shortName: "Attawheed",  src: "/partners/attawheed.jpg",  href: "https://attawheed.org",      group: "Mosque" },
+  { name: "Islamic Center of Pittsburgh",          shortName: "ICP",        src: "/partners/icp.jpeg",       href: "https://icp-pgh.org",        group: "Mosque",      hasBackground: true },
+  { name: "Islamic Center of Western PA",          shortName: "ICWP",       src: "/partners/icwp.jpeg",      href: "https://icwpa.org",          group: "Mosque",      hasBackground: true },
+  { name: "Muslim Association of Pittsburgh",      shortName: "MAP",        src: "/partners/map.png",        href: "https://mapitt.org",         group: "Mosque" },
+  { name: "Muslim Community Center Greater Pgh",   shortName: "MCCGP",      src: "/partners/mccgp.jpg",      href: "https://mccgp.org",          group: "Mosque",      hasBackground: true },
   // Education
-  { name: "Miftaah Institute",                     shortName: "Miftaah",    src: "/partners/miftaah.png",    group: "Education" },
-  { name: "Qalam Institute",                       shortName: "Qalam",      src: "/partners/qalam.png",      group: "Education" },
-  { name: "AlMaghrib Institute",                   shortName: "AlMaghrib",  src: "/partners/almaghrib.jpg",  group: "Education",   hasBackground: true },
+  { name: "Miftaah Institute",                     shortName: "Miftaah",    src: "/partners/miftaah.png",    href: "https://miftaah.org",        group: "Education" },
+  { name: "Qalam Institute",                       shortName: "Qalam",      src: "/partners/qalam.png",      href: "https://qalam.institute",    group: "Education" },
+  { name: "AlMaghrib Institute",                   shortName: "AlMaghrib",  src: "/partners/almaghrib.jpg",  href: "https://almaghrib.org",      group: "Education",   hasBackground: true },
   // University
-  { name: "University of Pittsburgh",              shortName: "Pitt",       src: "/partners/pitt.png",       group: "University" },
+  { name: "University of Pittsburgh",              shortName: "Pitt",       src: "/partners/pitt.png",       href: "https://pitt.edu",           group: "University" },
   // MSA Chapters
-  { name: "CMU MSA",                               shortName: "CMU MSA",    src: "/partners/cmu-msa.jpg",    group: "MSA Chapter", hasBackground: true },
-  { name: "Duquesne MSA",                          shortName: "Duq MSA",    src: "/partners/duq-msa.jpg",    group: "MSA Chapter", hasBackground: true },
-  { name: "AMMSA",                                 shortName: "AMMSA",      src: "/partners/ammsa.png",      group: "MSA Chapter" },
+  { name: "CMU MSA",                               shortName: "CMU MSA",    src: "/partners/cmu-msa.jpg",    href: "https://cmu.edu",            group: "MSA Chapter", hasBackground: true },
+  { name: "Duquesne MSA",                          shortName: "Duq MSA",    src: "/partners/duq-msa.jpg",    href: "https://duq.edu",            group: "MSA Chapter", hasBackground: true },
+  { name: "AMMSA",                                 shortName: "AMMSA",      src: "/partners/ammsa.png",      href: "https://ammsa.org",          group: "MSA Chapter" },
   // Community orgs
-  { name: "Sudanese American Professional Assoc.", shortName: "SAPA",       src: "/partners/sapa.png",       group: "Community",   hasBackground: true },
-  { name: "Human Development Foundation",          shortName: "HDF",        src: "/partners/hdf.png",        group: "Community" },
+  { name: "Sudanese American Professional Assoc.", shortName: "SAPA",       src: "/partners/sapa.png",       href: "https://sapa-usa.org",       group: "Community",   hasBackground: true },
+  { name: "Human Development Foundation",          shortName: "HDF",        src: "/partners/hdf.png",        href: "https://hdf.com",            group: "Community" },
 ];
 
-const SCROLL_SPEED = 80; // px per second
+const SCROLL_SPEED = 45; // px per second
 
 const PartnerTile = ({ partner }: { partner: Partner }) => (
-  <div
+  <a
+    href={partner.href}
+    target="_blank"
+    rel="noopener noreferrer"
     className="flex flex-col items-center gap-2 group flex-shrink-0 select-none"
     title={partner.name}
+    draggable={false}
   >
     <div className="flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
       {partner.src ? (
@@ -75,13 +80,14 @@ const PartnerTile = ({ partner }: { partner: Partner }) => (
     <span className="font-body text-[11px] font-semibold text-muted-foreground/65 group-hover:text-foreground/80 transition-colors duration-300 text-center leading-tight whitespace-nowrap">
       {partner.shortName}
     </span>
-  </div>
+  </a>
 );
 
 const PartnerLogos = () => {
   const loop = [...PARTNERS, ...PARTNERS];
   const x = useMotionValue(0);
   const isDragging = useRef(false);
+  const hasMoved = useRef(false);
   const innerRef = useRef<HTMLDivElement>(null);
   const dragStartClientX = useRef(0);
   const dragStartMotionX = useRef(0);
@@ -96,6 +102,7 @@ const PartnerLogos = () => {
 
   const handlePointerDown = (e: React.PointerEvent) => {
     isDragging.current = true;
+    hasMoved.current = false;
     dragStartClientX.current = e.clientX;
     dragStartMotionX.current = x.get();
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
@@ -103,14 +110,20 @@ const PartnerLogos = () => {
 
   const handlePointerMove = (e: React.PointerEvent) => {
     if (!isDragging.current || !innerRef.current) return;
+    const delta = e.clientX - dragStartClientX.current;
+    if (Math.abs(delta) > 4) hasMoved.current = true;
     const halfWidth = innerRef.current.scrollWidth / 2;
-    let next = dragStartMotionX.current + (e.clientX - dragStartClientX.current);
+    let next = dragStartMotionX.current + delta;
     while (next < -halfWidth) next += halfWidth;
     while (next > 0) next -= halfWidth;
     x.set(next);
   };
 
-  const stopDrag = () => { isDragging.current = false; };
+  const stopDrag = (e: React.PointerEvent) => {
+    if (hasMoved.current) e.preventDefault();
+    isDragging.current = false;
+    hasMoved.current = false;
+  };
 
   return (
     <section className="py-10 md:py-14 overflow-hidden relative">
@@ -132,8 +145,8 @@ const PartnerLogos = () => {
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={stopDrag}
-        onPointerCancel={stopDrag}
-        onPointerLeave={stopDrag}
+        onPointerCancel={(e) => { isDragging.current = false; hasMoved.current = false; }}
+        onPointerLeave={(e) => { isDragging.current = false; hasMoved.current = false; }}
       >
         <motion.div
           ref={innerRef}
