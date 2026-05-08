@@ -197,10 +197,7 @@ const Events = () => {
               </div>
             </div>
           ) : view === "agenda" ? (
-            <AgendaView
-              events={filteredEvents}
-              autoShowPast={!selectedTags.includes("All") && filteredEvents.some((e) => e.isPast)}
-            />
+            <AgendaView events={filteredEvents} />
           ) : (
             <MonthCalendar events={filteredEvents} />
           )}
