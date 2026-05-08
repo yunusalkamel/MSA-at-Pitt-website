@@ -71,7 +71,9 @@ export function useCalendarEvents() {
         await load();
       })();
     }
-    const interval = setInterval(() => void load(), CACHE_MAX_AGE_MS);
+    const interval = setInterval(() => {
+      if (document.visibilityState === "visible") void load();
+    }, CACHE_MAX_AGE_MS);
     return () => {
       cancelled = true;
       clearInterval(interval);

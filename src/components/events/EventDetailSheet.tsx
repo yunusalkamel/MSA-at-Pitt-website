@@ -1,6 +1,7 @@
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { ArrowRight, CalendarPlus, Clock, ExternalLink, MapPin, X } from "lucide-react";
+import { ArrowRight, CalendarPlus, Camera, Clock, ExternalLink, MapPin, X } from "lucide-react";
 import type { MSAEvent } from "@/data/events";
+import { resolveEventAction } from "./resolveEventAction";
 
 const AiSparkle = () => (
   <span
@@ -20,11 +21,11 @@ const EventDetailSheet = ({ event, onClose }: Props) => {
 
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`;
 
-  // Use the pre-computed clickUrl; determine button label
-  const actionUrl = event.clickUrl;
-  const isRsvp = !!event.rsvpUrl;
-  const isRecurring = event.categories?.includes("jumuah") || event.categories?.includes("meeting");
-  const actionLabel = isRsvp ? "RSVP" : isRecurring ? "View on Calendar" : "More Details";
+  const action = resolveEventAction(event);
+  const actionUrl = action.href;
+  const actionLabel = action.label;
+  const isGallery = action.kind === "gallery";
+  const showCalendar = !event.isPast && !!event.addToCalendarUrl;
 
   return (
     <DialogPrimitive.Root open={!!event} onOpenChange={(open) => { if (!open) onClose(); }}>
@@ -101,15 +102,23 @@ const EventDetailSheet = ({ event, onClose }: Props) => {
 
             {/* Actions */}
             <div className="flex flex-col sm:flex-row gap-2">
-              <a
-                href={actionUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-premium flex-1 justify-center"
-              >
-                {actionLabel} {isRsvp ? <ArrowRight size={13} /> : <ExternalLink size={13} />}
-              </a>
-              {event.addToCalendarUrl && (
+              {actionUrl ? (
+                <a
+                  href={actionUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-premium flex-1 justify-center"
+                >
+                  {isGallery ? <Camera size={13} /> : null}
+                  {actionLabel}
+                  {!isGallery ? <ArrowRight size={13} /> : null}
+                </a>
+              ) : (
+                <span className="btn-premium flex-1 justify-center opacity-50 cursor-default">
+                  {actionLabel} <ExternalLink size={13} />
+                </span>
+              )}
+              {showCalendar && (
                 <a
                   href={event.addToCalendarUrl}
                   target="_blank"

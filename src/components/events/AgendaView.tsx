@@ -117,7 +117,7 @@ function EventRow({ event, isPast, onClick }: { event: MSAEvent; isPast?: boolea
           </span>
         </div>
       </div>
-      <div className="flex-shrink-0 hidden sm:flex flex-row items-center gap-1.5 flex-wrap justify-end max-w-[160px]">
+      <div className="flex-shrink-0 flex flex-row items-center gap-1.5 flex-wrap justify-end max-w-[120px] sm:max-w-[160px]">
         {audienceTag && (
           <span className={`text-[10px] font-semibold uppercase tracking-wide ${liveSignature ? "text-primary-foreground/70" : "text-muted-foreground/50"}`}>
             {audienceTag}

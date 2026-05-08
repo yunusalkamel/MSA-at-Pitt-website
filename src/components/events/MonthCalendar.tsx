@@ -274,8 +274,6 @@ const WeekView = ({
           const dayEvents = eventsByDate[dateStr] || [];
           const isToday = dateStr === todayStr;
           const hasEvents = dayEvents.length > 0;
-          const visibleEvents = dayEvents.slice(0, 2);
-          const hiddenCount = Math.max(dayEvents.length - 2, 0);
 
           return (
             <div
@@ -289,7 +287,7 @@ const WeekView = ({
                   : "border-transparent"
                 }`}
             >
-              {visibleEvents.map((ev, idx) => (
+              {dayEvents.map((ev, idx) => (
                 <EventChip
                   key={`${ev.id}-${idx}`}
                   event={ev}
@@ -297,12 +295,6 @@ const WeekView = ({
                   onClick={(e) => handleEventClick(ev, e)}
                 />
               ))}
-              {hiddenCount > 0 && (
-                <MorePill
-                  count={hiddenCount}
-                  onClick={(e) => { e.stopPropagation(); onSelectDate(dateStr); }}
-                />
-              )}
             </div>
           );
         })}
@@ -328,6 +320,7 @@ const WeekView = ({
 // ── Root ──────────────────────────────────────────────────────────────────────
 
 const MonthCalendar = ({ events }: Props) => {
+  const hasAnyEvents = events.length > 0;
   const today = new Date();
   const isMobile = useIsMobile();
 
@@ -396,6 +389,13 @@ const MonthCalendar = ({ events }: Props) => {
           onSelectDate={setSelectedDate}
           onEventSelect={setSelectedEvent}
         />
+      )}
+
+      {!hasAnyEvents && (
+        <div className="glass-card mt-4 p-8 text-center rounded-2xl">
+          <p className="font-display text-lg font-semibold text-foreground mb-1">No events found</p>
+          <p className="text-muted-foreground text-sm">Try a different filter or check back soon.</p>
+        </div>
       )}
 
       <AnimatePresence>
