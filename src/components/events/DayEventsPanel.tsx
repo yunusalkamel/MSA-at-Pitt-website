@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { X, Clock, MapPin, ExternalLink, Tag } from "lucide-react";
 import type { MSAEvent } from "@/data/events";
 import { resolveEventAction } from "./resolveEventAction";
+import { getEventTier, getTagChipClass } from "./calendar-utils";
 
 interface Props {
   date: string;
@@ -89,6 +90,7 @@ const DayEventsPanel = ({ date, events, onClose, onEventSelect }: Props) => {
             const link = action.href;
             const isFeatured = event.featured || event.isSignature;
             const isPast = event.isPast;
+            const tier = getEventTier(event);
 
             return (
               <button
@@ -144,11 +146,10 @@ const DayEventsPanel = ({ date, events, onClose, onEventSelect }: Props) => {
                     {event.tags.slice(0, 4).map((tag) => (
                       <span
                         key={tag}
-                        className={`text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full border
-                          ${isFeatured
-                            ? "border-primary-foreground/25 bg-primary-foreground/10 text-primary-foreground/90"
-                            : "border-primary/15 bg-primary/[0.07] text-primary/90"
-                          }`}
+                        className={isFeatured
+                          ? "text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full border border-primary-foreground/25 bg-primary-foreground/10 text-primary-foreground/90"
+                          : getTagChipClass(tier, isPast)
+                        }
                       >
                         {tag}
                       </span>

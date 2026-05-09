@@ -2,6 +2,7 @@ import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { ArrowRight, CalendarPlus, Camera, Clock, ExternalLink, MapPin, X } from "lucide-react";
 import type { MSAEvent } from "@/data/events";
 import { resolveEventAction } from "./resolveEventAction";
+import { getEventTier, getTagChipClass } from "./calendar-utils";
 
 const AiSparkle = () => (
   <span
@@ -64,7 +65,7 @@ const EventDetailSheet = ({ event, onClose }: Props) => {
             {/* Tags */}
             <div className="flex flex-wrap gap-1.5 mb-3 pr-8">
               {event.tags.map((tag) => (
-                <span key={tag} className={tag === "Signature" ? "tag-chip-gold" : "tag-chip"}>
+                <span key={tag} className={getTagChipClass(getEventTier(event), event.isPast)}>
                   {tag}{event.tagSource === "ai" && <AiSparkle />}
                 </span>
               ))}

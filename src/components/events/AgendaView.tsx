@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { Clock, MapPin, ChevronDown, ChevronUp } from "lucide-react";
 import type { MSAEvent } from "@/data/events";
 import EventDetailSheet from "./EventDetailSheet";
+import { getEventTier, getTagChipClass } from "./calendar-utils";
 
 const AiSparkle = () => (
   <span
@@ -80,6 +81,7 @@ function EventRow({ event, isPast, onClick }: { event: MSAEvent; isPast?: boolea
   const pastSignature = isPast && isSignature;
   const mutedPast = isPast && !isSignature;
   const liveSignature = isSignature && !isPast;
+  const tier = getEventTier(event);
   // Show category tags (skip audience tags like Brothers/Sisters/General)
   const categoryTags = event.tags.filter((t) => !AUDIENCE_TAGS.has(t));
   const audienceTag = event.tags.find((t) => AUDIENCE_TAGS.has(t));
@@ -126,7 +128,7 @@ function EventRow({ event, isPast, onClick }: { event: MSAEvent; isPast?: boolea
         {categoryTags.slice(0, 3).map((tag, i) => (
           <span
             key={tag}
-            className={`${liveSignature ? "border border-primary-foreground/30 bg-primary-foreground/10 text-primary-foreground px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wide" : pastSignature ? "border border-primary/25 bg-primary/[0.07] text-primary/70 px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wide" : tag === "Signature" ? "tag-chip-gold" : "tag-chip"} ${mutedPast ? "opacity-50" : ""}`}
+            className={`${liveSignature ? "border border-primary-foreground/30 bg-primary-foreground/10 text-primary-foreground px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wide" : pastSignature ? "border border-primary/25 bg-primary/[0.07] text-primary/70 px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wide" : getTagChipClass(tier, isPast || mutedPast)} ${mutedPast ? "opacity-50" : ""}`}
           >
             {tag}{i === categoryTags.length - 1 && event.tagSource === "ai" && <AiSparkle />}
           </span>

@@ -528,6 +528,10 @@
     @apply text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full border;
     border-color: hsl(var(--border)); background: hsl(var(--muted)); color: hsl(var(--muted-foreground));
   }
+  .tag-chip-blue {
+    @apply text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full border;
+    border-color: rgba(96,165,250,0.28); background: rgba(96,165,250,0.1); color: #1e40af;
+  }
 
   /* ── Film grain overlay ──────────────────────────────────────────── */
   /* Add `grain` class to any container; the grain lives on ::after */
@@ -722,6 +726,10 @@
     radial-gradient(ellipse at 60% 90%, rgba(20,128,102,.1) 0%, transparent 45%),
     linear-gradient(160deg, #060B18 0%, #0D1528 50%, #14345A 100%);
   background-attachment: fixed;
+}
+
+.dark .tag-chip-blue {
+  border-color: rgba(96,165,250,0.22); background: rgba(96,165,250,0.08); color: #60a5fa;
 }
 
 /* Light section surfaces → dark navy equivalents */

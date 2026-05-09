@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import type { MSAEvent } from "@/data/events";
 import { linkifyText } from "@/lib/linkify";
 import { resolveEventAction } from "./resolveEventAction";
+import { getEventTier, getTagChipClass } from "./calendar-utils";
 
 const AiSparkle = () => (
   <span
@@ -33,6 +34,7 @@ const EventCardBase = ({ event, variant = "standard", index = 0, showSignatureBa
 
   const isPast = event.isPast;
   const isFeatured = variant === "featured";
+  const tier = getEventTier(event);
   const action = resolveEventAction(event);
 
   const renderAction = () => {
@@ -107,7 +109,7 @@ const EventCardBase = ({ event, variant = "standard", index = 0, showSignatureBa
             <div className="flex-1 p-7 md:p-10">
               <div className="flex flex-wrap gap-2 mb-4">
                 {event.tags.map((tag) => (
-                  <span key={tag} className={tag === "Signature" ? "tag-chip-gold" : "tag-chip"}>
+                  <span key={tag} className={getTagChipClass(tier, isPast)}>
                     {tag}{event.tagSource === "ai" && <AiSparkle />}
                   </span>
                 ))}
@@ -161,10 +163,17 @@ const EventCardBase = ({ event, variant = "standard", index = 0, showSignatureBa
       <div className="relative liquid-glass-hover p-0 overflow-hidden rounded-2xl">
         <div className="flex">
           <div className={`w-16 md:w-20 shrink-0 flex flex-col items-center justify-center py-6 gap-0.5
-            ${isPast ? "bg-muted/40" : "bg-gradient-to-b from-primary/12 to-primary/4"}`}
+            ${isPast
+              ? "bg-muted/40"
+              : tier === "recurring"
+              ? "bg-gradient-to-b from-blue-500/15 to-blue-500/5"
+              : tier === "signature"
+              ? "bg-gradient-to-b from-primary/18 to-primary/6"
+              : "bg-gradient-to-b from-jannah-mid/15 to-jannah-mid/5"
+            }`}
           >
             <span className={`text-[10px] font-bold tracking-widest uppercase
-              ${isPast ? "text-muted-foreground" : "text-primary"}`}>
+              ${isPast ? "text-muted-foreground" : tier === "recurring" ? "text-blue-600 dark:text-blue-400" : tier === "signature" ? "text-primary" : "text-jannah-mid"}`}>
               {month}
             </span>
             <span className={`font-display text-3xl md:text-4xl font-bold leading-none
@@ -176,16 +185,7 @@ const EventCardBase = ({ event, variant = "standard", index = 0, showSignatureBa
           <div className="flex-1 p-5 md:p-6 min-w-0">
             <div className="flex flex-wrap gap-1.5 mb-3">
               {event.tags.slice(0, 3).map((tag) => (
-                <span
-                  key={tag}
-                  className={
-                    tag === "Signature"
-                      ? "tag-chip-gold"
-                      : isPast
-                      ? "tag-chip-muted"
-                      : "tag-chip"
-                  }
-                >
+                <span key={tag} className={getTagChipClass(tier, isPast)}>
                   {tag}{event.tagSource === "ai" && <AiSparkle />}
                 </span>
               ))}
