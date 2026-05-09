@@ -48,7 +48,7 @@ const Footer = () => {
           </div>
 
           {/* Center: three nav columns */}
-          <div className="grid grid-cols-3 gap-4 lg:gap-8">
+          <div className="grid grid-cols-3 gap-4 lg:gap-8 items-start">
 
             {/* Explore — left aligned */}
             <div className="flex flex-col gap-2.5 items-start">
@@ -77,13 +77,10 @@ const Footer = () => {
               ))}
             </div>
 
-            {/* Contact — right aligned */}
-            <div className="flex flex-col gap-2.5 items-end text-right">
+            {/* Connect — right aligned */}
+            <div className="flex flex-col gap-2.5 items-end text-right h-full">
               <p className="font-body text-[10px] font-bold uppercase tracking-[0.2em] mb-1" style={{ color: "rgba(242,171,35,.6)" }}>Connect</p>
-              <Link to="/contact" className="inline-flex items-center justify-end text-xs font-semibold px-3 py-1.5 rounded-full border border-primary/40 text-primary hover:bg-primary/10 transition-colors duration-200">
-                Contact Us →
-              </Link>
-              <a href={`mailto:${LINKS.email}`} className="footer-link font-body text-sm">{LINKS.email}</a>
+              <a href={`mailto:${LINKS.email}`} className="footer-link font-body text-sm">Email</a>
               <div className="flex items-center gap-3 mt-1">
                 <a href={LINKS.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="footer-link inline-flex items-center">
                   <Instagram size={17} />
@@ -96,6 +93,11 @@ const Footer = () => {
                 </a>
               </div>
               <a href={LINKS.linktree} target="_blank" rel="noopener noreferrer" className="footer-link font-body text-sm">Linktree</a>
+              <div className="mt-auto pt-2">
+                <Link to="/contact" className="inline-flex items-center justify-end text-xs font-semibold px-3 py-1.5 rounded-full border border-primary/40 text-primary hover:bg-primary/10 transition-colors duration-200">
+                  Contact Us →
+                </Link>
+              </div>
             </div>
           </div>
 
