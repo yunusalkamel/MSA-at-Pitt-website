@@ -41,7 +41,7 @@ const Footer = () => {
             <p className="font-display text-2xl md:text-3xl font-bold leading-tight" style={{ color: "rgba(255,255,255,.9)" }}>
               MSA at Pitt
             </p>
-            <div className="flex flex-col gap-0.5">
+            <div className="flex flex-col gap-0.5 text-center lg:text-left">
               <p className="font-body text-[13px]" style={{ color: "rgba(200,232,223,.65)" }}>Muslim Student Association</p>
               <p className="font-body text-[13px]" style={{ color: "rgba(200,232,223,.4)" }}>University of Pittsburgh</p>
             </div>
@@ -79,11 +79,11 @@ const Footer = () => {
 
             {/* Contact — right aligned */}
             <div className="flex flex-col gap-2.5 items-end text-right">
-              <p className="font-body text-[10px] font-bold uppercase tracking-[0.2em] mb-1" style={{ color: "rgba(242,171,35,.6)" }}>Contact</p>
+              <p className="font-body text-[10px] font-bold uppercase tracking-[0.2em] mb-1" style={{ color: "rgba(242,171,35,.6)" }}>Connect</p>
               <Link to="/contact" className="inline-flex items-center justify-end text-xs font-semibold px-3 py-1.5 rounded-full border border-primary/40 text-primary hover:bg-primary/10 transition-colors duration-200">
                 Contact Us →
               </Link>
-              <a href={`mailto:${LINKS.email}`} className="footer-link font-body text-sm">Email</a>
+              <a href={`mailto:${LINKS.email}`} className="footer-link font-body text-sm">{LINKS.email}</a>
               <div className="flex items-center gap-3 mt-1">
                 <a href={LINKS.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="footer-link inline-flex items-center">
                   <Instagram size={17} />
