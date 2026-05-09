@@ -181,7 +181,30 @@ const MonthView = ({
   );
 };
 
-// ── Mobile month view — same grid as desktop, count badge instead of chips ───
+// ── Mobile month view — color-coded event indicators ─────────────────────────
+
+// Change to "dots" or "pills" to switch indicator style:
+const MOBILE_INDICATOR: "dots" | "pills" = "dots";
+
+// Gold = signature, Green = special one-off, Blue = recurring (jumuah / halaqa)
+const EVENT_COLORS = {
+  signature: "#F2AB23",
+  special:   "#34D399",
+  recurring: "#60A5FA",
+} as const;
+
+function getEventColor(event: MSAEvent): string {
+  if (event.isSignature || event.featured) return EVENT_COLORS.signature;
+  if (event.categories.includes("jumuah") || event.categories.includes("halaqa")) return EVENT_COLORS.recurring;
+  return EVENT_COLORS.special;
+}
+
+/** Returns unique colors in priority order: gold → green → blue */
+function uniqueEventColors(events: MSAEvent[]): string[] {
+  const priority = [EVENT_COLORS.signature, EVENT_COLORS.special, EVENT_COLORS.recurring];
+  const used = new Set(events.map(getEventColor));
+  return priority.filter((c) => used.has(c));
+}
 
 const MobileMonthView = ({
   year, month, eventsByDate, todayStr, monthLabel, isCurrentMonth,
@@ -230,7 +253,7 @@ const MobileMonthView = ({
         ))}
       </div>
 
-      {/* Day cells — uniform height, event count badge */}
+      {/* Day cells */}
       <div className="grid grid-cols-7 gap-[3px]">
         {cells.map((day, i) => {
           if (day === null) return <div key={`empty-${i}`} className="h-14" />;
@@ -238,36 +261,48 @@ const MobileMonthView = ({
           const dayEvents = eventsByDate[dateStr] || [];
           const isToday = dateStr === todayStr;
           const hasEvents = dayEvents.length > 0;
-          const hasSignature = dayEvents.some(e => e.featured || e.isSignature);
+          const colors = hasEvents ? uniqueEventColors(dayEvents) : [];
+
           return (
             <div
               key={dateStr}
               onClick={() => hasEvents && onSelectDate(dateStr)}
-              className={`h-14 rounded-lg flex flex-col items-center justify-center gap-0.5 relative transition-all duration-150
+              className={`h-14 rounded-lg flex flex-col items-center pt-2 pb-1.5 gap-1 relative transition-all duration-150
                 ${isToday
                   ? "ring-1 ring-primary/60 bg-primary/[0.07]"
                   : hasEvents
-                  ? "cursor-pointer bg-primary/[0.03] hover:bg-primary/[0.08]"
+                  ? "cursor-pointer hover:bg-primary/[0.06]"
                   : ""}`}
             >
-              {hasEvents ? (
-                <>
-                  {/* Small day label at top, big count below */}
-                  <span className={`text-[9px] font-semibold leading-none ${isToday ? "text-primary" : "text-foreground/55"}`}>
-                    {day}
-                  </span>
-                  <span
-                    className={`text-base font-bold leading-none ${hasSignature ? "text-transparent bg-clip-text" : "text-primary"}`}
-                    style={hasSignature ? { backgroundImage: "linear-gradient(135deg, #F2AB23, #E8960A)" } : undefined}
-                  >
-                    {dayEvents.length}
-                  </span>
-                </>
-              ) : (
-                /* No events — just the day number centered */
-                <span className={`text-xs font-semibold leading-none ${isToday ? "text-primary" : "text-muted-foreground/50"}`}>
-                  {day}
-                </span>
+              {/* Day number */}
+              <span className={`text-xs font-semibold leading-none
+                ${isToday ? "text-primary" : hasEvents ? "text-foreground/80" : "text-muted-foreground/50"}`}>
+                {day}
+              </span>
+
+              {/* Indicators */}
+              {hasEvents && MOBILE_INDICATOR === "dots" && (
+                <div className="flex gap-[3px] items-center justify-center">
+                  {colors.slice(0, 3).map((color, ci) => (
+                    <span
+                      key={ci}
+                      className="w-[5px] h-[5px] rounded-full flex-shrink-0"
+                      style={{ background: color }}
+                    />
+                  ))}
+                </div>
+              )}
+
+              {hasEvents && MOBILE_INDICATOR === "pills" && (
+                <div className="flex flex-col gap-[2px] w-full px-[5px]">
+                  {colors.slice(0, 3).map((color, ci) => (
+                    <div
+                      key={ci}
+                      className="h-[3px] rounded-full w-full"
+                      style={{ background: color }}
+                    />
+                  ))}
+                </div>
               )}
             </div>
           );
@@ -275,13 +310,21 @@ const MobileMonthView = ({
       </div>
 
       {/* Legend */}
-      <div className="flex items-center gap-3 mt-3 px-1">
-        <span className="flex items-center gap-1.5 text-[9px] text-muted-foreground">
-          <span className="font-bold text-primary text-[10px] leading-none">2</span> Regular
-        </span>
-        <span className="flex items-center gap-1.5 text-[9px] text-muted-foreground">
-          <span className="font-bold text-[10px] leading-none text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(135deg, #F2AB23, #E8960A)" }}>2</span> Signature
-        </span>
+      <div className="flex items-center gap-3 mt-3 px-1 flex-wrap">
+        {[
+          { color: EVENT_COLORS.signature, label: "Signature" },
+          { color: EVENT_COLORS.special,   label: "Special" },
+          { color: EVENT_COLORS.recurring, label: "Weekly" },
+        ].map(({ color, label }) => (
+          <span key={label} className="flex items-center gap-1.5 text-[9px] text-muted-foreground">
+            {MOBILE_INDICATOR === "dots" ? (
+              <span className="w-[5px] h-[5px] rounded-full flex-shrink-0" style={{ background: color }} />
+            ) : (
+              <span className="w-3 h-[3px] rounded-full flex-shrink-0" style={{ background: color }} />
+            )}
+            {label}
+          </span>
+        ))}
       </div>
     </div>
   );
