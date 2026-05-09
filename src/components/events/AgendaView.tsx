@@ -65,10 +65,10 @@ function groupEvents(events: MSAEvent[], pastWindowDays?: number) {
 }
 
 const PAST_WINDOW_LABELS: { days: PastWindowOption; label: string }[] = [
-  { days: null, label: "All time" },
   { days: 7, label: "Past week" },
   { days: 30, label: "Past month" },
   { days: 90, label: "Past 3 months" },
+  { days: null, label: "All time" },
 ];
 
 const AUDIENCE_TAGS = new Set(["Brothers", "Sisters", "General"]);
@@ -139,7 +139,7 @@ function EventRow({ event, isPast, onClick }: { event: MSAEvent; isPast?: boolea
 const AgendaView = ({ events, autoShowPast = false }: { events: MSAEvent[]; autoShowPast?: boolean }) => {
   const [selected, setSelected] = useState<MSAEvent | null>(null);
   const [showPast, setShowPast] = useState(false);
-  const [pastWindow, setPastWindow] = useState<PastWindowOption>(null);
+  const [pastWindow, setPastWindow] = useState<PastWindowOption>(30);
 
   useEffect(() => {
     if (autoShowPast) setShowPast(true);

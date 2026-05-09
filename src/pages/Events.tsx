@@ -142,7 +142,7 @@ const Events = () => {
           )}
 
           {/* View switcher + sync indicator */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+          <div className="flex flex-col items-start sm:flex-row sm:items-center justify-between gap-3 mb-5">
             <ViewSwitcher view={view} onChange={setView} />
 
             <div className="flex items-center gap-2 text-xs text-muted-foreground/60 font-body">
@@ -186,7 +186,7 @@ const Events = () => {
           </div>
 
           <div className={`flex justify-center mb-6 ${view === "agenda" ? "sticky top-[68px] md:top-[76px] z-30 py-2 backdrop-blur-sm" : ""}`}>
-            <EventsFilterBar selected={selectedTags} onChange={setSelectedTags} />
+            <EventsFilterBar selected={selectedTags} onChange={setSelectedTags} allEvents={sourceEvents} />
           </div>
 
           {loading && !error ? (

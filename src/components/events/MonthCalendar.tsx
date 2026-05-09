@@ -181,7 +181,104 @@ const MonthView = ({
   );
 };
 
-// ── Week view (mobile) ────────────────────────────────────────────────────────
+// ── Mobile month view — same grid as desktop, count badge instead of chips ───
+
+const MobileMonthView = ({
+  year, month, eventsByDate, todayStr, monthLabel, isCurrentMonth,
+  onPrev, onNext, onGoToday, onSelectDate,
+}: {
+  year: number; month: number; eventsByDate: Record<string, MSAEvent[]>;
+  todayStr: string; monthLabel: string; isCurrentMonth: boolean;
+  onPrev: () => void; onNext: () => void; onGoToday: () => void;
+  onSelectDate: (date: string) => void;
+}) => {
+  const daysInMonth = getDaysInMonth(year, month);
+  const firstDay = getFirstDayOfMonth(year, month);
+
+  const cells: (number | null)[] = [];
+  for (let i = 0; i < firstDay; i++) cells.push(null);
+  for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+  while (cells.length % 7 !== 0) cells.push(null);
+
+  return (
+    <div className="glass-card-strong p-3 rounded-2xl">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-3 gap-2">
+        <button onClick={onPrev} aria-label="Previous month"
+          className="glass-card w-8 h-8 flex items-center justify-center hover:border-primary/30 transition-colors rounded-xl flex-shrink-0">
+          <ChevronLeft size={15} className="text-foreground" />
+        </button>
+        <div className="flex items-center gap-2 min-w-0">
+          <h3 className="font-display text-base font-bold text-foreground truncate">{monthLabel}</h3>
+          {!isCurrentMonth && (
+            <button onClick={onGoToday}
+              className="flex-shrink-0 inline-flex items-center gap-1 text-[10px] font-semibold text-primary border border-primary/25 bg-primary/[0.06] hover:bg-primary/[0.12] transition-colors px-2 py-0.5 rounded-full">
+              <CalendarClock size={10} /> Today
+            </button>
+          )}
+        </div>
+        <button onClick={onNext} aria-label="Next month"
+          className="glass-card w-8 h-8 flex items-center justify-center hover:border-primary/30 transition-colors rounded-xl flex-shrink-0">
+          <ChevronRight size={15} className="text-foreground" />
+        </button>
+      </div>
+
+      {/* Day-of-week headers */}
+      <div className="grid grid-cols-7 mb-1">
+        {DAYS.map(d => (
+          <div key={d} className="text-center text-[9px] font-semibold text-muted-foreground py-1">{d}</div>
+        ))}
+      </div>
+
+      {/* Day cells — uniform height, event count badge */}
+      <div className="grid grid-cols-7 gap-[3px]">
+        {cells.map((day, i) => {
+          if (day === null) return <div key={`empty-${i}`} className="h-11" />;
+          const dateStr = formatDateStr(year, month, day);
+          const dayEvents = eventsByDate[dateStr] || [];
+          const isToday = dateStr === todayStr;
+          const hasEvents = dayEvents.length > 0;
+          const hasSignature = dayEvents.some(e => e.featured || e.isSignature);
+          return (
+            <div
+              key={dateStr}
+              onClick={() => hasEvents && onSelectDate(dateStr)}
+              className={`h-11 rounded-lg flex flex-col items-center justify-center gap-0.5 relative transition-all duration-150
+                ${isToday ? "border border-primary/50 bg-primary/[0.08]" : hasEvents ? "cursor-pointer hover:bg-primary/[0.06]" : ""}`}
+            >
+              <span className={`text-[11px] font-semibold leading-none
+                ${isToday ? "text-primary" : hasEvents ? "text-foreground" : "text-muted-foreground/60"}`}>
+                {day}
+              </span>
+              {hasEvents && (
+                <span className={`text-[9px] font-bold leading-none px-1.5 py-0.5 rounded-full
+                  ${hasSignature ? "gold-gradient text-primary-foreground" : "bg-secondary/80 text-secondary-foreground"}`}>
+                  {dayEvents.length}
+                </span>
+              )}
+              {isToday && <span className="absolute top-1 right-1 w-1 h-1 rounded-full bg-primary" />}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Legend */}
+      <div className="flex items-center gap-3 mt-3 px-1">
+        {[
+          { label: "Signature", style: "gold-gradient" },
+          { label: "Events", style: "bg-secondary/80" },
+        ].map(({ label, style }) => (
+          <span key={label} className="flex items-center gap-1.5 text-[9px] text-muted-foreground">
+            <span className={`w-2 h-2 rounded-full flex-shrink-0 ${style}`} />
+            {label}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// ── Week view (kept but no longer used on mobile) ─────────────────────────────
 
 function getWeekStart(date: Date): Date {
   const d = new Date(date);
@@ -365,15 +462,17 @@ const MonthCalendar = ({ events }: Props) => {
   return (
     <div>
       {isMobile ? (
-        <WeekView
-          weekStart={weekStart}
+        <MobileMonthView
+          year={year}
+          month={month}
           eventsByDate={eventsByDate}
           todayStr={todayStr}
-          onPrevWeek={prevWeek}
-          onNextWeek={nextWeek}
-          onGoToday={goToTodayWeek}
+          monthLabel={monthLabel}
+          isCurrentMonth={isCurrentMonth}
+          onPrev={prevMonth}
+          onNext={nextMonth}
+          onGoToday={goToTodayMonth}
           onSelectDate={setSelectedDate}
-          onEventSelect={setSelectedEvent}
         />
       ) : (
         <MonthView
