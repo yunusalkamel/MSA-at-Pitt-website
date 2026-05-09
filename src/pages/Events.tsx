@@ -189,7 +189,7 @@ const Events = () => {
             <EventsFilterBar selected={selectedTags} onChange={setSelectedTags} allEvents={sourceEvents} />
           </div>
 
-          {loading && !error ? (
+          {loading && !error && filteredEvents.length === 0 ? (
             <div className="glass-card-strong p-16 text-center rounded-2xl">
               <div className="flex flex-col items-center gap-3">
                 <div className="w-7 h-7 rounded-full border-2 border-primary border-t-transparent animate-spin" />

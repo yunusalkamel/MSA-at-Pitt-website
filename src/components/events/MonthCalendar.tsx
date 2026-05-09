@@ -233,7 +233,7 @@ const MobileMonthView = ({
       {/* Day cells — uniform height, event count badge */}
       <div className="grid grid-cols-7 gap-[3px]">
         {cells.map((day, i) => {
-          if (day === null) return <div key={`empty-${i}`} className="h-11" />;
+          if (day === null) return <div key={`empty-${i}`} className="h-14" />;
           const dateStr = formatDateStr(year, month, day);
           const dayEvents = eventsByDate[dateStr] || [];
           const isToday = dateStr === todayStr;
@@ -243,20 +243,32 @@ const MobileMonthView = ({
             <div
               key={dateStr}
               onClick={() => hasEvents && onSelectDate(dateStr)}
-              className={`h-11 rounded-lg flex flex-col items-center justify-center gap-0.5 relative transition-all duration-150
-                ${isToday ? "border border-primary/50 bg-primary/[0.08]" : hasEvents ? "cursor-pointer hover:bg-primary/[0.06]" : ""}`}
+              className={`h-14 rounded-lg flex flex-col items-center justify-center gap-0.5 relative transition-all duration-150
+                ${isToday
+                  ? "ring-1 ring-primary/60 bg-primary/[0.07]"
+                  : hasEvents
+                  ? "cursor-pointer bg-primary/[0.03] hover:bg-primary/[0.08]"
+                  : ""}`}
             >
-              <span className={`text-[11px] font-semibold leading-none
-                ${isToday ? "text-primary" : hasEvents ? "text-foreground" : "text-muted-foreground/60"}`}>
-                {day}
-              </span>
-              {hasEvents && (
-                <span className={`text-[9px] font-bold leading-none px-1.5 py-0.5 rounded-full
-                  ${hasSignature ? "gold-gradient text-primary-foreground" : "bg-secondary/80 text-secondary-foreground"}`}>
-                  {dayEvents.length}
+              {hasEvents ? (
+                <>
+                  {/* Small day label at top, big count below */}
+                  <span className={`text-[9px] font-semibold leading-none ${isToday ? "text-primary" : "text-foreground/55"}`}>
+                    {day}
+                  </span>
+                  <span
+                    className={`text-base font-bold leading-none ${hasSignature ? "text-transparent bg-clip-text" : "text-primary"}`}
+                    style={hasSignature ? { backgroundImage: "linear-gradient(135deg, #F2AB23, #E8960A)" } : undefined}
+                  >
+                    {dayEvents.length}
+                  </span>
+                </>
+              ) : (
+                /* No events — just the day number centered */
+                <span className={`text-xs font-semibold leading-none ${isToday ? "text-primary" : "text-muted-foreground/50"}`}>
+                  {day}
                 </span>
               )}
-              {isToday && <span className="absolute top-1 right-1 w-1 h-1 rounded-full bg-primary" />}
             </div>
           );
         })}
@@ -264,15 +276,12 @@ const MobileMonthView = ({
 
       {/* Legend */}
       <div className="flex items-center gap-3 mt-3 px-1">
-        {[
-          { label: "Signature", style: "gold-gradient" },
-          { label: "Events", style: "bg-secondary/80" },
-        ].map(({ label, style }) => (
-          <span key={label} className="flex items-center gap-1.5 text-[9px] text-muted-foreground">
-            <span className={`w-2 h-2 rounded-full flex-shrink-0 ${style}`} />
-            {label}
-          </span>
-        ))}
+        <span className="flex items-center gap-1.5 text-[9px] text-muted-foreground">
+          <span className="font-bold text-primary text-[10px] leading-none">2</span> Regular
+        </span>
+        <span className="flex items-center gap-1.5 text-[9px] text-muted-foreground">
+          <span className="font-bold text-[10px] leading-none text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(135deg, #F2AB23, #E8960A)" }}>2</span> Signature
+        </span>
       </div>
     </div>
   );
