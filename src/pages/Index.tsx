@@ -210,9 +210,9 @@ const Index = () => {
           <TodayNextEvent />
         </motion.div>
 
-        {/* Seamless fade into the section below */}
-        <div className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none z-[5] dark:hidden" style={{ background: "linear-gradient(to bottom, transparent, #F8F3EA)" }} aria-hidden="true" />
-        <div className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none z-[5] hidden dark:block" style={{ background: "linear-gradient(to bottom, transparent, #0D1528)" }} aria-hidden="true" />
+        {/* Seamless fade into the section below — light uses a gold shimmer, dark fades to navy */}
+        <div className="absolute bottom-0 left-0 right-0 h-52 md:h-64 pointer-events-none z-[5] dark:hidden" style={{ background: "linear-gradient(to bottom, transparent 0%, rgba(242,171,35,0.12) 45%, #F8F3EA 100%)" }} aria-hidden="true" />
+        <div className="absolute bottom-0 left-0 right-0 h-52 md:h-64 pointer-events-none z-[5] hidden dark:block" style={{ background: "linear-gradient(to bottom, transparent 0%, #0D1528 100%)" }} aria-hidden="true" />
 
         {!prefersReduced && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2, duration: 1 }} className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10">

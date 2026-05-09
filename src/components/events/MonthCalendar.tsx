@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight, Clock, ExternalLink, CalendarClock, MapPin }
 import type { MSAEvent } from "@/data/events";
 import DayEventsPanel from "./DayEventsPanel";
 import EventDetailSheet from "./EventDetailSheet";
-import { DAYS, getDaysInMonth, getFirstDayOfMonth, formatDateStr, getTimeOnly, sortEvents } from "./calendar-utils";
+import { DAYS, getDaysInMonth, getFirstDayOfMonth, formatDateStr, getTimeOnly, sortEvents, getEventTier } from "./calendar-utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Props { events: MSAEvent[] }
@@ -22,13 +22,16 @@ const EventChip = ({
 }) => {
   const isSignature = event.featured || event.isSignature;
   const isPast = event.isPast;
+  const tier = getEventTier(event);
   const chipStyle = isSignature && !isPast
     ? "gold-gradient text-primary-foreground"
     : isSignature && isPast
-    ? "border border-primary/35 bg-primary/[0.06] text-foreground/60"
+    ? "border border-primary/35 bg-primary/[0.06] text-foreground/60 opacity-70"
     : isPast
-    ? "bg-secondary/40 text-secondary-foreground/60 dark:bg-secondary/20 dark:text-secondary-foreground/40"
-    : "bg-secondary/90 text-secondary-foreground";
+    ? "bg-muted/50 text-muted-foreground opacity-60 border border-border/20"
+    : tier === "recurring"
+    ? "bg-blue-500/[0.12] text-blue-700 dark:text-blue-400 border border-blue-500/20"
+    : "bg-jannah-mid/[0.12] text-jannah-mid dark:text-jannah-light border border-jannah-mid/20";
 
   return (
     <button
@@ -187,21 +190,21 @@ const MonthView = ({
 const MOBILE_INDICATOR: "dots" | "pills" = "pills";
 
 // Gold = signature, Green = special one-off, Blue = recurring (jumuah / halaqa)
+// Dot/pill colors match the tier system: gold=signature, jannah=upcoming, blue=recurring
 const EVENT_COLORS = {
   signature: "#F2AB23",
-  special:   "#34D399",
+  upcoming:  "#148066",
   recurring: "#60A5FA",
 } as const;
 
 function getEventColor(event: MSAEvent): string {
-  if (event.isSignature || event.featured) return EVENT_COLORS.signature;
-  if (event.categories.includes("jumuah") || event.categories.includes("halaqa")) return EVENT_COLORS.recurring;
-  return EVENT_COLORS.special;
+  const tier = getEventTier(event);
+  return EVENT_COLORS[tier];
 }
 
-/** Returns unique colors in priority order: gold → green → blue */
+/** Returns unique colors in priority order: gold → jannah → blue */
 function uniqueEventColors(events: MSAEvent[]): string[] {
-  const priority = [EVENT_COLORS.signature, EVENT_COLORS.special, EVENT_COLORS.recurring];
+  const priority = [EVENT_COLORS.signature, EVENT_COLORS.upcoming, EVENT_COLORS.recurring];
   const used = new Set(events.map(getEventColor));
   return priority.filter((c) => used.has(c));
 }
@@ -282,11 +285,11 @@ const MobileMonthView = ({
 
               {/* Indicators */}
               {hasEvents && MOBILE_INDICATOR === "dots" && (
-                <div className="flex gap-[3px] items-center justify-center">
+                <div className="flex gap-1 items-center justify-center">
                   {colors.slice(0, 3).map((color, ci) => (
                     <span
                       key={ci}
-                      className="w-[5px] h-[5px] rounded-full flex-shrink-0"
+                      className="w-2 h-2 rounded-full flex-shrink-0"
                       style={{ background: color }}
                     />
                   ))}
@@ -294,12 +297,12 @@ const MobileMonthView = ({
               )}
 
               {hasEvents && MOBILE_INDICATOR === "pills" && (
-                <div className="flex flex-col gap-[2px] w-full px-[5px]">
+                <div className="flex flex-col gap-[3px] w-full px-1.5">
                   {colors.slice(0, 3).map((color, ci) => (
                     <div
                       key={ci}
-                      className="h-[3px] rounded-full w-full"
-                      style={{ background: color }}
+                      className="h-1.5 rounded-full w-full"
+                      style={{ background: color, opacity: 0.85 }}
                     />
                   ))}
                 </div>
@@ -313,14 +316,14 @@ const MobileMonthView = ({
       <div className="flex items-center gap-3 mt-3 px-1 flex-wrap">
         {[
           { color: EVENT_COLORS.signature, label: "Signature" },
-          { color: EVENT_COLORS.special,   label: "Special" },
-          { color: EVENT_COLORS.recurring, label: "Weekly" },
+          { color: EVENT_COLORS.upcoming,  label: "Upcoming" },
+          { color: EVENT_COLORS.recurring, label: "Recurring" },
         ].map(({ color, label }) => (
           <span key={label} className="flex items-center gap-1.5 text-[9px] text-muted-foreground">
             {MOBILE_INDICATOR === "dots" ? (
-              <span className="w-[5px] h-[5px] rounded-full flex-shrink-0" style={{ background: color }} />
+              <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: color }} />
             ) : (
-              <span className="w-3 h-[3px] rounded-full flex-shrink-0" style={{ background: color }} />
+              <span className="w-3.5 h-1.5 rounded-full flex-shrink-0" style={{ background: color }} />
             )}
             {label}
           </span>

@@ -55,3 +55,26 @@ export function sortEvents(evs: MSAEvent[]): MSAEvent[] {
     return a.title.localeCompare(b.title);
   });
 }
+
+// ── Event tier system ────────────────────────────────────────────────────────
+// Gold = signature, Blue = recurring (jumuah / halaqa / sports), Jannah = upcoming
+
+export type EventTier = "signature" | "recurring" | "upcoming";
+
+export function getEventTier(event: MSAEvent): EventTier {
+  if (event.isSignature || event.featured) return "signature";
+  if (
+    event.categories.includes("jumuah") ||
+    event.categories.includes("halaqa") ||
+    event.categories.includes("sports")
+  ) return "recurring";
+  return "upcoming";
+}
+
+/** Returns the CSS chip class for a tag based on the event's tier. */
+export function getTagChipClass(tier: EventTier, isPast?: boolean): string {
+  if (isPast) return "tag-chip-muted";
+  if (tier === "signature") return "tag-chip-gold";
+  if (tier === "recurring") return "tag-chip-blue";
+  return "tag-chip";
+}
