@@ -13,7 +13,7 @@ import BridgeBar from "@/components/BridgeBar";
 import PortableTextRenderer from "@/components/PortableTextRenderer";
 import SanityImage from "@/components/SanityImage";
 import PartnerLogos from "@/components/PartnerLogos";
-import TodayJummah from "@/components/TodayJummah";
+import TodayNextEvent from "@/components/TodayNextEvent";
 import { useCountUp } from "@/hooks/useCountUp";
 import { useCalendarEvents } from "@/hooks/useCalendarEvents";
 import { useSanityData } from "@/hooks/useSanityData";
@@ -206,22 +206,23 @@ const Index = () => {
             <Link to="/join" className="btn-premium text-base px-8 py-3.5">Join the MSA <ArrowRight size={16} /></Link>
             <Link to="/events" className="btn-premium-secondary text-base px-8 py-3.5">See Upcoming Events</Link>
           </motion.div>
+
+          <TodayNextEvent />
         </motion.div>
 
+        {/* Seamless fade into the section below */}
+        <div className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none z-[5] dark:hidden" style={{ background: "linear-gradient(to bottom, transparent, #F8F3EA)" }} aria-hidden="true" />
+        <div className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none z-[5] hidden dark:block" style={{ background: "linear-gradient(to bottom, transparent, #0D1528)" }} aria-hidden="true" />
+
         {!prefersReduced && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2, duration: 1 }} className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10">
-            <div className="w-px h-12 bg-gradient-to-b from-primary/50 via-primary/20 to-transparent animate-pulse mx-auto" />
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2, duration: 1 }} className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10">
+            <div className="w-px h-10 bg-gradient-to-b from-primary/50 via-primary/20 to-transparent animate-pulse mx-auto" />
           </motion.div>
         )}
       </section>
 
-      {/* ── Today's Jummah card — only renders on Fridays ───────── */}
-      <section className="relative z-20 -mt-16 px-4">
-        <TodayJummah />
-      </section>
-
       {/* ── Stats — overlaps slightly into the warm section below ── */}
-      <section className="relative z-20 px-4 md:px-8 -mt-14 mb-[-5rem] bg-transparent">
+      <section className="relative z-20 px-4 md:px-8 -mt-[4rem] mb-[-5rem] bg-transparent">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.3, duration: 0.6 }} className="liquid-glass-stats rounded-3xl max-w-3xl mx-3 sm:mx-auto p-4 md:p-6 grid grid-cols-3 items-stretch gap-0 ring-1 ring-white/15 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.08)] overflow-hidden">
           <StatItem numericValue={d.statEventsPerSemester} suffix="+" label="Events per Semester" sub="halaqas, socials, speakers & more" bordered />
           <StatItem value={String(d.statFoundedYear)} label="Founded at Pitt" sub="community since day one" bordered />

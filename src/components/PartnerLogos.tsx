@@ -1,5 +1,5 @@
 import { motion, useMotionValue, useAnimationFrame } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 
 interface Partner {
   name: string;
@@ -89,6 +89,7 @@ const PartnerLogos = () => {
   const isDragging = useRef(false);
   const didDrag = useRef(false);
   const innerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const dragStartClientX = useRef(0);
   const dragStartMotionX = useRef(0);
 
@@ -100,7 +101,9 @@ const PartnerLogos = () => {
     x.set(next);
   });
 
+  // Pointer events for desktop
   const handlePointerDown = (e: React.PointerEvent) => {
+    if (e.pointerType === "touch") return; // handled by touch listeners below
     isDragging.current = true;
     didDrag.current = false;
     dragStartClientX.current = e.clientX;
@@ -109,7 +112,7 @@ const PartnerLogos = () => {
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
-    if (!isDragging.current || !innerRef.current) return;
+    if (e.pointerType === "touch" || !isDragging.current || !innerRef.current) return;
     const delta = e.clientX - dragStartClientX.current;
     if (Math.abs(delta) > 6) didDrag.current = true;
     const halfWidth = innerRef.current.scrollWidth / 2;
@@ -120,6 +123,44 @@ const PartnerLogos = () => {
   };
 
   const stopDrag = () => { isDragging.current = false; };
+
+  // Touch events for mobile — must be non-passive to allow preventDefault
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const onTouchStart = (e: TouchEvent) => {
+      isDragging.current = true;
+      didDrag.current = false;
+      dragStartClientX.current = e.touches[0].clientX;
+      dragStartMotionX.current = x.get();
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (!isDragging.current || !innerRef.current) return;
+      const delta = e.touches[0].clientX - dragStartClientX.current;
+      if (Math.abs(delta) > 6) {
+        didDrag.current = true;
+        e.preventDefault(); // prevent page scroll while dragging carousel
+      }
+      const halfWidth = innerRef.current.scrollWidth / 2;
+      let next = dragStartMotionX.current + delta;
+      while (next < -halfWidth) next += halfWidth;
+      while (next > 0) next -= halfWidth;
+      x.set(next);
+    };
+
+    const onTouchEnd = () => { isDragging.current = false; };
+
+    el.addEventListener("touchstart", onTouchStart, { passive: true });
+    el.addEventListener("touchmove", onTouchMove, { passive: false });
+    el.addEventListener("touchend", onTouchEnd, { passive: true });
+    return () => {
+      el.removeEventListener("touchstart", onTouchStart);
+      el.removeEventListener("touchmove", onTouchMove);
+      el.removeEventListener("touchend", onTouchEnd);
+    };
+  }, [x]);
 
   return (
     <section className="py-10 md:py-14 overflow-hidden relative">
@@ -133,11 +174,12 @@ const PartnerLogos = () => {
       </div>
 
       <div
+        ref={containerRef}
         className="relative cursor-grab active:cursor-grabbing"
         style={{
           maskImage: "linear-gradient(90deg, transparent, black 8%, black 92%, transparent)",
           WebkitMaskImage: "linear-gradient(90deg, transparent, black 8%, black 92%, transparent)",
-          touchAction: "none",
+          touchAction: "pan-y",
         }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
