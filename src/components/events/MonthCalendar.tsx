@@ -26,9 +26,11 @@ const EventChip = ({
   const chipStyle = isSignature && !isPast
     ? "gold-gradient text-primary-foreground"
     : isSignature && isPast
-    ? "border border-primary/35 bg-primary/[0.06] text-foreground/60 opacity-70"
+    ? "border border-primary/35 bg-primary/[0.06] text-foreground/55 opacity-65"
+    : isPast && tier === "recurring"
+    ? "bg-blue-500/[0.07] text-blue-700/55 dark:text-blue-400/45 border border-blue-500/[0.12] opacity-65"
     : isPast
-    ? "bg-muted/50 text-muted-foreground opacity-60 border border-border/20"
+    ? "bg-jannah-mid/[0.07] text-jannah-mid/55 dark:text-jannah-light/45 border border-jannah-mid/[0.12] opacity-65"
     : tier === "recurring"
     ? "bg-blue-500/[0.12] text-blue-700 dark:text-blue-400 border border-blue-500/20"
     : "bg-jannah-mid/[0.12] text-jannah-mid dark:text-jannah-light border border-jannah-mid/20";
@@ -170,12 +172,12 @@ const MonthView = ({
 
       <div className="flex items-center gap-4 mt-4 px-1 flex-wrap">
         {[
-          { label: "Signature", style: "gold-gradient", textStyle: "" },
-          { label: "Upcoming", style: "bg-secondary", textStyle: "" },
-          { label: "Past", style: "bg-secondary/40", textStyle: "opacity-60" },
-        ].map(({ label, style, textStyle }) => (
-          <span key={label} className={`flex items-center gap-1.5 text-[10px] text-muted-foreground ${textStyle}`}>
-            <span className={`w-2.5 h-2.5 rounded-[3px] flex-shrink-0 ${style}`} />
+          { label: "Signature", color: "#F2AB23" },
+          { label: "Upcoming",  color: "#148066" },
+          { label: "Recurring", color: "#60A5FA" },
+        ].map(({ label, color }) => (
+          <span key={label} className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+            <span className="w-2.5 h-2.5 rounded-[3px] flex-shrink-0" style={{ background: color }} />
             {label}
           </span>
         ))}
@@ -455,12 +457,12 @@ const WeekView = ({
       {/* Legend */}
       <div className="flex items-center gap-3 mt-4 px-1 flex-wrap">
         {[
-          { label: "Signature", style: "gold-gradient", textStyle: "" },
-          { label: "Upcoming", style: "bg-secondary", textStyle: "" },
-          { label: "Past", style: "bg-secondary/40", textStyle: "opacity-60" },
-        ].map(({ label, style, textStyle }) => (
-          <span key={label} className={`flex items-center gap-1.5 text-[9px] text-muted-foreground ${textStyle}`}>
-            <span className={`w-2 h-2 rounded-[2px] flex-shrink-0 ${style}`} />
+          { label: "Signature", color: "#F2AB23" },
+          { label: "Upcoming",  color: "#148066" },
+          { label: "Recurring", color: "#60A5FA" },
+        ].map(({ label, color }) => (
+          <span key={label} className="flex items-center gap-1.5 text-[9px] text-muted-foreground">
+            <span className="w-2 h-2 rounded-[2px] flex-shrink-0" style={{ background: color }} />
             {label}
           </span>
         ))}
