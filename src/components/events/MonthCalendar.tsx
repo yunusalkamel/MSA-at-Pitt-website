@@ -184,7 +184,7 @@ const MonthView = ({
 // ── Mobile month view — color-coded event indicators ─────────────────────────
 
 // Change to "dots" or "pills" to switch indicator style:
-const MOBILE_INDICATOR: "dots" | "pills" = "dots";
+const MOBILE_INDICATOR: "pills" | "pills" = "dots";
 
 // Gold = signature, Green = special one-off, Blue = recurring (jumuah / halaqa)
 const EVENT_COLORS = {
