@@ -58,7 +58,7 @@ const BarVariant = () => (
 );
 
 // ─── CHANGE THIS to "logo", "bismillah", or "bar" to see each option ──────────
-const ACTIVE_VARIANT: "logo" | "bismillah" | "bar" = "logo";
+const ACTIVE_VARIANT: "logo" | "bismillah" | "bar" = "bar";
 // ─────────────────────────────────────────────────────────────────────────────
 
 const AppLoader = () => {
