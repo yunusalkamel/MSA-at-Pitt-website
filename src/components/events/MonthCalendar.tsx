@@ -6,7 +6,7 @@ import DayEventsPanel from "./DayEventsPanel";
 import EventDetailSheet from "./EventDetailSheet";
 import { DAYS, getDaysInMonth, getFirstDayOfMonth, formatDateStr, getTimeOnly, sortEvents, getEventTier } from "./calendar-utils";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { getHijriCategory, getHijriCellClass, getHijriLabel } from "@/lib/hijri-utils";
+import { getHijriCategory, getHijriColor, getHijriLabel, HIJRI_LEGEND } from "@/lib/hijri-utils";
 
 interface Props { events: MSAEvent[] }
 
@@ -137,17 +137,16 @@ const MonthView = ({
           const isToday = dateStr === todayStr;
           const hasEvents = dayEvents.length > 0;
           const compact = dayEvents.length >= 3;
-          const hijriCatM = getHijriCategory(new Date(`${dateStr}T12:00:00`));
-          const hijriClassM = getHijriCellClass(hijriCatM);
-          const hijriLabelM = getHijriLabel(hijriCatM);
+          const hijriCat = getHijriCategory(new Date(`${dateStr}T12:00:00`));
+          const hijriColor = getHijriColor(hijriCat);
+          const hijriLabel = getHijriLabel(hijriCat);
 
           return (
             <div
               key={dateStr}
               onClick={() => hasEvents && onSelectDate(dateStr)}
-              title={hijriLabelM || undefined}
+              title={hijriLabel || undefined}
               className={`relative rounded-xl flex flex-col items-start p-1.5 md:p-2 border transition-all duration-200 overflow-hidden
-                ${hijriClassM}
                 ${!hasEvents ? "min-h-[42px]" : ""}
                 ${isToday
                   ? "border-primary/50 bg-primary/[0.08] shadow-[0_0_14px_hsl(var(--primary)/0.12)]"
@@ -156,6 +155,12 @@ const MonthView = ({
                   : "border-transparent hover:border-border/40 hover:bg-muted/20"
                 }`}
             >
+              {hijriColor && (
+                <div
+                  className="absolute bottom-0 left-0 right-0 h-[3px]"
+                  style={{ background: hijriColor, opacity: 0.55 }}
+                />
+              )}
               {isToday && (
                 <span className="absolute top-1.5 right-1.5 flex h-1.5 w-1.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-60" />
@@ -176,7 +181,8 @@ const MonthView = ({
         })}
       </div>
 
-      <div className="flex items-center gap-4 mt-4 px-1 flex-wrap">
+      {/* Event tier + Islamic holiday legend */}
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-4 px-1">
         {[
           { label: "Signature", color: "#F2AB23" },
           { label: "Upcoming",  color: "#148066" },
@@ -184,6 +190,13 @@ const MonthView = ({
         ].map(({ label, color }) => (
           <span key={label} className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
             <span className="w-2.5 h-2.5 rounded-[3px] flex-shrink-0" style={{ background: color }} />
+            {label}
+          </span>
+        ))}
+        <span className="w-px h-3 bg-border/40 mx-1" />
+        {HIJRI_LEGEND.map(({ label, color }) => (
+          <span key={label} className="flex items-center gap-1 text-[9px] text-muted-foreground/70">
+            <span className="w-5 h-[3px] rounded-full flex-shrink-0" style={{ background: color, opacity: 0.7 }} />
             {label}
           </span>
         ))}
@@ -276,7 +289,7 @@ const MobileMonthView = ({
           const isPastDate = dateStr < todayStr;
           const indicatorOpacity = isPastDate ? 0.35 : 0.85;
           const hijriCat = getHijriCategory(new Date(`${dateStr}T12:00:00`));
-          const hijriClass = getHijriCellClass(hijriCat);
+          const hijriColor = getHijriColor(hijriCat);
           const hijriLabel = getHijriLabel(hijriCat);
 
           return (
@@ -285,13 +298,18 @@ const MobileMonthView = ({
               onClick={() => hasEvents && onSelectDate(dateStr)}
               title={hijriLabel || undefined}
               className={`h-14 rounded-lg flex flex-col items-center pt-2 pb-1.5 gap-1 relative transition-all duration-150
-                ${hijriClass}
                 ${isToday
                   ? "ring-1 ring-primary/60 bg-primary/[0.07]"
                   : hasEvents
                   ? "cursor-pointer hover:bg-primary/[0.06]"
                   : ""}`}
             >
+              {hijriColor && (
+                <div
+                  className="absolute bottom-0 left-0 right-0 h-[3px] rounded-b-lg"
+                  style={{ background: hijriColor, opacity: 0.5 }}
+                />
+              )}
               {/* Day number */}
               <span className={`text-xs font-semibold leading-none
                 ${isToday ? "text-primary" : hasEvents ? "text-foreground/80" : "text-muted-foreground/50"}`}>
@@ -355,8 +373,8 @@ const MobileMonthView = ({
         })}
       </div>
 
-      {/* Legend */}
-      <div className="flex items-center gap-3 mt-3 px-1 flex-wrap">
+      {/* Event tier legend + Islamic holiday legend */}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-3 px-1">
         {[
           { color: EVENT_COLORS.signature, label: "Signature" },
           { color: EVENT_COLORS.upcoming,  label: "Upcoming" },
@@ -368,6 +386,13 @@ const MobileMonthView = ({
             ) : (
               <span className="w-3.5 h-1.5 rounded-full flex-shrink-0" style={{ background: color }} />
             )}
+            {label}
+          </span>
+        ))}
+        <span className="w-px h-3 bg-border/40 mx-0.5" />
+        {HIJRI_LEGEND.map(({ label, color }) => (
+          <span key={label} className="flex items-center gap-1 text-[8px] text-muted-foreground/60">
+            <span className="w-4 h-[3px] rounded-full flex-shrink-0" style={{ background: color, opacity: 0.7 }} />
             {label}
           </span>
         ))}
@@ -470,7 +495,7 @@ const WeekView = ({
           const isToday = dateStr === todayStr;
           const hasEvents = dayEvents.length > 0;
           const hijriCatW = getHijriCategory(new Date(`${dateStr}T12:00:00`));
-          const hijriClassW = getHijriCellClass(hijriCatW);
+          const hijriColorW = getHijriColor(hijriCatW);
           const hijriLabelW = getHijriLabel(hijriCatW);
 
           return (
@@ -478,8 +503,7 @@ const WeekView = ({
               key={`cell-${i}`}
               onClick={() => hasEvents && onSelectDate(dateStr)}
               title={hijriLabelW || undefined}
-              className={`min-h-[72px] rounded-xl flex flex-col gap-[3px] p-1 border transition-all duration-200
-                ${hijriClassW}
+              className={`min-h-[72px] rounded-xl flex flex-col gap-[3px] p-1 border transition-all duration-200 relative overflow-hidden
                 ${isToday
                   ? "border-primary/40 bg-primary/[0.07]"
                   : hasEvents
@@ -487,6 +511,12 @@ const WeekView = ({
                   : "border-transparent"
                 }`}
             >
+              {hijriColorW && (
+                <div
+                  className="absolute bottom-0 left-0 right-0 h-[3px]"
+                  style={{ background: hijriColorW, opacity: 0.5 }}
+                />
+              )}
               {dayEvents.map((ev, idx) => (
                 <EventChip
                   key={`${ev.id}-${idx}`}
@@ -500,8 +530,8 @@ const WeekView = ({
         })}
       </div>
 
-      {/* Legend */}
-      <div className="flex items-center gap-3 mt-4 px-1 flex-wrap">
+      {/* Event tier + Islamic holiday legend */}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-4 px-1">
         {[
           { label: "Signature", color: "#F2AB23" },
           { label: "Upcoming",  color: "#148066" },
@@ -509,6 +539,13 @@ const WeekView = ({
         ].map(({ label, color }) => (
           <span key={label} className="flex items-center gap-1.5 text-[9px] text-muted-foreground">
             <span className="w-2 h-2 rounded-[2px] flex-shrink-0" style={{ background: color }} />
+            {label}
+          </span>
+        ))}
+        <span className="w-px h-3 bg-border/40 mx-0.5" />
+        {HIJRI_LEGEND.map(({ label, color }) => (
+          <span key={label} className="flex items-center gap-1 text-[9px] text-muted-foreground/70">
+            <span className="w-4 h-[3px] rounded-full flex-shrink-0" style={{ background: color, opacity: 0.7 }} />
             {label}
           </span>
         ))}

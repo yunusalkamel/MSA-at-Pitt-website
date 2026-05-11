@@ -48,7 +48,7 @@ const Events = () => {
   const { events: remoteEvents, loading, error, lastSyncedAt, refresh } = useCalendarEvents();
 
   useEffect(() => {
-    setView(isMobile ? "agenda" : "calendar");
+    setView("calendar");
   }, [isMobile]);
 
   const sourceEvents = error ? mockEvents : remoteEvents;
