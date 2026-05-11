@@ -55,8 +55,12 @@ const EventDetailSheet = ({ event, onClose }: Props) => {
             <div className="w-10 h-1 rounded-full bg-border/60" />
           </div>
 
-          {/* BridgeBar accent */}
-          <div className="h-[3px] w-full" style={{ background: "linear-gradient(90deg, #F2AB23, #148066)" }} />
+          {/* BridgeBar accent — faded for past events */}
+          <div className="h-[3px] w-full" style={{
+            background: event.isPast
+              ? "linear-gradient(90deg, rgba(242,171,35,0.28), rgba(20,128,102,0.28))"
+              : "linear-gradient(90deg, #F2AB23, #148066)"
+          }} />
 
           {/* Close button */}
           <DialogPrimitive.Close className="absolute right-4 top-4 p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors z-10">

@@ -102,10 +102,14 @@ const DayEventsPanel = ({ date, events, onClose, onEventSelect }: Props) => {
             const isPast = event.isPast;
             const tier = getEventTier(event);
 
-            const cardClass = isFeatured
+            const cardClass = isFeatured && !isPast
               ? "gold-gradient text-primary-foreground border-primary/40 shadow-lg"
+              : isFeatured && isPast
+              ? "bg-primary/[0.05] border-primary/[0.18]"
+              : isPast && tier === "recurring"
+              ? "bg-blue-500/[0.04] border-blue-500/[0.14]"
               : isPast
-              ? "bg-muted/40 border-border/30 hover:border-border/60"
+              ? "bg-jannah-mid/[0.04] border-jannah-mid/[0.14]"
               : tier === "recurring"
               ? "bg-blue-500/[0.07] border-blue-500/20 hover:border-blue-500/35 hover:bg-blue-500/[0.11]"
               : tier === "upcoming"
@@ -122,20 +126,20 @@ const DayEventsPanel = ({ date, events, onClose, onEventSelect }: Props) => {
               >
                 <div className="flex items-start justify-between gap-3">
                   <h5 className={`font-semibold text-sm md:text-base leading-snug break-words
-                    ${isFeatured ? "text-primary-foreground" : "text-foreground"}`}>
+                    ${isFeatured && !isPast ? "text-primary-foreground" : isPast ? "text-foreground/55" : "text-foreground"}`}>
                     {event.title}
                   </h5>
                   {link && (
                     <ExternalLink
                       size={13}
                       className={`shrink-0 mt-0.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5
-                        ${isFeatured ? "opacity-80" : "text-primary opacity-60"}`}
+                        ${isFeatured && !isPast ? "opacity-80" : isPast ? "text-muted-foreground/40" : "text-primary opacity-60"}`}
                     />
                   )}
                 </div>
 
                 <div className={`mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs
-                  ${isFeatured ? "text-primary-foreground/85" : "text-muted-foreground"}`}>
+                  ${isFeatured && !isPast ? "text-primary-foreground/85" : isPast ? "text-muted-foreground/60" : "text-muted-foreground"}`}>
                   <span className="flex items-center gap-1.5">
                     <Clock size={12} className="shrink-0" />
                     {event.timeLabel}
@@ -150,7 +154,7 @@ const DayEventsPanel = ({ date, events, onClose, onEventSelect }: Props) => {
 
                 {event.shortBlurb && (
                   <p className={`mt-2 text-xs leading-relaxed line-clamp-2
-                    ${isFeatured ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
+                    ${isFeatured && !isPast ? "text-primary-foreground/70" : isPast ? "text-muted-foreground/55" : "text-muted-foreground"}`}>
                     {event.shortBlurb}
                   </p>
                 )}
