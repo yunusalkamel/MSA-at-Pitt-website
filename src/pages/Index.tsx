@@ -103,23 +103,24 @@ const Index = () => {
   // Merge CMS over fallback — only include Sanity values that aren't null/undefined
   const d = { ...FALLBACK, ...Object.fromEntries(Object.entries(cms ?? {}).filter(([, v]) => v != null)) };
 
-  // Build resolved gallery cells — Sanity albums first, then bundled fallbacks if Sanity is empty
+  // Build resolved gallery cells — always 3 cells; Sanity albums first, padded with bundled fallbacks
+  const GALLERY_FALLBACKS = [
+    { title: "Fall Kickoff 2025", slug: undefined as string | undefined, imageUrl: galleryKickoffImg as string | undefined, lqip: undefined as string | undefined },
+    { title: "Ramadan Iftar",      slug: undefined as string | undefined, imageUrl: galleryIftarImg   as string | undefined, lqip: undefined as string | undefined },
+    { title: "TopGolf Night",      slug: undefined as string | undefined, imageUrl: galleryTopgolfImg as string | undefined, lqip: undefined as string | undefined },
+  ];
   const galleryCells = useMemo(() => {
-    if (galleryPreview && galleryPreview.length > 0) {
-      return galleryPreview.slice(0, 3).map((album) => ({
-        title: album.title,
-        slug: album.slug,
-        imageUrl: album.coverImage?.asset?._ref
-          ? urlFor(album.coverImage).width(900).height(600).fit("crop").auto("format").url()
-          : undefined,
-        lqip: album.coverImage?.lqip,
-      }));
-    }
-    return [
-      { title: "Fall Kickoff 2025", slug: undefined, imageUrl: galleryKickoffImg, lqip: undefined },
-      { title: "Ramadan Iftar",      slug: undefined, imageUrl: galleryIftarImg,   lqip: undefined },
-      { title: "TopGolf Night",      slug: undefined, imageUrl: galleryTopgolfImg, lqip: undefined },
-    ] as { title: string; slug?: string; imageUrl?: string; lqip?: string }[];
+    const sanity = (galleryPreview ?? []).slice(0, 3).map((album) => ({
+      title: album.title,
+      slug: album.slug as string | undefined,
+      imageUrl: album.coverImage?.asset?._ref
+        ? urlFor(album.coverImage).width(900).height(600).fit("crop").auto("format").url()
+        : undefined,
+      lqip: album.coverImage?.lqip as string | undefined,
+    }));
+    const cells = [...sanity];
+    while (cells.length < 3) cells.push(GALLERY_FALLBACKS[cells.length]);
+    return cells;
   }, [galleryPreview]);
 
   const heroSrc = cms?.heroImage?.asset?._ref
@@ -245,8 +246,8 @@ const Index = () => {
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="grid md:grid-cols-2 gap-16 items-center">
             <motion.div initial={prefersReduced ? false : { opacity: 0, x: -24 }} whileInView={prefersReduced ? undefined : { opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.55 }} className="relative group">
-              <div className="absolute -inset-1 bg-gradient-to-br from-primary/30 via-secondary/15 to-primary/20 opacity-40 group-hover:opacity-60 transition-opacity duration-500 blur-sm" style={{ borderRadius: '28px' }} />
-              <div className="relative liquid-glass p-3" style={{ borderRadius: '24px' }}>
+              <div className="absolute -inset-1.5 bg-gradient-to-br from-primary/30 via-secondary/15 to-primary/20 opacity-40 group-hover:opacity-60 transition-opacity duration-500 blur-sm" style={{ borderRadius: '22px' }} />
+              <div className="relative liquid-glass p-3" style={{ borderRadius: '20px' }}>
                 <SanityImage
                   source={cms?.communityImage}
                   fallbackSrc={communityImg}
@@ -254,7 +255,7 @@ const Index = () => {
                   height={854}
                   alt="MSA students on campus"
                   className="w-full aspect-[4/3] object-cover"
-                  style={{ borderRadius: '16px' }}
+                  style={{ borderRadius: '20px' }}
                 />
               </div>
             </motion.div>

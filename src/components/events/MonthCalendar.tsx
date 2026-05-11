@@ -190,16 +190,11 @@ const MonthView = ({
             </span>
           ))}
         </div>
-        <div className="flex flex-col items-end gap-1 flex-shrink-0">
-          <span className="flex items-center gap-1.5 text-[10px] text-muted-foreground/70">
-            <span className="w-3.5 h-2.5 rounded-[3px] flex-shrink-0" style={{ background: "rgba(20,128,102,0.7)" }} />
-            Ramadan
-          </span>
-          <span className="flex items-center gap-1.5 text-[10px] text-muted-foreground/70">
-            <span className="w-3.5 h-2.5 rounded-[3px] flex-shrink-0" style={{ background: "rgba(242,171,35,0.7)" }} />
-            Eid al-Fitr &amp; Eid al-Adha
-          </span>
-        </div>
+        <span className="flex items-center gap-1.5 text-[10px] text-muted-foreground/70 flex-shrink-0">
+          <span className="w-5 h-3.5 rounded-[3px] flex-shrink-0 overflow-hidden"
+            style={{ background: "linear-gradient(135deg, rgba(20,128,102,0.55) 50%, rgba(242,171,35,0.55) 50%)" }} />
+          Significant Islamic Dates
+        </span>
       </div>
     </div>
   );
@@ -386,16 +381,11 @@ const MobileMonthView = ({
             </span>
           ))}
         </div>
-        <div className="flex flex-col items-end gap-0.5 flex-shrink-0">
-          <span className="flex items-center gap-1 text-[8px] text-muted-foreground/60">
-            <span className="w-3 h-2 rounded-[2px] flex-shrink-0" style={{ background: "rgba(20,128,102,0.7)" }} />
-            Ramadan
-          </span>
-          <span className="flex items-center gap-1 text-[8px] text-muted-foreground/60">
-            <span className="w-3 h-2 rounded-[2px] flex-shrink-0" style={{ background: "rgba(242,171,35,0.7)" }} />
-            Eid al-Fitr &amp; al-Adha
-          </span>
-        </div>
+        <span className="flex items-center gap-1 text-[8px] text-muted-foreground/60 flex-shrink-0">
+          <span className="w-4 h-3 rounded-[2px] flex-shrink-0 overflow-hidden"
+            style={{ background: "linear-gradient(135deg, rgba(20,128,102,0.55) 50%, rgba(242,171,35,0.55) 50%)" }} />
+          Islamic Dates
+        </span>
       </div>
     </div>
   );
@@ -539,16 +529,11 @@ const WeekView = ({
             </span>
           ))}
         </div>
-        <div className="flex flex-col items-end gap-1 flex-shrink-0">
-          <span className="flex items-center gap-1.5 text-[9px] text-muted-foreground/70">
-            <span className="w-3.5 h-2 rounded-[2px] flex-shrink-0" style={{ background: "rgba(20,128,102,0.7)" }} />
-            Ramadan
-          </span>
-          <span className="flex items-center gap-1.5 text-[9px] text-muted-foreground/70">
-            <span className="w-3.5 h-2 rounded-[2px] flex-shrink-0" style={{ background: "rgba(242,171,35,0.7)" }} />
-            Eid al-Fitr &amp; Eid al-Adha
-          </span>
-        </div>
+        <span className="flex items-center gap-1.5 text-[9px] text-muted-foreground/70 flex-shrink-0">
+          <span className="w-4.5 h-3 rounded-[2px] flex-shrink-0 overflow-hidden"
+            style={{ background: "linear-gradient(135deg, rgba(20,128,102,0.55) 50%, rgba(242,171,35,0.55) 50%)", width: '18px' }} />
+          Significant Islamic Dates
+        </span>
       </div>
     </div>
   );
