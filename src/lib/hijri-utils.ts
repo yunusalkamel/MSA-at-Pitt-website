@@ -31,15 +31,28 @@ export function getHijriCategory(date: Date): HijriCategory {
   return null;
 }
 
-/** Hex color for each category — used for cell strip indicators */
+/** Hex color for each category — used for day panel label */
 export function getHijriColor(category: HijriCategory): string | null {
   switch (category) {
-    case "last10ramadan": return "#148066";
-    case "ramadan":       return "#1a9478";
-    case "eid":           return "#F2AB23";
-    case "arafah":        return "#E8960A";
-    case "dhulhijjah":    return "#C9A84C";
-    case "ashura":        return "#7C3AED";
+    case "last10ramadan":
+    case "ramadan":
+    case "ashura":        return "#148066";
+    case "eid":
+    case "arafah":
+    case "dhulhijjah":    return "#F2AB23";
+    default:              return null;
+  }
+}
+
+/** Subtle rgba background for calendar cells — two groups: green (Ramadan) and gold (Eid) */
+export function getHijriBgColor(category: HijriCategory): string | null {
+  switch (category) {
+    case "ramadan":
+    case "last10ramadan":
+    case "ashura":        return "rgba(20, 128, 102, 0.065)";
+    case "eid":
+    case "arafah":
+    case "dhulhijjah":   return "rgba(242, 171, 35, 0.07)";
     default:              return null;
   }
 }
@@ -57,13 +70,4 @@ export function getHijriLabel(category: HijriCategory): string {
   }
 }
 
-/** Pairs of [category, label, color] for legend rendering — only unique categories */
-export const HIJRI_LEGEND: { category: HijriCategory; label: string; color: string }[] = [
-  { category: "last10ramadan", label: "Last 10 Ramadan",   color: "#148066" },
-  { category: "ramadan",       label: "Ramadan",            color: "#1a9478" },
-  { category: "eid",           label: "Eid",                color: "#F2AB23" },
-  { category: "arafah",        label: "Arafah",             color: "#E8960A" },
-  { category: "dhulhijjah",    label: "Dhul Hijjah (1–8)",  color: "#C9A84C" },
-  { category: "ashura",        label: "Ashura",             color: "#7C3AED" },
-];
 
