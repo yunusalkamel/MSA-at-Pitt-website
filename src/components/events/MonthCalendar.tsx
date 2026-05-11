@@ -177,23 +177,29 @@ const MonthView = ({
       </div>
 
       {/* Event tier + Islamic holiday legend */}
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-4 px-1">
-        {[
-          { label: "Signature", color: "#F2AB23" },
-          { label: "Upcoming",  color: "#148066" },
-          { label: "Recurring", color: "#60A5FA" },
-        ].map(({ label, color }) => (
-          <span key={label} className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-            <span className="w-2.5 h-2.5 rounded-[3px] flex-shrink-0" style={{ background: color }} />
-            {label}
+      <div className="flex items-start justify-between gap-3 mt-4 px-1">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+          {[
+            { label: "Signature", color: "#F2AB23" },
+            { label: "Upcoming",  color: "#148066" },
+            { label: "Recurring", color: "#60A5FA" },
+          ].map(({ label, color }) => (
+            <span key={label} className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+              <span className="w-2.5 h-2.5 rounded-[3px] flex-shrink-0" style={{ background: color }} />
+              {label}
+            </span>
+          ))}
+        </div>
+        <div className="flex flex-col items-end gap-1 flex-shrink-0">
+          <span className="flex items-center gap-1.5 text-[10px] text-muted-foreground/70">
+            <span className="w-3.5 h-2.5 rounded-[3px] flex-shrink-0" style={{ background: "rgba(20,128,102,0.7)" }} />
+            Ramadan
           </span>
-        ))}
-        <span className="w-px h-3 bg-border/40 mx-1" />
-        <span className="flex items-center gap-1.5 text-[10px] text-muted-foreground/70">
-          <span className="w-4 h-2.5 rounded-[3px] flex-shrink-0 overflow-hidden"
-            style={{ background: "linear-gradient(to right, rgba(20,128,102,0.75) 50%, rgba(242,171,35,0.75) 50%)" }} />
-          Significant Islamic Dates
-        </span>
+          <span className="flex items-center gap-1.5 text-[10px] text-muted-foreground/70">
+            <span className="w-3.5 h-2.5 rounded-[3px] flex-shrink-0" style={{ background: "rgba(242,171,35,0.7)" }} />
+            Eid al-Fitr &amp; Eid al-Adha
+          </span>
+        </div>
       </div>
     </div>
   );
@@ -363,27 +369,33 @@ const MobileMonthView = ({
       </div>
 
       {/* Event tier legend + Islamic holiday legend */}
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-3 px-1">
-        {[
-          { color: EVENT_COLORS.signature, label: "Signature" },
-          { color: EVENT_COLORS.upcoming,  label: "Upcoming" },
-          { color: EVENT_COLORS.recurring, label: "Recurring" },
-        ].map(({ color, label }) => (
-          <span key={label} className="flex items-center gap-1.5 text-[9px] text-muted-foreground">
-            {MOBILE_INDICATOR === "C" ? (
-              <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: color }} />
-            ) : (
-              <span className="w-3.5 h-1.5 rounded-full flex-shrink-0" style={{ background: color }} />
-            )}
-            {label}
+      <div className="flex items-start justify-between gap-2 mt-3 px-1">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+          {[
+            { color: EVENT_COLORS.signature, label: "Signature" },
+            { color: EVENT_COLORS.upcoming,  label: "Upcoming" },
+            { color: EVENT_COLORS.recurring, label: "Recurring" },
+          ].map(({ color, label }) => (
+            <span key={label} className="flex items-center gap-1.5 text-[9px] text-muted-foreground">
+              {MOBILE_INDICATOR === "C" ? (
+                <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: color }} />
+              ) : (
+                <span className="w-3.5 h-1.5 rounded-full flex-shrink-0" style={{ background: color }} />
+              )}
+              {label}
+            </span>
+          ))}
+        </div>
+        <div className="flex flex-col items-end gap-0.5 flex-shrink-0">
+          <span className="flex items-center gap-1 text-[8px] text-muted-foreground/60">
+            <span className="w-3 h-2 rounded-[2px] flex-shrink-0" style={{ background: "rgba(20,128,102,0.7)" }} />
+            Ramadan
           </span>
-        ))}
-        <span className="w-px h-3 bg-border/40 mx-0.5" />
-        <span className="flex items-center gap-1 text-[8px] text-muted-foreground/60">
-          <span className="w-3.5 h-2 rounded-[2px] flex-shrink-0 overflow-hidden"
-            style={{ background: "linear-gradient(to right, rgba(20,128,102,0.75) 50%, rgba(242,171,35,0.75) 50%)" }} />
-          Islamic Dates
-        </span>
+          <span className="flex items-center gap-1 text-[8px] text-muted-foreground/60">
+            <span className="w-3 h-2 rounded-[2px] flex-shrink-0" style={{ background: "rgba(242,171,35,0.7)" }} />
+            Eid al-Fitr &amp; al-Adha
+          </span>
+        </div>
       </div>
     </div>
   );
@@ -514,23 +526,29 @@ const WeekView = ({
       </div>
 
       {/* Event tier + Islamic holiday legend */}
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-4 px-1">
-        {[
-          { label: "Signature", color: "#F2AB23" },
-          { label: "Upcoming",  color: "#148066" },
-          { label: "Recurring", color: "#60A5FA" },
-        ].map(({ label, color }) => (
-          <span key={label} className="flex items-center gap-1.5 text-[9px] text-muted-foreground">
-            <span className="w-2 h-2 rounded-[2px] flex-shrink-0" style={{ background: color }} />
-            {label}
+      <div className="flex items-start justify-between gap-3 mt-4 px-1">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+          {[
+            { label: "Signature", color: "#F2AB23" },
+            { label: "Upcoming",  color: "#148066" },
+            { label: "Recurring", color: "#60A5FA" },
+          ].map(({ label, color }) => (
+            <span key={label} className="flex items-center gap-1.5 text-[9px] text-muted-foreground">
+              <span className="w-2 h-2 rounded-[2px] flex-shrink-0" style={{ background: color }} />
+              {label}
+            </span>
+          ))}
+        </div>
+        <div className="flex flex-col items-end gap-1 flex-shrink-0">
+          <span className="flex items-center gap-1.5 text-[9px] text-muted-foreground/70">
+            <span className="w-3.5 h-2 rounded-[2px] flex-shrink-0" style={{ background: "rgba(20,128,102,0.7)" }} />
+            Ramadan
           </span>
-        ))}
-        <span className="w-px h-3 bg-border/40 mx-0.5" />
-        <span className="flex items-center gap-1.5 text-[9px] text-muted-foreground/70">
-          <span className="w-4 h-2.5 rounded-[3px] flex-shrink-0 overflow-hidden"
-            style={{ background: "linear-gradient(to right, rgba(20,128,102,0.75) 50%, rgba(242,171,35,0.75) 50%)" }} />
-          Significant Islamic Dates
-        </span>
+          <span className="flex items-center gap-1.5 text-[9px] text-muted-foreground/70">
+            <span className="w-3.5 h-2 rounded-[2px] flex-shrink-0" style={{ background: "rgba(242,171,35,0.7)" }} />
+            Eid al-Fitr &amp; Eid al-Adha
+          </span>
+        </div>
       </div>
     </div>
   );

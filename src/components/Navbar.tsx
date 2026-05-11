@@ -200,13 +200,15 @@ const Navbar = () => {
               <button
                 onClick={toggleTheme}
                 aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-                className="flex items-center justify-center w-9 h-9 rounded-xl bg-black/[0.06] dark:bg-white/[0.08] text-ink-mid/70 dark:text-white/60 hover:text-jannah-mid dark:hover:text-msa-gold hover:bg-primary/10 dark:hover:bg-msa-gold/10 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-msa-gold/60"
+                className="flex items-center justify-center w-9 h-9 rounded-xl text-ink-mid/70 dark:text-white/60 hover:text-jannah-mid dark:hover:text-msa-gold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-msa-gold/60"
+                style={{ backdropFilter: 'blur(16px)', background: 'rgba(255,255,255,0.18)', border: '1px solid rgba(255,255,255,0.25)' }}
               >
                 {theme === "dark" ? <Sun size={17} strokeWidth={2} /> : <Moon size={17} strokeWidth={2} />}
               </button>
               <button
                 onClick={() => setMobileOpen(!mobileOpen)}
-                className="flex items-center justify-center w-9 h-9 rounded-xl text-foreground hover:bg-black/[0.05] dark:hover:bg-white/[0.06] transition-colors -mr-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-msa-gold/60"
+                className="flex items-center justify-center w-9 h-9 rounded-xl text-foreground transition-all duration-200 -mr-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-msa-gold/60"
+                style={{ backdropFilter: 'blur(16px)', background: 'rgba(255,255,255,0.18)', border: '1px solid rgba(255,255,255,0.25)' }}
                 aria-label="Toggle menu"
                 aria-expanded={mobileOpen}
               >
