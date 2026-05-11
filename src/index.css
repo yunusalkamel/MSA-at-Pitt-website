@@ -299,7 +299,11 @@
 
   .font-arabic { font-family: var(--font-arabic); }
   .font-body { font-family: var(--font-body); }
-  .font-script { font-family: var(--font-script); }
+  .font-script {
+    font-family: var(--font-script);
+    font-feature-settings: "calt" 0, "liga" 0, "swsh" 0;
+    letter-spacing: 0.01em;
+  }
   .section-padding { @apply px-4 py-20 md:px-8 lg:px-16 xl:px-24; }
   .section-padding-sm { @apply px-4 py-12 md:px-8 lg:px-16 xl:px-24; }
 
