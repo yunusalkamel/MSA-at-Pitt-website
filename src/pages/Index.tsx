@@ -26,6 +26,7 @@ import galleryIftarImg from "@/assets/gallery-iftar.jpg";
 import galleryTopgolfImg from "@/assets/gallery-topgolf.jpg";
 import { mockEvents, getUpcomingWindow } from "@/data/events";
 import { LINKS } from "@/config/links";
+import { getEventTier } from "@/components/events/calendar-utils";
 
 // ── Fallback content ─────────────────────────────────────────────
 const FALLBACK = {
@@ -56,6 +57,13 @@ const ICON_MAP: Record<string, React.FC<{ size?: number; className?: string }>> 
 function formatEventMonthDay(dateStr: string) {
   const d = new Date(`${dateStr}T12:00:00`);
   return { month: d.toLocaleString("en-US", { month: "short" }), day: d.getDate() };
+}
+
+function dateBadgeClass(event: { isSignature?: boolean; featured?: boolean; categories: string[] }): string {
+  const tier = getEventTier(event as Parameters<typeof getEventTier>[0]);
+  if (tier === "signature") return "gold-gradient text-primary-foreground";
+  if (tier === "recurring") return "bg-blue-500/20 text-blue-700 dark:text-blue-400";
+  return "bg-jannah-mid/20 text-jannah-mid dark:text-jannah-light";
 }
 
 const StatItem = ({ value, numericValue, suffix, label, sub, bordered }: {
@@ -211,7 +219,7 @@ const Index = () => {
         </motion.div>
 
         {/* Seamless fade into the section below — light uses a gold shimmer, dark fades to navy */}
-        <div className="absolute bottom-0 left-0 right-0 h-52 md:h-64 pointer-events-none z-[5] dark:hidden" style={{ background: "linear-gradient(to bottom, transparent 0%, rgba(242,171,35,0.12) 45%, #F8F3EA 100%)" }} aria-hidden="true" />
+        <div className="absolute bottom-0 left-0 right-0 h-52 md:h-64 pointer-events-none z-[5] dark:hidden" style={{ background: "linear-gradient(to bottom, transparent 0%, rgba(242,171,35,0.22) 50%, #FBF0D0 85%, #F8F3EA 100%)" }} aria-hidden="true" />
         <div className="absolute bottom-0 left-0 right-0 h-52 md:h-64 pointer-events-none z-[5] hidden dark:block" style={{ background: "linear-gradient(to bottom, transparent 0%, #0D1528 100%)" }} aria-hidden="true" />
 
         {!prefersReduced && (
@@ -222,7 +230,7 @@ const Index = () => {
       </section>
 
       {/* ── Stats — overlaps slightly into the warm section below ── */}
-      <section className="relative z-20 px-4 md:px-8 -mt-[4rem] mb-[-5rem] bg-transparent">
+      <section className="relative z-20 px-4 md:px-8 -mt-[4rem] mb-[-5rem] bg-[#F8F3EA] dark:bg-[#060B18]">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.3, duration: 0.6 }} className="liquid-glass-stats rounded-3xl max-w-3xl mx-3 sm:mx-auto p-4 md:p-6 grid grid-cols-3 items-stretch gap-0 ring-1 ring-white/15 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.08)] overflow-hidden">
           <StatItem numericValue={d.statEventsPerSemester} suffix="+" label="Events per Semester" sub="halaqas, socials, speakers & more" bordered />
           <StatItem value={String(d.statFoundedYear)} label="Founded at Pitt" sub="community since day one" bordered />
@@ -285,7 +293,7 @@ const Index = () => {
             </div>
           )}
           <div className="md:hidden flex flex-col gap-3">
-            {eventsLoading && !eventsError ? (
+            {eventsLoading && !eventsError && upcomingScrollEvents.length === 0 ? (
               <div className="glass-card p-6 flex items-center justify-center min-h-[120px]">
                 <div className="w-6 h-6 rounded-full border-2 border-primary border-t-transparent animate-spin" />
               </div>
@@ -293,7 +301,7 @@ const Index = () => {
               const { month, day } = formatEventMonthDay(event.startDate);
               return (
                 <div key={event.id} className="glass-card p-4 flex gap-4">
-                  <div className="gold-gradient text-primary-foreground w-12 h-12 rounded-xl flex flex-col items-center justify-center flex-shrink-0">
+                  <div className={`${dateBadgeClass(event)} w-12 h-12 rounded-xl flex flex-col items-center justify-center flex-shrink-0`}>
                     <span className="text-[9px] font-semibold uppercase tracking-wide opacity-80">{month}</span>
                     <span className="font-display text-xl font-bold leading-none">{day}</span>
                   </div>
@@ -315,7 +323,7 @@ const Index = () => {
             <div className="flex-1 min-w-0" style={{ maskImage: "linear-gradient(to right, black 75%, transparent 100%)", WebkitMaskImage: "linear-gradient(to right, black 75%, transparent 100%)" }}>
               <div className="overflow-x-auto pb-3 h-full" style={{ scrollbarWidth: "thin", scrollbarColor: "rgba(242,171,35,.25) transparent" }}>
                 <div className="flex gap-4 min-w-max pr-2">
-                  {eventsLoading && !eventsError ? (
+                  {eventsLoading && !eventsError && upcomingScrollEvents.length === 0 ? (
                     <div className="w-72 glass-card p-6 flex flex-col items-center justify-center min-h-[220px]">
                       <div className="w-7 h-7 rounded-full border-2 border-primary border-t-transparent animate-spin mb-3" />
                       <p className="text-muted-foreground text-sm">Loading…</p>
@@ -330,7 +338,7 @@ const Index = () => {
                     return (
                       <div key={event.id} className="w-72 flex-shrink-0 glass-card p-6 flex flex-col">
                         <div className="flex items-start gap-4 mb-4">
-                          <div className="gold-gradient text-primary-foreground w-14 h-14 rounded-xl flex flex-col items-center justify-center flex-shrink-0 shadow-md">
+                          <div className={`${dateBadgeClass(event)} w-14 h-14 rounded-xl flex flex-col items-center justify-center flex-shrink-0 shadow-md`}>
                             <span className="text-[10px] font-semibold opacity-80 uppercase tracking-wide">{month}</span>
                             <span className="font-display text-2xl font-bold leading-none">{day}</span>
                           </div>
@@ -341,7 +349,7 @@ const Index = () => {
                         </div>
                         <p className="font-satoshi text-muted-foreground text-sm mb-1.5">📍 {event.location}</p>
                         <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed mb-5 flex-1">{event.shortBlurb}</p>
-                        <a href={LINKS.eventSignupHub} target="_blank" rel="noopener noreferrer" className="btn-premium text-sm px-5 py-2 self-start">RSVP <ArrowRight size={13} /></a>
+                        <a href={event.rsvpUrl || LINKS.eventSignupHub} target="_blank" rel="noopener noreferrer" className="btn-premium text-sm px-5 py-2 self-start">RSVP <ArrowRight size={13} /></a>
                       </div>
                     );
                   })}
@@ -361,8 +369,6 @@ const Index = () => {
           </div>
         </div>
       </section>
-
-      <SectionDivider />
 
       <SectionDivider />
 
@@ -389,6 +395,8 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      <SectionDivider />
 
       {/* ── Gallery Preview — wired to Sanity albums ───────────── */}
       <section className="section-padding warm-surface relative overflow-hidden">

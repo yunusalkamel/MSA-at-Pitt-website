@@ -16,7 +16,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
         Skip to content
       </a>
 
-      <div className="pointer-events-none fixed inset-0 gradient-mesh-full" />
+      <div className="pointer-events-none fixed inset-0 gradient-mesh-warm" />
       <div className="pointer-events-none fixed inset-0 texture-lines opacity-20" />
       <div className="pointer-events-none fixed inset-0 bg-gradient-to-b from-primary/[0.02] via-transparent to-secondary/[0.02]" />
 
