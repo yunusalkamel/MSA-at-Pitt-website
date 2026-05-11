@@ -219,7 +219,7 @@ const Index = () => {
         </motion.div>
 
         {/* Seamless fade into the section below — light uses a gold shimmer, dark fades to navy */}
-        <div className="absolute bottom-0 left-0 right-0 h-52 md:h-64 pointer-events-none z-[5] dark:hidden" style={{ background: "linear-gradient(to bottom, transparent 0%, rgba(242,171,35,0.22) 50%, #FBF0D0 85%, #F8F3EA 100%)" }} aria-hidden="true" />
+        <div className="absolute bottom-0 left-0 right-0 h-[45vh] md:h-[55vh] pointer-events-none z-[5] dark:hidden" style={{ background: "linear-gradient(to bottom, transparent 0%, rgba(242,171,35,0.08) 35%, rgba(242,171,35,0.38) 60%, rgba(251,240,208,0.88) 82%, #F8F3EA 100%)" }} aria-hidden="true" />
         <div className="absolute bottom-0 left-0 right-0 h-52 md:h-64 pointer-events-none z-[5] hidden dark:block" style={{ background: "linear-gradient(to bottom, transparent 0%, #0D1528 100%)" }} aria-hidden="true" />
 
         {!prefersReduced && (
@@ -230,7 +230,7 @@ const Index = () => {
       </section>
 
       {/* ── Stats — overlaps slightly into the warm section below ── */}
-      <section className="relative z-20 px-4 md:px-8 -mt-[4rem] mb-[-5rem] bg-[#F8F3EA] dark:bg-[#060B18]">
+      <section className="relative z-20 px-4 md:px-8 -mt-[4rem] mb-[-5rem] bg-transparent">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.3, duration: 0.6 }} className="liquid-glass-stats rounded-3xl max-w-3xl mx-3 sm:mx-auto p-4 md:p-6 grid grid-cols-3 items-stretch gap-0 ring-1 ring-white/15 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.08)] overflow-hidden">
           <StatItem numericValue={d.statEventsPerSemester} suffix="+" label="Events per Semester" sub="halaqas, socials, speakers & more" bordered />
           <StatItem value={String(d.statFoundedYear)} label="Founded at Pitt" sub="community since day one" bordered />
@@ -399,11 +399,11 @@ const Index = () => {
       <SectionDivider />
 
       {/* ── Gallery Preview — wired to Sanity albums ───────────── */}
-      <section className="section-padding warm-surface relative overflow-hidden">
+      <section className="py-10 md:py-14 warm-surface relative overflow-hidden">
         <div className="absolute inset-0 gradient-mesh-warm pointer-events-none" />
         <div className="absolute inset-0 texture-dots opacity-40 pointer-events-none" />
         <div className="max-w-7xl mx-auto relative z-10">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-5">
             <SectionHeading title="Moments from MSA" label="Our Gallery" />
             <Link to="/gallery" className="btn-premium-secondary text-sm px-5 py-2.5 self-start sm:self-auto flex-shrink-0">
               Browse Gallery <ArrowRight size={14} />

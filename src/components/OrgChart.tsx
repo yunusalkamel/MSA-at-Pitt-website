@@ -73,7 +73,7 @@ const OrgChart = () => {
   const sisSocial:  NodeSpec = { id: "sis-social", role: "Sisters Social",    name: data?.sistersSocialChairName, color: "amber" };
   const marketing:  NodeSpec = { id: "marketing",  role: "Marketing",         name: data?.marketingChairName,    color: "red"    };
 
-  const cecMosques = ["Attawheed", "ICWP/MAP", "ICP", "MCCGP"];
+  const cecMosques = ["Attawheed", "ICWP", "MAP", "ICP", "MCCGP"];
 
   useEffect(() => {
     const wrap = wrapRef.current;
@@ -173,9 +173,8 @@ const OrgChart = () => {
           <Node spec={bizMgr} />
         </div>
 
-        {/* Row 3 — Committees + CEC (3-column) */}
-        <div className="grid grid-cols-3 gap-4 lg:gap-6 items-start">
-
+        {/* Row 3 — Committees (2-column) */}
+        <div className="grid grid-cols-2 gap-4 lg:gap-6 mb-6 items-start">
           {/* External branch */}
           <div
             data-branch-id="ext-branch"
@@ -188,23 +187,6 @@ const OrgChart = () => {
               <Node spec={advocacy} />
               <Node spec={brosDawah} />
               <Node spec={sisDawah} />
-            </div>
-          </div>
-
-          {/* CEC — center */}
-          <div className="flex flex-col items-center gap-3">
-            <Node spec={cec} large />
-            <div className="w-full rounded-2xl border border-border/40 bg-background/40 backdrop-blur-sm p-3.5">
-              <p className="font-body text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/60 text-center mb-2.5">
-                Mosque Partners
-              </p>
-              <div className="flex flex-wrap justify-center gap-1.5">
-                {cecMosques.map((m) => (
-                  <span key={m} className="font-body text-[11px] px-2.5 py-1 rounded-full bg-[#E1F5EE] text-[#085041] dark:bg-[#085041]/30 dark:text-[#7BC4AC] font-semibold">
-                    {m}
-                  </span>
-                ))}
-              </div>
             </div>
           </div>
 
@@ -223,6 +205,25 @@ const OrgChart = () => {
             </div>
           </div>
         </div>
+
+        {/* Row 4 — CEC (full width, centered at bottom) */}
+        <div className="flex justify-center">
+          <div className="w-full max-w-md flex flex-col items-center gap-3">
+            <Node spec={cec} large />
+            <div className="w-full rounded-2xl border border-border/40 bg-background/40 backdrop-blur-sm p-3.5">
+              <p className="font-body text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/60 text-center mb-2.5">
+                Mosque Partners
+              </p>
+              <div className="flex flex-wrap justify-center gap-1.5">
+                {cecMosques.map((m) => (
+                  <span key={m} className="font-body text-[11px] px-2.5 py-1 rounded-full bg-[#E1F5EE] text-[#085041] dark:bg-[#085041]/30 dark:text-[#7BC4AC] font-semibold">
+                    {m}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
       </motion.div>
 
       {/* ── Mobile — grouped stack ── */}
@@ -233,6 +234,14 @@ const OrgChart = () => {
         <Node spec={extVP} />
         <Node spec={intVP} />
         <Node spec={bizMgr} />
+        <p className="font-body text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/60 text-center mt-2 -mb-1">External</p>
+        <Node spec={advocacy} />
+        <Node spec={brosDawah} />
+        <Node spec={sisDawah} />
+        <p className="font-body text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/60 text-center mt-2 -mb-1">Internal</p>
+        <Node spec={brosSocial} />
+        <Node spec={sisSocial} />
+        <Node spec={marketing} />
         <p className="font-body text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/60 text-center mt-2 -mb-1">Community Engagement</p>
         <Node spec={cec} large />
         <div className="rounded-2xl border border-border/40 bg-background/40 p-4 -mt-1">
@@ -243,14 +252,6 @@ const OrgChart = () => {
             ))}
           </div>
         </div>
-        <p className="font-body text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/60 text-center mt-2 -mb-1">External</p>
-        <Node spec={advocacy} />
-        <Node spec={brosDawah} />
-        <Node spec={sisDawah} />
-        <p className="font-body text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/60 text-center mt-2 -mb-1">Internal</p>
-        <Node spec={brosSocial} />
-        <Node spec={sisSocial} />
-        <Node spec={marketing} />
       </div>
     </div>
   );

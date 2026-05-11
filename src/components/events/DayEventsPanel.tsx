@@ -5,6 +5,7 @@ import { X, Clock, MapPin, ExternalLink, Tag } from "lucide-react";
 import type { MSAEvent } from "@/data/events";
 import { resolveEventAction } from "./resolveEventAction";
 import { getEventTier, getTagChipClass } from "./calendar-utils";
+import { getHijriCategory, getHijriLabel, getHijriColor } from "@/lib/hijri-utils";
 
 interface Props {
   date: string;
@@ -31,6 +32,9 @@ const DayEventsPanel = ({ date, events, onClose, onEventSelect }: Props) => {
     day: "numeric",
     year: "numeric",
   });
+  const hijriCat = getHijriCategory(new Date(date + "T12:00:00"));
+  const hijriLabel = getHijriLabel(hijriCat);
+  const hijriColor = getHijriColor(hijriCat);
 
   const openEventLink = (event: MSAEvent) => {
     if (onEventSelect) {
@@ -73,6 +77,12 @@ const DayEventsPanel = ({ date, events, onClose, onEventSelect }: Props) => {
               Schedule
             </p>
             <h4 className="font-display text-lg font-bold text-foreground">{dateLabel}</h4>
+            {hijriLabel && (
+              <p className="flex items-center gap-1.5 mt-1 text-[11px] font-semibold" style={{ color: hijriColor ?? undefined }}>
+                <span className="w-[10px] h-[3px] rounded-full inline-block" style={{ background: hijriColor ?? undefined }} />
+                {hijriLabel}
+              </p>
+            )}
           </div>
           <button
             onClick={onClose}
@@ -92,18 +102,23 @@ const DayEventsPanel = ({ date, events, onClose, onEventSelect }: Props) => {
             const isPast = event.isPast;
             const tier = getEventTier(event);
 
+            const cardClass = isFeatured
+              ? "gold-gradient text-primary-foreground border-primary/40 shadow-lg"
+              : isPast
+              ? "bg-muted/40 border-border/30 hover:border-border/60"
+              : tier === "recurring"
+              ? "bg-blue-500/[0.07] border-blue-500/20 hover:border-blue-500/35 hover:bg-blue-500/[0.11]"
+              : tier === "upcoming"
+              ? "bg-jannah-mid/[0.06] border-jannah-mid/15 hover:border-jannah-mid/30 hover:bg-jannah-mid/[0.10]"
+              : "bg-background/90 border-primary/12 hover:border-primary/30 hover:bg-primary/[0.03]";
+
             return (
               <button
                 key={`${event.id}-${event.startDate}-${event.timeLabel}-${index}`}
                 type="button"
                 onClick={() => openEventLink(event)}
                 className={`w-full rounded-xl p-4 border text-left transition-all duration-200 group
-                  ${isFeatured
-                    ? "gold-gradient text-primary-foreground border-primary/40 shadow-lg"
-                    : isPast
-                    ? "bg-muted/40 border-border/30 hover:border-border/60"
-                    : "bg-background/90 border-primary/12 hover:border-primary/30 hover:bg-primary/[0.03]"
-                  } ${link ? "cursor-pointer" : "cursor-default"}`}
+                  ${cardClass} ${link ? "cursor-pointer" : "cursor-default"}`}
               >
                 <div className="flex items-start justify-between gap-3">
                   <h5 className={`font-semibold text-sm md:text-base leading-snug break-words
