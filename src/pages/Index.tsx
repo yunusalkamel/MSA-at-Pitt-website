@@ -245,15 +245,16 @@ const Index = () => {
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="grid md:grid-cols-2 gap-16 items-center">
             <motion.div initial={prefersReduced ? false : { opacity: 0, x: -24 }} whileInView={prefersReduced ? undefined : { opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.55 }} className="relative group">
-              <div className="absolute -inset-1 bg-gradient-to-br from-primary/30 via-secondary/15 to-primary/20 rounded-2xl opacity-40 group-hover:opacity-60 transition-opacity duration-500 blur-sm" />
-              <div className="relative liquid-glass p-3">
+              <div className="absolute -inset-1 bg-gradient-to-br from-primary/30 via-secondary/15 to-primary/20 opacity-40 group-hover:opacity-60 transition-opacity duration-500 blur-sm" style={{ borderRadius: '28px' }} />
+              <div className="relative liquid-glass p-3" style={{ borderRadius: '24px' }}>
                 <SanityImage
                   source={cms?.communityImage}
                   fallbackSrc={communityImg}
                   width={1280}
                   height={854}
                   alt="MSA students on campus"
-                  className="rounded-xl w-full aspect-[4/3]"
+                  className="w-full aspect-[4/3] object-cover"
+                  style={{ borderRadius: '16px' }}
                 />
               </div>
             </motion.div>
@@ -399,7 +400,7 @@ const Index = () => {
       <SectionDivider />
 
       {/* ── Gallery Preview — wired to Sanity albums ───────────── */}
-      <section className="py-10 md:py-14 warm-surface relative overflow-hidden">
+      <section className="py-12 md:py-16 px-4 md:px-6 warm-surface relative">
         <div className="absolute inset-0 gradient-mesh-warm pointer-events-none" />
         <div className="absolute inset-0 texture-dots opacity-40 pointer-events-none" />
         <div className="max-w-7xl mx-auto relative z-10">
