@@ -6,7 +6,7 @@ import DayEventsPanel from "./DayEventsPanel";
 import EventDetailSheet from "./EventDetailSheet";
 import { DAYS, getDaysInMonth, getFirstDayOfMonth, formatDateStr, getTimeOnly, sortEvents, getEventTier } from "./calendar-utils";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { getHijriCategory, getHijriColor, getHijriLabel, HIJRI_LEGEND } from "@/lib/hijri-utils";
+import { getHijriCategory, getHijriBgColor, getHijriLabel } from "@/lib/hijri-utils";
 
 interface Props { events: MSAEvent[] }
 
@@ -138,7 +138,7 @@ const MonthView = ({
           const hasEvents = dayEvents.length > 0;
           const compact = dayEvents.length >= 3;
           const hijriCat = getHijriCategory(new Date(`${dateStr}T12:00:00`));
-          const hijriColor = getHijriColor(hijriCat);
+          const hijriBgColor = getHijriBgColor(hijriCat);
           const hijriLabel = getHijriLabel(hijriCat);
 
           return (
@@ -146,21 +146,16 @@ const MonthView = ({
               key={dateStr}
               onClick={() => hasEvents && onSelectDate(dateStr)}
               title={hijriLabel || undefined}
+              style={hijriBgColor ? { backgroundColor: hijriBgColor } : undefined}
               className={`relative rounded-xl flex flex-col items-start p-1.5 md:p-2 border transition-all duration-200 overflow-hidden
                 ${!hasEvents ? "min-h-[42px]" : ""}
                 ${isToday
-                  ? "border-primary/50 bg-primary/[0.08] shadow-[0_0_14px_hsl(var(--primary)/0.12)]"
+                  ? "border-primary/50 shadow-[0_0_14px_hsl(var(--primary)/0.12)]"
                   : hasEvents
-                  ? "border-primary/10 bg-primary/[0.03] hover:border-primary/25 hover:bg-primary/[0.07] cursor-pointer"
-                  : "border-transparent hover:border-border/40 hover:bg-muted/20"
+                  ? "border-primary/10 hover:border-primary/25 cursor-pointer"
+                  : "border-transparent hover:border-border/40"
                 }`}
             >
-              {hijriColor && (
-                <div
-                  className="absolute bottom-0 left-0 right-0 h-[3px]"
-                  style={{ background: hijriColor, opacity: 0.55 }}
-                />
-              )}
               {isToday && (
                 <span className="absolute top-1.5 right-1.5 flex h-1.5 w-1.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-60" />
@@ -194,12 +189,11 @@ const MonthView = ({
           </span>
         ))}
         <span className="w-px h-3 bg-border/40 mx-1" />
-        {HIJRI_LEGEND.map(({ label, color }) => (
-          <span key={label} className="flex items-center gap-1 text-[9px] text-muted-foreground/70">
-            <span className="w-5 h-[3px] rounded-full flex-shrink-0" style={{ background: color, opacity: 0.7 }} />
-            {label}
-          </span>
-        ))}
+        <span className="flex items-center gap-1.5 text-[10px] text-muted-foreground/70">
+          <span className="w-4 h-2.5 rounded-[3px] flex-shrink-0 overflow-hidden"
+            style={{ background: "linear-gradient(to right, rgba(20,128,102,0.75) 50%, rgba(242,171,35,0.75) 50%)" }} />
+          Significant Islamic Dates
+        </span>
       </div>
     </div>
   );
@@ -289,7 +283,7 @@ const MobileMonthView = ({
           const isPastDate = dateStr < todayStr;
           const indicatorOpacity = isPastDate ? 0.35 : 0.85;
           const hijriCat = getHijriCategory(new Date(`${dateStr}T12:00:00`));
-          const hijriColor = getHijriColor(hijriCat);
+          const hijriBgColor = getHijriBgColor(hijriCat);
           const hijriLabel = getHijriLabel(hijriCat);
 
           return (
@@ -297,19 +291,14 @@ const MobileMonthView = ({
               key={dateStr}
               onClick={() => hasEvents && onSelectDate(dateStr)}
               title={hijriLabel || undefined}
+              style={hijriBgColor ? { backgroundColor: hijriBgColor } : undefined}
               className={`h-14 rounded-lg flex flex-col items-center pt-2 pb-1.5 gap-1 relative transition-all duration-150
                 ${isToday
-                  ? "ring-1 ring-primary/60 bg-primary/[0.07]"
+                  ? "ring-1 ring-primary/60"
                   : hasEvents
-                  ? "cursor-pointer hover:bg-primary/[0.06]"
+                  ? "cursor-pointer"
                   : ""}`}
             >
-              {hijriColor && (
-                <div
-                  className="absolute bottom-0 left-0 right-0 h-[3px] rounded-b-lg"
-                  style={{ background: hijriColor, opacity: 0.5 }}
-                />
-              )}
               {/* Day number */}
               <span className={`text-xs font-semibold leading-none
                 ${isToday ? "text-primary" : hasEvents ? "text-foreground/80" : "text-muted-foreground/50"}`}>
@@ -390,12 +379,11 @@ const MobileMonthView = ({
           </span>
         ))}
         <span className="w-px h-3 bg-border/40 mx-0.5" />
-        {HIJRI_LEGEND.map(({ label, color }) => (
-          <span key={label} className="flex items-center gap-1 text-[8px] text-muted-foreground/60">
-            <span className="w-4 h-[3px] rounded-full flex-shrink-0" style={{ background: color, opacity: 0.7 }} />
-            {label}
-          </span>
-        ))}
+        <span className="flex items-center gap-1 text-[8px] text-muted-foreground/60">
+          <span className="w-3.5 h-2 rounded-[2px] flex-shrink-0 overflow-hidden"
+            style={{ background: "linear-gradient(to right, rgba(20,128,102,0.75) 50%, rgba(242,171,35,0.75) 50%)" }} />
+          Islamic Dates
+        </span>
       </div>
     </div>
   );
@@ -495,7 +483,7 @@ const WeekView = ({
           const isToday = dateStr === todayStr;
           const hasEvents = dayEvents.length > 0;
           const hijriCatW = getHijriCategory(new Date(`${dateStr}T12:00:00`));
-          const hijriColorW = getHijriColor(hijriCatW);
+          const hijriBgColorW = getHijriBgColor(hijriCatW);
           const hijriLabelW = getHijriLabel(hijriCatW);
 
           return (
@@ -503,20 +491,15 @@ const WeekView = ({
               key={`cell-${i}`}
               onClick={() => hasEvents && onSelectDate(dateStr)}
               title={hijriLabelW || undefined}
+              style={hijriBgColorW ? { backgroundColor: hijriBgColorW } : undefined}
               className={`min-h-[72px] rounded-xl flex flex-col gap-[3px] p-1 border transition-all duration-200 relative overflow-hidden
                 ${isToday
-                  ? "border-primary/40 bg-primary/[0.07]"
+                  ? "border-primary/40"
                   : hasEvents
-                  ? "border-primary/10 bg-primary/[0.02] cursor-pointer hover:bg-primary/[0.06] hover:border-primary/20"
+                  ? "border-primary/10 cursor-pointer hover:border-primary/20"
                   : "border-transparent"
                 }`}
             >
-              {hijriColorW && (
-                <div
-                  className="absolute bottom-0 left-0 right-0 h-[3px]"
-                  style={{ background: hijriColorW, opacity: 0.5 }}
-                />
-              )}
               {dayEvents.map((ev, idx) => (
                 <EventChip
                   key={`${ev.id}-${idx}`}
@@ -543,12 +526,11 @@ const WeekView = ({
           </span>
         ))}
         <span className="w-px h-3 bg-border/40 mx-0.5" />
-        {HIJRI_LEGEND.map(({ label, color }) => (
-          <span key={label} className="flex items-center gap-1 text-[9px] text-muted-foreground/70">
-            <span className="w-4 h-[3px] rounded-full flex-shrink-0" style={{ background: color, opacity: 0.7 }} />
-            {label}
-          </span>
-        ))}
+        <span className="flex items-center gap-1.5 text-[9px] text-muted-foreground/70">
+          <span className="w-4 h-2.5 rounded-[3px] flex-shrink-0 overflow-hidden"
+            style={{ background: "linear-gradient(to right, rgba(20,128,102,0.75) 50%, rgba(242,171,35,0.75) 50%)" }} />
+          Significant Islamic Dates
+        </span>
       </div>
     </div>
   );
