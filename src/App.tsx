@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/contexts/ThemeContext";
@@ -54,7 +54,7 @@ const App = () => (
               <Route path="/resources/prayer-locations" element={<PrayerLocations />} />
               <Route path="/resources/prayer-times" element={<PrayerTimes />} />
               <Route path="/resources/faq" element={<FAQ />} />
-              <Route path="/prayer-times" element={<PrayerTimes />} />
+              <Route path="/prayer-times" element={<Navigate to="/resources/prayer-times" replace />} />
               <Route path="/board" element={<OrgChart />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
