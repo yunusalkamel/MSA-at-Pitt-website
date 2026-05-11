@@ -1,5 +1,5 @@
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { ArrowRight, CalendarPlus, Camera, Clock, ExternalLink, MapPin, X } from "lucide-react";
+import { ArrowRight, CalendarPlus, Camera, Clock, ExternalLink, MapPin, X, CalendarCheck } from "lucide-react";
 import type { MSAEvent } from "@/data/events";
 import { resolveEventAction } from "./resolveEventAction";
 import { getEventTier, getTagChipClass } from "./calendar-utils";
@@ -26,7 +26,10 @@ const EventDetailSheet = ({ event, onClose }: Props) => {
   const actionUrl = action.href;
   const actionLabel = action.label;
   const isGallery = action.kind === "gallery";
-  const showCalendar = !event.isPast && !!event.addToCalendarUrl;
+  const isSubscribe = action.kind === "subscribe";
+  const showCalendar = !event.isPast && action.kind !== "subscribe" && !!event.addToCalendarUrl;
+
+  const cleanBlurb = event.shortBlurb?.replace(/#\w+/g, "").trim();
 
   return (
     <DialogPrimitive.Root open={!!event} onOpenChange={(open) => { if (!open) onClose(); }}>
@@ -95,9 +98,9 @@ const EventDetailSheet = ({ event, onClose }: Props) => {
             </div>
 
             {/* Description */}
-            {event.shortBlurb && (
+            {cleanBlurb && (
               <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed mb-5">
-                {event.shortBlurb}
+                {cleanBlurb}
               </p>
             )}
 
@@ -110,9 +113,9 @@ const EventDetailSheet = ({ event, onClose }: Props) => {
                   rel="noopener noreferrer"
                   className="btn-premium flex-1 justify-center"
                 >
-                  {isGallery ? <Camera size={13} /> : null}
+                  {isGallery ? <Camera size={13} /> : isSubscribe ? <CalendarCheck size={13} /> : null}
                   {actionLabel}
-                  {!isGallery ? <ArrowRight size={13} /> : null}
+                  {!isGallery && !isSubscribe ? <ArrowRight size={13} /> : null}
                 </a>
               ) : (
                 <span className="btn-premium flex-1 justify-center opacity-50 cursor-default">
