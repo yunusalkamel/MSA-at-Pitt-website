@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import Layout from "@/components/Layout";
 import BridgeBar from "@/components/BridgeBar";
 import patternImg from "@/assets/islamic-pattern.jpg";
@@ -547,6 +549,15 @@ const PrayerTimes = () => {
           <motion.p initial={{opacity:0,y:14}} animate={{opacity:1,y:0}} transition={{delay:.2}} className="text-muted-foreground text-lg max-w-xl mx-auto leading-relaxed">
             Annual timing trends for the Pittsburgh area
           </motion.p>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }} className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Link to="/resources" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
+              <ArrowLeft size={14} /> Back to Resources
+            </Link>
+            <span className="hidden sm:block text-border">·</span>
+            <Link to="/resources/prayer" className="inline-flex items-center gap-2 text-sm text-primary font-semibold hover:underline">
+              🕌 Prayer Hub <ArrowRight size={13} />
+            </Link>
+          </motion.div>
         </div>
       </section>
 

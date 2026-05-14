@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { BookOpen, Heart, Moon, MessageSquare, Link as LinkIcon, Apple, ArrowRight, Mail, ExternalLink, Clock, Calendar } from "lucide-react";
+import { BookOpen, Heart, Moon, MessageSquare, Link as LinkIcon, ArrowRight, Mail, Clock, Calendar } from "lucide-react";
+import { LINKS } from "@/config/links";
 import { Link } from "react-router-dom";
 import Layout from "@/components/Layout";
 import SectionHeading from "@/components/SectionHeading";
@@ -263,7 +264,7 @@ const Resources = () => {
             </motion.div>
           </div>
 
-          {/* Bottom action row — events calendar + linktree as separate buttons */}
+          {/* Bottom action row — calendar subscriptions + linktree */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -273,13 +274,16 @@ const Resources = () => {
           >
             <div>
               <p className="font-display text-lg font-bold text-foreground mb-1">Stay Connected</p>
-              <p className="font-dm-sans text-muted-foreground text-sm">Subscribe to our events calendar, or browse everything on our Linktree.</p>
+              <p className="font-dm-sans text-muted-foreground text-sm">Subscribe to the events calendar or browse everything on our Linktree.</p>
             </div>
-            <div className="flex flex-col sm:flex-row gap-3 flex-shrink-0">
-              <a href="https://calendar.google.com/calendar/embed?src=2use05cacfd5hu3q2p49q9dvmc%40group.calendar.google.com&ctz=America%2FNew_York" target="_blank" rel="noopener noreferrer" className="btn-premium text-sm px-5 py-2.5 whitespace-nowrap">
-                <Calendar size={14} /> Events Calendar
+            <div className="flex flex-col sm:flex-row gap-2.5 flex-shrink-0">
+              <a href={LINKS.googleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="btn-premium text-sm px-4 py-2.5 whitespace-nowrap">
+                <Calendar size={14} /> Google Calendar
               </a>
-              <a href="https://linktr.ee/msa.at.pitt" target="_blank" rel="noopener noreferrer" className="btn-premium-secondary text-sm px-5 py-2.5 whitespace-nowrap">
+              <a href={LINKS.appleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="btn-premium-secondary text-sm px-4 py-2.5 whitespace-nowrap">
+                <Calendar size={14} /> Apple Calendar
+              </a>
+              <a href={LINKS.linktree} target="_blank" rel="noopener noreferrer" className="btn-premium-secondary text-sm px-4 py-2.5 whitespace-nowrap">
                 <LinkIcon size={14} /> Linktree
               </a>
             </div>

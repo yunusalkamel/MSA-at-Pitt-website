@@ -21,9 +21,6 @@ import { QUERIES, urlFor } from "@/lib/sanity";
 import heroImg from "@/assets/hero-gathering.jpg";
 import communityImg from "@/assets/about-community.jpg";
 import patternImg from "@/assets/islamic-pattern.jpg";
-import galleryKickoffImg from "@/assets/gallery-kickoff.jpg";
-import galleryIftarImg from "@/assets/gallery-iftar.jpg";
-import galleryTopgolfImg from "@/assets/gallery-topgolf.jpg";
 import { mockEvents, getUpcomingWindow } from "@/data/events";
 import { LINKS } from "@/config/links";
 import { getEventTier } from "@/components/events/calendar-utils";
@@ -103,24 +100,15 @@ const Index = () => {
   // Merge CMS over fallback — only include Sanity values that aren't null/undefined
   const d = { ...FALLBACK, ...Object.fromEntries(Object.entries(cms ?? {}).filter(([, v]) => v != null)) };
 
-  // Build resolved gallery cells — always 3 cells; Sanity albums first, padded with bundled fallbacks
-  const GALLERY_FALLBACKS = [
-    { title: "Fall Kickoff 2025", slug: undefined as string | undefined, imageUrl: galleryKickoffImg as string | undefined, lqip: undefined as string | undefined },
-    { title: "Ramadan Iftar",      slug: undefined as string | undefined, imageUrl: galleryIftarImg   as string | undefined, lqip: undefined as string | undefined },
-    { title: "TopGolf Night",      slug: undefined as string | undefined, imageUrl: galleryTopgolfImg as string | undefined, lqip: undefined as string | undefined },
-  ];
   const galleryCells = useMemo(() => {
-    const sanity = (galleryPreview ?? []).slice(0, 3).map((album) => ({
+    return (galleryPreview ?? []).slice(0, 6).map((album) => ({
       title: album.title,
       slug: album.slug as string | undefined,
       imageUrl: album.coverImage?.asset?._ref
         ? urlFor(album.coverImage).width(900).height(600).fit("crop").auto("format").url()
         : undefined,
       lqip: album.coverImage?.lqip as string | undefined,
-    }));
-    const cells = [...sanity];
-    while (cells.length < 3) cells.push(GALLERY_FALLBACKS[cells.length]);
-    return cells;
+    })).filter(c => c.imageUrl);
   }, [galleryPreview]);
 
   const heroSrc = cms?.heroImage?.asset?._ref

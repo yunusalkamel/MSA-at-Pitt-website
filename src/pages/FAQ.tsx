@@ -145,6 +145,15 @@ const FAQ = () => {
           >
             We've tried to answer everything. If you don't see your question here, reach out.
           </motion.p>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }} className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Link to="/resources" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
+              <ArrowLeft size={14} /> Back to Resources
+            </Link>
+            <span className="hidden sm:block text-border">·</span>
+            <Link to="/resources/prayer" className="inline-flex items-center gap-2 text-sm text-primary font-semibold hover:underline">
+              🕌 Prayer Times & Spaces <ArrowRight size={13} />
+            </Link>
+          </motion.div>
         </div>
       </section>
 

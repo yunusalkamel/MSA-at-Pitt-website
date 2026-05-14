@@ -16,8 +16,8 @@ const navLinks = [
 const resourcesChildren = [
   { to: "/resources", label: "All Resources" },
   { to: "/resources/new-to-pitt", label: "New to Pitt" },
-  { to: "/resources/prayer-locations", label: "Prayer Locations" },
-  { to: "/prayer-times", label: "Prayer Times" },
+  { to: "/resources/prayer", label: "Prayer" },
+  { to: "/resources/chaplain", label: "Chaplain" },
   { to: "/resources/faq", label: "FAQ" },
 ];
 
@@ -29,9 +29,9 @@ const prefetchRoute = (path: string) => {
     "/gallery": () => import("../pages/Gallery"),
     "/resources": () => import("../pages/Resources"),
     "/resources/new-to-pitt": () => import("../pages/NewToPitt"),
-    "/resources/prayer-locations": () => import("../pages/PrayerLocations"),
+    "/resources/prayer": () => import("../pages/Prayer"),
+    "/resources/chaplain": () => import("../pages/Chaplain"),
     "/resources/faq": () => import("../pages/FAQ"),
-    "/prayer-times": () => import("../pages/PrayerTimes"),
     "/join": () => import("../pages/Join"),
     "/contact": () => import("../pages/Contact"),
   };
@@ -232,9 +232,9 @@ const Navbar = () => {
             transition={{ duration: 0.18 }}
             className="pointer-events-auto fixed inset-0 top-0 z-[55] flex flex-col items-center justify-center pb-8 md:hidden overflow-y-auto"
             style={{
-              // Solid surface — no transparency that could clash with whatever
-              // hero/page is rendering underneath.
-              background: theme === "dark" ? "#060B18" : "#F8F3EA",
+              background: theme === "dark" ? "rgba(6, 11, 24, 0.82)" : "rgba(248, 243, 234, 0.82)",
+              backdropFilter: "blur(48px) saturate(200%)",
+              WebkitBackdropFilter: "blur(48px) saturate(200%)",
             }}
           >
             {/* Close button — top-right, with ref for focus trap */}

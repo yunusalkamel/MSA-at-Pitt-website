@@ -2,7 +2,7 @@ import { useRef, useState, useMemo } from "react";
 import { motion, AnimatePresence, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { usePageMeta } from "@/lib/usePageMeta";
-import { Grid3X3, Sparkles, Star, Calendar, Users, UserSquare2, Eye, Leaf, Sun, Heart, BookOpen } from "lucide-react";
+import { Eye, Calendar } from "lucide-react";
 import Layout from "@/components/Layout";
 import ArabicVerse from "@/components/ArabicVerse";
 import BridgeBar from "@/components/BridgeBar";
@@ -17,7 +17,8 @@ import topgolfImg from "@/assets/gallery-topgolf.jpg";
 import halaqaImg from "@/assets/gallery-halaqa.jpg";
 import sistersImg from "@/assets/gallery-sisters.jpg";
 
-type FilterCategory = "all" | "fall" | "spring" | "brothers" | "sisters" | "general" | "signature" | "social" | "dawah" | "cec";
+type SemesterKey = "all" | "spring26" | "fall25" | "spring25" | "fall24";
+type FilterCategory = SemesterKey | "brothers" | "sisters" | "general" | "signature" | "social" | "dawah" | "cec" | "halaqa" | "jummah" | "sports" | "speaker";
 
 interface GalleryAlbum {
   title: string;
@@ -40,32 +41,50 @@ const FALLBACK_ALBUMS: GalleryAlbum[] = [
   { title: "Sisters' Social Night", photoCount: 38,  category: ["fall", "social", "sisters"],     audience: "Sisters",            eventDate: "2025-10-04", coverImageUrl: sistersImg },
 ];
 
-type FilterGroup = { label: string; filters: { key: FilterCategory; label: string; icon: typeof Grid3X3 }[] };
+const SEMESTER_KEYS: SemesterKey[] = ["spring26", "fall25", "spring25", "fall24"];
+
+function matchSemester(dateStr: string | undefined, key: SemesterKey): boolean {
+  if (!dateStr) return false;
+  const d = new Date(dateStr + "T12:00:00");
+  const yr = d.getFullYear();
+  const mo = d.getMonth();
+  const season = mo >= 7 ? "fall" : "spring";
+  const yy = String(yr).slice(2);
+  return key === `${season}${yy}`;
+}
+
+type FilterGroup = { label: string; filters: { key: FilterCategory; label: string }[] };
 
 const filterGroups: FilterGroup[] = [
   {
     label: "Semester",
     filters: [
-      { key: "all",    label: "All",    icon: Grid3X3 },
-      { key: "fall",   label: "Fall",   icon: Leaf },
-      { key: "spring", label: "Spring", icon: Sun },
+      { key: "all",      label: "All" },
+      { key: "spring26", label: "Spring '26" },
+      { key: "fall25",   label: "Fall '25" },
+      { key: "spring25", label: "Spring '25" },
+      { key: "fall24",   label: "Fall '24" },
     ],
   },
   {
     label: "Audience",
     filters: [
-      { key: "general",  label: "General",  icon: Users },
-      { key: "brothers", label: "Brothers", icon: Users },
-      { key: "sisters",  label: "Sisters",  icon: UserSquare2 },
+      { key: "general",  label: "General" },
+      { key: "brothers", label: "Brothers" },
+      { key: "sisters",  label: "Sisters" },
     ],
   },
   {
     label: "Type",
     filters: [
-      { key: "signature", label: "Signature", icon: Star },
-      { key: "social",    label: "Social",    icon: Sparkles },
-      { key: "dawah",     label: "Da'wah",    icon: BookOpen },
-      { key: "cec",       label: "CEC",       icon: Heart },
+      { key: "signature", label: "Signature" },
+      { key: "social",    label: "Social" },
+      { key: "dawah",     label: "Da'wah" },
+      { key: "halaqa",    label: "Halaqa" },
+      { key: "jummah",    label: "Jummah" },
+      { key: "sports",    label: "Sports" },
+      { key: "speaker",   label: "Speaker" },
+      { key: "cec",       label: "CEC" },
     ],
   },
 ];
@@ -180,10 +199,13 @@ const Gallery = () => {
     return FALLBACK_ALBUMS;
   }, [sanityAlbums]);
 
-  const filtered =
-    activeFilter === "all"
-      ? albums
-      : albums.filter((a) => a.category.includes(activeFilter));
+  const filtered = useMemo(() => {
+    if (activeFilter === "all") return albums;
+    if ((SEMESTER_KEYS as readonly string[]).includes(activeFilter)) {
+      return albums.filter((a) => matchSemester(a.eventDate, activeFilter as SemesterKey));
+    }
+    return albums.filter((a) => a.category.includes(activeFilter));
+  }, [albums, activeFilter]);
 
   return (
     <Layout>
@@ -214,29 +236,30 @@ const Gallery = () => {
         </motion.div>
       </section>
 
-      <section className="px-4 py-4 gradient-section-gold-soft sticky top-[68px] md:top-[76px] z-30 backdrop-blur-sm border-b border-border/30">
-        <div className="max-w-5xl mx-auto space-y-2">
+      <section className="py-3 liquid-glass-strong sticky top-[68px] md:top-[76px] z-30 border-b border-border/30">
+        <div className="max-w-5xl mx-auto px-4 space-y-2">
           {filterGroups.map((group) => (
-            <div key={group.label} className="flex items-center gap-2 flex-wrap">
-              <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground/60 font-semibold w-14 flex-shrink-0 hidden sm:block">{group.label}</span>
-              <div className="flex gap-1.5 flex-wrap">
-                {group.filters.map((f) => {
-                  const active = activeFilter === f.key;
-                  return (
-                    <button
-                      key={f.key}
-                      onClick={() => setActiveFilter(f.key)}
-                      className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-msa-gold/60 ${
-                        active
-                          ? "gold-gradient text-primary-foreground shadow-md scale-[1.03]"
-                          : "glass-card text-foreground hover:border-primary/30"
-                      }`}
-                    >
-                      <f.icon size={12} />
-                      {f.label}
-                    </button>
-                  );
-                })}
+            <div key={group.label} className="flex items-center gap-3 min-w-0">
+              <span className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground/50 font-bold flex-shrink-0 hidden sm:block w-[52px]">{group.label}</span>
+              <div className="overflow-x-auto" style={{ scrollbarWidth: "none" }}>
+                <div className="flex gap-1.5 min-w-max">
+                  {group.filters.map((f) => {
+                    const isActive = activeFilter === f.key;
+                    return (
+                      <button
+                        key={f.key}
+                        onClick={() => setActiveFilter(f.key)}
+                        className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-msa-gold/60 ${
+                          isActive
+                            ? "gold-gradient text-primary-foreground shadow-md"
+                            : "glass-card text-foreground/80 hover:border-primary/30 hover:text-foreground"
+                        }`}
+                      >
+                        {f.label}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           ))}
