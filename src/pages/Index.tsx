@@ -220,8 +220,8 @@ const Index = () => {
         </motion.div>
 
         {/* Seamless fade into the section below — light uses a gold shimmer, dark fades to navy */}
-        <div className="absolute bottom-0 left-0 right-0 h-[45vh] md:h-[55vh] pointer-events-none z-[5] dark:hidden" style={{ background: "linear-gradient(to bottom, transparent 0%, rgba(242,171,35,0.08) 35%, rgba(242,171,35,0.38) 60%, rgba(251,240,208,0.88) 82%, #F8F3EA 100%)" }} aria-hidden="true" />
-        <div className="absolute bottom-0 left-0 right-0 h-52 md:h-64 pointer-events-none z-[5] hidden dark:block" style={{ background: "linear-gradient(to bottom, transparent 0%, #0D1528 100%)" }} aria-hidden="true" />
+        <div className="absolute bottom-0 left-0 right-0 h-[55vh] md:h-[70vh] pointer-events-none z-[5] dark:hidden" style={{ background: "linear-gradient(to bottom, transparent 0%, rgba(242,171,35,0.06) 25%, rgba(242,171,35,0.22) 50%, rgba(251,240,208,0.75) 72%, rgba(248,243,234,0.96) 88%, #F8F3EA 100%)" }} aria-hidden="true" />
+        <div className="absolute bottom-0 left-0 right-0 h-[50vh] md:h-[65vh] pointer-events-none z-[5] hidden dark:block" style={{ background: "linear-gradient(to bottom, transparent 0%, rgba(13,21,40,0.5) 45%, rgba(13,21,40,0.88) 72%, #0D1528 100%)" }} aria-hidden="true" />
 
         {!prefersReduced && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2, duration: 1 }} className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10">
@@ -232,7 +232,7 @@ const Index = () => {
 
       {/* ── Stats — overlaps slightly into the warm section below ── */}
       <section className="relative z-20 px-4 md:px-8 -mt-[4rem] mb-[-5rem] bg-transparent">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.3, duration: 0.6 }} className="liquid-glass-stats rounded-3xl max-w-3xl mx-3 sm:mx-auto p-4 md:p-6 grid grid-cols-3 items-stretch gap-0 ring-1 ring-white/15 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.08)] overflow-hidden">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.3, duration: 0.6 }} className="liquid-glass-stats rounded-3xl max-w-3xl mx-3 sm:mx-auto p-4 md:p-6 grid grid-cols-3 items-stretch gap-0 overflow-hidden">
           <StatItem numericValue={d.statEventsPerSemester} suffix="+" label="Events per Semester" sub="halaqas, socials, speakers & more" bordered />
           <StatItem value={String(d.statFoundedYear)} label="Founded at Pitt" sub="community since day one" bordered />
           <StatItem numericValue={d.statMemberCount} suffix="+" label="Community Members" sub="and growing every year" />
@@ -401,74 +401,56 @@ const Index = () => {
       <SectionDivider />
 
       {/* ── Gallery Preview — wired to Sanity albums ───────────── */}
-      <section className="py-12 md:py-16 px-4 md:px-6 warm-surface relative">
-        <div className="absolute inset-0 gradient-mesh-warm pointer-events-none" />
-        <div className="absolute inset-0 texture-dots opacity-40 pointer-events-none" />
-        <div className="max-w-7xl mx-auto relative z-10">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-5">
-            <SectionHeading title="Moments from MSA" label="Our Gallery" />
-            <Link to="/gallery" className="btn-premium-secondary text-sm px-5 py-2.5 self-start sm:self-auto flex-shrink-0">
-              Browse Gallery <ArrowRight size={14} />
-            </Link>
-          </div>
+      {(galleryPreview ?? []).length > 0 && (
+        <section className="py-10 md:py-14 warm-surface relative overflow-hidden">
+          <div className="absolute inset-0 gradient-mesh-warm pointer-events-none" />
+          <div className="absolute inset-0 texture-dots opacity-40 pointer-events-none" />
+          <div className="relative z-10">
+            {/* Header row — constrained, button inline with text */}
+            <div className="px-4 md:px-6 max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+              <div>
+                <p className="eyebrow text-jannah-mid dark:text-msa-gold/70 mb-1">Our Gallery</p>
+                <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground leading-tight">Moments from MSA</h2>
+              </div>
+              <Link to="/gallery" className="btn-premium-secondary text-sm px-5 py-2.5 self-start sm:self-auto flex-shrink-0">
+                Browse Gallery <ArrowRight size={14} />
+              </Link>
+            </div>
 
-          {/* Asymmetric grid — uses min-height so content can never clip */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 auto-rows-[clamp(140px,22vw,230px)]">
-            {/* Big tile — col-span-2 spans both rows on desktop */}
-            {galleryCells[0] && (() => {
-              const cell = galleryCells[0];
-              const Card = (
-                <motion.div
-                  className="col-span-2 md:col-span-2 md:row-span-2 relative rounded-2xl overflow-hidden group cursor-pointer"
-                  initial={prefersReduced ? false : { opacity: 0, scale: 0.97 }}
-                  whileInView={prefersReduced ? undefined : { opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5 }}
-                  style={cell.lqip ? { backgroundImage: `url(${cell.lqip})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}
-                >
-                  {cell.imageUrl && (
-                    <img
-                      src={cell.imageUrl}
-                      alt={cell.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                      loading="lazy"
-                    />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                  <p className="absolute bottom-4 left-4 right-4 font-display text-white font-bold text-xl leading-tight drop-shadow-md">{cell.title}</p>
-                </motion.div>
-              );
-              return cell.slug ? <Link key={cell.slug} to={`/gallery/${cell.slug}`}>{Card}</Link> : <div key={cell.title}>{Card}</div>;
-            })()}
-
-            {/* Two side tiles */}
-            {galleryCells.slice(1, 3).map((cell, i) => {
-              const Card = (
-                <motion.div
-                  className="relative rounded-2xl overflow-hidden group cursor-pointer"
-                  initial={prefersReduced ? false : { opacity: 0, x: 16 }}
-                  whileInView={prefersReduced ? undefined : { opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.45, delay: 0.1 + i * 0.08 }}
-                  style={cell.lqip ? { backgroundImage: `url(${cell.lqip})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}
-                >
-                  {cell.imageUrl && (
-                    <img
-                      src={cell.imageUrl}
-                      alt={cell.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                      loading="lazy"
-                    />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                  <p className="absolute bottom-3 left-3 right-3 font-display text-white font-semibold text-sm drop-shadow-md">{cell.title}</p>
-                </motion.div>
-              );
-              return cell.slug ? <Link key={cell.slug} to={`/gallery/${cell.slug}`}>{Card}</Link> : <div key={cell.title + i}>{Card}</div>;
-            })}
+            {/* Horizontal scroll strip — no overflow clipping */}
+            <div className="overflow-x-auto pb-2" style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" } as React.CSSProperties}>
+              <div className="flex gap-3 px-4 md:px-6 min-w-max">
+                {galleryCells.filter(c => c.imageUrl).map((cell, i) => {
+                  const Card = (
+                    <motion.div
+                      className="relative rounded-2xl overflow-hidden group cursor-pointer flex-shrink-0"
+                      style={{ width: "clamp(220px, 30vw, 340px)", height: "clamp(150px, 20vw, 230px)", ...(cell.lqip ? { backgroundImage: `url(${cell.lqip})`, backgroundSize: "cover", backgroundPosition: "center" } : {}) }}
+                      initial={prefersReduced ? false : { opacity: 0, x: 16 }}
+                      whileInView={prefersReduced ? undefined : { opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.45, delay: i * 0.08 }}
+                    >
+                      {cell.imageUrl && (
+                        <img
+                          src={cell.imageUrl}
+                          alt={cell.title}
+                          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                          loading="lazy"
+                        />
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
+                      <p className="absolute bottom-3 left-3 right-3 font-display text-white font-semibold text-sm drop-shadow-md leading-tight">{cell.title}</p>
+                    </motion.div>
+                  );
+                  return cell.slug
+                    ? <Link key={cell.slug} to={`/gallery/${cell.slug}`}>{Card}</Link>
+                    : <div key={cell.title + i}>{Card}</div>;
+                })}
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <SectionDivider />
 

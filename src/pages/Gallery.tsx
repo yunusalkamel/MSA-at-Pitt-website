@@ -2,7 +2,7 @@ import { useRef, useState, useMemo } from "react";
 import { motion, AnimatePresence, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { usePageMeta } from "@/lib/usePageMeta";
-import { Grid3X3, Sparkles, Star, Calendar, Users, UserSquare2, Eye } from "lucide-react";
+import { Grid3X3, Sparkles, Star, Calendar, Users, UserSquare2, Eye, Leaf, Sun, Heart, BookOpen } from "lucide-react";
 import Layout from "@/components/Layout";
 import ArabicVerse from "@/components/ArabicVerse";
 import BridgeBar from "@/components/BridgeBar";
@@ -17,7 +17,7 @@ import topgolfImg from "@/assets/gallery-topgolf.jpg";
 import halaqaImg from "@/assets/gallery-halaqa.jpg";
 import sistersImg from "@/assets/gallery-sisters.jpg";
 
-type FilterCategory = "all" | "fall" | "spring" | "weekly" | "special" | "signature" | "brothers" | "sisters";
+type FilterCategory = "all" | "fall" | "spring" | "brothers" | "sisters" | "general" | "signature" | "social" | "dawah" | "cec";
 
 interface GalleryAlbum {
   title: string;
@@ -32,36 +32,61 @@ interface GalleryAlbum {
 }
 
 const FALLBACK_ALBUMS: GalleryAlbum[] = [
-  { title: "MSA Fall Kickoff",      photoCount: 120, category: ["fall", "signature"],            audience: "Brothers & Sisters", eventDate: "2025-09-12", coverImageUrl: kickoffImg },
-  { title: "Ramadan Iftar Night",   photoCount: 85,  category: ["spring", "signature"],          audience: "Brothers & Sisters", eventDate: "2026-03-08", coverImageUrl: iftarImg },
-  { title: "Eid Social",            photoCount: 64,  category: ["spring", "special", "signature"], audience: "Brothers & Sisters", eventDate: "2026-04-01", coverImageUrl: eidImg },
-  { title: "MSA TopGolf Night",     photoCount: 42,  category: ["spring", "special"],            audience: "Brothers & Sisters", eventDate: "2026-02-15", coverImageUrl: topgolfImg },
-  { title: "Weekly Halaqa",         photoCount: 30,  category: ["weekly"],                        audience: "Brothers & Sisters", eventDate: "2025-10-21", coverImageUrl: halaqaImg },
-  { title: "Sisters' Social Night", photoCount: 38,  category: ["fall", "sisters"],               audience: "Sisters",            eventDate: "2025-10-04", coverImageUrl: sistersImg },
+  { title: "MSA Fall Kickoff",      photoCount: 120, category: ["fall", "signature", "general"],  audience: "Brothers & Sisters", eventDate: "2025-09-12", coverImageUrl: kickoffImg },
+  { title: "Ramadan Iftar Night",   photoCount: 85,  category: ["spring", "signature", "general"], audience: "Brothers & Sisters", eventDate: "2026-03-08", coverImageUrl: iftarImg },
+  { title: "Eid Social",            photoCount: 64,  category: ["spring", "signature", "general"], audience: "Brothers & Sisters", eventDate: "2026-04-01", coverImageUrl: eidImg },
+  { title: "MSA TopGolf Night",     photoCount: 42,  category: ["spring", "social", "general"],   audience: "Brothers & Sisters", eventDate: "2026-02-15", coverImageUrl: topgolfImg },
+  { title: "Weekly Halaqa",         photoCount: 30,  category: ["fall", "dawah", "general"],       audience: "Brothers & Sisters", eventDate: "2025-10-21", coverImageUrl: halaqaImg },
+  { title: "Sisters' Social Night", photoCount: 38,  category: ["fall", "social", "sisters"],     audience: "Sisters",            eventDate: "2025-10-04", coverImageUrl: sistersImg },
 ];
 
-const filters: { key: FilterCategory; label: string; icon: typeof Grid3X3 }[] = [
-  { key: "all",       label: "All Events", icon: Grid3X3 },
-  { key: "signature", label: "Signature",  icon: Star },
-  { key: "weekly",    label: "Weekly",     icon: Calendar },
-  { key: "brothers",  label: "Brothers",   icon: Users },
-  { key: "sisters",   label: "Sisters",    icon: UserSquare2 },
-  { key: "special",   label: "Special",    icon: Sparkles },
+type FilterGroup = { label: string; filters: { key: FilterCategory; label: string; icon: typeof Grid3X3 }[] };
+
+const filterGroups: FilterGroup[] = [
+  {
+    label: "Semester",
+    filters: [
+      { key: "all",    label: "All",    icon: Grid3X3 },
+      { key: "fall",   label: "Fall",   icon: Leaf },
+      { key: "spring", label: "Spring", icon: Sun },
+    ],
+  },
+  {
+    label: "Audience",
+    filters: [
+      { key: "general",  label: "General",  icon: Users },
+      { key: "brothers", label: "Brothers", icon: Users },
+      { key: "sisters",  label: "Sisters",  icon: UserSquare2 },
+    ],
+  },
+  {
+    label: "Type",
+    filters: [
+      { key: "signature", label: "Signature", icon: Star },
+      { key: "social",    label: "Social",    icon: Sparkles },
+      { key: "dawah",     label: "Da'wah",    icon: BookOpen },
+      { key: "cec",       label: "CEC",       icon: Heart },
+    ],
+  },
 ];
 
-/** Build "2025 · Signature" — year first, event type secondary. */
+/** Build "Fall '25 · Signature" — semester/year first, event type secondary. */
 const buildLabel = (album: GalleryAlbum) => {
   const year = album.eventDate ? new Date(album.eventDate).getFullYear() : null;
+  const semester = album.category.includes("fall") ? "Fall" : album.category.includes("spring") ? "Spring" : null;
+  const shortYear = year ? `'${String(year).slice(2)}` : null;
+  const semLabel = semester && shortYear ? `${semester} ${shortYear}` : null;
+
   let type = "";
   if (album.category.includes("signature")) type = "Signature";
-  else if (album.category.includes("weekly")) type = "Weekly";
-  else if (album.category.includes("brothers")) type = "Brothers";
+  else if (album.category.includes("social")) type = "Social";
+  else if (album.category.includes("dawah")) type = "Da'wah";
+  else if (album.category.includes("cec")) type = "CEC";
   else if (album.category.includes("sisters")) type = "Sisters";
-  else if (album.category.includes("special")) type = "Special";
-  else if (album.category.includes("fall")) type = "Fall";
-  else if (album.category.includes("spring")) type = "Spring";
-  if (year && type) return `${year} · ${type}`;
-  if (year) return String(year);
+  else if (album.category.includes("brothers")) type = "Brothers";
+
+  if (semLabel && type) return `${semLabel} · ${type}`;
+  if (semLabel) return semLabel;
   return type;
 };
 
@@ -189,25 +214,32 @@ const Gallery = () => {
         </motion.div>
       </section>
 
-      <section className="px-4 py-8 gradient-section-gold-soft sticky top-[68px] md:top-[76px] z-30 backdrop-blur-sm border-b border-border/30">
-        <div className="max-w-5xl mx-auto flex flex-wrap justify-center gap-2 md:gap-3">
-          {filters.map((f) => {
-            const active = activeFilter === f.key;
-            return (
-              <button
-                key={f.key}
-                onClick={() => setActiveFilter(f.key)}
-                className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-msa-gold/60 ${
-                  active
-                    ? "gold-gradient text-primary-foreground shadow-md scale-[1.03]"
-                    : "glass-card text-foreground hover:border-primary/30"
-                }`}
-              >
-                <f.icon size={14} />
-                {f.label}
-              </button>
-            );
-          })}
+      <section className="px-4 py-4 gradient-section-gold-soft sticky top-[68px] md:top-[76px] z-30 backdrop-blur-sm border-b border-border/30">
+        <div className="max-w-5xl mx-auto space-y-2">
+          {filterGroups.map((group) => (
+            <div key={group.label} className="flex items-center gap-2 flex-wrap">
+              <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground/60 font-semibold w-14 flex-shrink-0 hidden sm:block">{group.label}</span>
+              <div className="flex gap-1.5 flex-wrap">
+                {group.filters.map((f) => {
+                  const active = activeFilter === f.key;
+                  return (
+                    <button
+                      key={f.key}
+                      onClick={() => setActiveFilter(f.key)}
+                      className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-msa-gold/60 ${
+                        active
+                          ? "gold-gradient text-primary-foreground shadow-md scale-[1.03]"
+                          : "glass-card text-foreground hover:border-primary/30"
+                      }`}
+                    >
+                      <f.icon size={12} />
+                      {f.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 

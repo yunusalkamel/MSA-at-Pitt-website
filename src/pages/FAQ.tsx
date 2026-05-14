@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowLeft, ChevronDown } from "lucide-react";
+import { ArrowLeft, ArrowRight, ChevronDown } from "lucide-react";
 import Layout from "@/components/Layout";
 import BridgeBar from "@/components/BridgeBar";
 import SectionDivider from "@/components/SectionDivider";
@@ -12,7 +12,7 @@ import { QUERIES } from "@/lib/sanity";
 
 interface FAQItem {
   q: string;
-  a: string;
+  a: string | React.ReactNode;
 }
 
 // ── Fallback content (shown while Sanity loads or if fetch fails) ──────────────
@@ -31,23 +31,23 @@ const FALLBACK_FAQS: FAQItem[] = [
   },
   {
     q: "What events are good for someone brand new?",
-    a: "Our weekly halaqas are a great low-key starting point — they're informal, welcoming, and a good way to meet people. Socials like TopGolf or Eid celebrations are also perfect first events. Check the Events page to see what's coming up.",
+    a: (<>Our weekly halaqas are a great low-key starting point — they're informal, welcoming, and a good way to meet people. Socials like TopGolf or Eid celebrations are also perfect first events. <Link to="/events" className="text-primary underline underline-offset-2 hover:opacity-80">Check the Events page</Link> to see what's coming up.</>),
   },
   {
     q: "I just took my shahada / I'm exploring Islam. Is MSA for me?",
-    a: "Absolutely. We have revert resources specifically designed for people in your situation. You'll find a supportive community here. Check out the Revert Resources link on our Resources page.",
+    a: (<>Absolutely. We have revert resources specifically designed for people in your situation. You'll find a supportive community here. <Link to="/resources" className="text-primary underline underline-offset-2 hover:opacity-80">Check out Revert Resources</Link> on our Resources page.</>),
   },
   {
     q: "Where can I pray on campus?",
-    a: "The main spot is the WPU Reflection Room on the 3rd floor of the William Pitt Union. There are also spaces in the Rec Center (8th floor), Benedum 403, and the School of Public Health. See our Prayer Locations page for full details including wudu access.",
+    a: (<>The main spot is the WPU Reflection Room on the 3rd floor of the William Pitt Union. There are also spaces in the Rec Center (8th floor), Benedum 403, and the School of Public Health. <Link to="/resources/prayer" className="text-primary underline underline-offset-2 hover:opacity-80">See our full Prayer page</Link> for all locations, wudu access, and prayer times.</>),
   },
   {
     q: "Where can I find halal food on or near campus?",
-    a: "There are several options! The Eatery's fresh beef and chicken breast are halal, and there are multiple halal restaurants within walking distance including Shah's, Omar's Halal Grill, and Bengal Kabab House. Our New to Pitt guide has the complete list.",
+    a: (<>There are several options — The Eatery's fresh beef and chicken breast are halal, and there are multiple restaurants within walking distance including Shah's, Omar's Halal Grill, and Bengal Kabab House. <Link to="/resources/new-to-pitt" className="text-primary underline underline-offset-2 hover:opacity-80">Our New to Pitt guide</Link> has the full list, categorized by distance.</>),
   },
   {
     q: "How do I stay updated on events?",
-    a: "The best way is to join our WhatsApp announcements chat (linked on the Join page). You can also follow us on Instagram @msa.at.pitt, sync our Google/Apple calendar, or just check the Events page on this site.",
+    a: (<>The best way is to join our WhatsApp announcements chat (linked on the <Link to="/join" className="text-primary underline underline-offset-2 hover:opacity-80">Join page</Link>). You can also follow us on Instagram @msa.at.pitt, sync our Google/Apple calendar, or check the <Link to="/events" className="text-primary underline underline-offset-2 hover:opacity-80">Events page</Link>.</>),
   },
   {
     q: "Can I get involved in leadership or organizing?",
@@ -55,11 +55,15 @@ const FALLBACK_FAQS: FAQItem[] = [
   },
   {
     q: "I'm a commuter. Is MSA still relevant to me?",
-    a: "Definitely. Many of our members commute. Our events are scheduled with commuters in mind, and you're welcome at everything. Check our New to Pitt guide for commuter-specific tips on parking and campus resources.",
+    a: (<>Definitely. Many of our members commute. Our events are scheduled with commuters in mind, and you're welcome at everything. <Link to="/resources/new-to-pitt" className="text-primary underline underline-offset-2 hover:opacity-80">Our New to Pitt guide</Link> has commuter-specific tips on parking and campus resources.</>),
   },
   {
     q: "How can I give anonymous feedback to the MSA board?",
-    a: "We have an anonymous suggestions form linked on the Resources page. We genuinely read every response — your voice matters.",
+    a: (<>We have an anonymous suggestions form on our <Link to="/resources" className="text-primary underline underline-offset-2 hover:opacity-80">Resources page</Link> — both a general form and a sisters-only form (read only by a trusted sister on the board). We genuinely read every response.</>),
+  },
+  {
+    q: "Where can I find the university chaplain?",
+    a: (<>Imam Muhammad Patel is available Tuesday &amp; Thursday 4–6 PM. <Link to="/resources/chaplain" className="text-primary underline underline-offset-2 hover:opacity-80">Visit the Chaplain page</Link> to learn more and get his contact info.</>),
   },
 ];
 
@@ -95,9 +99,9 @@ const FAQItem = ({ item, index }: { item: FAQItem; index: number }) => {
             transition={{ duration: 0.22, ease: "easeInOut" }}
             className="overflow-hidden"
           >
-            <p className="px-5 md:px-6 pb-5 md:pb-6 pt-1 font-body text-muted-foreground text-sm md:text-base leading-relaxed">
+            <div className="px-5 md:px-6 pb-5 md:pb-6 pt-1 font-body text-muted-foreground text-sm md:text-base leading-relaxed">
               {item.a}
-            </p>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -113,7 +117,7 @@ const FAQ = () => {
   // Map Sanity shape → local shape, or fall back to hardcoded list
   const faqs: FAQItem[] =
     sanityFAQs && sanityFAQs.length > 0
-      ? sanityFAQs.map((item) => ({ q: item.question, a: item.answer }))
+      ? sanityFAQs.map((item) => ({ q: item.question, a: item.answer as string }))
       : FALLBACK_FAQS;
 
   return (
