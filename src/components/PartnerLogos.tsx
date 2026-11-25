@@ -1,5 +1,5 @@
 import { Picture, TextField, itemIdentity, ContentScope } from "@/editor/content";
-import { motion, useMotionValue, useAnimationFrame } from "framer-motion";
+import { motion, useMotionValue, useAnimationFrame, useInView, useReducedMotion } from "framer-motion";
 import { useRef, useEffect } from "react";
 
 interface Partner {
@@ -49,10 +49,11 @@ const PartnerTile = ({ partner }: { partner: Partner }) => (
         partner.hasBackground ? (
           <div className="h-11 w-11 md:h-12 md:w-12 rounded-full overflow-hidden flex-shrink-0 opacity-85 group-hover:opacity-100 transition-opacity duration-300">
             <Picture fieldId="PartnerLogos_1"
-              src={partner.src}
+              src={partner.src.replace(/\.[^.]+$/, ".webp")}
               alt={partner.name}
               className="h-full w-full object-cover"
               loading="lazy"
+              sizes="48px"
               onError={(e) => {
                 (e.currentTarget.parentElement as HTMLElement).style.display = "none";
               }}
@@ -60,10 +61,11 @@ const PartnerTile = ({ partner }: { partner: Partner }) => (
           </div>
         ) : (
           <Picture fieldId="PartnerLogos_2"
-            src={partner.src}
+            src={partner.src.replace(/\.[^.]+$/, ".webp")}
             alt={partner.name}
             className="h-10 md:h-11 w-auto object-contain opacity-80 group-hover:opacity-100 transition-opacity duration-300"
             loading="lazy"
+            sizes="72px"
             onError={(e) => {
               (e.currentTarget as HTMLImageElement).style.display = "none";
             }}
@@ -91,11 +93,13 @@ const PartnerLogos = () => {
   const didDrag = useRef(false);
   const innerRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const visible = useInView(containerRef);
+  const reducedMotion = useReducedMotion();
   const dragStartClientX = useRef(0);
   const dragStartMotionX = useRef(0);
 
   useAnimationFrame((_, delta) => {
-    if (isDragging.current || !innerRef.current) return;
+    if (!visible || reducedMotion || isDragging.current || !innerRef.current) return;
     const halfWidth = innerRef.current.scrollWidth / 2;
     let next = x.get() - (delta * SCROLL_SPEED) / 1000;
     if (next <= -halfWidth) next += halfWidth;

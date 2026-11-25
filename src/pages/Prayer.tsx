@@ -8,7 +8,7 @@ import BridgeBar from "@/components/BridgeBar";
 import SectionDivider from "@/components/SectionDivider";
 import SectionHeading from "@/components/SectionHeading";
 import ArabicVerse from "@/components/ArabicVerse";
-import patternImg from "@/assets/islamic-pattern.jpg";
+import patternImg from "@/assets/islamic-pattern-360.webp";
 
 declare global { interface Window { Chart: any; } }
 
@@ -172,15 +172,20 @@ const Prayer = () => {
     if (initRef.current) return;
     initRef.current = true;
 
-    const existingScript = document.getElementById("chartjs-cdn");
-    if (existingScript) { boot(); return; }
-    const s = document.createElement("script");
-    s.id = "chartjs-cdn";
-    s.src = "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js";
-    s.onload = () => boot();
-    document.head.appendChild(s);
+    const lifecycle = new AbortController();
+    let script = document.getElementById("chartjs-cdn");
+    if (!script) {
+      script = document.createElement("script");
+      script.id = "chartjs-cdn";
+      (script as HTMLScriptElement).src = "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js";
+      document.head.appendChild(script);
+    }
+    if (window.Chart) boot(lifecycle.signal);
+    else script.addEventListener("load", () => boot(lifecycle.signal), { once: true, signal: lifecycle.signal });
 
     return () => {
+      lifecycle.abort();
+      initRef.current = false;
       ["ctop","cbot"].forEach(id => {
         const el = document.getElementById(id) as HTMLCanvasElement;
         if (el) window.Chart?.getChart?.(el)?.destroy();
@@ -188,13 +193,15 @@ const Prayer = () => {
     };
   }, []);
 
-  function boot() {
+  function boot(signal: AbortSignal) {
     const Chart = window.Chart;
     if (!Chart) return;
 
     let allDays = buildDays(ICP_LAT, ICP_LNG);
     let { RAM: RAM_BLOCKS, BRK: BRK_BLOCKS } = buildZones(allDays);
-    const apiCache: Record<string,boolean> = {};
+    let loadedYears = new Set<number>();
+    let visibleRequest: AbortController | undefined;
+    let fetchTimer: ReturnType<typeof setTimeout>;
     const now = new Date(), CY = now.getFullYear(), CM = now.getMonth()+1, CD = now.getDate();
     let TI = allDays.findIndex(x => x.yr === CY && x.mo === CM && x.d === CD);
     const SPANS: Record<string,number> = { "1mo":35, "6mo":182, "year":365 };
@@ -205,6 +212,10 @@ const Prayer = () => {
     let vis = [true,true,true,true,true,true];
     let dragging = false, dragClientX = 0, dragWinStart = 0, rafId: number|null = null;
     let currentLat = ICP_LAT, currentLng = ICP_LNG;
+    signal.addEventListener("abort", () => {
+      clearTimeout(fetchTimer);
+      visibleRequest?.abort();
+    }, { once: true });
 
     function renderTodayBar() {
       if (TI < 0) { setTodayHtml('<span style="font-size:.7rem;color:rgba(17,35,60,.5)">No data for today</span>'); return; }
@@ -235,6 +246,7 @@ const Prayer = () => {
       [topCh, botCh].forEach(c => { c.options.scales.x.min = min; c.options.scales.x.max = max; c.update(fast ? "none" : undefined); });
       updateLabel();
       drawMinimap();
+      queueVisibleYears();
     }
     function refreshCharts() {
       if (!topCh || !botCh) return;
@@ -247,33 +259,51 @@ const Prayer = () => {
       topCh.update("none"); botCh.update("none");
     }
 
-    async function fetchMonth(y: number, m: number) {
-      const key = `${y}-${m}-${currentLat}`;
-      if (apiCache[key]) return;
+    async function fetchYear(year: number, request: AbortController) {
       try {
-        const url = `https://api.aladhan.com/v1/calendar/${y}/${m}?latitude=${currentLat}&longitude=${currentLng}&method=2&school=0`;
-        const res = await fetch(url);
+        const url = `https://api.aladhan.com/v1/calendar/${year}?latitude=${currentLat}&longitude=${currentLng}&method=2&school=0`;
+        const res = await fetch(url, { signal: request.signal });
+        if (!res.ok) return;
         const j = await res.json();
-        if (j.code !== 200) return;
-        j.data.forEach((entry: any) => {
+        if (j.code !== 200 || request.signal.aborted || !j.data) return;
+        const indices = new Map(allDays
+          .map((day, index) => [`${day.yr}-${day.mo}-${day.d}`, index] as const));
+        for (const entry of Object.values(j.data).flat() as any[]) {
           const day = +entry.date.gregorian.day;
-          const idx = allDays.findIndex(x => x.yr === y && x.mo === m && x.d === day);
-          if (idx < 0) return;
+          const month = +entry.date.gregorian.month.number;
+          const idx = indices.get(`${year}-${month}-${day}`);
+          if (idx === undefined) continue;
           const pt = entry.timings;
           const parseT = (s: string) => { const [h,mi] = s.split(' ')[0].split(':').map(Number); return h*60+mi; };
           allDays[idx] = { ...allDays[idx], Fajr:parseT(pt.Fajr), Sunrise:parseT(pt.Sunrise), Dhuhr:parseT(pt.Dhuhr), Asr:parseT(pt.Asr), Maghrib:parseT(pt.Maghrib), Isha:parseT(pt.Isha) };
-        });
-        apiCache[key] = true;
-        refreshCharts();
-        if (y === CY && m === CM) renderTodayBar();
+        }
+        loadedYears.add(year);
       } catch(_) {}
     }
-    async function fetchAll() {
-      const months: [number,number][] = [];
-      for (let y = 2026; y <= 2028; y++) for (let m = 1; m <= 12; m++) months.push([y,m]);
-      months.sort(([ya,ma],[yb,mb]) => Math.abs((ya-CY)*12+(ma-CM)) - Math.abs((yb-CY)*12+(mb-CM)));
-      for (let i = 0; i < months.length; i += 6)
-        await Promise.allSettled(months.slice(i, i+6).map(([y,m]) => fetchMonth(y,m)));
+
+    function queueVisibleYears(reset = false) {
+      clearTimeout(fetchTimer);
+      if (reset) {
+        visibleRequest?.abort();
+        visibleRequest = undefined;
+        loadedYears = new Set();
+      }
+      fetchTimer = setTimeout(async () => {
+        if (visibleRequest || signal.aborted) return;
+        const first = allDays[Math.max(0, Math.floor(winStart))]?.yr;
+        const last = allDays[Math.min(allDays.length - 1, Math.ceil(winStart + curSpan))]?.yr;
+        const years = [2026, 2027, 2028].filter(year => !loadedYears.has(year) &&
+          (year === CY || (first <= year && year <= last)));
+        if (!years.length) return;
+        const request = new AbortController();
+        visibleRequest = request;
+        await Promise.all(years.map(year => fetchYear(year, request)));
+        if (request.signal.aborted) return;
+        visibleRequest = undefined;
+        refreshCharts();
+        renderTodayBar();
+        if (years.every(year => loadedYears.has(year))) queueVisibleYears();
+      }, 250);
     }
 
     const F = "'Plus Jakarta Sans',system-ui,sans-serif";
@@ -442,8 +472,10 @@ const Prayer = () => {
       if (!mmCanvas || !mmCtx) return;
       const W = mmCanvas.offsetWidth || mmCanvas.parentElement!.offsetWidth;
       const dpr = window.devicePixelRatio || 1;
-      mmCanvas.width = W*dpr; mmCanvas.style.width = W+"px";
-      mmCanvas.height = 36*dpr; mmCanvas.style.height = "36px";
+      if (mmCanvas.width !== Math.round(W*dpr)) mmCanvas.width = Math.round(W*dpr);
+      if (mmCanvas.height !== Math.round(36*dpr)) mmCanvas.height = Math.round(36*dpr);
+      mmCanvas.style.width = "100%";
+      mmCanvas.style.height = "36px";
       const ctx = mmCtx, N = allDays.length, H = 36*dpr;
       ctx.clearRect(0,0,W*dpr,H);
       ctx.fillStyle = "rgba(17,35,60,.06)";
@@ -493,8 +525,8 @@ const Prayer = () => {
       }
       function endDrag() { if(!dragging)return; dragging=false; wrap!.style.cursor="grab"; aIdx=TI; topCh?.update("none"); botCh?.update("none"); }
       wrap.addEventListener("mousedown", e => { if(e.button===0) startDrag(e.clientX); });
-      window.addEventListener("mousemove", e => moveDrag(e.clientX));
-      window.addEventListener("mouseup", endDrag);
+      window.addEventListener("mousemove", e => moveDrag(e.clientX), { signal });
+      window.addEventListener("mouseup", endDrag, { signal });
       wrap.addEventListener("touchstart", e => startDrag(e.touches[0].clientX), {passive:true});
       wrap.addEventListener("touchmove", e => { e.preventDefault(); moveDrag(e.touches[0].clientX); }, {passive:false});
       wrap.addEventListener("touchend", endDrag);
@@ -522,7 +554,6 @@ const Prayer = () => {
         document.querySelectorAll<HTMLButtonElement>(".msm").forEach(x => x.classList.remove("on"));
         b.classList.add("on");
         currentLat = parseFloat(b.dataset.lat!); currentLng = parseFloat(b.dataset.lng!);
-        Object.keys(apiCache).forEach(k => delete apiCache[k]);
         allDays = buildDays(currentLat, currentLng);
         ({ RAM: RAM_BLOCKS, BRK: BRK_BLOCKS } = buildZones(allDays));
         TI = allDays.findIndex(x => x.yr===CY && x.mo===CM && x.d===CD);
@@ -532,7 +563,7 @@ const Prayer = () => {
         if (sl) { sl.href=`https://masjidal.com/widget/monthly/v2/?masjid_id=${b.dataset.mid}`; sl.textContent=`Source: ${b.dataset.name} via Masjidal ↗`; }
         const ct = document.getElementById("card-title");
         if (ct) ct.textContent = b.dataset.mid==="QKMnW1LB" ? "Islamic Center of Pittsburgh" : "Attawheed Islamic Center";
-        fetchAll(); drawMinimap();
+        queueVisibleYears(true); drawMinimap();
       };
     });
 
@@ -545,9 +576,12 @@ const Prayer = () => {
       window.open(url, "_blank");
     };
 
-    if (mmCanvas?.parentElement) new ResizeObserver(() => drawMinimap()).observe(mmCanvas.parentElement!);
-    setTimeout(() => { drawMinimap(); applyWin(); }, 80);
-    fetchAll();
+    if (mmCanvas?.parentElement) {
+      const observer = new ResizeObserver(() => drawMinimap());
+      observer.observe(mmCanvas.parentElement);
+      signal.addEventListener("abort", () => observer.disconnect(), { once: true });
+    }
+    applyWin();
   }
 
   return (

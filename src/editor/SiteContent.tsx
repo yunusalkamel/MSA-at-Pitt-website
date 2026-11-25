@@ -11,7 +11,7 @@ export async function loadContent(): Promise<Snapshot> {
 export default function SiteContent({ children }: { children: ReactNode }) {
   const [fields, setFields] = useState<Fields>({});
   useEffect(() => {
-    if (!adminPath)
+    if (!adminPath && !/^\/owner(?:\/|$)/.test(window.location.pathname))
       loadContent()
         .then((result) => setFields(result.fields))
         .catch(() => {});

@@ -6,6 +6,7 @@ import {
   type ImgHTMLAttributes,
 } from "react";
 import { useLocation } from "react-router-dom";
+import { sanityImageSrcSet } from "@/lib/sanityImageVariants";
 
 export type Run = {
   text: string;
@@ -88,11 +89,18 @@ export function Picture({
   const key = useField(fieldId),
     { fields, editing } = useContext(Content),
     value = fields[key];
+  const overridden = value?.kind === "image";
+  const src = overridden ? value.url : props.src;
+  const maxWidth = Number(props.width) || 1920;
+  const srcSet = overridden || !props.srcSet
+    ? src && sanityImageSrcSet(src, maxWidth)
+    : props.srcSet;
   return (
     <img
       {...props}
-      src={value?.kind === "image" ? value.url : props.src}
-      srcSet={value?.kind === "image" ? undefined : props.srcSet}
+      src={src}
+      srcSet={srcSet || undefined}
+      sizes={srcSet ? props.sizes ?? `(max-width: ${maxWidth}px) 100vw, ${maxWidth}px` : undefined}
       data-edit-image={editing ? key : undefined}
     />
   );

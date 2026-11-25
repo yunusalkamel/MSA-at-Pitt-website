@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { sanityClient } from "@/lib/sanity";
+import { fetchSanity, sanityDataset } from "@/lib/sanity";
 
 interface SanityState<T> {
   data: T | null;
@@ -9,7 +9,7 @@ interface SanityState<T> {
   hydrated: boolean;
 }
 
-const CACHE_PREFIX = "msa-sanity-cache-v1:";
+const CACHE_PREFIX = `msa-sanity-cache-v2:${sanityDataset}:`;
 const CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000; // 1 day — Sanity content updates infrequently
 
 interface CachedPayload<T> {
@@ -70,8 +70,7 @@ export function useSanityData<T>(query: string, params?: Record<string, unknown>
   useEffect(() => {
     let cancelled = false;
 
-    sanityClient
-      .fetch<T>(query, params ?? {})
+    fetchSanity<T>(query, params)
       .then((data) => {
         if (cancelled) return;
         setState({ data, loading: false, error: null, hydrated: true });

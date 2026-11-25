@@ -1,8 +1,5 @@
 import { lazy, Suspense, useEffect } from "react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Analytics } from "@vercel/analytics/react";
@@ -10,6 +7,7 @@ import AppLoader from "@/components/AppLoader";
 
 import SiteContent, { adminPath } from "./editor/SiteContent";
 
+const Owner = lazy(() => import("./editor/Owner"));
 const Index = lazy(() => import("./pages/Index.tsx"));
 const About = lazy(() => import("./pages/About.tsx"));
 const Events = lazy(() => import("./pages/Events.tsx"));
@@ -27,7 +25,9 @@ const Chaplain = lazy(() => import("./pages/Chaplain.tsx"));
 const OrgChart = lazy(() => import("./pages/OrgChart.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
-const queryClient = new QueryClient();
+const publicProduction = import.meta.env.PROD &&
+  !/^(?:\/admin|\/owner|\/auth)(?:\/|$)/i.test(window.location.pathname) &&
+  window.location.hostname === "msaatpitt.vercel.app";
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -39,15 +39,13 @@ const ScrollToTop = () => {
 
 const App = () => (
   <ThemeProvider>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Sonner />
         <BrowserRouter basename={adminPath ? "/admin" : "/"}>
           <SiteContent>
           <ScrollToTop />
           <Suspense fallback={<AppLoader />}>
             <Routes>
               <Route path="/" element={<Index />} />
+              {!adminPath && <Route path="/owner" element={<Owner />} />}
               <Route path="/about" element={<About />} />
               <Route path="/events" element={<Events />} />
               <Route path="/gallery" element={<Gallery />} />
@@ -67,11 +65,8 @@ const App = () => (
             </Routes>
           </Suspense>
           </SiteContent>
-          <SpeedInsights />
-          <Analytics />
+          {publicProduction && <><SpeedInsights /><Analytics /></>}
         </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
   </ThemeProvider>
 );
 

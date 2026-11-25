@@ -14,6 +14,7 @@ interface Props extends Omit<ImgHTMLAttributes<HTMLImageElement>, "src" | "ref">
   source: SanityImageRef | null | undefined;
   /** Bundled fallback shown when Sanity hasn't returned data yet. */
   fallbackSrc: string;
+  fallbackSrcSet?: string;
   /** Output width — used by Sanity's image pipeline. */
   width: number;
   /** Output height — used by Sanity's image pipeline. */
@@ -36,6 +37,7 @@ interface Props extends Omit<ImgHTMLAttributes<HTMLImageElement>, "src" | "ref">
 export default function SanityImage({
   source,
   fallbackSrc,
+  fallbackSrcSet,
   width,
   height,
   fit = "crop",
@@ -57,6 +59,7 @@ export default function SanityImage({
     return (
       <Picture fieldId="SanityImage_1"
         src={fallbackSrc}
+        srcSet={fallbackSrcSet}
         alt={alt}
         width={width}
         height={height}

@@ -7,8 +7,8 @@ import Layout from "@/components/Layout";
 import BridgeBar from "@/components/BridgeBar";
 import Lightbox from "@/components/Lightbox";
 import { usePageMeta } from "@/lib/usePageMeta";
-import { sanityClient, QUERIES, urlFor } from "@/lib/sanity";
-import { useState as useStateAlias, useEffect } from "react";
+import { QUERIES, urlFor } from "@/lib/sanity";
+import { useSanityData } from "@/hooks/useSanityData";
 
 interface Photo {
   url: string;
@@ -27,24 +27,13 @@ interface AlbumData {
   photos: Photo[];
 }
 
-function useAlbum(slug: string | undefined) {
-  const [data, setData] = useState<AlbumData | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!slug) return;
-    sanityClient
-      .fetch<AlbumData>(QUERIES.galleryAlbumBySlug, { slug })
-      .then((d) => { setData(d); setLoading(false); })
-      .catch(() => setLoading(false));
-  }, [slug]);
-
-  return { data, loading };
+export default function GalleryAlbumPage() {
+  const { slug } = useParams<{ slug: string }>();
+  return <GalleryAlbum key={slug} slug={slug ?? ""} />;
 }
 
-const GalleryAlbum = () => {
-  const { slug } = useParams<{ slug: string }>();
-  const { data: album, loading } = useAlbum(slug);
+const GalleryAlbum = ({ slug }: { slug: string }) => {
+  const { data: album, loading } = useSanityData<AlbumData>(QUERIES.galleryAlbumBySlug, { slug });
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   usePageMeta({
@@ -76,6 +65,8 @@ const GalleryAlbum = () => {
                 src={urlFor(album.coverImage).width(1600).height(600).fit("crop").auto("format").url()}
                 alt={album.title}
                 className="w-full h-full object-cover scale-105"
+                width={1600}
+                height={600}
               />
               <div className="absolute inset-0 bg-gradient-to-b from-[#060B18]/80 via-[#060B18]/60 to-[#060B18]/95" />
             </div>
@@ -166,6 +157,7 @@ const GalleryAlbum = () => {
                     alt={photo.caption || `Photo ${i + 1}`}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     loading="lazy"
+                    sizes="(max-width: 767px) 50vw, (max-width: 1023px) 33vw, 290px"
                     width={400}
                     height={400}
                   />
@@ -195,5 +187,3 @@ const GalleryAlbum = () => {
     </Layout>
   );
 };
-
-export default GalleryAlbum;

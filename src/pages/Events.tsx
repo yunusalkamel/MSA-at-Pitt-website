@@ -14,7 +14,7 @@ import ViewSwitcher from "@/components/events/ViewSwitcher";
 import AgendaView from "@/components/events/AgendaView";
 import SectionHeading from "@/components/SectionHeading";
 import SectionDivider from "@/components/SectionDivider";
-import patternImg from "@/assets/islamic-pattern.jpg";
+import patternImg from "@/assets/islamic-pattern-360.webp";
 import {
   mockEvents,
   getFeaturedEvent,
@@ -73,7 +73,7 @@ const Events = () => {
 
   const upcomingScrollRef = useRef<HTMLDivElement>(null);
 
-  // ── Reusable "Coming Up" block — rendered above events on mobile, below on desktop ──
+  // Keep the live event cards after the calendar so their arrival cannot push it down.
   const ComingUpBlock = upcoming.length > 0 && (
     <section className="section-padding warm-surface-deep relative overflow-hidden">
       <div className="absolute inset-0 gradient-section-gold-soft opacity-70" />
@@ -122,9 +122,6 @@ const Events = () => {
       )}
 
       <div className="glass-divider-thick" />
-
-      {/* ── Mobile: Coming Up sits ABOVE the calendar ── */}
-      <div className="md:hidden"><TextField id="Events_6">{ComingUpBlock}</TextField></div>
 
       {/* Main events section */}
       <section className="section-padding warm-surface relative overflow-hidden">
@@ -190,7 +187,7 @@ const Events = () => {
             <EventsFilterBar selected={selectedTags} onChange={setSelectedTags} allEvents={sourceEvents} />
           </div>
 
-          {loading && !error && filteredEvents.length === 0 ? (
+          {view === "agenda" && loading && !error && filteredEvents.length === 0 ? (
             <div className="glass-card-strong p-16 text-center rounded-2xl">
               <div className="flex flex-col items-center gap-3">
                 <div className="w-7 h-7 rounded-full border-2 border-primary border-t-transparent animate-spin" />
@@ -239,9 +236,8 @@ const Events = () => {
         </div>
       </section>
 
-      {/* ── Desktop: Coming Up sits BELOW the calendar ── */}
-      {upcoming.length > 0 && <div className="hidden md:block"><SectionDivider /></div>}
-      <div className="hidden md:block"><TextField id="Events_16">{ComingUpBlock}</TextField></div>
+      {upcoming.length > 0 && <SectionDivider />}
+      <TextField id="Events_6"><TextField id="Events_16">{ComingUpBlock}</TextField></TextField>
 
       {/* ── Closing — Hadith on gathering for remembrance ── */}
       <section className="section-padding-sm gradient-section-emerald-soft relative overflow-hidden">

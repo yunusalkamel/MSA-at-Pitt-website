@@ -1,18 +1,23 @@
-import { createClient } from "@sanity/client";
 import imageUrlBuilder from "@sanity/image-url";
 import type { SanityImageSource } from "@sanity/image-url/lib/types/types";
 
 const PROJECT_ID = "rwdbbktc";
-const DATASET = "production";
+declare const __SITE_DATASET__: "production" | "preview";
+export const sanityDataset = typeof __SITE_DATASET__ === "undefined" ? "production" : __SITE_DATASET__;
 
-export const sanityClient = createClient({
-  projectId: PROJECT_ID,
-  dataset: DATASET,
-  apiVersion: "2024-01-01",
-  useCdn: true,
-});
+// These public GROQ reads need only the CDN HTTP API. Writes use the server SDK.
+export async function fetchSanity<T>(query: string, params: Record<string, unknown> = {}): Promise<T> {
+  const url = new URL(`https://${PROJECT_ID}.apicdn.sanity.io/v2024-01-01/data/query/${sanityDataset}`);
+  url.searchParams.set("query", query);
+  for (const [name, value] of Object.entries(params)) {
+    url.searchParams.set("$" + name, JSON.stringify(value));
+  }
+  const response = await fetch(url, { credentials: "omit" });
+  if (!response.ok) throw new Error(`Sanity query returned HTTP ${response.status}.`);
+  return (await response.json()).result as T;
+}
 
-const builder = imageUrlBuilder(sanityClient);
+const builder = imageUrlBuilder({ projectId: PROJECT_ID, dataset: sanityDataset });
 export const urlFor = (source: SanityImageSource) => builder.image(source);
 
 /**

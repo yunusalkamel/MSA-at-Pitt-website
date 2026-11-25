@@ -7,95 +7,9 @@ import { loadContent, type Snapshot } from "./SiteContent";
 import { editText } from "./inlineText";
 import "./admin.css";
 
-async function request(session: Session, body: object) {
-  const response = await fetch("/api/site-editor", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + session.access_token,
-    },
-    body: JSON.stringify(body),
-  });
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(
-      error.error || "This account could not complete the request.",
-    );
-  }
-  return response.json();
-}
-const messageOf = (e: unknown) =>
-  e instanceof Error ? e.message : "Something went wrong.";
-export default function Admin({ children }: { children: ReactNode }) {
-  const [session, setSession] = useState<Session | null | undefined>(undefined);
-  const [approved, setApproved] = useState(false),
-    [error, setError] = useState(""),
-    [sent, setSent] = useState(false);
-  const [email, setEmail] = useState("");
-  useEffect(() => {
-    const { data } = supabase.auth.onAuthStateChange((_event, next) =>
-      setSession(next),
-    );
-    return () => data.subscription.unsubscribe();
-  }, []);
-  const userId = session?.user.id;
-  useEffect(() => {
-    let live = true;
-    setApproved(false);
-    setError("");
-    if (session)
-      request(session, { action: "session" })
-        .then(() => {
-          if (live) setApproved(true);
-        })
-        .catch((e) => {
-          if (live) setError(messageOf(e));
-        });
-    return () => {
-      live = false;
-    };
-  }, [userId]);
-  if (session && approved) return <Editor session={session}>{children}</Editor>;
-  return (
-    <main className="msa-login">
-      <h1>Site admin</h1>
-      {session === undefined || (session && !error) ? (
-        <p>Checking access…</p>
-      ) : session ? (
-        <button onClick={() => supabase.auth.signOut()}>Sign out</button>
-      ) : (
-        <form
-          onSubmit={async (e) => {
-            e.preventDefault();
-            setError("");
-            if (email.trim().toLowerCase() !== "yunusaalkamel@gmail.com") {
-              setError("Use the site administrator’s email.");
-              return;
-            }
-            const result = await supabase.auth.signInWithOtp({
-              email: email.trim(),
-              options: { emailRedirectTo: location.origin + "/admin" },
-            });
-            if (result.error) setError(result.error.message);
-            else setSent(true);
-          }}
-        >
-          <label>
-            Email
-            <input
-              type="email"
-              value={email}
-              required
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </label>
-          <button>Send sign-in link</button>
-          {sent && <p>Check your email for the sign-in link.</p>}
-        </form>
-      )}
-      <p role="alert">{error}</p>
-    </main>
-  );
+import ManagementLogin, { request, messageOf } from "./ManagementLogin";
+export default function Admin({children}: {children: ReactNode}) {
+  return <ManagementLogin>{session => <Editor session={session}>{children}</Editor>}</ManagementLogin>;
 }
 
 function Editor({
@@ -267,13 +181,13 @@ function Editor({
     setBusy(true);
     const current = draft.current;
     try {
-      const { revision } = await request(session, {
+      const { revision, warning } = await request(session, {
         action: "publish",
         revision: base.revision,
         fields: current,
       });
       setBase({ revision, fields: current });
-      setNotice("Published.");
+      setNotice(warning || "Published.");
     } catch (e) {
       setNotice(messageOf(e));
     } finally {
