@@ -79,16 +79,19 @@ export default async function handler(req, res) {
     )
       return res.status(403).end();
     if (req.body?.action === "session") return res.json({ authorized: true });
-    if (
-      !process.env.SANITY_EDITOR_TOKEN ||
-      (process.env.VERCEL_ENV === "preview" && dataset === "production")
-    )
-      return res
-        .status(503)
-        .json({
-          error:
-            "Configure the publishing token and a separate dataset for previews.",
-        });
+    
+    if (!process.env.SANITY_EDITOR_TOKEN)
+      return res.status(503).json({
+        error: "SANITY_EDITOR_TOKEN is missing.",
+      });
+
+    if (process.env.VERCEL_ENV === "preview" && dataset === "production")
+      return res.status(503).json({
+        error: `Incorrect preview dataset: ${dataset}. Dataset variable ${
+          process.env.SANITY_EDITOR_DATASET ? "is set" : "is missing"
+        }.`,
+      });
+    
     const client = createClient({
       ...config,
       token: process.env.SANITY_EDITOR_TOKEN,
