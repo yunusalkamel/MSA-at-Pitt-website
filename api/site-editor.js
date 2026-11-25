@@ -15,6 +15,7 @@ const validSize = (size) =>
   [undefined, "small", "normal", "large"].includes(size);
 function validField(value, project, dataset) {
   if (!value || typeof value !== "object") return false;
+  if(value.kind==="visibility") return typeof value.hidden==="boolean";
   if (value.kind === "copies")
     return (
       Array.isArray(value.ids) &&
@@ -39,7 +40,7 @@ function validField(value, project, dataset) {
       (run) =>
         run &&
         typeof run.text === "string" &&
-        validSize(run.size) &&
+        validSize(run.size) && [undefined,true,false].includes(run.underline) &&
         [undefined, true, false].includes(run.bold) &&
         [undefined, true, false].includes(run.italic),
     )

@@ -1,5 +1,5 @@
 import History from "./History";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useLayoutEffect, useEffect, useRef, useState, type ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
@@ -40,7 +40,9 @@ function Editor({
     imageKey = useRef("");
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  function update(next: Fields) {
+  const undo = useRef<Fields[]>([]), redo = useRef<Fields[]>([]);
+  function update(next: Fields, record = true) {
+    if (record) { undo.current = [...undo.current.slice(-29), draft.current]; redo.current = []; }
     draft.current = next;
     setFields(next);
   }
@@ -53,7 +55,7 @@ function Editor({
       .then((s) => {
         if (live) {
           setBase(s);
-          update(s.fields);
+          update(s.fields,false);
         }
       })
       .catch((e) => {
@@ -98,7 +100,7 @@ function Editor({
       setBusy(false);
     }
   }
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!editing || !base || busy || history) return;
     function click(e: MouseEvent) {
       const el = e.target instanceof Element ? e.target : null;
@@ -231,6 +233,7 @@ function Editor({
     for (const key of Object.keys(next)) {
       if (key.startsWith(scopePrefix)) delete next[key];
     }
+    delete next[card.key+"/visibility/"+copy];
     const ids = group.ids.filter((id) => id !== copy);
     if (ids.length) next[card.key] = { kind: "copies", ids };
     else delete next[card.key];
@@ -238,6 +241,17 @@ function Editor({
     setCard(null);
     setLink(null);
     setNotice("Duplicate removed from the draft.");
+  }
+  const instance = card?.scope.slice(card.scope.lastIndexOf("@")+1);
+  const visibilityKey = card ? card.key+"/visibility/"+instance : "";
+  const visibility = fields[visibilityKey];
+  const hidden = visibility?.kind==="visibility" && visibility.hidden;
+  function rewind(forward:boolean) {
+    finish.current?.();
+    const source=forward?redo:undo, destination=forward?undo:redo;
+    const previous=source.current.pop();
+    if(previous){destination.current.push(draft.current);update(previous,false);}
+    setCard(null);setLink(null);
   }
   async function publish() {
     finish.current?.();
@@ -250,6 +264,7 @@ function Editor({
         revision: base.revision,
         fields: current,
       });
+      undo.current=[]; redo.current=[];
       setBase({ revision, fields: current });
       setNotice(warning || "Published.");
     } catch (e) {
@@ -319,6 +334,7 @@ function Editor({
             {[
               ["B", "bold", ""],
               ["I", "italic", ""],
+              ["U", "underline", ""],
               ["Small", "fontSize", "2"],
               ["Normal", "fontSize", "3"],
               ["Large", "fontSize", "5"],
@@ -334,6 +350,8 @@ function Editor({
             ))}
           </>
         )}
+        {editing && <><button disabled={busy || !undo.current.length} onClick={()=>rewind(false)}>Undo</button><button disabled={busy || !redo.current.length} onClick={()=>rewind(true)}>Redo</button></>}
+        {card && editing && <button disabled={busy} onClick={()=>{finish.current?.();field(visibilityKey,{kind:"visibility",hidden:!hidden});}}>{hidden?"Show card":"Hide card"}</button>}
         {link && editing && (
           <button disabled={busy} onClick={editLink}>
             Edit link destination

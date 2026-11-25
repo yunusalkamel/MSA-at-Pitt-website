@@ -13,12 +13,14 @@ export type Run = {
   text: string;
   bold?: boolean;
   italic?: boolean;
+  underline?: boolean;
   size?: "small" | "normal" | "large";
 };
 export type Field =
   | { kind: "text"; runs: Run[] }
   | { kind: "image"; url: string }
   | { kind: "link"; url: string }
+  | { kind: "visibility"; hidden: boolean }
   | { kind: "copies"; ids: string[] };
 export type Fields = Record<string, Field>;
 export const Content = createContext<{ fields: Fields; editing: boolean }>({
@@ -71,6 +73,7 @@ export function TextField({
               style={{
                 whiteSpace: "pre-wrap",
                 fontWeight: r.bold ? "bold" : undefined,
+                textDecoration: r.underline ? "underline" : undefined,
                 fontStyle: r.italic ? "italic" : undefined,
                 fontSize: r.size
                   ? { small: "0.85em", normal: "1em", large: "1.25em" }[r.size]
@@ -135,7 +138,11 @@ export function CardCopies({
     ids = ["original", ...(entry?.kind === "copies" ? entry.ids : [])];
   return (
     <>
-      {ids.map((instance) => (
+      {ids.map((instance) => {
+        const visibility = fields[key + "/visibility/" + instance];
+        const hidden = visibility?.kind === "visibility" && visibility.hidden;
+        if (hidden && !editing) return null;
+        return (
         <Fragment key={instance}>
           <ContentScope id={id + "@" + instance}>
             {editing ? (
@@ -144,14 +151,14 @@ export function CardCopies({
                 data-edit-card={key}
                 data-copy-scope={id + "@" + instance}
               >
-                {children}
+                {hidden ? <button type="button">Hidden card · select to show</button> : children}
               </span>
             ) : (
               children
             )}
           </ContentScope>
         </Fragment>
-      ))}
+      );})}
     </>
   );
 }
