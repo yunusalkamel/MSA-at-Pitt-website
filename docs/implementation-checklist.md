@@ -10,7 +10,8 @@ Start from main at `81307ce` (merged inline editor). Each phase gets an isolated
 - [x] Optimize image payloads, public JavaScript, and redundant requests.
 - [x] Verify warm and cold browser behavior and record measurements in [the performance report](mobile-performance.md).
 - [x] Recheck the editor and identify pre-existing test failures.
-- [ ] Validate the Vercel preview.
+- [x] Deploy the phase to Vercel Preview and verify Sanity allows credential-free reads from its exact origin.
+- [ ] Run the deployed browser checks in a Vercel-authenticated session.
 
 ## 2. Owner dashboard and administrator permissions
 

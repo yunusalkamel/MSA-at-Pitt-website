@@ -32,7 +32,7 @@ The PageSpeed Insights API returned HTTP 429 `RESOURCE_EXHAUSTED`. Real-user p75
 
 ## Verification
 
-- Production build passed. The test suite reported the same four event-card failures as main, caused by fixture categories and the test environment's missing IntersectionObserver.
+- Production build passed. The test suite reported the same four event-card failures as main, caused by fixture categories and the test environment's missing IntersectionObserver. TypeScript reported the same 17 diagnostics on both builds.
 - The existing editor passed a Chrome smoke test with a simulated backend. The test edited text, duplicated a card, published, and reloaded the public Prayer page.
 - To repeat the cold and warm browser checks, install Playwright browsers and run `node scripts/performance-check.mjs <origin> chromium` or `node scripts/performance-check.mjs <origin> webkit`. Set `CHROME_PATH` to use an installed Chrome binary.
-- For live Sanity reads on a new preview domain, add its exact HTTPS origin under Sanity **API → CORS Origins** with **Allow credentials** off. Preview builds use the preview Sanity dataset. The site falls back to its built-in content if a public query fails.
+- Vercel deployed [the draft preview](https://msa-at-pitt-website-git-codex-adm-0d77a3-yunusalkamels-projects.vercel.app). Its exact origin has been added under Sanity **API → CORS Origins** with **Allow credentials** off. A public query against the preview dataset returned HTTP 200 for this origin. The deployment requires Vercel sign-in, so the anonymous browser and Lighthouse sessions reached Vercel's login. Sign in to Vercel in a browser to smoke-test the deployed preview. Preview builds use the preview Sanity dataset.

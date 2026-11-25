@@ -4,6 +4,7 @@ const [origin, engine = "chromium"] = process.argv.slice(2);
 if (!origin || !["chromium", "webkit"].includes(engine)) {
   throw new Error("Usage: node scripts/performance-check.mjs <origin> [chromium|webkit]");
 }
+const expectedOrigin = new URL(origin).origin;
 
 const browser = await (engine === "webkit" ? webkit : chromium).launch(
   engine === "chromium" && process.env.CHROME_PATH
@@ -50,6 +51,9 @@ try {
           ? await page.goto(new URL(path, origin).href)
           : await page.reload();
         if (!response?.ok()) throw new Error(`${path} returned HTTP ${response?.status()}`);
+        if (new URL(page.url()).origin !== expectedOrigin) {
+          throw new Error(`${path} redirected to ${new URL(page.url()).origin}. Sign in to the preview before auditing it.`);
+        }
         const heading = await page.locator("main h1").first().innerText({ timeout: 15000 });
         await page.waitForFunction(() => document.fonts.status === "loaded", { timeout: 15000 });
         // Match the sampling window across cold and warm loads without waiting
