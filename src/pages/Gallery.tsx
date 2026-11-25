@@ -1,3 +1,4 @@
+import { Picture, TextField, ContentScope, itemIdentity } from "@/editor/content";
 import { useRef, useState, useMemo } from "react";
 import { motion, AnimatePresence, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import { Link } from "react-router-dom";
@@ -127,7 +128,7 @@ const AlbumCard = ({ album, index }: { album: GalleryAlbum; index: number }) => 
       style={lqip ? { backgroundImage: `url(${lqip})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}
     >
       {imageUrl && (
-        <img
+        <Picture fieldId="Gallery_1"
           src={imageUrl}
           alt={album.title}
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
@@ -142,10 +143,10 @@ const AlbumCard = ({ album, index }: { album: GalleryAlbum; index: number }) => 
 
       <div className="absolute bottom-0 left-0 right-0 p-5 md:p-7 z-10">
         <h3 className="font-display text-xl md:text-2xl font-bold text-white mb-1 drop-shadow-lg leading-tight">
-          {album.title}
+          <TextField id="Gallery_2">{album.title}</TextField>
         </h3>
         <p className="text-white/80 text-sm mb-4">
-          {album.photoCount ? `${album.photoCount} photos · ` : ""}{album.audience ?? "Brothers & Sisters"}
+          {album.photoCount ? `${album.photoCount} photos · ` : ""}<TextField id="Gallery_3">{album.audience ?? "Brothers & Sisters"}</TextField>
         </p>
         <span className="inline-flex items-center gap-2 gold-gradient text-primary-foreground px-4 py-2 rounded-full text-sm font-semibold shadow-lg group-hover:scale-105 transition-transform duration-300">
           <Eye size={14} />
@@ -156,7 +157,7 @@ const AlbumCard = ({ album, index }: { album: GalleryAlbum; index: number }) => 
       {label && (
         <div className="absolute top-4 right-4 z-10">
           <span className="liquid-glass-pill px-3 py-1 text-xs font-semibold text-foreground">
-            {label}
+            <TextField id="Gallery_4">{label}</TextField>
           </span>
         </div>
       )}
@@ -164,7 +165,7 @@ const AlbumCard = ({ album, index }: { album: GalleryAlbum; index: number }) => 
   );
 
   if (album.slug) {
-    return <Link to={`/gallery/${album.slug}`}>{inner}</Link>;
+    return <Link to={`/gallery/${album.slug}`}><TextField id="Gallery_5">{inner}</TextField></Link>;
   }
   return inner;
 };
@@ -219,34 +220,34 @@ const Gallery = () => {
           <div className="absolute bottom-1/4 right-1/4 w-56 h-56 rounded-full bg-secondary/8 blur-[80px]" />
         </motion.div>
         <motion.div className="relative z-10 max-w-3xl mx-auto" style={{ opacity: contentOpacity }}>
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="font-body text-xs uppercase tracking-[0.3em] text-primary font-semibold mb-5">
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="font-body text-xs uppercase tracking-[0.3em] text-primary font-semibold mb-5"><TextField id="Gallery_7">
             Memories
-          </motion.p>
-          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="font-display text-5xl md:text-7xl font-bold text-accent-foreground mb-4 leading-[1.05] px-2">
-            Event <span className="text-gradient-gold inline-block pb-2">Gallery</span>
+          </TextField></motion.p>
+          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="font-display text-5xl md:text-7xl font-bold text-accent-foreground mb-4 leading-[1.05] px-2"><TextField id="Gallery_8">
+            Event </TextField><span className="text-gradient-gold inline-block pb-2"><TextField id="Gallery_9">Gallery</TextField></span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.25 }}
             className="text-accent-foreground/85 text-base md:text-lg leading-relaxed max-w-xl mx-auto"
-          >
+          ><TextField id="Gallery_10">
             Iftars, kickoffs, halaqas, late-night socials — a year in the life of MSA at Pitt.
-          </motion.p>
+          </TextField></motion.p>
         </motion.div>
       </section>
 
       <section className="py-3 liquid-glass-strong sticky top-[68px] md:top-[76px] z-30 border-b border-border/30">
         <div className="max-w-5xl mx-auto px-4 space-y-2">
           {filterGroups.map((group) => (
-            <div key={group.label} className="flex items-center gap-3 min-w-0">
-              <span className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground/50 font-bold flex-shrink-0 hidden sm:block w-[52px]">{group.label}</span>
+            <ContentScope key={group.label} id={"Gallery_11-" + itemIdentity(group, group.label)}><div key={group.label} className="flex items-center gap-3 min-w-0">
+              <span className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground/50 font-bold flex-shrink-0 hidden sm:block w-[52px]"><TextField id="Gallery_12">{group.label}</TextField></span>
               <div className="overflow-x-auto" style={{ scrollbarWidth: "none" }}>
                 <div className="flex gap-1.5 min-w-max">
                   {group.filters.map((f) => {
                     const isActive = activeFilter === f.key;
                     return (
-                      <button
+                      <ContentScope key={f.key} id={"Gallery_13-" + itemIdentity(f, f.key)}><button
                         key={f.key}
                         onClick={() => setActiveFilter(f.key)}
                         className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-msa-gold/60 ${
@@ -255,13 +256,13 @@ const Gallery = () => {
                             : "glass-card text-foreground/80 hover:border-primary/30 hover:text-foreground"
                         }`}
                       >
-                        {f.label}
-                      </button>
+                        <TextField id="Gallery_14">{f.label}</TextField>
+                      </button></ContentScope>
                     );
                   })}
                 </div>
               </div>
-            </div>
+            </div></ContentScope>
           ))}
         </div>
       </section>
@@ -273,14 +274,14 @@ const Gallery = () => {
           <AnimatePresence>
             <motion.div key={activeFilter} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }} className="grid md:grid-cols-2 gap-6 md:gap-8">
               {filtered.map((album, i) => (
-                <AlbumCard key={album.slug ?? album.title} album={album} index={i} />
+                <ContentScope key={album.slug ?? album.title} id={"Gallery_15-" + itemIdentity(album, album.slug ?? album.title)}><AlbumCard key={album.slug ?? album.title} album={album} index={i} /></ContentScope>
               ))}
             </motion.div>
           </AnimatePresence>
           {filtered.length === 0 && (
-            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center text-muted-foreground text-lg py-20">
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center text-muted-foreground text-lg py-20"><TextField id="Gallery_16">
               No events in this category yet — check back soon!
-            </motion.p>
+            </TextField></motion.p>
           )}
         </div>
       </section>
@@ -288,11 +289,11 @@ const Gallery = () => {
       <section className="section-padding-sm gradient-section-emerald-soft">
         <div className="max-w-2xl mx-auto">
           <div className="glass-card-strong glass-glow p-8 md:p-12">
-            <ArabicVerse
+            <ContentScope id="Gallery_17"><ArabicVerse
               arabic="فَاذْكُرُونِي أَذْكُرْكُمْ وَاشْكُرُوا لِي"
               translation="So remember Me; I will remember you. And be grateful to Me."
               reference="Quran 2:152"
-            />
+            /></ContentScope>
           </div>
         </div>
       </section>

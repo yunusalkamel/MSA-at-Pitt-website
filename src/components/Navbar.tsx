@@ -1,3 +1,4 @@
+import { TextField, itemIdentity, ContentScope } from "@/editor/content";
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
@@ -101,8 +102,8 @@ const Navbar = () => {
               to="/"
               className="font-body font-extrabold text-lg md:text-xl tracking-[0.1em] hover:opacity-80 transition-opacity rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-msa-gold/60 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
             >
-              <span className="text-jannah-mid dark:text-jannah-light">MSA</span>{" "}
-              <span className="text-msa-blue dark:text-white/90">At Pitt</span>
+              <span className="text-jannah-mid dark:text-jannah-light"><TextField id="Navbar_1">MSA</TextField></span>{" "}
+              <span className="text-msa-blue dark:text-white/90"><TextField id="Navbar_2">At Pitt</TextField></span>
             </Link>
 
             {/* Desktop nav */}
@@ -112,7 +113,7 @@ const Navbar = () => {
                   ? location.pathname === link.to
                   : location.pathname.startsWith(link.to);
                 return (
-                  <Link
+                  <ContentScope key={link.to} id={"Navbar_3-" + itemIdentity(link, link.to)}><Link
                     key={link.to}
                     to={link.to}
                     onMouseEnter={() => prefetchRoute(link.to)}
@@ -124,14 +125,14 @@ const Navbar = () => {
                         : "text-ink-mid/70 dark:text-white/45 hover:text-ink dark:hover:text-white/80"
                     }`}
                   >
-                    {link.label}
+                    <TextField id="Navbar_4">{link.label}</TextField>
                     {isActive && (
                       <motion.div
                         layoutId="nav-underline"
                         className="absolute -bottom-1 left-0 right-0 h-[1.5px] bg-jannah-mid dark:bg-msa-gold rounded-full"
                       />
                     )}
-                  </Link>
+                  </Link></ContentScope>
                 );
               })}
 
@@ -145,9 +146,9 @@ const Navbar = () => {
                         ? "text-jannah-mid dark:text-msa-gold"
                         : "text-ink-mid/70 dark:text-white/45 hover:text-ink dark:hover:text-white/80"
                     }`}
-                  >
+                  ><TextField id="Navbar_5">
                     Resources
-                    <ChevronDown size={13} className={`transition-transform duration-200 ${resourcesOpen ? "rotate-180" : ""}`} />
+                    </TextField><ChevronDown size={13} className={`transition-transform duration-200 ${resourcesOpen ? "rotate-180" : ""}`} />
                     {isResourcesActive && (
                       <motion.div
                         layoutId="nav-underline"
@@ -165,7 +166,7 @@ const Navbar = () => {
                     {resourcesChildren.map((child) => {
                       const isChildActive = location.pathname === child.to;
                       return (
-                        <DropdownMenuPrimitive.Item
+                        <ContentScope key={child.to} id={"Navbar_6-" + itemIdentity(child, child.to)}><DropdownMenuPrimitive.Item
                           key={child.to}
                           onSelect={() => { prefetchRoute(child.to); navigate(child.to); }}
                           className={`px-3 py-2 rounded-xl text-sm font-semibold font-body transition-colors duration-150 outline-none cursor-default select-none ${
@@ -174,8 +175,8 @@ const Navbar = () => {
                               : "text-ink dark:text-white/70 data-[highlighted]:bg-black/[0.04] dark:data-[highlighted]:bg-white/[0.04] data-[highlighted]:text-jannah-mid dark:data-[highlighted]:text-msa-gold"
                           }`}
                         >
-                          {child.label}
-                        </DropdownMenuPrimitive.Item>
+                          <TextField id="Navbar_13">{child.label}</TextField>
+                        </DropdownMenuPrimitive.Item></ContentScope>
                       );
                     })}
                   </DropdownMenuPrimitive.Content>
@@ -190,8 +191,8 @@ const Navbar = () => {
                 {theme === "dark" ? <Sun size={16} strokeWidth={2} /> : <Moon size={16} strokeWidth={2} />}
               </button>
 
-              <Link to="/join" className="btn-premium text-sm px-5 py-2 ml-1">
-                Join <ArrowRight size={13} />
+              <Link to="/join" className="btn-premium text-sm px-5 py-2 ml-1"><TextField id="Navbar_7">
+                Join </TextField><ArrowRight size={13} />
               </Link>
             </div>
 
@@ -254,8 +255,8 @@ const Navbar = () => {
                 transition={{ delay: 0.04 }}
                 className="mb-7"
               >
-                <Link to="/join" className="btn-premium text-base px-9 py-3.5">
-                  Join the MSA <ArrowRight size={16} />
+                <Link to="/join" className="btn-premium text-base px-9 py-3.5"><TextField id="Navbar_8">
+                  Join the MSA </TextField><ArrowRight size={16} />
                 </Link>
               </motion.div>
 
@@ -265,7 +266,7 @@ const Navbar = () => {
                 {navLinks.map((link, i) => {
                   const isActive = link.exact ? location.pathname === link.to : location.pathname.startsWith(link.to);
                   return (
-                    <motion.div
+                    <ContentScope key={link.to} id={"Navbar_3-" + itemIdentity(link, link.to)}><motion.div
                       key={link.to}
                       initial={{ opacity: 0, y: 14 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -281,9 +282,9 @@ const Navbar = () => {
                             : "text-ink dark:text-white/85"
                         }`}
                       >
-                        {link.label}
+                        <TextField id="Navbar_4">{link.label}</TextField>
                       </Link>
-                    </motion.div>
+                    </motion.div></ContentScope>
                   );
                 })}
 
@@ -300,9 +301,9 @@ const Navbar = () => {
                     className={`text-3xl font-display font-semibold transition-colors flex items-center gap-2 px-6 py-1.5 rounded-lg ${
                       isResourcesActive ? "text-jannah-mid dark:text-msa-gold" : "text-ink dark:text-white/85"
                     }`}
-                  >
+                  ><TextField id="Navbar_11">
                     Resources
-                    <ChevronDown
+                    </TextField><ChevronDown
                       size={20}
                       className={`transition-transform duration-200 ${
                         mobileResourcesOpen ? "rotate-180" : ""
@@ -319,7 +320,7 @@ const Navbar = () => {
                         className="overflow-hidden flex flex-col items-center gap-3 mt-4"
                       >
                         {resourcesChildren.map((child) => (
-                          <Link
+                          <ContentScope key={child.to} id={"Navbar_6-" + itemIdentity(child, child.to)}><Link
                             key={child.to}
                             to={child.to}
                             aria-current={location.pathname === child.to ? "page" : undefined}
@@ -329,8 +330,8 @@ const Navbar = () => {
                                 : "text-ink-mid/75 dark:text-white/55"
                             }`}
                           >
-                            {child.label}
-                          </Link>
+                            <TextField id="Navbar_13">{child.label}</TextField>
+                          </Link></ContentScope>
                         ))}
                       </motion.div>
                     )}
@@ -347,9 +348,9 @@ const Navbar = () => {
                   <Link
                     to="/contact"
                     className="text-xl font-body font-semibold text-ink-mid/70 dark:text-white/55 hover:text-jannah-mid dark:hover:text-msa-gold transition-colors"
-                  >
+                  ><TextField id="Navbar_14">
                     Contact
-                  </Link>
+                  </TextField></Link>
                 </motion.div>
               </div>
             </div>

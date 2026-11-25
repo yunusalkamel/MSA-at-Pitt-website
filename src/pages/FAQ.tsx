@@ -1,3 +1,4 @@
+import { TextField, ContentScope, itemIdentity, CardCopies } from "@/editor/content";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
@@ -31,23 +32,23 @@ const FALLBACK_FAQS: FAQItem[] = [
   },
   {
     q: "What events are good for someone brand new?",
-    a: (<>Our weekly halaqas are a great low-key starting point — they're informal, welcoming, and a good way to meet people. Socials like TopGolf or Eid celebrations are also perfect first events. <Link to="/events" className="text-primary underline underline-offset-2 hover:opacity-80">Check the Events page</Link> to see what's coming up.</>),
+    a: (<>Our weekly halaqas are a great low-key starting point — they're informal, welcoming, and a good way to meet people. Socials like TopGolf or Eid celebrations are also perfect first events. <Link to="/events" className="text-primary underline underline-offset-2 hover:opacity-80"><TextField id="FAQ_1">Check the Events page</TextField></Link> to see what's coming up.</>),
   },
   {
     q: "I just took my shahada / I'm exploring Islam. Is MSA for me?",
-    a: (<>Absolutely. We have revert resources specifically designed for people in your situation. You'll find a supportive community here. <Link to="/resources" className="text-primary underline underline-offset-2 hover:opacity-80">Check out Revert Resources</Link> on our Resources page.</>),
+    a: (<>Absolutely. We have revert resources specifically designed for people in your situation. You'll find a supportive community here. <Link to="/resources" className="text-primary underline underline-offset-2 hover:opacity-80"><TextField id="FAQ_2">Check out Revert Resources</TextField></Link> on our Resources page.</>),
   },
   {
     q: "Where can I pray on campus?",
-    a: (<>The main spot is the WPU Reflection Room on the 3rd floor of the William Pitt Union. There are also spaces in the Rec Center (8th floor), Benedum 403, and the School of Public Health. <Link to="/resources/prayer" className="text-primary underline underline-offset-2 hover:opacity-80">See our full Prayer page</Link> for all locations, wudu access, and prayer times.</>),
+    a: (<>The main spot is the WPU Reflection Room on the 3rd floor of the William Pitt Union. There are also spaces in the Rec Center (8th floor), Benedum 403, and the School of Public Health. <Link to="/resources/prayer" className="text-primary underline underline-offset-2 hover:opacity-80"><TextField id="FAQ_3">See our full Prayer page</TextField></Link> for all locations, wudu access, and prayer times.</>),
   },
   {
     q: "Where can I find halal food on or near campus?",
-    a: (<>There are several options — The Eatery's fresh beef and chicken breast are halal, and there are multiple restaurants within walking distance including Shah's, Omar's Halal Grill, and Bengal Kabab House. <Link to="/resources/new-to-pitt" className="text-primary underline underline-offset-2 hover:opacity-80">Our New to Pitt guide</Link> has the full list, categorized by distance.</>),
+    a: (<>There are several options — The Eatery's fresh beef and chicken breast are halal, and there are multiple restaurants within walking distance including Shah's, Omar's Halal Grill, and Bengal Kabab House. <Link to="/resources/new-to-pitt" className="text-primary underline underline-offset-2 hover:opacity-80"><TextField id="FAQ_4">Our New to Pitt guide</TextField></Link> has the full list, categorized by distance.</>),
   },
   {
     q: "How do I stay updated on events?",
-    a: (<>The best way is to join our WhatsApp announcements chat (linked on the <Link to="/join" className="text-primary underline underline-offset-2 hover:opacity-80">Join page</Link>). You can also follow us on Instagram @msa.at.pitt, sync our Google/Apple calendar, or check the <Link to="/events" className="text-primary underline underline-offset-2 hover:opacity-80">Events page</Link>.</>),
+    a: (<>The best way is to join our WhatsApp announcements chat (linked on the <Link to="/join" className="text-primary underline underline-offset-2 hover:opacity-80"><TextField id="FAQ_5">Join page</TextField></Link>). You can also follow us on Instagram @msa.at.pitt, sync our Google/Apple calendar, or check the <Link to="/events" className="text-primary underline underline-offset-2 hover:opacity-80"><TextField id="FAQ_6">Events page</TextField></Link>.</>),
   },
   {
     q: "Can I get involved in leadership or organizing?",
@@ -55,15 +56,15 @@ const FALLBACK_FAQS: FAQItem[] = [
   },
   {
     q: "I'm a commuter. Is MSA still relevant to me?",
-    a: (<>Definitely. Many of our members commute. Our events are scheduled with commuters in mind, and you're welcome at everything. <Link to="/resources/new-to-pitt" className="text-primary underline underline-offset-2 hover:opacity-80">Our New to Pitt guide</Link> has commuter-specific tips on parking and campus resources.</>),
+    a: (<>Definitely. Many of our members commute. Our events are scheduled with commuters in mind, and you're welcome at everything. <Link to="/resources/new-to-pitt" className="text-primary underline underline-offset-2 hover:opacity-80"><TextField id="FAQ_7">Our New to Pitt guide</TextField></Link> has commuter-specific tips on parking and campus resources.</>),
   },
   {
     q: "How can I give anonymous feedback to the MSA board?",
-    a: (<>We have an anonymous suggestions form on our <Link to="/resources" className="text-primary underline underline-offset-2 hover:opacity-80">Resources page</Link> — both a general form and a sisters-only form (read only by a trusted sister on the board). We genuinely read every response.</>),
+    a: (<>We have an anonymous suggestions form on our <Link to="/resources" className="text-primary underline underline-offset-2 hover:opacity-80"><TextField id="FAQ_8">Resources page</TextField></Link> — both a general form and a sisters-only form (read only by a trusted sister on the board). We genuinely read every response.</>),
   },
   {
     q: "Where can I find the university chaplain?",
-    a: (<>Imam Muhammad Patel is available Tuesday &amp; Thursday 4–6 PM. <Link to="/resources/chaplain" className="text-primary underline underline-offset-2 hover:opacity-80">Visit the Chaplain page</Link> to learn more and get his contact info.</>),
+    a: (<>Imam Muhammad Patel is available Tuesday &amp; Thursday 4–6 PM. <Link to="/resources/chaplain" className="text-primary underline underline-offset-2 hover:opacity-80"><TextField id="FAQ_9">Visit the Chaplain page</TextField></Link> to learn more and get his contact info.</>),
   },
 ];
 
@@ -83,7 +84,7 @@ const FAQItem = ({ item, index }: { item: FAQItem; index: number }) => {
         aria-expanded={open}
       >
         <span className="font-display text-base md:text-lg font-semibold text-foreground">
-          {item.q}
+          <TextField id="FAQ_10">{item.q}</TextField>
         </span>
         <ChevronDown
           size={18}
@@ -100,7 +101,7 @@ const FAQItem = ({ item, index }: { item: FAQItem; index: number }) => {
             className="overflow-hidden"
           >
             <div className="px-5 md:px-6 pb-5 md:pb-6 pt-1 font-body text-muted-foreground text-sm md:text-base leading-relaxed">
-              {item.a}
+              <TextField id="FAQ_11">{item.a}</TextField>
             </div>
           </motion.div>
         )}
@@ -134,24 +135,24 @@ const FAQ = () => {
             initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
             className="font-display text-5xl md:text-7xl font-bold text-foreground mb-4"
-          >
-            Got <span className="text-gradient-gold italic inline-block pb-1">questions?</span>
+          ><TextField id="FAQ_13">
+            Got </TextField><span className="text-gradient-gold italic inline-block pb-1"><TextField id="FAQ_14">questions?</TextField></span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
             className="font-satoshi text-xl text-muted-foreground"
-          >
+          ><TextField id="FAQ_15">
             We've tried to answer everything. If you don't see your question here, reach out.
-          </motion.p>
+          </TextField></motion.p>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }} className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link to="/resources" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
-              <ArrowLeft size={14} /> Back to Resources
-            </Link>
+              <ArrowLeft size={14} /><TextField id="FAQ_16"> Back to Resources
+            </TextField></Link>
             <span className="hidden sm:block text-border">·</span>
-            <Link to="/resources/prayer" className="inline-flex items-center gap-2 text-sm text-primary font-semibold hover:underline">
-              🕌 Prayer Times & Spaces <ArrowRight size={13} />
+            <Link to="/resources/prayer" className="inline-flex items-center gap-2 text-sm text-primary font-semibold hover:underline"><TextField id="FAQ_17">
+              🕌 Prayer Times & Spaces </TextField><ArrowRight size={13} />
             </Link>
           </motion.div>
         </div>
@@ -163,7 +164,7 @@ const FAQ = () => {
         <div className="max-w-3xl mx-auto relative z-10">
           <div className="flex flex-col gap-3">
             {faqs.map((item, i) => (
-              <FAQItem key={i} item={item} index={i} />
+              <CardCopies key={i} id={"FAQ_18-" + itemIdentity(item, i)}><FAQItem key={i} item={item} index={i} /></CardCopies>
             ))}
           </div>
         </div>
@@ -174,11 +175,11 @@ const FAQ = () => {
       <section className="section-padding-sm gradient-section-gold-soft">
         <div className="max-w-2xl mx-auto">
           <div className="glass-card-strong glass-glow p-8 md:p-12">
-            <ArabicVerse
+            <ContentScope id="FAQ_19"><ArabicVerse
               arabic="وَإِذَا سَأَلَكَ عِبَادِي عَنِّي فَإِنِّي قَرِيبٌ"
               translation="When My servants ask about Me, I am near."
               reference="Quran 2:186"
-            />
+            /></ContentScope>
           </div>
         </div>
       </section>
@@ -188,9 +189,9 @@ const FAQ = () => {
           to="/"
           className="inline-flex items-center gap-2 font-body text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
-          <ArrowLeft size={14} />
+          <ArrowLeft size={14} /><TextField id="FAQ_20">
           Back to home
-        </Link>
+        </TextField></Link>
       </section>
     </Layout>
   );

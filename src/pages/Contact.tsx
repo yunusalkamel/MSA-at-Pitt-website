@@ -1,3 +1,4 @@
+import { CardCopies, TextField, ContentScope } from "@/editor/content";
 import { motion } from "framer-motion";
 import { Mail, BookOpen, MessageSquare, ArrowRight, Calendar } from "lucide-react";
 import Layout from "@/components/Layout";
@@ -43,17 +44,17 @@ const ImamCard = () => {
         <BookOpen size={22} className="text-secondary" />
       </div>
       <div className="flex-1">
-        <p className="eyebrow text-jannah-mid dark:text-msa-gold/70 mb-1">{title}</p>
+        <p className="eyebrow text-jannah-mid dark:text-msa-gold/70 mb-1"><TextField id="Contact_1">{title}</TextField></p>
         <h3 className="font-display text-xl font-bold text-foreground mb-2 leading-tight">
-          {name}
+          <TextField id="Contact_2">{name}</TextField>
         </h3>
         <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed mb-3">
-          {bio}
+          <TextField id="Contact_3">{bio}</TextField>
         </p>
         {officeHours && (
           <div className="flex items-start gap-2 text-xs text-muted-foreground mb-4 font-body">
-            <span className="font-semibold text-foreground/70">Office hours:</span>
-            <span>{officeHours}</span>
+            <span className="font-semibold text-foreground/70"><TextField id="Contact_4">Office hours:</TextField></span>
+            <span><TextField id="Contact_5">{officeHours}</TextField></span>
           </div>
         )}
       </div>
@@ -63,7 +64,7 @@ const ImamCard = () => {
             href={`mailto:${email}`}
             className="btn-premium-secondary text-sm px-5 py-2.5 justify-center"
           >
-            <Mail size={14} /> Email {name.split(" ")[0]}
+            <Mail size={14} /><TextField id="Contact_6"> Email </TextField>{name.split(" ")[0]}
           </a>
         )}
         {booking ? (
@@ -73,12 +74,12 @@ const ImamCard = () => {
             rel="noopener noreferrer"
             className="btn-premium text-sm px-5 py-2.5 justify-center"
           >
-            <Calendar size={14} /> Book a Meeting
-          </a>
+            <Calendar size={14} /><TextField id="Contact_7"> Book a Meeting
+          </TextField></a>
         ) : (
-          <span className="inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 font-body font-semibold text-sm text-muted-foreground bg-muted/60 border border-border/50 cursor-default">
+          <span className="inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 font-body font-semibold text-sm text-muted-foreground bg-muted/60 border border-border/50 cursor-default"><TextField id="Contact_8">
             Booking link coming soon
-          </span>
+          </TextField></span>
         )}
       </div>
     </motion.div>
@@ -108,26 +109,26 @@ const Contact = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="font-body text-xs uppercase tracking-[0.3em] text-primary font-semibold mb-5"
-          >
+          ><TextField id="Contact_10">
             Get In Touch
-          </motion.p>
+          </TextField></motion.p>
           <motion.h1
             initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
             className="font-display text-5xl md:text-7xl font-bold text-foreground mb-6 leading-tight px-2"
-          >
-            We read every message,{" "}
-            <span className="text-gradient-gold italic inline-block pb-2">insha'Allah.</span>
+          ><TextField id="Contact_11">
+            We read every message,</TextField>{" "}
+            <span className="text-gradient-gold italic inline-block pb-2"><TextField id="Contact_12">insha'Allah.</TextField></span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.35 }}
             className="font-dm-sans text-base md:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed"
-          >
+          ><TextField id="Contact_13">
             Whether you have a question, need support, or just want to say salam — we're here.
-          </motion.p>
+          </TextField></motion.p>
         </div>
       </section>
 
@@ -139,7 +140,7 @@ const Contact = () => {
         <div className="max-w-5xl mx-auto relative z-10">
           <div className="grid sm:grid-cols-1 md:grid-cols-3 gap-6">
             {/* Card 1 — General inquiries */}
-            <motion.div
+            <CardCopies id="contact-email"><motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -150,27 +151,27 @@ const Contact = () => {
                 <Mail size={22} className="text-primary" />
               </div>
               <div className="flex-1">
-                <h3 className="font-display text-xl font-bold text-foreground mb-2 leading-tight">Say Salam</h3>
-                <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed">
+                <h3 className="font-display text-xl font-bold text-foreground mb-2 leading-tight"><TextField id="Contact_14">Say Salam</TextField></h3>
+                <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed"><TextField id="Contact_15">
                   For general questions, event info, or anything else — reach out anytime.
-                </p>
+                </TextField></p>
               </div>
               <div className="flex flex-col gap-2 mt-auto">
-                <a href={`mailto:${LINKS.email}`} className="btn-premium text-sm px-5 py-2.5 justify-center">
-                  Email us <ArrowRight size={14} />
+                <a href={`mailto:${LINKS.email}`} className="btn-premium text-sm px-5 py-2.5 justify-center"><TextField id="Contact_16">
+                  Email us </TextField><ArrowRight size={14} />
                 </a>
                 <a href={LINKS.instagram} target="_blank" rel="noopener noreferrer"
-                  className="btn-premium-secondary text-sm px-5 py-2.5 justify-center">
-                  Instagram DM <ArrowRight size={14} />
+                  className="btn-premium-secondary text-sm px-5 py-2.5 justify-center"><TextField id="Contact_17">
+                  Instagram DM </TextField><ArrowRight size={14} />
                 </a>
               </div>
-            </motion.div>
+            </motion.div></CardCopies>
 
             {/* Card 2 — Imam (Sanity-driven) */}
-            <ImamCard />
+            <CardCopies id="contact-chaplain"><ImamCard /></CardCopies>
 
             {/* Card 3 — Anonymous feedback */}
-            <motion.div
+            <CardCopies id="contact-feedback"><motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -181,23 +182,23 @@ const Contact = () => {
                 <MessageSquare size={22} className="text-primary" />
               </div>
               <div className="flex-1">
-                <h3 className="font-display text-xl font-bold text-foreground mb-2 leading-tight">Share Your Thoughts</h3>
-                <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed">
+                <h3 className="font-display text-xl font-bold text-foreground mb-2 leading-tight"><TextField id="Contact_18">Share Your Thoughts</TextField></h3>
+                <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed"><TextField id="Contact_19">
                   Have feedback for the board? We genuinely read every response. Completely anonymous, no login required.
-                </p>
+                </TextField></p>
               </div>
               <div className="mt-auto">
                 <a href={LINKS.anonymousFeedback} target="_blank" rel="noopener noreferrer"
-                  className="btn-premium text-sm px-5 py-2.5 w-full justify-center">
-                  Leave Feedback <ArrowRight size={14} />
+                  className="btn-premium text-sm px-5 py-2.5 w-full justify-center"><TextField id="Contact_20">
+                  Leave Feedback </TextField><ArrowRight size={14} />
                 </a>
               </div>
-            </motion.div>
+            </motion.div></CardCopies>
           </div>
 
-          <p className="text-center text-xs text-muted-foreground/60 font-body mt-8">
-            For media or partnership inquiries, please email{" "}
-            <a href={`mailto:${LINKS.email}`} className="text-primary hover:underline">{LINKS.email}</a>
+          <p className="text-center text-xs text-muted-foreground/60 font-body mt-8"><TextField id="Contact_21">
+            For media or partnership inquiries, please email</TextField>{" "}
+            <a href={`mailto:${LINKS.email}`} className="text-primary hover:underline"><TextField id="Contact_22">{LINKS.email}</TextField></a>
           </p>
         </div>
       </section>
@@ -206,11 +207,11 @@ const Contact = () => {
       <section className="section-padding-sm gradient-section-emerald-soft">
         <div className="max-w-2xl mx-auto">
           <div className="glass-card-strong glass-glow p-7">
-            <ArabicVerse
+            <ContentScope id="Contact_23"><ArabicVerse
               arabic="ادْفَعْ بِالَّتِي هِيَ أَحْسَنُ"
               translation="Repel evil with what is better — and you will see one who was your enemy become like a close friend."
               reference="Quran 41:34"
-            />
+            /></ContentScope>
           </div>
         </div>
       </section>

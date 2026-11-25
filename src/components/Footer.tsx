@@ -1,3 +1,4 @@
+import { ContentScope, Picture, TextField } from "@/editor/content";
 import { Link } from "react-router-dom";
 import { Instagram, Facebook } from "lucide-react";
 import KhatamOverlay from "@/components/KhatamOverlay";
@@ -36,14 +37,14 @@ const Footer = () => {
           {/* Left: logo + name + description */}
           <div className="flex flex-col items-center lg:items-start gap-3">
             <Link to="/" className="hover:opacity-85 transition-opacity">
-              <img src="/msa-logo-white.png" alt="MSA at Pitt" className="h-20 md:h-24 w-auto object-contain" />
+              <Picture fieldId="Footer_2" src="/msa-logo-white.png" alt="MSA at Pitt" className="h-20 md:h-24 w-auto object-contain" />
             </Link>
-            <p className="font-display text-2xl md:text-3xl font-bold leading-tight" style={{ color: "rgba(255,255,255,.9)" }}>
+            <p className="font-display text-2xl md:text-3xl font-bold leading-tight" style={{ color: "rgba(255,255,255,.9)" }}><TextField id="Footer_3">
               MSA at Pitt
-            </p>
+            </TextField></p>
             <div className="flex flex-col gap-0.5 text-center lg:text-left">
-              <p className="font-body text-[13px]" style={{ color: "rgba(200,232,223,.65)" }}>Muslim Student Association</p>
-              <p className="font-body text-[13px]" style={{ color: "rgba(200,232,223,.4)" }}>University of Pittsburgh</p>
+              <p className="font-body text-[13px]" style={{ color: "rgba(200,232,223,.65)" }}><TextField id="Footer_4">Muslim Student Association</TextField></p>
+              <p className="font-body text-[13px]" style={{ color: "rgba(200,232,223,.4)" }}><TextField id="Footer_5">University of Pittsburgh</TextField></p>
             </div>
           </div>
 
@@ -52,20 +53,20 @@ const Footer = () => {
 
             {/* Explore — left aligned */}
             <div className="flex flex-col gap-2.5 items-start">
-              <p className="font-body text-[10px] font-bold uppercase tracking-[0.2em] mb-1" style={{ color: "rgba(242,171,35,.6)" }}>Explore</p>
+              <p className="font-body text-[10px] font-bold uppercase tracking-[0.2em] mb-1" style={{ color: "rgba(242,171,35,.6)" }}><TextField id="Footer_6">Explore</TextField></p>
               {[
                 { to: "/about",   l: "About"   },
                 { to: "/events",  l: "Events"  },
                 { to: "/gallery", l: "Gallery" },
                 { to: "/join",    l: "Join"    },
               ].map(({ to, l }) => (
-                <Link key={to} to={to} className="footer-link font-body text-sm">{l}</Link>
+                <ContentScope key={to} id={"Footer_7-" + to}><Link key={to} to={to} className="footer-link font-body text-sm"><TextField id="Footer_8">{l}</TextField></Link></ContentScope>
               ))}
             </div>
 
             {/* Resources — center aligned */}
             <div className="flex flex-col gap-2.5 items-center text-center">
-              <p className="font-body text-[10px] font-bold uppercase tracking-[0.2em] mb-1" style={{ color: "rgba(242,171,35,.6)" }}>Resources</p>
+              <p className="font-body text-[10px] font-bold uppercase tracking-[0.2em] mb-1" style={{ color: "rgba(242,171,35,.6)" }}><TextField id="Footer_9">Resources</TextField></p>
               {[
                 { to: "/resources",                  l: "All Resources"    },
                 { to: "/resources/new-to-pitt",      l: "New to Pitt"      },
@@ -73,14 +74,14 @@ const Footer = () => {
                 { to: "/prayer-times",               l: "Prayer Times"     },
                 { to: "/resources/faq",              l: "FAQ"              },
               ].map(({ to, l }) => (
-                <Link key={to} to={to} className="footer-link font-body text-sm text-center whitespace-nowrap">{l}</Link>
+                <ContentScope key={to} id={"Footer_10-" + to}><Link key={to} to={to} className="footer-link font-body text-sm text-center whitespace-nowrap"><TextField id="Footer_11">{l}</TextField></Link></ContentScope>
               ))}
             </div>
 
             {/* Connect — right aligned */}
             <div className="flex flex-col gap-2.5 items-end text-right h-full">
-              <p className="font-body text-[10px] font-bold uppercase tracking-[0.2em] mb-1" style={{ color: "rgba(242,171,35,.6)" }}>Connect</p>
-              <a href={`mailto:${LINKS.email}`} className="footer-link font-body text-sm">Email</a>
+              <p className="font-body text-[10px] font-bold uppercase tracking-[0.2em] mb-1" style={{ color: "rgba(242,171,35,.6)" }}><TextField id="Footer_12">Connect</TextField></p>
+              <a href={`mailto:${LINKS.email}`} className="footer-link font-body text-sm"><TextField id="Footer_13">Email</TextField></a>
               <div className="flex items-center gap-3 mt-1">
                 <a href={LINKS.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="footer-link inline-flex items-center">
                   <Instagram size={17} />
@@ -92,27 +93,27 @@ const Footer = () => {
                   <WhatsAppIcon size={17} />
                 </a>
               </div>
-              <a href={LINKS.linktree} target="_blank" rel="noopener noreferrer" className="footer-link font-body text-sm">Linktree</a>
+              <a href={LINKS.linktree} target="_blank" rel="noopener noreferrer" className="footer-link font-body text-sm"><TextField id="Footer_14">Linktree</TextField></a>
               <div className="mt-auto pt-2">
-                <Link to="/contact" className="inline-flex items-center justify-end text-xs font-semibold px-3 py-1.5 rounded-full border border-primary/40 text-primary hover:bg-primary/10 transition-colors duration-200">
+                <Link to="/contact" className="inline-flex items-center justify-end text-xs font-semibold px-3 py-1.5 rounded-full border border-primary/40 text-primary hover:bg-primary/10 transition-colors duration-200"><TextField id="Footer_15">
                   Contact Us →
-                </Link>
+                </TextField></Link>
               </div>
             </div>
           </div>
 
           {/* Right: motto */}
           <div className="text-center lg:text-right">
-            <h2 className="font-display text-3xl md:text-[2.6rem] font-bold text-accent-foreground leading-tight">
+            <h2 className="font-display text-3xl md:text-[2.6rem] font-bold text-accent-foreground leading-tight"><TextField id="Footer_16">
               Cultivate Community,
-            </h2>
+            </TextField></h2>
             <div>
               <span
                 className="font-display italic text-gradient-aura inline-block"
                 style={{ fontSize: "clamp(2.4rem, 3.5vw, 3.8rem)", lineHeight: 1.2, paddingBottom: "0.15em" }}
-              >
+              ><TextField id="Footer_17">
                 Ignite Iman.
-              </span>
+              </TextField></span>
             </div>
           </div>
         </div>
@@ -128,18 +129,18 @@ const Footer = () => {
 
         {/* ── Closing verse ── */}
         <div className="text-center mb-6">
-          <p className="font-arabic text-xl md:text-2xl mb-2 leading-relaxed" style={{ color: "rgba(242,171,35,.80)" }} dir="rtl">
+          <p className="font-arabic text-xl md:text-2xl mb-2 leading-relaxed" style={{ color: "rgba(242,171,35,.80)" }} dir="rtl"><TextField id="Footer_18">
             وَاعْتَصِمُوا بِحَبْلِ اللَّهِ جَمِيعًا وَلَا تَفَرَّقُوا
-          </p>
-          <p className="font-display italic text-sm" style={{ color: "rgba(255,255,255,.45)" }}>
-            "And hold firmly to the rope of Allah, all together, and do not become divided." — <span style={{ color: "rgba(242,171,35,.55)" }}>Quran 3:103</span>
+          </TextField></p>
+          <p className="font-display italic text-sm" style={{ color: "rgba(255,255,255,.45)" }}><TextField id="Footer_19">
+            "And hold firmly to the rope of Allah, all together, and do not become divided." — </TextField><span style={{ color: "rgba(242,171,35,.55)" }}><TextField id="Footer_20">Quran 3:103</TextField></span>
           </p>
         </div>
 
         {/* ── Copyright ── */}
         <p className="text-center font-body text-xs" style={{ color: "rgba(255,255,255,.22)" }}>
-          © {copyrightYears} Muslim Student Association at the University of Pittsburgh
-        </p>
+          © <TextField id="Footer_21">{copyrightYears}</TextField><TextField id="Footer_22"> Muslim Student Association at the University of Pittsburgh
+        </TextField></p>
       </div>
     </footer>
   );

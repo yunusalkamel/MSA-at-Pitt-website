@@ -1,3 +1,4 @@
+import { Picture, TextField } from "@/editor/content";
 import { useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
@@ -87,7 +88,7 @@ export default function Lightbox({ photos, currentIndex, onClose, onNext, onPrev
           className="relative max-w-[90vw] max-h-[85vh] flex flex-col items-center gap-3"
           onClick={(e) => e.stopPropagation()}
         >
-          <img
+          <Picture fieldId="GalleryAlbum_11"
             src={photo.url}
             alt={photo.caption || `Photo ${currentIndex + 1}`}
             className="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl"
@@ -95,7 +96,7 @@ export default function Lightbox({ photos, currentIndex, onClose, onNext, onPrev
           />
           {photo.caption && (
             <p className="font-body text-sm text-white/55 text-center max-w-lg px-4">
-              {photo.caption}
+              <TextField id="GalleryAlbum_12">{photo.caption}</TextField>
             </p>
           )}
         </motion.div>

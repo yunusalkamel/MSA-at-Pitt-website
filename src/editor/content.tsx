@@ -1,0 +1,154 @@
+import {
+  createContext,
+  useContext,
+  Fragment,
+  type ReactNode,
+  type ImgHTMLAttributes,
+} from "react";
+import { useLocation } from "react-router-dom";
+
+export type Run = {
+  text: string;
+  bold?: boolean;
+  italic?: boolean;
+  size?: "small" | "normal" | "large";
+};
+export type Field =
+  | { kind: "text"; runs: Run[] }
+  | { kind: "image"; url: string }
+  | { kind: "copies"; ids: string[] };
+export type Fields = Record<string, Field>;
+export const Content = createContext<{ fields: Fields; editing: boolean }>({
+  fields: {},
+  editing: false,
+});
+const Scope = createContext("");
+export function ContentScope({
+  id,
+  children,
+}: {
+  id: string;
+  children: ReactNode;
+}) {
+  const parent = useContext(Scope);
+  return (
+    <Scope.Provider value={parent + "/" + encodeURIComponent(id)}>
+      {children}
+    </Scope.Provider>
+  );
+}
+function useField(id: string) {
+  const scope = useContext(Scope);
+  const { pathname } = useLocation();
+  const shared = /^(Navbar|Footer|AnnouncementBar)_/.test(id);
+  return (
+    (shared ? "shared" : pathname.replace(/\/$/, "") || "/") + scope + "/" + id
+  );
+}
+export function TextField({
+  id,
+  children,
+}: {
+  id: string;
+  children: ReactNode;
+}) {
+  const key = useField(id),
+    { fields, editing } = useContext(Content);
+  if (typeof children !== "string" && typeof children !== "number")
+    return <>{children}</>;
+  const field = fields[key];
+  if (!editing && field?.kind !== "text") return <>{children}</>;
+  return (
+    <span data-edit-text={editing ? key : undefined}>
+      {field?.kind === "text"
+        ? field.runs.map((r, i) => (
+            <span
+              key={i}
+              data-size={r.size}
+              style={{
+                whiteSpace: "pre-wrap",
+                fontWeight: r.bold ? "bold" : undefined,
+                fontStyle: r.italic ? "italic" : undefined,
+                fontSize: r.size
+                  ? { small: "0.85em", normal: "1em", large: "1.25em" }[r.size]
+                  : undefined,
+              }}
+            >
+              {r.text}
+            </span>
+          ))
+        : children}
+    </span>
+  );
+}
+export function Picture({
+  fieldId,
+  ...props
+}: ImgHTMLAttributes<HTMLImageElement> & { fieldId: string }) {
+  const key = useField(fieldId),
+    { fields, editing } = useContext(Content),
+    value = fields[key];
+  return (
+    <img
+      {...props}
+      src={value?.kind === "image" ? value.url : props.src}
+      srcSet={value?.kind === "image" ? undefined : props.srcSet}
+      data-edit-image={editing ? key : undefined}
+    />
+  );
+}
+export function CardCopies({
+  id,
+  children,
+}: {
+  id: string;
+  children: ReactNode;
+}) {
+  const key = useField(id),
+    { fields, editing } = useContext(Content);
+  const entry = fields[key],
+    ids = ["original", ...(entry?.kind === "copies" ? entry.ids : [])];
+  return (
+    <>
+      {ids.map((instance) => (
+        <Fragment key={instance}>
+          <ContentScope id={id + "@" + instance}>
+            {editing ? (
+              <span
+                style={{ display: "contents" }}
+                data-edit-card={key}
+                data-copy-scope={id + "@" + instance}
+              >
+                {children}
+              </span>
+            ) : (
+              children
+            )}
+          </ContentScope>
+        </Fragment>
+      ))}
+    </>
+  );
+}
+export function itemIdentity(item: unknown, fallback: unknown): string {
+  if (typeof item === "string") return item;
+  if (item && typeof item === "object") {
+    const row = item as Record<string, unknown>;
+    for (const key of [
+      "_key",
+      "id",
+      "slug",
+      "url",
+      "name",
+      "title",
+      "q",
+      "headline",
+      "label",
+      "to",
+      "shortName",
+    ]) {
+      if (typeof row[key] === "string") return row[key] as string;
+    }
+  }
+  return String(fallback);
+}

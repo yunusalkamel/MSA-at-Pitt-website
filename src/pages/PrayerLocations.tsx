@@ -1,3 +1,4 @@
+import { ContentScope, TextField, itemIdentity, CardCopies } from "@/editor/content";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowLeft, ArrowRight, MapPin, Building2, Landmark } from "lucide-react";
@@ -72,22 +73,22 @@ const PrayerLocations = () => (
           
           <BridgeBar />
       <div className="relative z-10 max-w-3xl mx-auto">
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xs uppercase tracking-[0.3em] text-primary font-semibold mb-5">
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xs uppercase tracking-[0.3em] text-primary font-semibold mb-5"><TextField id="PrayerLocations_2">
           Resources
-        </motion.p>
-        <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="font-display text-5xl md:text-7xl font-bold text-foreground mb-4">
-          Prayer <span className="text-gradient-gold inline-block pb-1">Locations</span>
+        </TextField></motion.p>
+        <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="font-display text-5xl md:text-7xl font-bold text-foreground mb-4"><TextField id="PrayerLocations_3">
+          Prayer </TextField><span className="text-gradient-gold inline-block pb-1"><TextField id="PrayerLocations_4">Locations</TextField></span>
         </motion.h1>
-        <motion.p initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-muted-foreground text-lg max-w-xl mx-auto leading-relaxed">
+        <motion.p initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-muted-foreground text-lg max-w-xl mx-auto leading-relaxed"><TextField id="PrayerLocations_5">
           On-campus prayer spaces and nearby masajid for the Pitt community.
-        </motion.p>
+        </TextField></motion.p>
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }} className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link to="/resources" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
-            <ArrowLeft size={14} /> Back to Resources
-          </Link>
+            <ArrowLeft size={14} /><TextField id="PrayerLocations_6"> Back to Resources
+          </TextField></Link>
           <span className="hidden sm:block text-border">·</span>
-          <Link to="/resources/prayer" className="inline-flex items-center gap-2 text-sm text-primary font-semibold hover:underline">
-            🕌 Prayer Hub <ArrowRight size={13} />
+          <Link to="/resources/prayer" className="inline-flex items-center gap-2 text-sm text-primary font-semibold hover:underline"><TextField id="PrayerLocations_7">
+            🕌 Prayer Hub </TextField><ArrowRight size={13} />
           </Link>
         </motion.div>
       </div>
@@ -103,12 +104,12 @@ const PrayerLocations = () => (
           <div className="gold-gradient w-10 h-10 rounded-xl flex items-center justify-center shadow-sm">
             <Building2 className="text-primary-foreground" size={18} />
           </div>
-          <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground">On-Campus Spaces</h2>
+          <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground"><TextField id="PrayerLocations_8">On-Campus Spaces</TextField></h2>
         </div>
 
         <div className="space-y-5">
           {onCampus.map((space, i) => (
-            <motion.div
+            <CardCopies key={space.name} id={"PrayerLocations_9-" + itemIdentity(space, space.name)}><motion.div
               key={space.name}
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -119,18 +120,18 @@ const PrayerLocations = () => (
               <div className="flex items-start gap-3 mb-3">
                 <MapPin size={16} className="text-primary mt-1 flex-shrink-0" />
                 <div>
-                  <h3 className="font-display text-lg font-bold text-foreground">{space.name}</h3>
-                  <p className="text-muted-foreground text-sm">{space.detail}</p>
+                  <h3 className="font-display text-lg font-bold text-foreground"><TextField id="PrayerLocations_10">{space.name}</TextField></h3>
+                  <p className="text-muted-foreground text-sm"><TextField id="PrayerLocations_11">{space.detail}</TextField></p>
                 </div>
               </div>
               <ul className="space-y-1.5 pl-7">
                 {space.features.map((f, j) => (
-                  <li key={j} className="text-muted-foreground text-sm leading-relaxed pl-3 relative before:content-['•'] before:absolute before:left-0 before:text-primary/50">
-                    {f}
-                  </li>
+                  <ContentScope key={j} id={"PrayerLocations_12-" + itemIdentity(f, j)}><li key={j} className="text-muted-foreground text-sm leading-relaxed pl-3 relative before:content-['•'] before:absolute before:left-0 before:text-primary/50">
+                    <TextField id="PrayerLocations_13">{f}</TextField>
+                  </li></ContentScope>
                 ))}
               </ul>
-            </motion.div>
+            </motion.div></CardCopies>
           ))}
         </div>
       </div>
@@ -148,12 +149,12 @@ const PrayerLocations = () => (
           <div className="bg-secondary w-10 h-10 rounded-xl flex items-center justify-center shadow-sm">
             <Landmark className="text-secondary-foreground" size={18} />
           </div>
-          <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground">Nearby Masajid</h2>
+          <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground"><TextField id="PrayerLocations_14">Nearby Masajid</TextField></h2>
         </div>
 
         <div className="space-y-5">
           {masajid.map((m, i) => (
-            <motion.div
+            <CardCopies key={m.name} id={"PrayerLocations_15-" + itemIdentity(m, m.name)}><motion.div
               key={m.name}
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -161,16 +162,16 @@ const PrayerLocations = () => (
               transition={{ duration: 0.4, delay: i * 0.08 }}
               className="liquid-glass-hover p-6 md:p-7 rounded-2xl"
             >
-              <h3 className="font-display text-lg font-bold text-foreground mb-1">{m.name}</h3>
-              <p className="text-sm text-primary font-semibold mb-3">{m.distance}</p>
+              <h3 className="font-display text-lg font-bold text-foreground mb-1"><TextField id="PrayerLocations_16">{m.name}</TextField></h3>
+              <p className="text-sm text-primary font-semibold mb-3"><TextField id="PrayerLocations_17">{m.distance}</TextField></p>
               <ul className="space-y-1.5">
                 {m.details.map((d, j) => (
-                  <li key={j} className="text-muted-foreground text-sm leading-relaxed pl-4 relative before:content-['•'] before:absolute before:left-0 before:text-primary/50">
-                    {d}
-                  </li>
+                  <ContentScope key={j} id={"PrayerLocations_18-" + itemIdentity(d, j)}><li key={j} className="text-muted-foreground text-sm leading-relaxed pl-4 relative before:content-['•'] before:absolute before:left-0 before:text-primary/50">
+                    <TextField id="PrayerLocations_19">{d}</TextField>
+                  </li></ContentScope>
                 ))}
               </ul>
-            </motion.div>
+            </motion.div></CardCopies>
           ))}
         </div>
       </div>
@@ -182,11 +183,11 @@ const PrayerLocations = () => (
     <section className="section-padding-sm gradient-section-emerald-soft">
       <div className="max-w-2xl mx-auto">
         <div className="glass-card-strong glass-glow p-8 md:p-12">
-          <ArabicVerse
+          <ContentScope id="PrayerLocations_20"><ArabicVerse
             arabic="أَقِمِ الصَّلَاةَ لِدُلُوكِ الشَّمْسِ إِلَىٰ غَسَقِ اللَّيْلِ"
             translation="Establish prayer from the decline of the sun to the darkness of the night."
             reference="Quran 17:78"
-          />
+          /></ContentScope>
         </div>
       </div>
     </section>

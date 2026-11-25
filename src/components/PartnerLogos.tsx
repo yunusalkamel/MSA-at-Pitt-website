@@ -1,3 +1,4 @@
+import { Picture, TextField, itemIdentity, ContentScope } from "@/editor/content";
 import { motion, useMotionValue, useAnimationFrame } from "framer-motion";
 import { useRef, useEffect } from "react";
 
@@ -47,7 +48,7 @@ const PartnerTile = ({ partner }: { partner: Partner }) => (
       {partner.src ? (
         partner.hasBackground ? (
           <div className="h-11 w-11 md:h-12 md:w-12 rounded-full overflow-hidden flex-shrink-0 opacity-85 group-hover:opacity-100 transition-opacity duration-300">
-            <img
+            <Picture fieldId="PartnerLogos_1"
               src={partner.src}
               alt={partner.name}
               className="h-full w-full object-cover"
@@ -58,7 +59,7 @@ const PartnerTile = ({ partner }: { partner: Partner }) => (
             />
           </div>
         ) : (
-          <img
+          <Picture fieldId="PartnerLogos_2"
             src={partner.src}
             alt={partner.name}
             className="h-10 md:h-11 w-auto object-contain opacity-80 group-hover:opacity-100 transition-opacity duration-300"
@@ -73,12 +74,12 @@ const PartnerTile = ({ partner }: { partner: Partner }) => (
           className="px-3 py-1.5 rounded-lg border font-body font-semibold text-xs tracking-wide opacity-60 group-hover:opacity-90 transition-opacity duration-300"
           style={{ borderColor: "rgba(var(--border-rgb), 0.3)", color: "rgba(var(--foreground-rgb), 0.6)" }}
         >
-          {partner.shortName}
+          <TextField id="PartnerLogos_3">{partner.shortName}</TextField>
         </div>
       )}
     </div>
     <span className="font-body text-[11px] font-semibold text-muted-foreground/65 group-hover:text-foreground/80 transition-colors duration-300 text-center leading-tight whitespace-nowrap">
-      {partner.shortName}
+      <TextField id="PartnerLogos_4">{partner.shortName}</TextField>
     </span>
   </a>
 );
@@ -165,12 +166,12 @@ const PartnerLogos = () => {
   return (
     <section className="py-10 md:py-14 overflow-hidden relative">
       <div className="max-w-6xl mx-auto px-4 md:px-8 mb-7 text-center">
-        <p className="font-body text-[11px] uppercase tracking-[0.22em] text-jannah-mid dark:text-msa-gold/70 font-semibold mb-1.5">
+        <p className="font-body text-[11px] uppercase tracking-[0.22em] text-jannah-mid dark:text-msa-gold/70 font-semibold mb-1.5"><TextField id="PartnerLogos_5">
           Community Partners
-        </p>
-        <p className="font-display text-foreground/75 text-lg">
+        </TextField></p>
+        <p className="font-display text-foreground/75 text-lg"><TextField id="PartnerLogos_6">
           Mosques, scholars, sister chapters, and organizations we work alongside.
-        </p>
+        </TextField></p>
       </div>
 
       <div
@@ -200,7 +201,7 @@ const PartnerLogos = () => {
           style={{ x, width: "max-content" }}
         >
           {loop.map((p, i) => (
-            <PartnerTile key={`${p.shortName}-${i}`} partner={p} />
+            <ContentScope key={`${p.shortName}-${i}`} id={"PartnerLogos_7-" + itemIdentity(p, `${p.shortName}-${i}`)}><PartnerTile key={`${p.shortName}-${i}`} partner={p} /></ContentScope>
           ))}
         </motion.div>
       </div>

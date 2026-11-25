@@ -1,3 +1,4 @@
+import { Picture } from "@/editor/content";
 import { useState, type ImgHTMLAttributes } from "react";
 import { urlFor } from "@/lib/sanity";
 
@@ -54,7 +55,7 @@ export default function SanityImage({
   // Once Sanity returns, render the full image on top of the LQIP and crossfade.
   if (!sanitySrc) {
     return (
-      <img
+      <Picture fieldId="SanityImage_1"
         src={fallbackSrc}
         alt={alt}
         width={width}
@@ -82,7 +83,7 @@ export default function SanityImage({
         backgroundPosition: "center",
       }}
     >
-      <img
+      <Picture fieldId="SanityImage_2"
         src={sanitySrc}
         alt={alt}
         width={width}

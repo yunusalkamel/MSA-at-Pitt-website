@@ -1,3 +1,4 @@
+import { ContentScope, TextField } from "@/editor/content";
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
@@ -542,20 +543,20 @@ const PrayerTimes = () => {
         <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage:`url(${patternImg})`, backgroundSize:"200px" }} />
         <BridgeBar />
         <div className="relative z-10 max-w-3xl mx-auto">
-          <motion.p initial={{opacity:0}} animate={{opacity:1}} className="text-xs uppercase tracking-[0.3em] text-primary font-semibold mb-5">Pittsburgh</motion.p>
-          <motion.h1 initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} className="font-display text-5xl md:text-7xl font-bold text-foreground mb-4">
-            Prayer <span className="text-gradient-gold inline-block pb-1">Times</span>
+          <motion.p initial={{opacity:0}} animate={{opacity:1}} className="text-xs uppercase tracking-[0.3em] text-primary font-semibold mb-5"><TextField id="PrayerTimes_2">Pittsburgh</TextField></motion.p>
+          <motion.h1 initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} className="font-display text-5xl md:text-7xl font-bold text-foreground mb-4"><TextField id="PrayerTimes_3">
+            Prayer </TextField><span className="text-gradient-gold inline-block pb-1"><TextField id="PrayerTimes_4">Times</TextField></span>
           </motion.h1>
-          <motion.p initial={{opacity:0,y:14}} animate={{opacity:1,y:0}} transition={{delay:.2}} className="text-muted-foreground text-lg max-w-xl mx-auto leading-relaxed">
+          <motion.p initial={{opacity:0,y:14}} animate={{opacity:1,y:0}} transition={{delay:.2}} className="text-muted-foreground text-lg max-w-xl mx-auto leading-relaxed"><TextField id="PrayerTimes_5">
             Annual timing trends for the Pittsburgh area
-          </motion.p>
+          </TextField></motion.p>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }} className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link to="/resources" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
-              <ArrowLeft size={14} /> Back to Resources
-            </Link>
+              <ArrowLeft size={14} /><TextField id="PrayerTimes_6"> Back to Resources
+            </TextField></Link>
             <span className="hidden sm:block text-border">·</span>
-            <Link to="/resources/prayer" className="inline-flex items-center gap-2 text-sm text-primary font-semibold hover:underline">
-              🕌 Prayer Hub <ArrowRight size={13} />
+            <Link to="/resources/prayer" className="inline-flex items-center gap-2 text-sm text-primary font-semibold hover:underline"><TextField id="PrayerTimes_7">
+              🕌 Prayer Hub </TextField><ArrowRight size={13} />
             </Link>
           </motion.div>
         </div>
@@ -569,21 +570,21 @@ const PrayerTimes = () => {
             <div style={{display:"flex",gap:".5rem",marginBottom:"1.1rem"}}>
               <button className="msm on" data-mid="QKMnW1LB" data-lat="40.4490" data-lng="-79.9619" data-name="ICP">
                 <span className="msm-dot"></span>
-                <span className="msm-labels"><span className="msm-name">ICP</span><span className="msm-loc">Oakland · Pittsburgh</span></span>
+                <span className="msm-labels"><span className="msm-name"><TextField id="PrayerTimes_8">ICP</TextField></span><span className="msm-loc"><TextField id="PrayerTimes_9">Oakland · Pittsburgh</TextField></span></span>
               </button>
               <button className="msm" data-mid="zKz8QzAO" data-lat="40.4065" data-lng="-80.0839" data-name="Attawheed">
                 <span className="msm-dot"></span>
-                <span className="msm-labels"><span className="msm-name">Attawheed</span><span className="msm-loc">Carnegie · Pittsburgh</span></span>
+                <span className="msm-labels"><span className="msm-name"><TextField id="PrayerTimes_10">Attawheed</TextField></span><span className="msm-loc"><TextField id="PrayerTimes_11">Carnegie · Pittsburgh</TextField></span></span>
               </button>
             </div>
 
             {/* Header */}
             <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
               <div>
-                <p className="text-xs uppercase tracking-[0.22em] text-primary font-semibold mb-1">Prayer Timing Trends</p>
+                <p className="text-xs uppercase tracking-[0.22em] text-primary font-semibold mb-1"><TextField id="PrayerTimes_12">Prayer Timing Trends</TextField></p>
                 <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground" id="card-title">Islamic Center of Pittsburgh</h2>
               </div>
-              <button id="today-btn" style={{background:"transparent",border:".5px solid #C9A84C",borderRadius:"9px",padding:".28rem .65rem",cursor:"pointer",fontSize:".82rem",color:"#C9A84C",fontWeight:500,fontFamily:"var(--font-body)"}}>↩ Today</button>
+              <button id="today-btn" style={{background:"transparent",border:".5px solid #C9A84C",borderRadius:"9px",padding:".28rem .65rem",cursor:"pointer",fontSize:".82rem",color:"#C9A84C",fontWeight:500,fontFamily:"var(--font-body)"}}><TextField id="PrayerTimes_13">↩ Today</TextField></button>
             </div>
 
             {/* Today bar */}
@@ -595,19 +596,19 @@ const PrayerTimes = () => {
 
             {/* Legend */}
             <div style={{display:"flex",flexWrap:"wrap",gap:".6rem",marginBottom:".65rem",fontFamily:"var(--font-body)",fontSize:".7rem",color:"hsl(var(--muted-foreground))"}}>
-              <span style={{display:"flex",alignItems:"center",gap:"5px"}}><span style={{width:"11px",height:"9px",borderRadius:"2px",background:"rgba(29,158,117,.28)",flexShrink:0,display:"inline-block"}}></span>Ramadan</span>
-              <span style={{display:"flex",alignItems:"center",gap:"5px"}}><span style={{width:"11px",height:"9px",borderRadius:"2px",background:"rgba(186,117,23,.22)",flexShrink:0,display:"inline-block"}}></span>Pitt breaks</span>
-              <span style={{display:"flex",alignItems:"center",gap:"5px"}}><span style={{width:"11px",height:"9px",borderRadius:"2px",border:"1.5px dashed #C9A84C",flexShrink:0,display:"inline-block"}}></span>Today</span>
+              <span style={{display:"flex",alignItems:"center",gap:"5px"}}><span style={{width:"11px",height:"9px",borderRadius:"2px",background:"rgba(29,158,117,.28)",flexShrink:0,display:"inline-block"}}></span><TextField id="PrayerTimes_14">Ramadan</TextField></span>
+              <span style={{display:"flex",alignItems:"center",gap:"5px"}}><span style={{width:"11px",height:"9px",borderRadius:"2px",background:"rgba(186,117,23,.22)",flexShrink:0,display:"inline-block"}}></span><TextField id="PrayerTimes_15">Pitt breaks</TextField></span>
+              <span style={{display:"flex",alignItems:"center",gap:"5px"}}><span style={{width:"11px",height:"9px",borderRadius:"2px",border:"1.5px dashed #C9A84C",flexShrink:0,display:"inline-block"}}></span><TextField id="PrayerTimes_16">Today</TextField></span>
             </div>
 
             {/* Charts */}
             <div style={{position:"relative"}} id="cwrap">
               <div id="ctip"></div>
-              <p style={{fontSize:".68rem",fontWeight:500,color:"hsl(var(--muted-foreground))",marginBottom:"3px",opacity:.65,fontFamily:"var(--font-body)"}}>early morning</p>
+              <p style={{fontSize:".68rem",fontWeight:500,color:"hsl(var(--muted-foreground))",marginBottom:"3px",opacity:.65,fontFamily:"var(--font-body)"}}><TextField id="PrayerTimes_17">early morning</TextField></p>
               <div style={{position:"relative",width:"100%",height:"160px"}}><canvas id="ctop" role="img" aria-label="Fajr and Shuruq times"></canvas></div>
               <div style={{display:"flex",alignItems:"center",gap:"8px",margin:"7px 0"}}>
                 <div style={{flex:1,height:"1px",background:"hsl(var(--border))"}}></div>
-                <span style={{fontSize:".65rem",color:"hsl(var(--muted-foreground))",opacity:.55,padding:"0 6px",whiteSpace:"nowrap",fontFamily:"var(--font-body)"}}>afternoon · evening · night</span>
+                <span style={{fontSize:".65rem",color:"hsl(var(--muted-foreground))",opacity:.55,padding:"0 6px",whiteSpace:"nowrap",fontFamily:"var(--font-body)"}}><TextField id="PrayerTimes_18">afternoon · evening · night</TextField></span>
                 <div style={{flex:1,height:"1px",background:"hsl(var(--border))"}}></div>
               </div>
               <div style={{position:"relative",width:"100%",height:"300px"}}><canvas id="cbot" role="img" aria-label="Dhuhr, Asr, Maghrib, Isha times"></canvas></div>
@@ -620,11 +621,11 @@ const PrayerTimes = () => {
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginTop:".9rem",flexWrap:"wrap",gap:".5rem"}}>
               <span id="range-label" style={{fontSize:".72rem",color:"hsl(var(--muted-foreground))",fontFamily:"var(--font-body)"}}></span>
               <div style={{display:"flex",alignItems:"center",gap:".75rem",flexWrap:"wrap"}}>
-                <button className="app-btn" id="app-dl">⬇ Download Athan+</button>
+                <button className="app-btn" id="app-dl"><TextField id="PrayerTimes_19">⬇ Download Athan+</TextField></button>
                 <a id="src-link" href="https://masjidal.com/widget/monthly/v2/?masjid_id=QKMnW1LB" target="_blank" rel="noopener noreferrer"
-                  style={{fontSize:".7rem",color:"hsl(var(--muted-foreground))",textDecoration:"none",display:"flex",alignItems:"center",gap:"3px",fontFamily:"var(--font-body)",transition:"color .14s"}}>
+                  style={{fontSize:".7rem",color:"hsl(var(--muted-foreground))",textDecoration:"none",display:"flex",alignItems:"center",gap:"3px",fontFamily:"var(--font-body)",transition:"color .14s"}}><TextField id="PrayerTimes_20">
                   Source: ICP via Masjidal ↗
-                </a>
+                </TextField></a>
               </div>
             </div>
 

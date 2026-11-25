@@ -1,3 +1,4 @@
+import { TextField, ContentScope, itemIdentity } from "@/editor/content";
 import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useSanityData } from "@/hooks/useSanityData";
@@ -45,11 +46,11 @@ const Node = ({ spec, large = false }: { spec: NodeSpec; large?: boolean }) => (
     }`}
   >
     <div className={`px-3 py-2 ${headerClasses[spec.color]} font-body font-semibold text-[12px] leading-tight border-b border-border/30 truncate`}>
-      {spec.role}
+      <TextField id="OrgChart_1">{spec.role}</TextField>
     </div>
     <div className="px-3 py-2 min-h-[34px] flex items-center">
       <p className="font-body text-[12px] text-foreground/80 leading-snug truncate">
-        {spec.name || <span className="text-muted-foreground/40 italic text-[11px]">TBD</span>}
+        {spec.name ? <TextField id="board-name">{spec.name}</TextField> : <span className="text-muted-foreground/40 italic text-[11px]"><TextField id="OrgChart_2">TBD</TextField></span>}
       </p>
     </div>
   </div>
@@ -145,7 +146,7 @@ const OrgChart = () => {
     <div className="w-full">
       {data?.academicYear && (
         <p className="text-center font-body text-[11px] text-muted-foreground/50 mb-7 tracking-[0.22em] uppercase font-semibold">
-          {data.academicYear}
+          <TextField id="OrgChart_3">{data.academicYear}</TextField>
         </p>
       )}
 
@@ -162,15 +163,15 @@ const OrgChart = () => {
 
         {/* Row 1 — President */}
         <div className="flex justify-center mb-10">
-          <Node spec={president} large />
+          <ContentScope id={"board-"+president.id}><Node spec={president} large /></ContentScope>
         </div>
 
         {/* Row 2 — Exec */}
         <div className="flex justify-center gap-4 lg:gap-6 mb-12 flex-wrap">
-          <Node spec={secretary} />
-          <Node spec={extVP} />
-          <Node spec={intVP} />
-          <Node spec={bizMgr} />
+          <ContentScope id={"board-"+secretary.id}><Node spec={secretary} /></ContentScope>
+          <ContentScope id={"board-"+extVP.id}><Node spec={extVP} /></ContentScope>
+          <ContentScope id={"board-"+intVP.id}><Node spec={intVP} /></ContentScope>
+          <ContentScope id={"board-"+bizMgr.id}><Node spec={bizMgr} /></ContentScope>
         </div>
 
         {/* Row 3 — Committees (2-column) */}
@@ -181,12 +182,12 @@ const OrgChart = () => {
             className="rounded-2xl border border-border/40 bg-background/40 backdrop-blur-sm p-4"
           >
             <p className="font-body text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/60 text-center mb-3 flex items-center gap-2 justify-center">
-              <span className="flex-1 h-px bg-border/40" /> External <span className="flex-1 h-px bg-border/40" />
+              <span className="flex-1 h-px bg-border/40" /><TextField id="OrgChart_9"> External </TextField><span className="flex-1 h-px bg-border/40" />
             </p>
             <div className="flex flex-col gap-2.5">
-              <Node spec={advocacy} />
-              <Node spec={brosDawah} />
-              <Node spec={sisDawah} />
+              <ContentScope id={"board-"+advocacy.id}><Node spec={advocacy} /></ContentScope>
+              <ContentScope id={"board-"+brosDawah.id}><Node spec={brosDawah} /></ContentScope>
+              <ContentScope id={"board-"+sisDawah.id}><Node spec={sisDawah} /></ContentScope>
             </div>
           </div>
 
@@ -196,12 +197,12 @@ const OrgChart = () => {
             className="rounded-2xl border border-border/40 bg-background/40 backdrop-blur-sm p-4"
           >
             <p className="font-body text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/60 text-center mb-3 flex items-center gap-2 justify-center">
-              <span className="flex-1 h-px bg-border/40" /> Internal <span className="flex-1 h-px bg-border/40" />
+              <span className="flex-1 h-px bg-border/40" /><TextField id="OrgChart_13"> Internal </TextField><span className="flex-1 h-px bg-border/40" />
             </p>
             <div className="flex flex-col gap-2.5">
-              <Node spec={brosSocial} />
-              <Node spec={sisSocial} />
-              <Node spec={marketing} />
+              <ContentScope id={"board-"+brosSocial.id}><Node spec={brosSocial} /></ContentScope>
+              <ContentScope id={"board-"+sisSocial.id}><Node spec={sisSocial} /></ContentScope>
+              <ContentScope id={"board-"+marketing.id}><Node spec={marketing} /></ContentScope>
             </div>
           </div>
         </div>
@@ -209,16 +210,16 @@ const OrgChart = () => {
         {/* Row 4 — CEC (full width, centered at bottom) */}
         <div className="flex justify-center">
           <div className="w-full max-w-md flex flex-col items-center gap-3">
-            <Node spec={cec} large />
+            <ContentScope id={"board-"+cec.id}><Node spec={cec} large /></ContentScope>
             <div className="w-full rounded-2xl border border-border/40 bg-background/40 backdrop-blur-sm p-3.5">
-              <p className="font-body text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/60 text-center mb-2.5">
+              <p className="font-body text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/60 text-center mb-2.5"><TextField id="OrgChart_18">
                 Mosque Partners
-              </p>
+              </TextField></p>
               <div className="flex flex-wrap justify-center gap-1.5">
                 {cecMosques.map((m) => (
-                  <span key={m} className="font-body text-[11px] px-2.5 py-1 rounded-full bg-[#E1F5EE] text-[#085041] dark:bg-[#085041]/30 dark:text-[#7BC4AC] font-semibold">
-                    {m}
-                  </span>
+                  <ContentScope key={m} id={"OrgChart_19-" + itemIdentity(m, m)}><span key={m} className="font-body text-[11px] px-2.5 py-1 rounded-full bg-[#E1F5EE] text-[#085041] dark:bg-[#085041]/30 dark:text-[#7BC4AC] font-semibold">
+                    <TextField id="OrgChart_20">{m}</TextField>
+                  </span></ContentScope>
                 ))}
               </div>
             </div>
@@ -228,27 +229,27 @@ const OrgChart = () => {
 
       {/* ── Mobile — grouped stack ── */}
       <div className="md:hidden flex flex-col gap-3">
-        <Node spec={president} large />
-        <p className="font-body text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/60 text-center mt-2 -mb-1">Executive Board</p>
-        <Node spec={secretary} />
-        <Node spec={extVP} />
-        <Node spec={intVP} />
-        <Node spec={bizMgr} />
-        <p className="font-body text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/60 text-center mt-2 -mb-1">External</p>
-        <Node spec={advocacy} />
-        <Node spec={brosDawah} />
-        <Node spec={sisDawah} />
-        <p className="font-body text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/60 text-center mt-2 -mb-1">Internal</p>
-        <Node spec={brosSocial} />
-        <Node spec={sisSocial} />
-        <Node spec={marketing} />
-        <p className="font-body text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/60 text-center mt-2 -mb-1">Community Engagement</p>
-        <Node spec={cec} large />
+        <ContentScope id={"board-"+president.id}><Node spec={president} large /></ContentScope>
+        <p className="font-body text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/60 text-center mt-2 -mb-1"><TextField id="OrgChart_22">Executive Board</TextField></p>
+        <ContentScope id={"board-"+secretary.id}><Node spec={secretary} /></ContentScope>
+        <ContentScope id={"board-"+extVP.id}><Node spec={extVP} /></ContentScope>
+        <ContentScope id={"board-"+intVP.id}><Node spec={intVP} /></ContentScope>
+        <ContentScope id={"board-"+bizMgr.id}><Node spec={bizMgr} /></ContentScope>
+        <p className="font-body text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/60 text-center mt-2 -mb-1"><TextField id="OrgChart_27">External</TextField></p>
+        <ContentScope id={"board-"+advocacy.id}><Node spec={advocacy} /></ContentScope>
+        <ContentScope id={"board-"+brosDawah.id}><Node spec={brosDawah} /></ContentScope>
+        <ContentScope id={"board-"+sisDawah.id}><Node spec={sisDawah} /></ContentScope>
+        <p className="font-body text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/60 text-center mt-2 -mb-1"><TextField id="OrgChart_31">Internal</TextField></p>
+        <ContentScope id={"board-"+brosSocial.id}><Node spec={brosSocial} /></ContentScope>
+        <ContentScope id={"board-"+sisSocial.id}><Node spec={sisSocial} /></ContentScope>
+        <ContentScope id={"board-"+marketing.id}><Node spec={marketing} /></ContentScope>
+        <p className="font-body text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/60 text-center mt-2 -mb-1"><TextField id="OrgChart_35">Community Engagement</TextField></p>
+        <ContentScope id={"board-"+cec.id}><Node spec={cec} large /></ContentScope>
         <div className="rounded-2xl border border-border/40 bg-background/40 p-4 -mt-1">
-          <p className="font-body text-[10px] uppercase tracking-[0.18em] text-muted-foreground/60 text-center mb-2.5 font-semibold">Mosque Partners</p>
+          <p className="font-body text-[10px] uppercase tracking-[0.18em] text-muted-foreground/60 text-center mb-2.5 font-semibold"><TextField id="OrgChart_37">Mosque Partners</TextField></p>
           <div className="flex flex-wrap justify-center gap-1.5">
             {cecMosques.map((m) => (
-              <span key={m} className="font-body text-[11px] px-2.5 py-1 rounded-full bg-[#E1F5EE] text-[#085041] dark:bg-[#085041]/30 dark:text-[#7BC4AC] font-semibold">{m}</span>
+              <ContentScope key={m} id={"OrgChart_38-" + itemIdentity(m, m)}><span key={m} className="font-body text-[11px] px-2.5 py-1 rounded-full bg-[#E1F5EE] text-[#085041] dark:bg-[#085041]/30 dark:text-[#7BC4AC] font-semibold"><TextField id="OrgChart_39">{m}</TextField></span></ContentScope>
             ))}
           </div>
         </div>

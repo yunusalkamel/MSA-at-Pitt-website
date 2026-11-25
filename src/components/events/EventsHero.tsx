@@ -1,3 +1,4 @@
+import { ContentScope, TextField } from "@/editor/content";
 import { useRef } from "react";
 import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import { Sparkles } from "lucide-react";
@@ -44,17 +45,17 @@ const EventsHero = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           className="font-display text-5xl md:text-7xl font-bold text-accent-foreground mb-5 px-2 leading-[1.05]"
-        >
-          Our <span className="text-gradient-gold inline-block pb-2">Events</span>
+        ><TextField id="EventsHero_2">
+          Our </TextField><span className="text-gradient-gold inline-block pb-2"><TextField id="EventsHero_3">Events</TextField></span>
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25, duration: 0.5 }}
           className="text-lg md:text-xl text-accent-foreground/70 max-w-xl mx-auto leading-relaxed"
-        >
+        ><TextField id="EventsHero_4">
           From halaqas to banquets, iftars to socials — find your next moment with the community.
-        </motion.p>
+        </TextField></motion.p>
       </motion.div>
     </section>
   );

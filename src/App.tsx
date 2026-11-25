@@ -8,6 +8,8 @@ import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Analytics } from "@vercel/analytics/react";
 import AppLoader from "@/components/AppLoader";
 
+import SiteContent, { adminPath } from "./editor/SiteContent";
+
 const Index = lazy(() => import("./pages/Index.tsx"));
 const About = lazy(() => import("./pages/About.tsx"));
 const Events = lazy(() => import("./pages/Events.tsx"));
@@ -40,7 +42,8 @@ const App = () => (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Sonner />
-        <BrowserRouter>
+        <BrowserRouter basename={adminPath ? "/admin" : "/"}>
+          <SiteContent>
           <ScrollToTop />
           <Suspense fallback={<AppLoader />}>
             <Routes>
@@ -63,6 +66,7 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
+          </SiteContent>
           <SpeedInsights />
           <Analytics />
         </BrowserRouter>

@@ -1,3 +1,4 @@
+import { ContentScope, TextField, itemIdentity, CardCopies } from "@/editor/content";
 import { motion } from "framer-motion";
 import { Clock, Mail, ExternalLink, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -15,19 +16,19 @@ const Chaplain = () => (
       <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: "200px" }} />
       <BridgeBar />
       <div className="relative z-10 max-w-3xl mx-auto">
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xs uppercase tracking-[0.3em] text-primary font-semibold mb-5">
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xs uppercase tracking-[0.3em] text-primary font-semibold mb-5"><TextField id="Chaplain_2">
           Resources
-        </motion.p>
-        <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="font-display text-5xl md:text-7xl font-bold text-foreground mb-4">
-          University <span className="text-gradient-gold inline-block pb-1">Chaplain</span>
+        </TextField></motion.p>
+        <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="font-display text-5xl md:text-7xl font-bold text-foreground mb-4"><TextField id="Chaplain_3">
+          University </TextField><span className="text-gradient-gold inline-block pb-1"><TextField id="Chaplain_4">Chaplain</TextField></span>
         </motion.h1>
-        <motion.p initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-muted-foreground text-lg max-w-xl mx-auto leading-relaxed">
+        <motion.p initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-muted-foreground text-lg max-w-xl mx-auto leading-relaxed"><TextField id="Chaplain_5">
           Spiritual guidance, Islamic counseling, and support for every student at Pitt.
-        </motion.p>
+        </TextField></motion.p>
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }} className="mt-6">
           <Link to="/resources" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
-            <ArrowLeft size={14} /> Back to Resources
-          </Link>
+            <ArrowLeft size={14} /><TextField id="Chaplain_6"> Back to Resources
+          </TextField></Link>
         </motion.div>
       </div>
     </section>
@@ -50,30 +51,30 @@ const Chaplain = () => (
               <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: "150px" }} />
               <div className="relative z-10 flex flex-col items-center gap-3 px-6 text-center">
                 <div className="w-28 h-28 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 border-2 border-primary/25 flex items-center justify-center">
-                  <span className="font-display text-3xl font-bold text-primary/50">MP</span>
+                  <span className="font-display text-3xl font-bold text-primary/50"><TextField id="Chaplain_7">MP</TextField></span>
                 </div>
-                <p className="font-body text-xs text-muted-foreground/60 italic">Photo coming soon</p>
+                <p className="font-body text-xs text-muted-foreground/60 italic"><TextField id="Chaplain_8">Photo coming soon</TextField></p>
               </div>
             </div>
 
             {/* Info */}
             <div className="p-6 md:p-8">
               <div className="mb-1">
-                <span className="font-body text-xs font-semibold uppercase tracking-[0.15em] text-primary/70">University Imam &amp; Chaplain</span>
+                <span className="font-body text-xs font-semibold uppercase tracking-[0.15em] text-primary/70"><TextField id="Chaplain_9">University Imam &amp; Chaplain</TextField></span>
               </div>
-              <h3 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-1">Imam Muhammad Patel</h3>
-              <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed mb-5">
+              <h3 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-1"><TextField id="Chaplain_10">Imam Muhammad Patel</TextField></h3>
+              <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed mb-5"><TextField id="Chaplain_11">
                 Born in Blackburn, England to a Gujarati family, Imam Muhammad Patel memorized the Quran at age 15. He completed his Alim program and has led Tarawih prayers in Rome and Boynton Beach. He specializes in teaching children with learning challenges — bringing patience, warmth, and deep knowledge to every interaction.
-              </p>
-              <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed mb-6">
+              </TextField></p>
+              <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed mb-6"><TextField id="Chaplain_12">
                 At MSA at Pitt, Imam Patel assists with Jummah, tabling, Islamic counseling, naseeha, marketing, halaqahs, and leading prayers. He is a resource for any student seeking guidance — whether related to faith, personal struggles, or navigating college life as a Muslim.
-              </p>
+              </TextField></p>
 
               <div className="flex items-start gap-3 rounded-xl bg-primary/[0.06] border border-primary/15 px-4 py-3 mb-5">
                 <Clock size={15} className="text-primary mt-0.5 flex-shrink-0" />
                 <div>
-                  <p className="font-body font-semibold text-foreground text-sm">Office Hours</p>
-                  <p className="font-body text-muted-foreground text-sm mt-0.5">Tuesday &amp; Thursday, 4:00 – 6:00 PM</p>
+                  <p className="font-body font-semibold text-foreground text-sm"><TextField id="Chaplain_13">Office Hours</TextField></p>
+                  <p className="font-body text-muted-foreground text-sm mt-0.5"><TextField id="Chaplain_14">Tuesday &amp; Thursday, 4:00 – 6:00 PM</TextField></p>
                 </div>
               </div>
 
@@ -83,14 +84,14 @@ const Chaplain = () => (
                   className="inline-flex items-center gap-2 btn-premium-secondary text-sm px-4 py-2"
                   aria-label="Email Imam Muhammad Patel"
                 >
-                  <Mail size={14} /> Email
-                </a>
+                  <Mail size={14} /><TextField id="Chaplain_15"> Email
+                </TextField></a>
                 <span
                   className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-body font-semibold text-muted-foreground bg-muted/60 border border-border/50 cursor-default"
                   title="Booking link coming soon"
                 >
-                  <ExternalLink size={14} /> Book a Meeting — Coming Soon
-                </span>
+                  <ExternalLink size={14} /><TextField id="Chaplain_16"> Book a Meeting — Coming Soon
+                </TextField></span>
               </div>
             </div>
           </div>
@@ -104,7 +105,7 @@ const Chaplain = () => (
     <section className="section-padding gradient-section-gold-soft relative overflow-hidden">
       <div className="absolute inset-0 texture-dots opacity-40 pointer-events-none" />
       <div className="max-w-5xl mx-auto relative z-10">
-        <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-6">How Imam Patel Can Help</h2>
+        <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-6"><TextField id="Chaplain_17">How Imam Patel Can Help</TextField></h2>
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
           {[
             { emoji: "🤲", title: "Islamic Counseling", desc: "Personal guidance grounded in Islamic values for any life challenge." },
@@ -114,7 +115,7 @@ const Chaplain = () => (
             { emoji: "💬", title: "New Muslims", desc: "Patient support for reverts and those exploring Islam for the first time." },
             { emoji: "📚", title: "Quran & Islamic Ed.", desc: "Quran recitation guidance and introductory Islamic education." },
           ].map((item) => (
-            <motion.div
+            <CardCopies key={item.title} id={"Chaplain_18-" + itemIdentity(item, item.title)}><motion.div
               key={item.title}
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -122,10 +123,10 @@ const Chaplain = () => (
               transition={{ duration: 0.4 }}
               className="liquid-glass-hover p-5 rounded-2xl"
             >
-              <span className="text-2xl block mb-3">{item.emoji}</span>
-              <h3 className="font-display text-base font-bold text-foreground mb-1">{item.title}</h3>
-              <p className="font-dm-sans text-muted-foreground text-xs leading-relaxed">{item.desc}</p>
-            </motion.div>
+              <span className="text-2xl block mb-3"><TextField id="Chaplain_19">{item.emoji}</TextField></span>
+              <h3 className="font-display text-base font-bold text-foreground mb-1"><TextField id="Chaplain_20">{item.title}</TextField></h3>
+              <p className="font-dm-sans text-muted-foreground text-xs leading-relaxed"><TextField id="Chaplain_21">{item.desc}</TextField></p>
+            </motion.div></CardCopies>
           ))}
         </div>
       </div>
@@ -138,11 +139,11 @@ const Chaplain = () => (
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: "200px" }} />
       <div className="max-w-2xl mx-auto relative z-10">
         <div className="glass-card-strong glass-glow p-8">
-          <ArabicVerse
+          <ContentScope id="Chaplain_22"><ArabicVerse
             arabic="وَذَكِّرْ فَإِنَّ الذِّكْرَىٰ تَنفَعُ الْمُؤْمِنِينَ"
             translation="And remind, for indeed reminding benefits the believers."
             reference="Quran 51:55"
-          />
+          /></ContentScope>
         </div>
       </div>
     </section>

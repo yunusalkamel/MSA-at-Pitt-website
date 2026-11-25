@@ -1,3 +1,4 @@
+import { Picture, ContentScope, TextField, itemIdentity, CardCopies } from "@/editor/content";
 import { motion } from "framer-motion";
 import { BookOpen, PartyPopper, HeartHandshake, Globe, Sparkles } from "lucide-react";
 import Layout from "@/components/Layout";
@@ -31,7 +32,7 @@ const About = () => {
       {/* Hero */}
       <section className="relative py-32 md:py-44 overflow-hidden">
         <div className="absolute inset-0">
-          <img src={eventsImg} alt="MSA outdoor social" className="w-full h-full object-cover scale-105" loading="lazy" width={1280} height={720} />
+          <Picture fieldId="About_1" src={eventsImg} alt="MSA outdoor social" className="w-full h-full object-cover scale-105" loading="lazy" width={1280} height={720} />
           <div className="absolute inset-0 bg-gradient-to-b from-accent/90 via-accent/60 to-accent/90" />
           <div className="absolute inset-0 opacity-[0.05]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: '200px' }} />
           <BridgeBar />
@@ -53,25 +54,25 @@ const About = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.18, duration: 0.6 }}
             className="font-display text-5xl font-bold text-accent-foreground mb-4 md:text-7xl tracking-tight"
-          >
-            We're the MSA <span className="text-gradient-gold italic inline-block pb-1">at Pitt.</span>
+          ><TextField id="About_3">
+            We're the MSA </TextField><span className="text-gradient-gold italic inline-block pb-1"><TextField id="About_4">at Pitt.</TextField></span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.38 }}
             className="text-lg md:text-xl text-accent-foreground/65 font-light"
-          >
+          ><TextField id="About_5">
             A community rooted in faith, built on belonging, and open to all.
-          </motion.p>
+          </TextField></motion.p>
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6 }}
             className="text-xs uppercase tracking-[0.25em] text-primary/70 font-body font-semibold mt-4"
-          >
+          ><TextField id="About_6">
             Cultivate Community, Ignite Iman.
-          </motion.p>
+          </TextField></motion.p>
         </div>
       </section>
 
@@ -95,9 +96,9 @@ const About = () => {
                 <div className="w-1 h-1 rounded-full bg-primary/50" />
                 <div className="flex-1 h-px bg-gradient-to-l from-transparent to-primary/35" />
               </div>
-              <p className="font-arabic text-3xl md:text-4xl text-gradient-gold inline-block pb-2" dir="rtl">
+              <p className="font-arabic text-3xl md:text-4xl text-gradient-gold inline-block pb-2" dir="rtl"><TextField id="About_7">
                 بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
-              </p>
+              </TextField></p>
               <div className="flex items-center gap-3 w-40">
                 <div className="flex-1 h-px bg-gradient-to-r from-transparent to-primary/35" />
                 <div className="w-1 h-1 rounded-full bg-primary/50" />
@@ -105,10 +106,10 @@ const About = () => {
               </div>
             </motion.div>
 
-            <SectionHeading title="Our Mission" />
-            <p className="font-dm-sans text-muted-foreground text-lg leading-relaxed">
+            <ContentScope id="About_8"><SectionHeading title="Our Mission" /></ContentScope>
+            <p className="font-dm-sans text-muted-foreground text-lg leading-relaxed"><TextField id="About_9">
               MSA at Pitt is the spiritual and social home for Muslim students at the University of Pittsburgh. We host the prayer space, organize the iftars, run the halaqas, and put on the events that fill the year — so faith, friendship, and service feel like the default of college life, not the exception.
-            </p>
+            </TextField></p>
           </div>
 
           {/* Who We Are — 2-col reveal */}
@@ -122,7 +123,7 @@ const About = () => {
             <div className="relative group">
               <div className="absolute -inset-1 bg-gradient-to-br from-primary via-secondary to-primary rounded-3xl opacity-30 group-hover:opacity-45 transition-opacity duration-500 blur-sm" />
               <div className="relative glass-card p-3">
-                <img src={communityImg} alt="MSA community" className="rounded-2xl w-full object-cover aspect-[4/3]" loading="lazy" width={1280} height={854} />
+                <Picture fieldId="About_10" src={communityImg} alt="MSA community" className="rounded-2xl w-full object-cover aspect-[4/3]" loading="lazy" width={1280} height={854} />
               </div>
             </div>
             <motion.div
@@ -131,28 +132,28 @@ const About = () => {
               viewport={{ once: true }}
               transition={{ delay: 0.15, duration: 0.55 }}
             >
-              <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-6">
-                Who We <span className="text-gradient-gold inline-block pb-1">Are</span>
+              <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-6"><TextField id="About_11">
+                Who We </TextField><span className="text-gradient-gold inline-block pb-1"><TextField id="About_12">Are</TextField></span>
               </h2>
-              <p className="font-dm-sans text-muted-foreground text-lg leading-relaxed mb-4">
+              <p className="font-dm-sans text-muted-foreground text-lg leading-relaxed mb-4"><TextField id="About_13">
                 MSA at Pitt is one of the University of Pittsburgh's largest and most active student organizations. We host everything from weekly halaqas and Friday Jummah to TopGolf outings, Eid celebrations, and iftars that fill entire halls.
-              </p>
-              <p className="font-dm-sans text-muted-foreground text-lg leading-relaxed mb-4">
+              </TextField></p>
+              <p className="font-dm-sans text-muted-foreground text-lg leading-relaxed mb-4"><TextField id="About_14">
                 Our events draw hundreds of students each semester — and we mean it when we say everyone is welcome.
-              </p>
+              </TextField></p>
               <div className="relative group mt-6">
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-secondary rounded-[var(--radius)] opacity-20 group-hover:opacity-35 transition-opacity duration-500 blur-sm" />
                 <div className="relative liquid-glass rounded-[var(--radius)] p-5">
-                  <p className="font-display text-foreground font-semibold text-lg italic leading-relaxed">
+                  <p className="font-display text-foreground font-semibold text-lg italic leading-relaxed"><TextField id="About_15">
                     "Whether you've been Muslim your whole life, just took your shahada, or you're just curious — you belong here."
-                  </p>
+                  </TextField></p>
                 </div>
               </div>
               <div className="liquid-glass p-4 mt-4 border-l-2 border-primary/30">
-                <p className="text-sm text-foreground italic leading-relaxed">
+                <p className="text-sm text-foreground italic leading-relaxed"><TextField id="About_16">
                   "A man is upon the religion of his best friend, so let one of you look at whom he befriends."
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">— Prophet Muhammad ﷺ (Sunan al-Tirmidhi 2378)</p>
+                </TextField></p>
+                <p className="text-xs text-muted-foreground mt-1"><TextField id="About_17">— Prophet Muhammad ﷺ (Sunan al-Tirmidhi 2378)</TextField></p>
               </div>
             </motion.div>
           </motion.div>
@@ -169,35 +170,35 @@ const About = () => {
         <div className="absolute top-0 left-1/3 w-96 h-64 rounded-full bg-secondary/[0.06] blur-[100px] pointer-events-none" />
 
         <div className="max-w-7xl mx-auto relative z-10">
-          <SectionHeading title="What We Do" label="Our Focus Areas" />
+          <ContentScope id="About_18"><SectionHeading title="What We Do" label="Our Focus Areas" /></ContentScope>
           <div className="grid md:grid-cols-2 gap-10 md:gap-16">
             {/* Left — Cultivate Community */}
             <div>
-              <p className="font-display italic text-gradient-gold inline-block pb-1 text-xl mb-6 tracking-wide">Cultivate Community.</p>
+              <p className="font-display italic text-gradient-gold inline-block pb-1 text-xl mb-6 tracking-wide"><TextField id="About_19">Cultivate Community.</TextField></p>
               <div className="grid sm:grid-cols-2 gap-5">
                 {communityCards.map((item, i) => (
-                  <GlassCard key={item.title} delay={i * 0.08}>
+                  <CardCopies key={item.title} id={"About_20-" + itemIdentity(item, item.title)}><GlassCard key={item.title} delay={i * 0.08}>
                     <div className={`bg-gradient-to-br ${item.gradient} w-14 h-14 rounded-xl flex items-center justify-center mb-4 shadow-lg`}>
                       <item.icon className="text-white" size={24} />
                     </div>
-                    <h3 className="font-display text-xl font-bold text-foreground mb-2">{item.title}</h3>
-                    <p className="font-satoshi text-muted-foreground text-sm leading-relaxed">{item.desc}</p>
-                  </GlassCard>
+                    <h3 className="font-display text-xl font-bold text-foreground mb-2"><TextField id="About_21">{item.title}</TextField></h3>
+                    <p className="font-satoshi text-muted-foreground text-sm leading-relaxed"><TextField id="About_22">{item.desc}</TextField></p>
+                  </GlassCard></CardCopies>
                 ))}
               </div>
             </div>
             {/* Right — Ignite Iman */}
             <div>
-              <p className="font-display italic text-gradient-aura inline-block pb-1 text-xl mb-6 tracking-wide">Ignite Iman.</p>
+              <p className="font-display italic text-gradient-aura inline-block pb-1 text-xl mb-6 tracking-wide"><TextField id="About_23">Ignite Iman.</TextField></p>
               <div className="grid sm:grid-cols-2 gap-5">
                 {imanCards.map((item, i) => (
-                  <GlassCard key={item.title} delay={0.16 + i * 0.08}>
+                  <CardCopies key={item.title} id={"About_24-" + itemIdentity(item, item.title)}><GlassCard key={item.title} delay={0.16 + i * 0.08}>
                     <div className={`bg-gradient-to-br ${item.gradient} w-14 h-14 rounded-xl flex items-center justify-center mb-4 shadow-lg`}>
                       <item.icon className="text-white" size={24} />
                     </div>
-                    <h3 className="font-display text-xl font-bold text-foreground mb-2">{item.title}</h3>
-                    <p className="font-satoshi text-muted-foreground text-sm leading-relaxed">{item.desc}</p>
-                  </GlassCard>
+                    <h3 className="font-display text-xl font-bold text-foreground mb-2"><TextField id="About_25">{item.title}</TextField></h3>
+                    <p className="font-satoshi text-muted-foreground text-sm leading-relaxed"><TextField id="About_26">{item.desc}</TextField></p>
+                  </GlassCard></CardCopies>
                 ))}
               </div>
             </div>
@@ -212,7 +213,7 @@ const About = () => {
       <section className="section-padding gradient-mesh-warm relative overflow-hidden">
         <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: '200px' }} />
         <div className="max-w-5xl mx-auto relative z-10">
-          <SectionHeading title="Your MSA Leadership" label="The Board" />
+          <ContentScope id="About_27"><SectionHeading title="Your MSA Leadership" label="The Board" /></ContentScope>
           <OrgChart />
         </div>
       </section>
@@ -224,11 +225,11 @@ const About = () => {
       <section className="section-padding-sm gradient-section-gold-soft">
         <div className="max-w-3xl mx-auto">
           <div className="glass-card-strong glass-glow p-8 md:p-12">
-            <ArabicVerse
+            <ContentScope id="About_28"><ArabicVerse
               arabic="يَا أَيُّهَا النَّاسُ إِنَّا خَلَقْنَاكُم مِّن ذَكَرٍ وَأُنثَىٰ وَجَعَلْنَاكُمْ شُعُوبًا وَقَبَائِلَ لِتَعَارَفُوا"
               translation="O mankind, We created you from male and female and made you peoples and tribes that you may know one another."
               reference="Quran 49:13"
-            />
+            /></ContentScope>
           </div>
         </div>
       </section>

@@ -1,3 +1,4 @@
+import { ContentScope, TextField, itemIdentity, CardCopies } from "@/editor/content";
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Clock, MapPin, Building2, Landmark, ExternalLink } from "lucide-react";
@@ -579,15 +580,15 @@ const Prayer = () => {
         <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage:`url(${patternImg})`, backgroundSize:"200px" }} />
         <BridgeBar />
         <div className="relative z-10 max-w-3xl mx-auto">
-          <motion.p initial={{opacity:0}} animate={{opacity:1}} className="text-xs uppercase tracking-[0.3em] text-primary font-semibold mb-5">
+          <motion.p initial={{opacity:0}} animate={{opacity:1}} className="text-xs uppercase tracking-[0.3em] text-primary font-semibold mb-5"><TextField id="Prayer_2">
             Resources
-          </motion.p>
-          <motion.h1 initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} className="font-display text-5xl md:text-7xl font-bold text-foreground mb-4">
-            Prayer at <span className="text-gradient-gold inline-block pb-1">Pitt</span>
+          </TextField></motion.p>
+          <motion.h1 initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} className="font-display text-5xl md:text-7xl font-bold text-foreground mb-4"><TextField id="Prayer_3">
+            Prayer at </TextField><span className="text-gradient-gold inline-block pb-1"><TextField id="Prayer_4">Pitt</TextField></span>
           </motion.h1>
-          <motion.p initial={{opacity:0,y:14}} animate={{opacity:1,y:0}} transition={{delay:.2}} className="text-muted-foreground text-lg max-w-xl mx-auto leading-relaxed">
+          <motion.p initial={{opacity:0,y:14}} animate={{opacity:1,y:0}} transition={{delay:.2}} className="text-muted-foreground text-lg max-w-xl mx-auto leading-relaxed"><TextField id="Prayer_5">
             Prayer times, campus spaces, nearby masajid, and Jummah — everything in one place.
-          </motion.p>
+          </TextField></motion.p>
         </div>
       </section>
 
@@ -598,20 +599,20 @@ const Prayer = () => {
             <div style={{display:"flex",gap:".5rem",marginBottom:"1.1rem"}}>
               <button className="msm on" data-mid="QKMnW1LB" data-lat="40.4490" data-lng="-79.9619" data-name="ICP">
                 <span className="msm-dot"></span>
-                <span className="msm-labels"><span className="msm-name">ICP</span><span className="msm-loc">Oakland · Pittsburgh</span></span>
+                <span className="msm-labels"><span className="msm-name"><TextField id="Prayer_6">ICP</TextField></span><span className="msm-loc"><TextField id="Prayer_7">Oakland · Pittsburgh</TextField></span></span>
               </button>
               <button className="msm" data-mid="zKz8QzAO" data-lat="40.4065" data-lng="-80.0839" data-name="Attawheed">
                 <span className="msm-dot"></span>
-                <span className="msm-labels"><span className="msm-name">Attawheed</span><span className="msm-loc">Carnegie · Pittsburgh</span></span>
+                <span className="msm-labels"><span className="msm-name"><TextField id="Prayer_8">Attawheed</TextField></span><span className="msm-loc"><TextField id="Prayer_9">Carnegie · Pittsburgh</TextField></span></span>
               </button>
             </div>
 
             <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
               <div>
-                <p className="text-xs uppercase tracking-[0.22em] text-primary font-semibold mb-1">Prayer Timing Trends</p>
+                <p className="text-xs uppercase tracking-[0.22em] text-primary font-semibold mb-1"><TextField id="Prayer_10">Prayer Timing Trends</TextField></p>
                 <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground" id="card-title">Islamic Center of Pittsburgh</h2>
               </div>
-              <button id="today-btn" style={{background:"transparent",border:".5px solid #C9A84C",borderRadius:"9px",padding:".28rem .65rem",cursor:"pointer",fontSize:".82rem",color:"#C9A84C",fontWeight:500,fontFamily:"var(--font-body)"}}>↩ Today</button>
+              <button id="today-btn" style={{background:"transparent",border:".5px solid #C9A84C",borderRadius:"9px",padding:".28rem .65rem",cursor:"pointer",fontSize:".82rem",color:"#C9A84C",fontWeight:500,fontFamily:"var(--font-body)"}}><TextField id="Prayer_11">↩ Today</TextField></button>
             </div>
 
             <div style={{display:"flex",flexWrap:"wrap",alignItems:"center",gap:".3rem .9rem",padding:".55rem .85rem",background:"rgba(201,168,76,.07)",border:".5px solid rgba(201,168,76,.22)",borderRadius:"10px",marginBottom:".7rem",minHeight:"38px",fontFamily:"var(--font-body)"}}
@@ -620,18 +621,18 @@ const Prayer = () => {
             <div id="togs" style={{display:"flex",flexWrap:"wrap",gap:".35rem",marginBottom:".55rem"}}></div>
 
             <div style={{display:"flex",flexWrap:"wrap",gap:".6rem",marginBottom:".65rem",fontFamily:"var(--font-body)",fontSize:".7rem",color:"hsl(var(--muted-foreground))"}}>
-              <span style={{display:"flex",alignItems:"center",gap:"5px"}}><span style={{width:"11px",height:"9px",borderRadius:"2px",background:"rgba(29,158,117,.28)",flexShrink:0,display:"inline-block"}}></span>Ramadan</span>
-              <span style={{display:"flex",alignItems:"center",gap:"5px"}}><span style={{width:"11px",height:"9px",borderRadius:"2px",background:"rgba(186,117,23,.22)",flexShrink:0,display:"inline-block"}}></span>Pitt breaks</span>
-              <span style={{display:"flex",alignItems:"center",gap:"5px"}}><span style={{width:"11px",height:"9px",borderRadius:"2px",border:"1.5px dashed #C9A84C",flexShrink:0,display:"inline-block"}}></span>Today</span>
+              <span style={{display:"flex",alignItems:"center",gap:"5px"}}><span style={{width:"11px",height:"9px",borderRadius:"2px",background:"rgba(29,158,117,.28)",flexShrink:0,display:"inline-block"}}></span><TextField id="Prayer_12">Ramadan</TextField></span>
+              <span style={{display:"flex",alignItems:"center",gap:"5px"}}><span style={{width:"11px",height:"9px",borderRadius:"2px",background:"rgba(186,117,23,.22)",flexShrink:0,display:"inline-block"}}></span><TextField id="Prayer_13">Pitt breaks</TextField></span>
+              <span style={{display:"flex",alignItems:"center",gap:"5px"}}><span style={{width:"11px",height:"9px",borderRadius:"2px",border:"1.5px dashed #C9A84C",flexShrink:0,display:"inline-block"}}></span><TextField id="Prayer_14">Today</TextField></span>
             </div>
 
             <div style={{position:"relative"}} id="cwrap">
               <div id="ctip"></div>
-              <p style={{fontSize:".68rem",fontWeight:500,color:"hsl(var(--muted-foreground))",marginBottom:"3px",opacity:.65,fontFamily:"var(--font-body)"}}>early morning</p>
+              <p style={{fontSize:".68rem",fontWeight:500,color:"hsl(var(--muted-foreground))",marginBottom:"3px",opacity:.65,fontFamily:"var(--font-body)"}}><TextField id="Prayer_15">early morning</TextField></p>
               <div style={{position:"relative",width:"100%",height:"160px"}}><canvas id="ctop" role="img" aria-label="Fajr and Shuruq times"></canvas></div>
               <div style={{display:"flex",alignItems:"center",gap:"8px",margin:"7px 0"}}>
                 <div style={{flex:1,height:"1px",background:"hsl(var(--border))"}}></div>
-                <span style={{fontSize:".65rem",color:"hsl(var(--muted-foreground))",opacity:.55,padding:"0 6px",whiteSpace:"nowrap",fontFamily:"var(--font-body)"}}>afternoon · evening · night</span>
+                <span style={{fontSize:".65rem",color:"hsl(var(--muted-foreground))",opacity:.55,padding:"0 6px",whiteSpace:"nowrap",fontFamily:"var(--font-body)"}}><TextField id="Prayer_16">afternoon · evening · night</TextField></span>
                 <div style={{flex:1,height:"1px",background:"hsl(var(--border))"}}></div>
               </div>
               <div style={{position:"relative",width:"100%",height:"300px"}}><canvas id="cbot" role="img" aria-label="Dhuhr, Asr, Maghrib, Isha times"></canvas></div>
@@ -642,11 +643,11 @@ const Prayer = () => {
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginTop:".9rem",flexWrap:"wrap",gap:".5rem"}}>
               <span id="range-label" style={{fontSize:".72rem",color:"hsl(var(--muted-foreground))",fontFamily:"var(--font-body)"}}></span>
               <div style={{display:"flex",alignItems:"center",gap:".75rem",flexWrap:"wrap"}}>
-                <button className="app-btn" id="app-dl">⬇ Download Athan+</button>
+                <button className="app-btn" id="app-dl"><TextField id="Prayer_17">⬇ Download Athan+</TextField></button>
                 <a id="src-link" href="https://masjidal.com/widget/monthly/v2/?masjid_id=QKMnW1LB" target="_blank" rel="noopener noreferrer"
-                  style={{fontSize:".7rem",color:"hsl(var(--muted-foreground))",textDecoration:"none",display:"flex",alignItems:"center",gap:"3px",fontFamily:"var(--font-body)",transition:"color .14s"}}>
+                  style={{fontSize:".7rem",color:"hsl(var(--muted-foreground))",textDecoration:"none",display:"flex",alignItems:"center",gap:"3px",fontFamily:"var(--font-body)",transition:"color .14s"}}><TextField id="Prayer_18">
                   Source: ICP via Masjidal ↗
-                </a>
+                </TextField></a>
               </div>
             </div>
           </motion.div>
@@ -659,7 +660,7 @@ const Prayer = () => {
       <section className="section-padding gradient-section-gold-soft relative overflow-hidden">
         <div className="absolute inset-0 texture-dots opacity-50 pointer-events-none" />
         <div className="max-w-5xl mx-auto relative z-10">
-          <SectionHeading title="Jummah Prayer" label="Every Friday" />
+          <ContentScope id="Prayer_19"><SectionHeading title="Jummah Prayer" label="Every Friday" /></ContentScope>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -674,23 +675,23 @@ const Prayer = () => {
                     <span className="text-lg">🕌</span>
                   </div>
                   <div>
-                    <p className="font-body font-bold text-foreground text-base">Every Friday at 2:00 PM</p>
-                    <p className="font-body text-muted-foreground text-sm">Typically held in Ohara Ballroom</p>
+                    <p className="font-body font-bold text-foreground text-base"><TextField id="Prayer_20">Every Friday at 2:00 PM</TextField></p>
+                    <p className="font-body text-muted-foreground text-sm"><TextField id="Prayer_21">Typically held in Ohara Ballroom</TextField></p>
                   </div>
                 </div>
                 <div className="space-y-3">
                   <div className="flex items-start gap-3 rounded-xl bg-primary/[0.06] border border-primary/15 px-4 py-3">
                     <Clock size={15} className="text-primary mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="font-body font-semibold text-foreground text-sm">Prayer time: 2:00 PM sharp</p>
-                      <p className="font-dm-sans text-muted-foreground text-xs mt-0.5 leading-relaxed">Arrive a few minutes early for khutbah. Location may change — always confirm before heading over.</p>
+                      <p className="font-body font-semibold text-foreground text-sm"><TextField id="Prayer_22">Prayer time: 2:00 PM sharp</TextField></p>
+                      <p className="font-dm-sans text-muted-foreground text-xs mt-0.5 leading-relaxed"><TextField id="Prayer_23">Arrive a few minutes early for khutbah. Location may change — always confirm before heading over.</TextField></p>
                     </div>
                   </div>
                 </div>
               </div>
 
               <div>
-                <p className="font-body font-semibold text-foreground text-sm mb-3">Confirm location each week:</p>
+                <p className="font-body font-semibold text-foreground text-sm mb-3"><TextField id="Prayer_24">Confirm location each week:</TextField></p>
                 <div className="space-y-2.5">
                   <a href="https://instagram.com/msa.at.pitt" target="_blank" rel="noopener noreferrer"
                     className="flex items-center gap-3 rounded-xl border border-border/50 bg-background/50 hover:bg-background/80 transition-colors px-4 py-3 group">
@@ -698,8 +699,8 @@ const Prayer = () => {
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="white" aria-hidden="true"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-body font-semibold text-foreground text-sm">Check Instagram Stories</p>
-                      <p className="font-body text-muted-foreground text-xs">@msa.at.pitt — posted Friday mornings</p>
+                      <p className="font-body font-semibold text-foreground text-sm"><TextField id="Prayer_25">Check Instagram Stories</TextField></p>
+                      <p className="font-body text-muted-foreground text-xs"><TextField id="Prayer_26">@msa.at.pitt — posted Friday mornings</TextField></p>
                     </div>
                     <ExternalLink size={13} className="text-muted-foreground/50 group-hover:text-muted-foreground transition-colors flex-shrink-0" />
                   </a>
@@ -710,8 +711,8 @@ const Prayer = () => {
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="white" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" /></svg>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-body font-semibold text-foreground text-sm">MSA WhatsApp Announcements</p>
-                      <p className="font-body text-muted-foreground text-xs">Location confirmations & updates</p>
+                      <p className="font-body font-semibold text-foreground text-sm"><TextField id="Prayer_27">MSA WhatsApp Announcements</TextField></p>
+                      <p className="font-body text-muted-foreground text-xs"><TextField id="Prayer_28">Location confirmations & updates</TextField></p>
                     </div>
                     <ExternalLink size={13} className="text-muted-foreground/50 group-hover:text-muted-foreground transition-colors flex-shrink-0" />
                   </a>
@@ -733,12 +734,12 @@ const Prayer = () => {
             <div className="gold-gradient w-10 h-10 rounded-xl flex items-center justify-center shadow-sm">
               <Building2 className="text-primary-foreground" size={18} />
             </div>
-            <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground">On-Campus Prayer Spaces</h2>
+            <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground"><TextField id="Prayer_29">On-Campus Prayer Spaces</TextField></h2>
           </div>
 
           <div className="space-y-5">
             {onCampus.map((space, i) => (
-              <motion.div
+              <CardCopies key={space.name} id={"Prayer_30-" + itemIdentity(space, space.name)}><motion.div
                 key={space.name}
                 initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -749,18 +750,18 @@ const Prayer = () => {
                 <div className="flex items-start gap-3 mb-3">
                   <MapPin size={16} className="text-primary mt-1 flex-shrink-0" />
                   <div>
-                    <h3 className="font-display text-lg font-bold text-foreground">{space.name}</h3>
-                    <p className="text-muted-foreground text-sm">{space.detail}</p>
+                    <h3 className="font-display text-lg font-bold text-foreground"><TextField id="Prayer_31">{space.name}</TextField></h3>
+                    <p className="text-muted-foreground text-sm"><TextField id="Prayer_32">{space.detail}</TextField></p>
                   </div>
                 </div>
                 <ul className="space-y-1.5 pl-7">
                   {space.features.map((f, j) => (
-                    <li key={j} className="text-muted-foreground text-sm leading-relaxed pl-3 relative before:content-['•'] before:absolute before:left-0 before:text-primary/50">
-                      {f}
-                    </li>
+                    <ContentScope key={j} id={"Prayer_33-" + itemIdentity(f, j)}><li key={j} className="text-muted-foreground text-sm leading-relaxed pl-3 relative before:content-['•'] before:absolute before:left-0 before:text-primary/50">
+                      <TextField id="Prayer_34">{f}</TextField>
+                    </li></ContentScope>
                   ))}
                 </ul>
-              </motion.div>
+              </motion.div></CardCopies>
             ))}
           </div>
         </div>
@@ -777,12 +778,12 @@ const Prayer = () => {
             <div className="bg-secondary w-10 h-10 rounded-xl flex items-center justify-center shadow-sm">
               <Landmark className="text-secondary-foreground" size={18} />
             </div>
-            <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground">Nearby Masajid</h2>
+            <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground"><TextField id="Prayer_35">Nearby Masajid</TextField></h2>
           </div>
 
           <div className="space-y-5">
             {masajid.map((m, i) => (
-              <motion.div
+              <CardCopies key={m.name} id={"Prayer_36-" + itemIdentity(m, m.name)}><motion.div
                 key={m.name}
                 initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -790,16 +791,16 @@ const Prayer = () => {
                 transition={{ duration: 0.4, delay: i * 0.08 }}
                 className="liquid-glass-hover p-6 md:p-7 rounded-2xl"
               >
-                <h3 className="font-display text-lg font-bold text-foreground mb-1">{m.name}</h3>
-                <p className="text-sm text-primary font-semibold mb-3">{m.distance}</p>
+                <h3 className="font-display text-lg font-bold text-foreground mb-1"><TextField id="Prayer_37">{m.name}</TextField></h3>
+                <p className="text-sm text-primary font-semibold mb-3"><TextField id="Prayer_38">{m.distance}</TextField></p>
                 <ul className="space-y-1.5">
                   {m.details.map((d, j) => (
-                    <li key={j} className="text-muted-foreground text-sm leading-relaxed pl-4 relative before:content-['•'] before:absolute before:left-0 before:text-primary/50">
-                      {d}
-                    </li>
+                    <ContentScope key={j} id={"Prayer_39-" + itemIdentity(d, j)}><li key={j} className="text-muted-foreground text-sm leading-relaxed pl-4 relative before:content-['•'] before:absolute before:left-0 before:text-primary/50">
+                      <TextField id="Prayer_40">{d}</TextField>
+                    </li></ContentScope>
                   ))}
                 </ul>
-              </motion.div>
+              </motion.div></CardCopies>
             ))}
           </div>
         </div>
@@ -811,11 +812,11 @@ const Prayer = () => {
       <section className="section-padding-sm gradient-section-emerald-soft">
         <div className="max-w-2xl mx-auto">
           <div className="glass-card-strong glass-glow p-8 md:p-12">
-            <ArabicVerse
+            <ContentScope id="Prayer_41"><ArabicVerse
               arabic="أَقِمِ الصَّلَاةَ لِدُلُوكِ الشَّمْسِ إِلَىٰ غَسَقِ اللَّيْلِ"
               translation="Establish prayer from the decline of the sun to the darkness of the night."
               reference="Quran 17:78"
-            />
+            /></ContentScope>
           </div>
         </div>
       </section>

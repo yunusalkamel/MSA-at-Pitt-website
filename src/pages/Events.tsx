@@ -1,3 +1,4 @@
+import { TextField, itemIdentity, ContentScope } from "@/editor/content";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Calendar, ArrowRight, RefreshCw } from "lucide-react";
@@ -78,9 +79,9 @@ const Events = () => {
       <div className="absolute inset-0 gradient-section-gold-soft opacity-70" />
       <div className="max-w-5xl mx-auto relative z-10">
         <div className="flex items-center gap-3 mb-6">
-          <h3 className="font-display text-2xl md:text-3xl font-bold text-foreground">Coming Up</h3>
+          <h3 className="font-display text-2xl md:text-3xl font-bold text-foreground"><TextField id="Events_1">Coming Up</TextField></h3>
           <span className="liquid-glass text-xs font-bold text-primary px-3 py-1 rounded-full">
-            {upcoming.length} event{upcoming.length !== 1 ? "s" : ""}
+            <TextField id="Events_2">{upcoming.length}</TextField><TextField id="Events_3"> event</TextField>{upcoming.length !== 1 ? "s" : ""}
           </span>
         </div>
         <div
@@ -89,7 +90,7 @@ const Events = () => {
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {upcoming.map((event, i) => (
-            <motion.div
+            <ContentScope key={event.id} id={"Events_4-" + itemIdentity(event, event.id)}><motion.div
               key={event.id}
               initial={prefersReduced ? false : { opacity: 0, x: 20 }}
               whileInView={prefersReduced ? undefined : { opacity: 1, x: 0 }}
@@ -98,7 +99,7 @@ const Events = () => {
               className="flex-shrink-0 w-[280px] md:w-[320px] snap-start"
             >
               <EventCard event={event} index={i} />
-            </motion.div>
+            </motion.div></ContentScope>
           ))}
         </div>
       </div>
@@ -114,7 +115,7 @@ const Events = () => {
         <section className="section-padding pt-10 pb-10 gradient-mesh-warm relative overflow-hidden">
           <div className="absolute inset-0 texture-dots" />
           <div className="max-w-5xl mx-auto relative z-10">
-            <SectionHeading title="Signature Event" label="Don't Miss" />
+            <ContentScope id="Events_5"><SectionHeading title="Signature Event" label="Don't Miss" /></ContentScope>
             <FeaturedEventCard event={featured} showSignatureBadge={true} />
           </div>
         </section>
@@ -123,7 +124,7 @@ const Events = () => {
       <div className="glass-divider-thick" />
 
       {/* ── Mobile: Coming Up sits ABOVE the calendar ── */}
-      <div className="md:hidden">{ComingUpBlock}</div>
+      <div className="md:hidden"><TextField id="Events_6">{ComingUpBlock}</TextField></div>
 
       {/* Main events section */}
       <section className="section-padding warm-surface relative overflow-hidden">
@@ -133,11 +134,11 @@ const Events = () => {
         <div className="max-w-5xl mx-auto relative z-10">
 
           {error && (
-            <div className="mb-5 rounded-xl border border-primary/20 bg-primary/[0.06] px-4 py-3 text-sm text-foreground/80">
-              Live calendar temporarily unavailable — showing recurring events only.{" "}
-              <a href={LINKS.linktree} target="_blank" rel="noopener noreferrer" className="text-primary font-semibold hover:underline">
+            <div className="mb-5 rounded-xl border border-primary/20 bg-primary/[0.06] px-4 py-3 text-sm text-foreground/80"><TextField id="Events_7">
+              Live calendar temporarily unavailable — showing recurring events only.</TextField>{" "}
+              <a href={LINKS.linktree} target="_blank" rel="noopener noreferrer" className="text-primary font-semibold hover:underline"><TextField id="Events_8">
                 See Linktree for the full schedule →
-              </a>
+              </TextField></a>
             </div>
           )}
 
@@ -177,12 +178,12 @@ const Events = () => {
           <div className="md:hidden flex justify-center gap-3 mb-4">
             <a href={LINKS.googleCalendarSubscribe} target="_blank" rel="noopener noreferrer"
               className="btn-premium-secondary text-sm px-4 py-2 flex-1 justify-center">
-              <Calendar size={13} /> Google Calendar
-            </a>
+              <Calendar size={13} /><TextField id="Events_9"> Google Calendar
+            </TextField></a>
             <a href={LINKS.appleCalendarSubscribe} target="_blank" rel="noopener noreferrer"
               className="btn-premium-secondary text-sm px-4 py-2 flex-1 justify-center">
-              <Calendar size={13} /> Apple Calendar
-            </a>
+              <Calendar size={13} /><TextField id="Events_10"> Apple Calendar
+            </TextField></a>
           </div>
 
           <div className={`flex justify-center mb-6 ${view === "agenda" ? "sticky top-[68px] md:top-[76px] z-30 py-2 backdrop-blur-sm" : ""}`}>
@@ -193,7 +194,7 @@ const Events = () => {
             <div className="glass-card-strong p-16 text-center rounded-2xl">
               <div className="flex flex-col items-center gap-3">
                 <div className="w-7 h-7 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-                <p className="text-muted-foreground text-sm">Loading events…</p>
+                <p className="text-muted-foreground text-sm"><TextField id="Events_11">Loading events…</TextField></p>
               </div>
             </div>
           ) : view === "agenda" ? (
@@ -203,9 +204,9 @@ const Events = () => {
           )}
 
           <div className="hidden md:flex flex-wrap items-center gap-3 mt-6 pt-5 border-t border-border/40">
-            <span className="text-sm font-body font-bold text-foreground/75 uppercase tracking-[0.15em]">
+            <span className="text-sm font-body font-bold text-foreground/75 uppercase tracking-[0.15em]"><TextField id="Events_12">
               Sync to your calendar:
-            </span>
+            </TextField></span>
             <a
               href={LINKS.googleCalendarSubscribe}
               target="_blank"
@@ -213,8 +214,8 @@ const Events = () => {
               title="Opens Google Calendar — click '+' at the bottom right to subscribe"
               className="inline-flex items-center gap-2 text-sm font-semibold text-foreground glass-card px-4 py-2 rounded-full border-primary/20 hover:border-primary/50 hover:text-primary transition-all shadow-sm"
             >
-              <Calendar size={13} /> Google Calendar
-            </a>
+              <Calendar size={13} /><TextField id="Events_13"> Google Calendar
+            </TextField></a>
             <a
               href={LINKS.appleCalendarSubscribe}
               target="_blank"
@@ -222,16 +223,16 @@ const Events = () => {
               title="Subscribes directly to your Apple Calendar"
               className="inline-flex items-center gap-2 text-sm font-semibold text-foreground glass-card px-4 py-2 rounded-full border-primary/20 hover:border-primary/50 hover:text-primary transition-all shadow-sm"
             >
-              <Calendar size={13} /> Apple Calendar
-            </a>
+              <Calendar size={13} /><TextField id="Events_14"> Apple Calendar
+            </TextField></a>
             <div className="ml-auto">
               <a
                 href={LINKS.eventSignupHub}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-premium text-sm px-5 py-2.5"
-              >
-                Event Signup Hub <ArrowRight size={13} />
+              ><TextField id="Events_15">
+                Event Signup Hub </TextField><ArrowRight size={13} />
               </a>
             </div>
           </div>
@@ -240,18 +241,18 @@ const Events = () => {
 
       {/* ── Desktop: Coming Up sits BELOW the calendar ── */}
       {upcoming.length > 0 && <div className="hidden md:block"><SectionDivider /></div>}
-      <div className="hidden md:block">{ComingUpBlock}</div>
+      <div className="hidden md:block"><TextField id="Events_16">{ComingUpBlock}</TextField></div>
 
       {/* ── Closing — Hadith on gathering for remembrance ── */}
       <section className="section-padding-sm gradient-section-emerald-soft relative overflow-hidden">
         <div className="absolute inset-0 opacity-[0.025]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: '200px' }} />
         <div className="max-w-2xl mx-auto relative z-10">
           <div className="glass-card-strong glass-glow p-7">
-            <ArabicVerse
+            <ContentScope id="Events_17"><ArabicVerse
               arabic="مَا اجْتَمَعَ قَوْمٌ يَذْكُرُونَ اللَّهَ إِلَّا حَفَّتْهُمُ الْمَلَائِكَةُ"
               translation="No people gather to remember Allah without the angels surrounding them, mercy enveloping them, and tranquility descending upon them."
               reference="Hadith · Muslim 2700"
-            />
+            /></ContentScope>
           </div>
         </div>
       </section>
