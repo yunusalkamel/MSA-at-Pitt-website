@@ -1,5 +1,7 @@
 import { PortableText, type PortableTextComponents } from "@portabletext/react";
 
+import { TextField } from "@/editor/content";
+
 const components: PortableTextComponents = {
   block: {
     normal: ({ children }) => (
@@ -14,6 +16,9 @@ const components: PortableTextComponents = {
     ),
   },
   marks: {
+    inlineField: ({ value }) => (
+      <TextField id={value.fieldId}>{value.text}</TextField>
+    ),
     strong: ({ children }) => (
       <strong className="font-semibold text-foreground">{children}</strong>
     ),
@@ -36,11 +41,31 @@ interface PortableTextRendererProps {
   className?: string;
 }
 
-export default function PortableTextRenderer({ value, className }: PortableTextRendererProps) {
+export default function PortableTextRenderer({
+  value,
+  className,
+}: PortableTextRendererProps) {
   if (!value || !Array.isArray(value)) return null;
+  const editableBlocks = value.map((block, blockIndex) => {
+    if (block._type !== "block" || !Array.isArray(block.children)) return block;
+    const markDefs = [...(block.markDefs || [])];
+    const children = block.children.map((span, index) => {
+      if (span._type !== "span") return span;
+      const key = "editable-" + (span._key || index);
+      markDefs.push({
+        _type: "inlineField",
+        _key: key,
+        text: span.text,
+        fieldId:
+          "body-" + (block._key || blockIndex) + "-" + (span._key || index),
+      });
+      return { ...span, marks: [...(span.marks || []), key] };
+    });
+    return { ...block, markDefs, children };
+  });
   return (
     <div className={className}>
-      <PortableText value={value} components={components} />
+      <PortableText value={editableBlocks} components={components} />
     </div>
   );
 }

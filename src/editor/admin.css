@@ -1,0 +1,71 @@
+.msa-tools,
+.msa-login {
+  font-family: system-ui, sans-serif;
+  color: #19251f;
+  background: #fffdfa;
+}
+.msa-tools {
+  position: fixed;
+  z-index: 2147483000;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  flex-wrap: wrap;
+  padding: 8px;
+  border: 1px solid #b7c4ba;
+  border-radius: 14px;
+  box-shadow: 0 4px 24px #19251f30;
+  width: max-content;
+  max-width: 96vw;
+}
+.msa-tools button,
+.msa-login button {
+  padding: 6px 10px;
+  border-radius: 7px;
+  font-weight: 600;
+  font-size: 14px;
+}
+.msa-tools button:hover,
+.msa-login input {
+  background: #eef2eb;
+}
+.msa-tools button:disabled {
+  opacity: 0.45;
+}
+.msa-tools .msa-publish,
+.msa-login button {
+  background: #225c46;
+  color: white;
+}
+.msa-tools span {
+  font-size: 13px;
+}
+.msa-login {
+  max-width: 380px;
+  margin: 15vh auto;
+  padding: 24px;
+  border-radius: 12px;
+}
+.msa-login h1 {
+  font-size: 26px;
+}
+.msa-login input {
+  display: block;
+  width: 100%;
+  padding: 9px;
+  margin: 6px 0 12px;
+}
+[data-edit-text]:hover,
+[data-edit-image]:hover,
+[data-edit-text]:focus-within {
+  outline: 2px dashed #33836b;
+  outline-offset: 2px;
+  cursor: text;
+}
+[data-edit-image]:hover {
+  cursor: pointer;
+}

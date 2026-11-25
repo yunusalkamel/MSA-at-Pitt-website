@@ -1,3 +1,4 @@
+import { TextField } from "@/editor/content";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ArrowRight } from "lucide-react";
@@ -39,7 +40,7 @@ export default function AnnouncementBar() {
       >
         <div className="max-w-6xl mx-auto px-4 py-2 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 flex-1 min-w-0">
-            <p className="font-ui text-xs font-semibold leading-snug truncate">{data.message}</p>
+            <p className="font-ui text-xs font-semibold leading-snug truncate"><TextField id="AnnouncementBar_1">{data.message}</TextField></p>
             {data.linkLabel && data.linkUrl && (
               <a
                 href={data.linkUrl}
@@ -47,7 +48,7 @@ export default function AnnouncementBar() {
                 rel="noopener noreferrer"
                 className={`flex-shrink-0 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold transition-colors ${s.btn}`}
               >
-                {data.linkLabel} <ArrowRight size={10} />
+                <TextField id="AnnouncementBar_2">{data.linkLabel}</TextField> <ArrowRight size={10} />
               </a>
             )}
           </div>

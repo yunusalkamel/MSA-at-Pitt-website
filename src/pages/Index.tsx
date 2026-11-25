@@ -1,3 +1,4 @@
+import { TextField, Picture, ContentScope, itemIdentity, CardCopies } from "@/editor/content";
 import { Link } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Heart, Users, Moon, HandHeart, Calendar, Instagram } from "lucide-react";
@@ -70,9 +71,9 @@ const StatItem = ({ value, numericValue, suffix, label, sub, bordered }: {
   const display = value ?? (numericValue !== undefined ? `${count}${suffix ?? ""}` : "");
   return (
     <div ref={ref} className={`text-center px-2 md:px-5 py-3.5 md:py-3 flex flex-col items-center gap-0.5 ${bordered ? "border-r border-border/30" : ""}`}>
-      <p className="eyebrow text-ink/50 dark:text-white/40 mb-0.5">{label}</p>
-      <p className="font-mono font-bold text-gradient-gold leading-none text-2xl md:text-4xl lg:text-5xl pb-1">{display}</p>
-      <p className="font-body text-muted-foreground text-[10px] leading-tight mt-0.5">{sub}</p>
+      <p className="eyebrow text-ink/50 dark:text-white/40 mb-0.5"><TextField id="Index_1">{label}</TextField></p>
+      <p className="font-mono font-bold text-gradient-gold leading-none text-2xl md:text-4xl lg:text-5xl pb-1"><TextField id="Index_2">{display}</TextField></p>
+      <p className="font-body text-muted-foreground text-[10px] leading-tight mt-0.5"><TextField id="Index_3">{sub}</TextField></p>
     </div>
   );
 };
@@ -134,7 +135,7 @@ const Index = () => {
               }}
             />
           )}
-          <img
+          <Picture fieldId="Index_4"
             src={heroSrc}
             alt="MSA at Pitt community gathering"
             className="w-full h-full object-cover scale-110"
@@ -162,7 +163,7 @@ const Index = () => {
               <div className="w-1 h-1 rounded-full bg-primary/60" />
               <div className="flex-1 h-px bg-gradient-to-l from-transparent to-primary/40" />
             </div>
-            <p className="font-arabic text-2xl md:text-3xl text-primary/80 tracking-wide" dir="rtl">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
+            <p className="font-arabic text-2xl md:text-3xl text-primary/80 tracking-wide" dir="rtl"><TextField id="Index_6">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</TextField></p>
             <div className="flex items-center gap-3 w-52">
               <div className="flex-1 h-px bg-gradient-to-r from-transparent to-primary/40" />
               <div className="w-1 h-1 rounded-full bg-primary/60" />
@@ -170,7 +171,7 @@ const Index = () => {
             </div>
           </motion.div>
           <motion.p initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="eyebrow text-msa-gold/90 mb-5">
-            {d.heroEyebrow}
+            <TextField id="Index_7">{d.heroEyebrow}</TextField>
           </motion.p>
           {/* Display headline — extra horizontal padding prevents any descender clipping */}
           <motion.h1
@@ -179,29 +180,29 @@ const Index = () => {
             transition={{ delay: 0.5, duration: 0.7 }}
             className="font-display text-6xl md:text-8xl lg:text-9xl font-bold text-accent-foreground leading-[1.05] mb-2 tracking-tight px-2"
           >
-            {d.heroHeadline}
+            <TextField id="Index_8">{d.heroHeadline}</TextField>
           </motion.h1>
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.65, duration: 0.7 }} className="mb-5 px-2">
             <span
               className="font-script text-gradient-gold inline-block pb-3"
               style={{ fontSize: "clamp(3.4rem, 9.5vw, 7.5rem)", lineHeight: 1.2 }}
             >
-              {d.heroSubheadline}
+              <TextField id="Index_9">{d.heroSubheadline}</TextField>
             </span>
           </motion.div>
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.85 }} className="eyebrow text-msa-gold/65 mb-5">
-            {d.heroTagline}
+            <TextField id="Index_10">{d.heroTagline}</TextField>
           </motion.p>
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.95 }} className="font-dm-sans text-base md:text-lg text-accent-foreground/60 max-w-xl mx-auto mb-10 leading-[1.75]">
             {d.heroBody ? (
-              <PortableTextRenderer value={d.heroBody} />
+              <ContentScope id="Index_11"><PortableTextRenderer value={d.heroBody} /></ContentScope>
             ) : (
-              <p>Connecting Muslim students at Pitt through faith, friendship, and service. Everyone is welcome — wherever you're starting from.</p>
+              <p><TextField id="Index_12">Connecting Muslim students at Pitt through faith, friendship, and service. Everyone is welcome — wherever you're starting from.</TextField></p>
             )}
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.1 }} className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link to="/join" className="btn-premium text-base px-8 py-3.5">Join the MSA <ArrowRight size={16} /></Link>
-            <Link to="/events" className="btn-premium-secondary text-base px-8 py-3.5">See Upcoming Events</Link>
+            <Link to="/join" className="btn-premium text-base px-8 py-3.5"><TextField id="Index_13">Join the MSA </TextField><ArrowRight size={16} /></Link>
+            <Link to="/events" className="btn-premium-secondary text-base px-8 py-3.5"><TextField id="Index_14">See Upcoming Events</TextField></Link>
           </motion.div>
 
           <TodayNextEvent />
@@ -221,9 +222,9 @@ const Index = () => {
       {/* ── Stats — overlaps slightly into the warm section below ── */}
       <section className="relative z-20 px-4 md:px-8 -mt-[4rem] mb-[-5rem] bg-transparent">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.3, duration: 0.6 }} className="liquid-glass-stats rounded-3xl max-w-3xl mx-3 sm:mx-auto p-4 md:p-6 grid grid-cols-3 items-stretch gap-0 overflow-hidden">
-          <StatItem numericValue={d.statEventsPerSemester} suffix="+" label="Events per Semester" sub="halaqas, socials, speakers & more" bordered />
-          <StatItem value={String(d.statFoundedYear)} label="Founded at Pitt" sub="community since day one" bordered />
-          <StatItem numericValue={d.statMemberCount} suffix="+" label="Community Members" sub="and growing every year" />
+          <ContentScope id="Index_15"><StatItem numericValue={d.statEventsPerSemester} suffix="+" label="Events per Semester" sub="halaqas, socials, speakers & more" bordered /></ContentScope>
+          <ContentScope id="Index_16"><StatItem value={String(d.statFoundedYear)} label="Founded at Pitt" sub="community since day one" bordered /></ContentScope>
+          <ContentScope id="Index_17"><StatItem numericValue={d.statMemberCount} suffix="+" label="Community Members" sub="and growing every year" /></ContentScope>
         </motion.div>
       </section>
 
@@ -236,7 +237,7 @@ const Index = () => {
             <motion.div initial={prefersReduced ? false : { opacity: 0, x: -24 }} whileInView={prefersReduced ? undefined : { opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.55 }} className="relative group">
               <div className="absolute -inset-1.5 bg-gradient-to-br from-primary/30 via-secondary/15 to-primary/20 opacity-40 group-hover:opacity-60 transition-opacity duration-500 blur-sm" style={{ borderRadius: '22px' }} />
               <div className="relative liquid-glass p-3" style={{ borderRadius: '20px' }}>
-                <SanityImage
+                <ContentScope id="Index_18"><SanityImage
                   source={cms?.communityImage}
                   fallbackSrc={communityImg}
                   width={1280}
@@ -244,25 +245,25 @@ const Index = () => {
                   alt="MSA students on campus"
                   className="w-full aspect-[4/3] object-cover"
                   style={{ borderRadius: '20px' }}
-                />
+                /></ContentScope>
               </div>
             </motion.div>
             <motion.div initial={prefersReduced ? false : { opacity: 0, x: 24 }} whileInView={prefersReduced ? undefined : { opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.55, delay: 0.15 }}>
-              <p className="eyebrow text-jannah-mid dark:text-msa-gold/70 mb-4">Our Story</p>
-              <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-6 leading-tight">{d.communityHeadline}</h2>
+              <p className="eyebrow text-jannah-mid dark:text-msa-gold/70 mb-4"><TextField id="Index_19">Our Story</TextField></p>
+              <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-6 leading-tight"><TextField id="Index_20">{d.communityHeadline}</TextField></h2>
               {d.communityBody ? (
-                <PortableTextRenderer value={d.communityBody} className="mb-6" />
+                <ContentScope id="Index_21"><PortableTextRenderer value={d.communityBody} className="mb-6" /></ContentScope>
               ) : (
                 <>
-                  <p className="font-dm-sans text-muted-foreground text-base leading-[1.8] mb-4">MSA at Pitt is one of the largest and most vibrant student organizations at the University of Pittsburgh. We're a community rooted in Islamic values, cultivating a transformative space for Muslim students — and open to absolutely everyone.</p>
-                  <p className="font-dm-sans text-muted-foreground text-base leading-[1.8] mb-6">Whether you've been Muslim your whole life, just took your shahada, or you're simply curious — knowledge precedes action, and every journey starts somewhere.</p>
+                  <p className="font-dm-sans text-muted-foreground text-base leading-[1.8] mb-4"><TextField id="Index_22">MSA at Pitt is one of the largest and most vibrant student organizations at the University of Pittsburgh. We're a community rooted in Islamic values, cultivating a transformative space for Muslim students — and open to absolutely everyone.</TextField></p>
+                  <p className="font-dm-sans text-muted-foreground text-base leading-[1.8] mb-6"><TextField id="Index_23">Whether you've been Muslim your whole life, just took your shahada, or you're simply curious — knowledge precedes action, and every journey starts somewhere.</TextField></p>
                 </>
               )}
               <div className="pull-quote-gold mb-7">
-                <ArabicVerse arabic="وَتَعَاوَنُوا عَلَى الْبِرِّ وَالتَّقْوَىٰ" translation="And cooperate in righteousness and piety." reference="Quran 5:2" className="text-left py-0" compact />
+                <ContentScope id="Index_24"><ArabicVerse arabic="وَتَعَاوَنُوا عَلَى الْبِرِّ وَالتَّقْوَىٰ" translation="And cooperate in righteousness and piety." reference="Quran 5:2" className="text-left py-0" compact /></ContentScope>
               </div>
-              <Link to="/about" className="inline-flex items-center gap-2 text-jannah-mid dark:text-msa-gold font-semibold hover:gap-3 transition-all duration-200 text-base">
-                Learn more about us <ArrowRight size={16} />
+              <Link to="/about" className="inline-flex items-center gap-2 text-jannah-mid dark:text-msa-gold font-semibold hover:gap-3 transition-all duration-200 text-base"><TextField id="Index_25">
+                Learn more about us </TextField><ArrowRight size={16} />
               </Link>
             </motion.div>
           </div>
@@ -276,11 +277,11 @@ const Index = () => {
         <div className="absolute inset-0 gradient-mesh-gold" />
         <div className="absolute inset-0 texture-dots" />
         <div className="max-w-7xl mx-auto relative z-10">
-          <SectionHeading title="What's coming up" subtitle="Stay connected and never miss a moment." />
+          <ContentScope id="Index_26"><SectionHeading title="What's coming up" subtitle="Stay connected and never miss a moment." /></ContentScope>
           {eventsError && (
-            <div className="mb-4 rounded-xl border border-primary/20 bg-primary/[0.06] px-4 py-3 text-sm text-foreground/80">
+            <div className="mb-4 rounded-xl border border-primary/20 bg-primary/[0.06] px-4 py-3 text-sm text-foreground/80"><TextField id="Index_27">
               Showing our curated event schedule. Live sync will resume automatically.
-            </div>
+            </TextField></div>
           )}
           <div className="md:hidden flex flex-col gap-3">
             {eventsLoading && !eventsError && upcomingScrollEvents.length === 0 ? (
@@ -290,23 +291,23 @@ const Index = () => {
             ) : upcomingScrollEvents.slice(0, 3).map((event) => {
               const { month, day } = formatEventMonthDay(event.startDate);
               return (
-                <div key={event.id} className="glass-card p-4 flex gap-4">
+                <ContentScope key={event.id} id={"Index_28-" + itemIdentity(event, event.id)}><div key={event.id} className="glass-card p-4 flex gap-4">
                   <div className={`${dateBadgeClass(event)} w-12 h-12 rounded-xl flex flex-col items-center justify-center flex-shrink-0`}>
-                    <span className="text-[9px] font-semibold uppercase tracking-wide opacity-80">{month}</span>
-                    <span className="font-display text-xl font-bold leading-none">{day}</span>
+                    <span className="text-[9px] font-semibold uppercase tracking-wide opacity-80"><TextField id="Index_29">{month}</TextField></span>
+                    <span className="font-display text-xl font-bold leading-none"><TextField id="Index_30">{day}</TextField></span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-display font-bold text-base text-foreground leading-tight truncate">{event.title}</h3>
-                    <p className="font-satoshi text-muted-foreground text-xs mt-0.5">{event.timeLabel}</p>
-                    <p className="font-satoshi text-muted-foreground text-xs">📍 {event.location}</p>
+                    <h3 className="font-display font-bold text-base text-foreground leading-tight truncate"><TextField id="Index_31">{event.title}</TextField></h3>
+                    <p className="font-satoshi text-muted-foreground text-xs mt-0.5"><TextField id="Index_32">{event.timeLabel}</TextField></p>
+                    <p className="font-satoshi text-muted-foreground text-xs">📍 <TextField id="Index_33">{event.location}</TextField></p>
                   </div>
-                </div>
+                </div></ContentScope>
               );
             })}
-            <Link to="/events" className="btn-premium w-full justify-center mt-1">View all events <ArrowRight size={14} /></Link>
+            <Link to="/events" className="btn-premium w-full justify-center mt-1"><TextField id="Index_34">View all events </TextField><ArrowRight size={14} /></Link>
             <div className="flex justify-center gap-5 mt-1">
-              <a href={LINKS.googleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"><Calendar size={11} /> Google Calendar</a>
-              <a href={LINKS.appleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"><Calendar size={11} /> Apple Calendar</a>
+              <a href={LINKS.googleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"><Calendar size={11} /><TextField id="Index_35"> Google Calendar</TextField></a>
+              <a href={LINKS.appleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"><Calendar size={11} /><TextField id="Index_36"> Apple Calendar</TextField></a>
             </div>
           </div>
           <div className="hidden md:flex gap-4 items-stretch">
@@ -316,44 +317,44 @@ const Index = () => {
                   {eventsLoading && !eventsError && upcomingScrollEvents.length === 0 ? (
                     <div className="w-72 glass-card p-6 flex flex-col items-center justify-center min-h-[220px]">
                       <div className="w-7 h-7 rounded-full border-2 border-primary border-t-transparent animate-spin mb-3" />
-                      <p className="text-muted-foreground text-sm">Loading…</p>
+                      <p className="text-muted-foreground text-sm"><TextField id="Index_37">Loading…</TextField></p>
                     </div>
                   ) : upcomingScrollEvents.length === 0 ? (
                     <div className="w-72 glass-card p-6 flex flex-col items-center justify-center min-h-[220px] text-center">
-                      <p className="font-display font-semibold text-xl text-foreground mb-2">No upcoming events yet</p>
-                      <p className="text-muted-foreground text-sm">New events are added regularly. Check back soon.</p>
+                      <p className="font-display font-semibold text-xl text-foreground mb-2"><TextField id="Index_38">No upcoming events yet</TextField></p>
+                      <p className="text-muted-foreground text-sm"><TextField id="Index_39">New events are added regularly. Check back soon.</TextField></p>
                     </div>
                   ) : upcomingScrollEvents.map((event) => {
                     const { month, day } = formatEventMonthDay(event.startDate);
                     return (
-                      <div key={event.id} className="w-72 flex-shrink-0 glass-card p-6 flex flex-col">
+                      <ContentScope key={event.id} id={"Index_40-" + itemIdentity(event, event.id)}><div key={event.id} className="w-72 flex-shrink-0 glass-card p-6 flex flex-col">
                         <div className="flex items-start gap-4 mb-4">
                           <div className={`${dateBadgeClass(event)} w-14 h-14 rounded-xl flex flex-col items-center justify-center flex-shrink-0 shadow-md`}>
-                            <span className="text-[10px] font-semibold opacity-80 uppercase tracking-wide">{month}</span>
-                            <span className="font-display text-2xl font-bold leading-none">{day}</span>
+                            <span className="text-[10px] font-semibold opacity-80 uppercase tracking-wide"><TextField id="Index_41">{month}</TextField></span>
+                            <span className="font-display text-2xl font-bold leading-none"><TextField id="Index_42">{day}</TextField></span>
                           </div>
                           <div>
-                            <h3 className="font-display font-bold text-lg text-foreground leading-tight">{event.title}</h3>
-                            <p className="font-satoshi text-muted-foreground text-sm mt-0.5">{event.timeLabel}</p>
+                            <h3 className="font-display font-bold text-lg text-foreground leading-tight"><TextField id="Index_43">{event.title}</TextField></h3>
+                            <p className="font-satoshi text-muted-foreground text-sm mt-0.5"><TextField id="Index_44">{event.timeLabel}</TextField></p>
                           </div>
                         </div>
-                        <p className="font-satoshi text-muted-foreground text-sm mb-1.5">📍 {event.location}</p>
-                        <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed mb-5 flex-1">{event.shortBlurb}</p>
-                        <a href={event.rsvpUrl || LINKS.eventSignupHub} target="_blank" rel="noopener noreferrer" className="btn-premium text-sm px-5 py-2 self-start">RSVP <ArrowRight size={13} /></a>
-                      </div>
+                        <p className="font-satoshi text-muted-foreground text-sm mb-1.5">📍 <TextField id="Index_45">{event.location}</TextField></p>
+                        <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed mb-5 flex-1"><TextField id="Index_46">{event.shortBlurb}</TextField></p>
+                        <a href={event.rsvpUrl || LINKS.eventSignupHub} target="_blank" rel="noopener noreferrer" className="btn-premium text-sm px-5 py-2 self-start"><TextField id="Index_47">RSVP </TextField><ArrowRight size={13} /></a>
+                      </div></ContentScope>
                     );
                   })}
                 </div>
               </div>
             </div>
             <div className="w-52 md:w-60 flex-shrink-0 liquid-glass-hover flex flex-col items-center justify-center p-5 md:p-6 text-center group min-h-[220px] rounded-[var(--radius)]">
-              <p className="font-display text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">See all events</p>
-              <p className="font-dm-sans text-muted-foreground text-xs mb-4 leading-relaxed">Halaqas, speakers, sisters' events, and more.</p>
-              <Link to="/events" className="btn-premium text-sm px-4 py-2 mb-3 w-full justify-center">View All <ArrowRight size={13} /></Link>
+              <p className="font-display text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors"><TextField id="Index_48">See all events</TextField></p>
+              <p className="font-dm-sans text-muted-foreground text-xs mb-4 leading-relaxed"><TextField id="Index_49">Halaqas, speakers, sisters' events, and more.</TextField></p>
+              <Link to="/events" className="btn-premium text-sm px-4 py-2 mb-3 w-full justify-center"><TextField id="Index_50">View All </TextField><ArrowRight size={13} /></Link>
               <div className="flex gap-3">
-                <a href={LINKS.googleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"><Calendar size={11} /> Google</a>
+                <a href={LINKS.googleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"><Calendar size={11} /><TextField id="Index_51"> Google</TextField></a>
                 <span className="text-border">·</span>
-                <a href={LINKS.appleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"><Calendar size={11} /> Apple</a>
+                <a href={LINKS.appleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"><Calendar size={11} /><TextField id="Index_52"> Apple</TextField></a>
               </div>
             </div>
           </div>
@@ -367,20 +368,20 @@ const Index = () => {
         <div className="absolute inset-0 gradient-section-emerald-soft" />
         <div className="max-w-4xl mx-auto px-4 relative z-10">
           <div className="liquid-glass-strong rounded-3xl p-6 md:p-10 text-center ring-1 ring-jannah-mid/20 shadow-[0_4px_40px_rgba(20,128,102,0.12)]">
-            <p className="eyebrow text-jannah-mid dark:text-msa-gold/70 mb-3">Never miss an event</p>
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground leading-tight mb-3">
-              Subscribe once. <span className="text-gradient-gold italic">Stay in sync forever.</span>
+            <p className="eyebrow text-jannah-mid dark:text-msa-gold/70 mb-3"><TextField id="Index_53">Never miss an event</TextField></p>
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground leading-tight mb-3"><TextField id="Index_54">
+              Subscribe once. </TextField><span className="text-gradient-gold italic"><TextField id="Index_55">Stay in sync forever.</TextField></span>
             </h2>
-            <p className="font-dm-sans text-muted-foreground text-base leading-relaxed max-w-2xl mx-auto mb-7">
+            <p className="font-dm-sans text-muted-foreground text-base leading-relaxed max-w-2xl mx-auto mb-7"><TextField id="Index_56">
               Every halaqah, Jummah, social, and iftar — synced straight to your calendar automatically.
-            </p>
+            </TextField></p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
               <a href={LINKS.googleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="btn-premium text-sm md:text-base px-7 py-3.5 w-full sm:w-auto justify-center">
-                <Calendar size={15} /> Add to Google Calendar
-              </a>
+                <Calendar size={15} /><TextField id="Index_57"> Add to Google Calendar
+              </TextField></a>
               <a href={LINKS.appleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="btn-premium-secondary text-sm md:text-base px-7 py-3.5 w-full sm:w-auto justify-center">
-                <Calendar size={15} /> Add to Apple Calendar
-              </a>
+                <Calendar size={15} /><TextField id="Index_58"> Add to Apple Calendar
+              </TextField></a>
             </div>
           </div>
         </div>
@@ -397,11 +398,11 @@ const Index = () => {
             {/* Header row — constrained, button inline with text */}
             <div className="px-4 md:px-6 max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
               <div>
-                <p className="eyebrow text-jannah-mid dark:text-msa-gold/70 mb-1">Our Gallery</p>
-                <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground leading-tight">Moments from MSA</h2>
+                <p className="eyebrow text-jannah-mid dark:text-msa-gold/70 mb-1"><TextField id="Index_59">Our Gallery</TextField></p>
+                <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground leading-tight"><TextField id="Index_60">Moments from MSA</TextField></h2>
               </div>
-              <Link to="/gallery" className="btn-premium-secondary text-sm px-5 py-2.5 self-start sm:self-auto flex-shrink-0">
-                Browse Gallery <ArrowRight size={14} />
+              <Link to="/gallery" className="btn-premium-secondary text-sm px-5 py-2.5 self-start sm:self-auto flex-shrink-0"><TextField id="Index_61">
+                Browse Gallery </TextField><ArrowRight size={14} />
               </Link>
             </div>
 
@@ -419,7 +420,7 @@ const Index = () => {
                       transition={{ duration: 0.45, delay: i * 0.08 }}
                     >
                       {cell.imageUrl && (
-                        <img
+                        <Picture fieldId="Index_62"
                           src={cell.imageUrl}
                           alt={cell.title}
                           className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
@@ -427,12 +428,12 @@ const Index = () => {
                         />
                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
-                      <p className="absolute bottom-3 left-3 right-3 font-display text-white font-semibold text-sm drop-shadow-md leading-tight">{cell.title}</p>
+                      <p className="absolute bottom-3 left-3 right-3 font-display text-white font-semibold text-sm drop-shadow-md leading-tight"><TextField id="Index_63">{cell.title}</TextField></p>
                     </motion.div>
                   );
                   return cell.slug
-                    ? <Link key={cell.slug} to={`/gallery/${cell.slug}`}>{Card}</Link>
-                    : <div key={cell.title + i}>{Card}</div>;
+                    ? <ContentScope key={cell.slug} id={"Index_64-" + itemIdentity(cell, cell.slug)}><Link key={cell.slug} to={`/gallery/${cell.slug}`}><TextField id="Index_65">{Card}</TextField></Link></ContentScope>
+                    : <ContentScope key={cell.title + i} id={"Index_66-" + itemIdentity(cell, cell.title + i)}><div key={cell.title + i}><TextField id="Index_67">{Card}</TextField></div></ContentScope>;
                 })}
               </div>
             </div>
@@ -447,29 +448,29 @@ const Index = () => {
         <div className="absolute inset-0 gradient-mesh-warm" />
         <div className="absolute inset-0 texture-khatam opacity-[0.55]" />
         <div className="max-w-7xl mx-auto relative z-10">
-          <SectionHeading title="What drives us" label="Our Pillars" />
+          <ContentScope id="Index_68"><SectionHeading title="What drives us" label="Our Pillars" /></ContentScope>
           <div className="grid md:grid-cols-2 gap-10 md:gap-16">
             {[
               { pillars: d.communityPillars, label: "Cultivate Community.", gradient: "text-gradient-gold" },
               { pillars: d.imanPillars, label: "Ignite Iman.", gradient: "text-gradient-aura" },
             ].map(({ pillars, label, gradient }) => (
-              <motion.div key={label} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }} variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.1, delayChildren: 0.05 } } }}>
-                <p className={`font-display italic ${gradient} inline-block pb-1 text-xl mb-6 tracking-wide`}>{label}</p>
+              <ContentScope key={label} id={"Index_69-" + label}><motion.div key={label} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }} variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.1, delayChildren: 0.05 } } }}>
+                <p className={`font-display italic ${gradient} inline-block pb-1 text-xl mb-6 tracking-wide`}><TextField id="Index_70">{label}</TextField></p>
                 <div className="grid sm:grid-cols-2 gap-5">
                   {pillars.map((pillar: any) => {
                     const Icon = ICON_MAP[pillar.iconName] ?? Users;
                     return (
-                      <motion.div key={pillar.title} variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4 } } }} className="glass-card-hover p-6 md:p-8">
+                      <CardCopies key={pillar.title} id={"Index_71-" + itemIdentity(pillar, pillar.title)}><motion.div key={pillar.title} variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4 } } }} className="glass-card-hover p-6 md:p-8">
                         <div className="gold-gradient w-11 h-11 rounded-xl flex items-center justify-center mb-5 shadow-sm">
                           <Icon className="text-primary-foreground" size={20} />
                         </div>
-                        <h3 className="font-display text-xl font-bold text-foreground mb-2 leading-tight">{pillar.title}</h3>
-                        <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed">{pillar.description}</p>
-                      </motion.div>
+                        <h3 className="font-display text-xl font-bold text-foreground mb-2 leading-tight"><TextField id="Index_72">{pillar.title}</TextField></h3>
+                        <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed"><TextField id="Index_73">{pillar.description}</TextField></p>
+                      </motion.div></CardCopies>
                     );
                   })}
                 </div>
-              </motion.div>
+              </motion.div></ContentScope>
             ))}
           </div>
         </div>
@@ -490,17 +491,17 @@ const Index = () => {
         </div>
         <div className="max-w-3xl mx-auto text-center relative z-10">
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
-            <p className="eyebrow text-jannah-mid dark:text-msa-gold/70 mb-4">Get Involved</p>
-            <h2 className="font-display text-4xl md:text-6xl font-bold text-foreground leading-tight">Ready to find</h2>
+            <p className="eyebrow text-jannah-mid dark:text-msa-gold/70 mb-4"><TextField id="Index_74">Get Involved</TextField></p>
+            <h2 className="font-display text-4xl md:text-6xl font-bold text-foreground leading-tight"><TextField id="Index_75">Ready to find</TextField></h2>
             <div className="my-1 py-4 px-6 -mx-8 overflow-visible">
-              <span className="font-script text-gradient-gold inline-block" style={{ fontSize: "clamp(3.2rem, 9vw, 6rem)", lineHeight: 1.3, paddingLeft: "0.3em", paddingRight: "0.4em", paddingBottom: "0.15em" }}>your people?</span>
+              <span className="font-script text-gradient-gold inline-block" style={{ fontSize: "clamp(3.2rem, 9vw, 6rem)", lineHeight: 1.3, paddingLeft: "0.3em", paddingRight: "0.4em", paddingBottom: "0.15em" }}><TextField id="Index_76">your people?</TextField></span>
             </div>
-            <p className="font-dm-sans text-muted-foreground text-base md:text-lg max-w-xl mx-auto mb-8 leading-[1.8] mt-3">Join hundreds of students cultivating community and igniting iman at Pitt. Whatever stage of the journey you're on — there's a place for you here.</p>
+            <p className="font-dm-sans text-muted-foreground text-base md:text-lg max-w-xl mx-auto mb-8 leading-[1.8] mt-3"><TextField id="Index_77">Join hundreds of students cultivating community and igniting iman at Pitt. Whatever stage of the journey you're on — there's a place for you here.</TextField></p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center mb-8">
-              <Link to="/join" className="btn-premium text-base px-8 py-3.5">Get Started <ArrowRight size={16} /></Link>
+              <Link to="/join" className="btn-premium text-base px-8 py-3.5"><TextField id="Index_78">Get Started </TextField><ArrowRight size={16} /></Link>
               <a href={LINKS.instagram} target="_blank" rel="noopener noreferrer" className="btn-premium-secondary text-base px-8 py-3.5">
-                <Instagram size={15} /> Follow on Instagram
-              </a>
+                <Instagram size={15} /><TextField id="Index_79"> Follow on Instagram
+              </TextField></a>
             </div>
             <div className="flex justify-center"><InstagramWidget /></div>
           </motion.div>

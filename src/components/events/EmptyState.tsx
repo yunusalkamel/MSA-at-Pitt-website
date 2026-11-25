@@ -1,3 +1,4 @@
+import { TextField } from "@/editor/content";
 import { motion } from "framer-motion";
 import { CalendarX } from "lucide-react";
 
@@ -11,12 +12,12 @@ const EmptyState = () => (
     <div className="w-14 h-14 rounded-2xl glass-card border-border/40 flex items-center justify-center mx-auto mb-5">
       <CalendarX size={24} className="text-muted-foreground/50" />
     </div>
-    <h3 className="font-display text-xl font-semibold text-foreground mb-2">
+    <h3 className="font-display text-xl font-semibold text-foreground mb-2"><TextField id="EmptyState_1">
       No events found
-    </h3>
-    <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed">
+    </TextField></h3>
+    <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed"><TextField id="EmptyState_2">
       Try adjusting your filters or check back soon — we're always planning something new.
-    </p>
+    </TextField></p>
   </motion.div>
 );
 

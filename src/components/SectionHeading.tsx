@@ -1,3 +1,4 @@
+import { TextField } from "@/editor/content";
 import { motion } from "framer-motion";
 
 interface SectionHeadingProps {
@@ -21,16 +22,16 @@ const SectionHeading = ({ label, title, subtitle, center = true, className = "" 
         // Eyebrow: Jakarta Sans 800, 11px, 0.13em tracking — per Bridge v2 spec
         // Dark mode: gold at 50% opacity (matches design file's dark label treatment)
         <span className="eyebrow text-jannah-mid dark:text-msa-gold/60 mb-3 block">
-          {label}
+          <TextField id="SectionHeading_1">{label}</TextField>
         </span>
       )}
       <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-foreground leading-tight tracking-tight">
-        {title}
+        <TextField id="SectionHeading_2">{title}</TextField>
       </h2>
       {subtitle && (
         // Subtitle in DM Sans — reading sans for sustained body copy
         <p className="font-dm-sans mt-3 text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-          {subtitle}
+          <TextField id="SectionHeading_3">{subtitle}</TextField>
         </p>
       )}
     </motion.div>

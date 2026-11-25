@@ -1,3 +1,4 @@
+import { TextField } from "@/editor/content";
 interface ArabicVerseProps {
   arabic: string;
   translation: string;
@@ -44,14 +45,14 @@ const ArabicVerse = ({
         }`}
         dir="rtl"
       >
-        {arabic}
+        <TextField id="ArabicVerse_1">{arabic}</TextField>
       </p>
 
       <p className={`italic text-muted-foreground max-w-2xl ${compact ? "text-sm" : "text-base md:text-lg"}`}>
-        "{translation}"
+        "<TextField id="ArabicVerse_2">{translation}</TextField>"
       </p>
       <p className="text-xs text-muted-foreground/60 font-semibold uppercase tracking-widest">
-        {reference}
+        <TextField id="ArabicVerse_3">{reference}</TextField>
       </p>
 
       {buttonText && (buttonHref || buttonOnClick) && (
@@ -61,7 +62,7 @@ const ArabicVerse = ({
             onClick={buttonOnClick}
             className={`inline-flex items-center justify-center rounded-full border border-[#8A6212]/35 bg-[#8A6212]/10 px-5 py-2 text-sm font-semibold text-[#8A6212] transition-all duration-200 hover:bg-[#8A6212] hover:text-black ${buttonClassName}`}
           >
-            {buttonText}
+            <TextField id="ArabicVerse_4">{buttonText}</TextField>
           </a>
         ) : (
           <button
@@ -69,7 +70,7 @@ const ArabicVerse = ({
             onClick={buttonOnClick}
             className={`inline-flex items-center justify-center rounded-full border border-[#8A6212]/35 bg-[#8A6212]/10 px-5 py-2 text-sm font-semibold text-[#8A6212] transition-all duration-200 hover:bg-[#8A6212] hover:text-black ${buttonClassName}`}
           >
-            {buttonText}
+            <TextField id="ArabicVerse_5">{buttonText}</TextField>
           </button>
         )
       )}

@@ -1,3 +1,4 @@
+import { Picture, ContentScope, TextField, itemIdentity } from "@/editor/content";
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -71,7 +72,7 @@ const GalleryAlbum = () => {
         {album?.coverImage && (
           <>
             <div className="absolute inset-0">
-              <img
+              <Picture fieldId="GalleryAlbum_1"
                 src={urlFor(album.coverImage).width(1600).height(600).fit("crop").auto("format").url()}
                 alt={album.title}
                 className="w-full h-full object-cover scale-105"
@@ -88,16 +89,16 @@ const GalleryAlbum = () => {
             to="/gallery"
             className="inline-flex items-center gap-2 text-white/50 hover:text-white/90 transition-colors font-body text-sm mb-6"
           >
-            <ArrowLeft size={14} />
+            <ArrowLeft size={14} /><TextField id="GalleryAlbum_4">
             All Albums
-          </Link>
+          </TextField></Link>
 
           {loading ? (
             <div className="h-12 w-64 bg-white/10 rounded-lg animate-pulse" />
           ) : (
             <>
               <h1 className="font-display text-4xl md:text-6xl font-bold text-white mb-3">
-                {album?.title ?? "Album Not Found"}
+                <TextField id="GalleryAlbum_5">{album?.title ?? "Album Not Found"}</TextField>
               </h1>
               <div className="flex items-center gap-4 flex-wrap">
                 {formatDate(album?.eventDate) && (
@@ -108,12 +109,12 @@ const GalleryAlbum = () => {
                 {total > 0 && (
                   <span className="inline-flex items-center gap-1.5 font-ui text-xs font-semibold tracking-widest uppercase text-white/40">
                     <Images size={12} />
-                    {total} photo{total !== 1 ? "s" : ""}
+                    {total}<TextField id="GalleryAlbum_6"> photo</TextField>{total !== 1 ? "s" : ""}
                   </span>
                 )}
                 {album?.audience && (
                   <span className="font-ui text-xs font-semibold tracking-widest uppercase text-white/40">
-                    {album.audience}
+                    <TextField id="GalleryAlbum_7">{album.audience}</TextField>
                   </span>
                 )}
               </div>
@@ -130,7 +131,7 @@ const GalleryAlbum = () => {
           {loading && (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
               {Array.from({ length: 12 }).map((_, i) => (
-                <div key={i} className="aspect-square rounded-xl bg-muted animate-pulse" />
+                <ContentScope key={i} id={"GalleryAlbum_8-" + itemIdentity(_, i)}><div key={i} className="aspect-square rounded-xl bg-muted animate-pulse" /></ContentScope>
               ))}
             </div>
           )}
@@ -138,9 +139,9 @@ const GalleryAlbum = () => {
           {!loading && photos.length === 0 && (
             <div className="text-center py-24">
               <Images size={40} className="text-muted-foreground/30 mx-auto mb-4" />
-              <p className="font-body text-muted-foreground">
+              <p className="font-body text-muted-foreground"><TextField id="GalleryAlbum_9">
                 No photos yet — check back soon.
-              </p>
+              </TextField></p>
             </div>
           )}
 
@@ -151,7 +152,7 @@ const GalleryAlbum = () => {
               className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4"
             >
               {photos.map((photo, i) => (
-                <motion.button
+                <ContentScope key={i} id={"GalleryAlbum_10-" + itemIdentity(photo, i)}><motion.button
                   key={i}
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -160,7 +161,7 @@ const GalleryAlbum = () => {
                   className="group relative aspect-square rounded-xl overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                   aria-label={`Open photo ${i + 1}${photo.caption ? `: ${photo.caption}` : ""}`}
                 >
-                  <img
+                  <Picture fieldId="GalleryAlbum_11"
                     src={photo.url + "?w=400&h=400&fit=crop&auto=format"}
                     alt={photo.caption || `Photo ${i + 1}`}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
@@ -171,10 +172,10 @@ const GalleryAlbum = () => {
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors duration-300" />
                   {photo.caption && (
                     <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <p className="font-body text-xs text-white/90 line-clamp-1">{photo.caption}</p>
+                      <p className="font-body text-xs text-white/90 line-clamp-1"><TextField id="GalleryAlbum_12">{photo.caption}</TextField></p>
                     </div>
                   )}
-                </motion.button>
+                </motion.button></ContentScope>
               ))}
             </motion.div>
           )}
@@ -183,13 +184,13 @@ const GalleryAlbum = () => {
 
       {/* Lightbox */}
       {lightboxIndex !== null && (
-        <Lightbox
+        <ContentScope id={"GalleryAlbum_10-"+itemIdentity(photos[lightboxIndex],lightboxIndex)}><Lightbox
           photos={photos}
           currentIndex={lightboxIndex}
           onClose={closeLightbox}
           onNext={next}
           onPrev={prev}
-        />
+        /></ContentScope>
       )}
     </Layout>
   );

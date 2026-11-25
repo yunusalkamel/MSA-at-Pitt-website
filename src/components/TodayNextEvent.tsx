@@ -1,3 +1,4 @@
+import { TextField } from "@/editor/content";
 import { useState, useEffect, useMemo } from "react";
 import { MapPin, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -98,18 +99,18 @@ const TodayNextEvent = () => {
                 {isNow ? "Now" : "Next"}
               </span>
               <span className="text-primary-foreground font-display font-bold text-sm leading-none mt-0.5">
-                {dayAbbr}
+                <TextField id="TodayNextEvent_1">{dayAbbr}</TextField>
               </span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-body text-[9px] uppercase tracking-[0.18em] text-msa-gold/80 font-semibold leading-none mb-0.5">
+              <p className="font-body text-[9px] uppercase tracking-[0.18em] text-msa-gold/80 font-semibold leading-none mb-0.5"><TextField id="TodayNextEvent_2">
                 Today
-              </p>
+              </TextField></p>
               <p className="font-display font-semibold text-accent-foreground text-sm leading-tight truncate">
-                {next.title}
+                <TextField id="TodayNextEvent_3">{next.title}</TextField>
               </p>
               <p className="font-body text-[11px] text-accent-foreground/55 mt-0.5 truncate">
-                {timeDisplay}{next.location ? ` · ${next.location}` : ""}
+                <TextField id="TodayNextEvent_4">{timeDisplay}</TextField>{next.location ? ` · ${next.location}` : ""}
               </p>
             </div>
             <ArrowRight

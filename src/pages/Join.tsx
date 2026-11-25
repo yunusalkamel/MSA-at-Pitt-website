@@ -1,3 +1,4 @@
+import { TextField, ContentScope, itemIdentity, CardCopies } from "@/editor/content";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { Instagram, ExternalLink, ArrowRight, CheckCircle2, Users, Calendar, Heart, MessageCircle, Sparkles } from "lucide-react";
@@ -103,8 +104,8 @@ const Join = () => {
                 <Sparkles size={18} className="text-primary-foreground" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-display font-bold text-foreground text-base leading-tight">Alhamdulillah — you're in!</p>
-                <p className="font-satoshi text-muted-foreground text-sm mt-0.5">Welcome to MSA at Pitt. Check your WhatsApp for what's next.</p>
+                <p className="font-display font-bold text-foreground text-base leading-tight"><TextField id="Join_1">Alhamdulillah — you're in!</TextField></p>
+                <p className="font-satoshi text-muted-foreground text-sm mt-0.5"><TextField id="Join_2">Welcome to MSA at Pitt. Check your WhatsApp for what's next.</TextField></p>
               </div>
             </div>
           </motion.div>
@@ -126,27 +127,27 @@ const Join = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="font-body text-xs uppercase tracking-[0.3em] text-primary font-semibold mb-5"
-          >
+          ><TextField id="Join_4">
             Membership
-          </motion.p>
+          </TextField></motion.p>
           <motion.h1
             initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
             className="font-display text-5xl md:text-7xl font-bold text-foreground mb-6 leading-tight px-2"
-          >
+          ><TextField id="Join_5">
             Ready to be part of
-            <br />
-            <span className="inline-block text-gradient-gold italic pb-2">something bigger?</span>
+            </TextField><br />
+            <span className="inline-block text-gradient-gold italic pb-2"><TextField id="Join_6">something bigger?</TextField></span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.35 }}
             className="font-dm-sans text-base md:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed mb-8"
-          >
+          ><TextField id="Join_7">
             No matter who you are or where you're coming from, there's a place for you in MSA at Pitt.
-          </motion.p>
+          </TextField></motion.p>
 
           {/* Soft visual bridge — eyebrow + ornament — pulls Step 01 closer */}
           <motion.div
@@ -160,9 +161,9 @@ const Join = () => {
               <div className="w-1 h-1 rounded-full bg-primary/55" />
               <div className="flex-1 h-px bg-gradient-to-l from-transparent to-primary/35" />
             </div>
-            <p className="font-body text-[11px] uppercase tracking-[0.22em] text-jannah-mid dark:text-msa-gold/70 font-semibold">
+            <p className="font-body text-[11px] uppercase tracking-[0.22em] text-jannah-mid dark:text-msa-gold/70 font-semibold"><TextField id="Join_8">
               4 steps · 2 minutes
-            </p>
+            </TextField></p>
           </motion.div>
         </div>
       </section>
@@ -177,7 +178,7 @@ const Join = () => {
         <div className="max-w-2xl mx-auto relative z-10">
           <div className="space-y-0">
             {steps.map((step, i) => (
-              <motion.div
+              <CardCopies key={step.num} id={"Join_9-" + itemIdentity(step, step.num)}><motion.div
                 key={step.num}
                 initial={prefersReduced ? false : { opacity: 0, y: 18 }}
                 whileInView={prefersReduced ? undefined : { opacity: 1, y: 0 }}
@@ -191,19 +192,19 @@ const Join = () => {
 
                 <div className="flex gap-6 py-8">
                   <div className="flex-shrink-0 w-11 h-11 rounded-full liquid-glass flex items-center justify-center relative z-10">
-                    <span className="font-mono text-xs font-bold text-primary/80 tracking-wider">{step.num}</span>
+                    <span className="font-mono text-xs font-bold text-primary/80 tracking-wider"><TextField id="Join_10">{step.num}</TextField></span>
                   </div>
 
                   <div className="flex-1 pt-1.5">
                     <h3 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-2 leading-tight">
-                      {step.headline}
+                      <TextField id="Join_11">{step.headline}</TextField>
                     </h3>
-                    <p className="font-dm-sans text-muted-foreground text-base leading-relaxed mb-5">{step.copy}</p>
+                    <p className="font-dm-sans text-muted-foreground text-base leading-relaxed mb-5"><TextField id="Join_12">{step.copy}</TextField></p>
 
                     {"cta" in step && step.cta && (
                       <div className="flex flex-col sm:flex-row items-start gap-3">
                         <a href={step.href} target="_blank" rel="noopener noreferrer" className="btn-premium">
-                          {step.cta} <ArrowRight size={15} />
+                          <TextField id="Join_13">{step.cta}</TextField> <ArrowRight size={15} />
                         </a>
                         {!joined && step.num === "01" && (
                           <button
@@ -211,38 +212,38 @@ const Join = () => {
                             onClick={handleJoined}
                             className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors font-body font-semibold self-center"
                           >
-                            <CheckCircle2 size={15} /> I've submitted it
-                          </button>
+                            <CheckCircle2 size={15} /><TextField id="Join_14"> I've submitted it
+                          </TextField></button>
                         )}
                         {joined && step.num === "01" && (
                           <span className="inline-flex items-center gap-2 text-sm text-jannah-mid dark:text-msa-gold font-body font-semibold self-center">
-                            <CheckCircle2 size={15} /> Registered ✓
-                          </span>
+                            <CheckCircle2 size={15} /><TextField id="Join_15"> Registered ✓
+                          </TextField></span>
                         )}
                       </div>
                     )}
                     {"links" in step && step.links && (
                       <div className="flex flex-col sm:flex-row gap-3">
                         {step.links.map((c) => (
-                          <a key={c.label} href={c.href} target="_blank" rel="noopener noreferrer" className="btn-premium-secondary text-sm px-5 py-2.5">
-                            {c.label} <ArrowRight size={14} />
-                          </a>
+                          <ContentScope key={c.label} id={"Join_16-" + itemIdentity(c, c.label)}><a key={c.label} href={c.href} target="_blank" rel="noopener noreferrer" className="btn-premium-secondary text-sm px-5 py-2.5">
+                            <TextField id="Join_17">{c.label}</TextField> <ArrowRight size={14} />
+                          </a></ContentScope>
                         ))}
                       </div>
                     )}
                     {step.socials && (
                       <div className="flex flex-wrap gap-3">
                         <a href={LINKS.instagram} target="_blank" rel="noopener noreferrer" className="btn-premium-secondary text-sm px-5 py-2.5">
-                          <Instagram size={15} /> Instagram
-                        </a>
+                          <Instagram size={15} /><TextField id="Join_18"> Instagram
+                        </TextField></a>
                         <a href={LINKS.linktree} target="_blank" rel="noopener noreferrer" className="btn-premium-secondary text-sm px-5 py-2.5">
-                          <ExternalLink size={15} /> Linktree
-                        </a>
+                          <ExternalLink size={15} /><TextField id="Join_19"> Linktree
+                        </TextField></a>
                       </div>
                     )}
                   </div>
                 </div>
-              </motion.div>
+              </motion.div></CardCopies>
             ))}
           </div>
         </div>
@@ -262,14 +263,14 @@ const Join = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.45 }}
             >
-              <p className="font-body text-xs uppercase tracking-[0.2em] text-primary/70 font-semibold mb-2">After you join</p>
-              <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground">What happens next</h2>
+              <p className="font-body text-xs uppercase tracking-[0.2em] text-primary/70 font-semibold mb-2"><TextField id="Join_20">After you join</TextField></p>
+              <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground"><TextField id="Join_21">What happens next</TextField></h2>
             </motion.div>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {whatHappensNext.map((item, i) => (
-              <motion.div
+              <CardCopies key={item.title} id={"Join_22-" + itemIdentity(item, item.title)}><motion.div
                 key={item.title}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -281,10 +282,10 @@ const Join = () => {
                   <item.icon size={18} className="text-primary" />
                 </div>
                 <div>
-                  <p className="font-body font-bold text-foreground text-sm mb-1">{item.title}</p>
-                  <p className="font-dm-sans text-muted-foreground text-xs leading-relaxed">{item.desc}</p>
+                  <p className="font-body font-bold text-foreground text-sm mb-1"><TextField id="Join_23">{item.title}</TextField></p>
+                  <p className="font-dm-sans text-muted-foreground text-xs leading-relaxed"><TextField id="Join_24">{item.desc}</TextField></p>
                 </div>
-              </motion.div>
+              </motion.div></CardCopies>
             ))}
           </div>
 
@@ -300,18 +301,18 @@ const Join = () => {
               <CheckCircle2 size={22} className="text-primary" />
             </div>
             <div className="flex-1 text-center md:text-left">
-              <p className="font-display text-xl font-bold text-foreground mb-1">You're in. Alhamdulillah.</p>
-              <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed">
+              <p className="font-display text-xl font-bold text-foreground mb-1"><TextField id="Join_25">You're in. Alhamdulillah.</TextField></p>
+              <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed"><TextField id="Join_26">
                 Once you've registered and joined the WhatsApp, you're officially part of the MSA at Pitt family. We'll see you at the next event — and every one after that, insha'Allah.
-              </p>
+              </TextField></p>
             </div>
             <a
               href={LINKS.registrationForm}
               target="_blank"
               rel="noopener noreferrer"
               className="btn-premium flex-shrink-0"
-            >
-              Register Now <ArrowRight size={15} />
+            ><TextField id="Join_27">
+              Register Now </TextField><ArrowRight size={15} />
             </a>
           </motion.div>
         </div>
@@ -332,11 +333,11 @@ const Join = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               className="font-display text-xl md:text-2xl text-foreground italic leading-relaxed mb-5"
-            >
+            ><TextField id="Join_28">
               "We're so glad you're here. Whether you've been Muslim your whole life or you're still figuring things out — MSA is your community. Come as you are."
-            </motion.blockquote>
+            </TextField></motion.blockquote>
             <div className="w-12 h-px gold-gradient mx-auto mb-4" />
-            <p className="font-body text-muted-foreground text-sm font-semibold tracking-wide uppercase">MSA at Pitt President</p>
+            <p className="font-body text-muted-foreground text-sm font-semibold tracking-wide uppercase"><TextField id="Join_29">MSA at Pitt President</TextField></p>
           </div>
         </div>
       </section>
@@ -345,11 +346,11 @@ const Join = () => {
       <section className="section-padding-sm gradient-section-emerald-soft">
         <div className="max-w-2xl mx-auto">
           <div className="glass-card-strong glass-glow p-7">
-            <ArabicVerse
+            <ContentScope id="Join_30"><ArabicVerse
               arabic="خَيْرُ النَّاسِ أَنْفَعُهُمْ لِلنَّاسِ"
               translation="The best of people are those who are most beneficial to others."
               reference="Hadith · Sahih al-Jami 3289"
-            />
+            /></ContentScope>
           </div>
         </div>
       </section>

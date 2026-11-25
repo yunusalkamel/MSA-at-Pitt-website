@@ -1,3 +1,4 @@
+import { TextField, itemIdentity, ContentScope, CardCopies } from "@/editor/content";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowLeft, ArrowRight, MapPin, Utensils, BookOpen, Users, Briefcase, Trophy, Bus, Mic2 } from "lucide-react";
@@ -106,7 +107,7 @@ const Section = ({ icon: Icon, title, children, delay = 0 }: {
       <div className="gold-gradient w-10 h-10 rounded-xl flex items-center justify-center shadow-sm flex-shrink-0">
         <Icon className="text-primary-foreground" size={18} />
       </div>
-      <h3 className="font-display text-xl md:text-2xl font-bold text-foreground">{title}</h3>
+      <h3 className="font-display text-xl md:text-2xl font-bold text-foreground"><TextField id="NewToPitt_1">{title}</TextField></h3>
     </div>
     {children}
   </motion.div>
@@ -115,9 +116,9 @@ const Section = ({ icon: Icon, title, children, delay = 0 }: {
 const Bullets = ({ items }: { items: string[] }) => (
   <ul className="space-y-2.5">
     {items.map((item, i) => (
-      <li key={i} className="text-muted-foreground text-sm leading-relaxed pl-4 relative before:content-['•'] before:absolute before:left-0 before:text-primary/50">
-        {item}
-      </li>
+      <ContentScope key={i} id={"NewToPitt_2-" + itemIdentity(item, i)}><li key={i} className="text-muted-foreground text-sm leading-relaxed pl-4 relative before:content-['•'] before:absolute before:left-0 before:text-primary/50">
+        <TextField id="NewToPitt_3">{item}</TextField>
+      </li></ContentScope>
     ))}
   </ul>
 );
@@ -132,26 +133,26 @@ const NewToPitt = () => (
           
           <BridgeBar />
       <div className="relative z-10 max-w-3xl mx-auto">
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xs uppercase tracking-[0.3em] text-primary font-semibold mb-5">
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xs uppercase tracking-[0.3em] text-primary font-semibold mb-5"><TextField id="NewToPitt_5">
           Resources
-        </motion.p>
-        <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="font-display text-5xl md:text-7xl font-bold text-foreground mb-4">
-          New to <span className="text-gradient-gold inline-block pb-1">Pitt?</span>
+        </TextField></motion.p>
+        <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="font-display text-5xl md:text-7xl font-bold text-foreground mb-4"><TextField id="NewToPitt_6">
+          New to </TextField><span className="text-gradient-gold inline-block pb-1"><TextField id="NewToPitt_7">Pitt?</TextField></span>
         </motion.h1>
-        <motion.p initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-muted-foreground text-lg max-w-xl mx-auto leading-relaxed">
+        <motion.p initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-muted-foreground text-lg max-w-xl mx-auto leading-relaxed"><TextField id="NewToPitt_8">
           Tips from MSA students who were sitting exactly where you are not too long ago. Take what's useful and don't hesitate to reach out.
-        </motion.p>
+        </TextField></motion.p>
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }} className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3 flex-wrap">
           <Link to="/resources" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
-            <ArrowLeft size={14} /> Back to Resources
+            <ArrowLeft size={14} /><TextField id="NewToPitt_9"> Back to Resources
+          </TextField></Link>
+          <span className="hidden sm:block text-border">·</span>
+          <Link to="/resources/prayer" className="inline-flex items-center gap-2 text-sm text-primary font-semibold hover:underline"><TextField id="NewToPitt_10">
+            🕌 Prayer Times &amp; Spaces </TextField><ArrowRight size={13} />
           </Link>
           <span className="hidden sm:block text-border">·</span>
-          <Link to="/resources/prayer" className="inline-flex items-center gap-2 text-sm text-primary font-semibold hover:underline">
-            🕌 Prayer Times &amp; Spaces <ArrowRight size={13} />
-          </Link>
-          <span className="hidden sm:block text-border">·</span>
-          <a href="https://docs.google.com/document/d/1sWSKZ-PfdgzmSeO_IcZIlhZtkpinHK4esdQSStORKNQ/edit?usp=sharing" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
-            📄 Google Doc <ArrowRight size={13} />
+          <a href="https://docs.google.com/document/d/1sWSKZ-PfdgzmSeO_IcZIlhZtkpinHK4esdQSStORKNQ/edit?usp=sharing" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"><TextField id="NewToPitt_11">
+            📄 Google Doc </TextField><ArrowRight size={13} />
           </a>
         </motion.div>
       </div>
@@ -163,59 +164,59 @@ const NewToPitt = () => (
       <div className="absolute inset-0 texture-dots opacity-50" />
       
       <div className="max-w-4xl mx-auto relative z-10 space-y-6">
-        <Section icon={BookOpen} title="General Day-to-Day Tips">
-          <Bullets items={dayToDay} />
-        </Section>
+        <ContentScope id="NewToPitt_12"><Section icon={BookOpen} title="General Day-to-Day Tips">
+          <ContentScope id="NewToPitt_13"><Bullets items={dayToDay} /></ContentScope>
+        </Section></ContentScope>
 
-        <Section icon={MapPin} title="Roommates & Dorms" delay={0.05}>
-          <Bullets items={dorms} />
-        </Section>
+        <ContentScope id="NewToPitt_14"><Section icon={MapPin} title="Roommates & Dorms" delay={0.05}>
+          <ContentScope id="NewToPitt_15"><Bullets items={dorms} /></ContentScope>
+        </Section></ContentScope>
 
-        <Section icon={Utensils} title="Halal Food" delay={0.1}>
-          <h4 className="text-foreground font-semibold text-sm mb-2">On Campus</h4>
+        <ContentScope id="NewToPitt_16"><Section icon={Utensils} title="Halal Food" delay={0.1}>
+          <h4 className="text-foreground font-semibold text-sm mb-2"><TextField id="NewToPitt_17">On Campus</TextField></h4>
           <ul className="space-y-2 mb-4">
             {halalFood.onCampus.map((item, i) => (
-              <li key={i} className="text-muted-foreground text-sm leading-relaxed">
-                <span className="font-semibold text-foreground">{item.name}:</span> {item.note}
-              </li>
+              <CardCopies key={i} id={"NewToPitt_18-" + itemIdentity(item, i)}><li key={i} className="text-muted-foreground text-sm leading-relaxed">
+                <span className="font-semibold text-foreground"><TextField id="NewToPitt_20">{item.name}</TextField>:</span> <TextField id="NewToPitt_19">{item.note}</TextField>
+              </li></CardCopies>
             ))}
           </ul>
-          <h4 className="text-foreground font-semibold text-sm mb-2">Nearby (Under 1 Mile)</h4>
+          <h4 className="text-foreground font-semibold text-sm mb-2"><TextField id="NewToPitt_21">Nearby (Under 1 Mile)</TextField></h4>
           <p className="text-muted-foreground text-sm leading-relaxed mb-4">{halalFood.nearby.join(" · ")}</p>
-          <h4 className="text-foreground font-semibold text-sm mb-2">Farther Out (1–10 Miles)</h4>
+          <h4 className="text-foreground font-semibold text-sm mb-2"><TextField id="NewToPitt_22">Farther Out (1–10 Miles)</TextField></h4>
           <p className="text-muted-foreground text-sm leading-relaxed mb-4">{halalFood.farther.join(" · ")}</p>
-          <h4 className="text-foreground font-semibold text-sm mb-2">Desserts</h4>
+          <h4 className="text-foreground font-semibold text-sm mb-2"><TextField id="NewToPitt_23">Desserts</TextField></h4>
           <p className="text-muted-foreground text-sm leading-relaxed">{halalFood.desserts.join(" · ")}</p>
-        </Section>
+        </Section></ContentScope>
 
-        <Section icon={Mic2} title="Ramadan Tips" delay={0.15}>
-          <Bullets items={ramadanTips} />
-        </Section>
+        <ContentScope id="NewToPitt_24"><Section icon={Mic2} title="Ramadan Tips" delay={0.15}>
+          <ContentScope id="NewToPitt_25"><Bullets items={ramadanTips} /></ContentScope>
+        </Section></ContentScope>
 
-        <Section icon={Briefcase} title="Networking & Professional Growth" delay={0.2}>
-          <Bullets items={networking} />
-        </Section>
+        <ContentScope id="NewToPitt_26"><Section icon={Briefcase} title="Networking & Professional Growth" delay={0.2}>
+          <ContentScope id="NewToPitt_27"><Bullets items={networking} /></ContentScope>
+        </Section></ContentScope>
 
-        <Section icon={Users} title="Social Life & Community" delay={0.25}>
-          <Bullets items={socialLife} />
+        <ContentScope id="NewToPitt_28"><Section icon={Users} title="Social Life & Community" delay={0.25}>
+          <ContentScope id="NewToPitt_29"><Bullets items={socialLife} /></ContentScope>
           <div className="liquid-glass p-4 mt-4 border-l-2 border-primary/30">
-            <p className="text-sm text-foreground italic leading-relaxed">
+            <p className="text-sm text-foreground italic leading-relaxed"><TextField id="NewToPitt_30">
               "A man is upon the religion of his best friend, so let one of you look at whom he befriends."
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">— Prophet Muhammad ﷺ (Sunan al-Tirmidhi 2378)</p>
+            </TextField></p>
+            <p className="text-xs text-muted-foreground mt-1"><TextField id="NewToPitt_31">— Prophet Muhammad ﷺ (Sunan al-Tirmidhi 2378)</TextField></p>
           </div>
-        </Section>
+        </Section></ContentScope>
 
-        <Section icon={Bus} title="Commuters" delay={0.3}>
-          <h4 className="text-foreground font-semibold text-sm mb-2">Parking</h4>
-          <Bullets items={commuters.parking} />
-          <h4 className="text-foreground font-semibold text-sm mt-4 mb-2">Microwaves on Campus</h4>
+        <ContentScope id="NewToPitt_32"><Section icon={Bus} title="Commuters" delay={0.3}>
+          <h4 className="text-foreground font-semibold text-sm mb-2"><TextField id="NewToPitt_33">Parking</TextField></h4>
+          <ContentScope id="NewToPitt_34"><Bullets items={commuters.parking} /></ContentScope>
+          <h4 className="text-foreground font-semibold text-sm mt-4 mb-2"><TextField id="NewToPitt_35">Microwaves on Campus</TextField></h4>
           <p className="text-muted-foreground text-sm">{commuters.microwaves.join(" · ")}</p>
-        </Section>
+        </Section></ContentScope>
 
-        <Section icon={Trophy} title="Sports & Recreation" delay={0.35}>
-          <Bullets items={sports} />
-        </Section>
+        <ContentScope id="NewToPitt_36"><Section icon={Trophy} title="Sports & Recreation" delay={0.35}>
+          <ContentScope id="NewToPitt_37"><Bullets items={sports} /></ContentScope>
+        </Section></ContentScope>
       </div>
     </section>
 
@@ -225,11 +226,11 @@ const NewToPitt = () => (
     <section className="section-padding-sm gradient-section-emerald-soft">
       <div className="max-w-2xl mx-auto">
         <div className="glass-card-strong glass-glow p-8 md:p-12">
-          <ArabicVerse
+          <ContentScope id="NewToPitt_38"><ArabicVerse
             arabic="رَبِّ اشْرَحْ لِي صَدْرِي وَيَسِّرْ لِي أَمْرِي"
             translation="My Lord, expand my breast and ease my task for me."
             reference="Quran 20:25–26"
-          />
+          /></ContentScope>
         </div>
       </div>
     </section>

@@ -1,3 +1,4 @@
+import { ContentScope, TextField } from "@/editor/content";
 import { motion } from "framer-motion";
 import Layout from "@/components/Layout";
 import BridgeBar from "@/components/BridgeBar";
@@ -30,15 +31,15 @@ const BoardPage = () => {
         <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: "200px" }} />
         <BridgeBar />
         <div className="relative z-10 max-w-3xl mx-auto">
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xs uppercase tracking-[0.3em] text-primary font-semibold mb-5">
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xs uppercase tracking-[0.3em] text-primary font-semibold mb-5"><TextField id="OrgChart_2">
             Leadership
-          </motion.p>
-          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="font-display text-5xl md:text-7xl font-bold text-foreground mb-4 px-2 leading-[1.05]">
-            MSA <span className="text-gradient-gold inline-block pb-1">Board</span>
+          </TextField></motion.p>
+          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="font-display text-5xl md:text-7xl font-bold text-foreground mb-4 px-2 leading-[1.05]"><TextField id="OrgChart_3">
+            MSA </TextField><span className="text-gradient-gold inline-block pb-1"><TextField id="OrgChart_4">Board</TextField></span>
           </motion.h1>
-          <motion.p initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-muted-foreground text-lg max-w-xl mx-auto leading-relaxed">
+          <motion.p initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-muted-foreground text-lg max-w-xl mx-auto leading-relaxed"><TextField id="OrgChart_5">
             The students running the show this year.
-          </motion.p>
+          </TextField></motion.p>
         </div>
       </section>
 

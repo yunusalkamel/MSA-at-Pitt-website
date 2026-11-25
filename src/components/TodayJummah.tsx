@@ -1,3 +1,4 @@
+import { TextField } from "@/editor/content";
 import { Link } from "react-router-dom";
 import { Clock, MapPin, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
@@ -41,24 +42,24 @@ const TodayJummah = () => {
       >
         <div className="flex items-center gap-4">
           <div className="w-11 h-11 md:w-12 md:h-12 rounded-xl gold-gradient flex flex-col items-center justify-center flex-shrink-0">
-            <span className="text-primary-foreground/80 text-[8px] font-bold uppercase tracking-wider leading-none">
+            <span className="text-primary-foreground/80 text-[8px] font-bold uppercase tracking-wider leading-none"><TextField id="TodayJummah_1">
               Today
-            </span>
-            <span className="text-primary-foreground font-display font-bold text-base md:text-lg leading-none mt-0.5">
+            </TextField></span>
+            <span className="text-primary-foreground font-display font-bold text-base md:text-lg leading-none mt-0.5"><TextField id="TodayJummah_2">
               Fri
-            </span>
+            </TextField></span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-body text-[10px] uppercase tracking-[0.2em] text-jannah-mid dark:text-msa-gold/70 font-semibold mb-0.5">
+            <p className="font-body text-[10px] uppercase tracking-[0.2em] text-jannah-mid dark:text-msa-gold/70 font-semibold mb-0.5"><TextField id="TodayJummah_3">
               Jummah Today
-            </p>
+            </TextField></p>
             <p className="font-display font-bold text-foreground text-base md:text-lg leading-tight mb-1.5 truncate">
               {time}
             </p>
             <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
               <span className="flex items-center gap-1.5 truncate">
                 <MapPin size={11} className="text-secondary/70 flex-shrink-0" />
-                <span className="truncate">{location}</span>
+                <span className="truncate"><TextField id="TodayJummah_4">{location}</TextField></span>
               </span>
             </div>
           </div>
@@ -69,7 +70,7 @@ const TodayJummah = () => {
         </div>
         {note && (
           <p className="font-body text-[11px] text-muted-foreground/70 mt-3 pt-3 border-t border-border/30 leading-relaxed">
-            {note}
+            <TextField id="TodayJummah_5">{note}</TextField>
           </p>
         )}
       </Link>
