@@ -15,10 +15,13 @@ Start from main at `81307ce` (merged inline editor). Each phase gets an isolated
 
 ## 2. Owner dashboard and administrator permissions
 
-- [ ] Add isolated Supabase authorization, settings, and audit tables with RLS.
-- [ ] Add per-request permission checks and cover active-session revocation.
-- [ ] Implement the owner dashboard, administrator lifecycle, publishing/maintenance controls, security activity, and health checks.
-- [ ] Confirm owner access remains available with all administrator controls disabled.
+- [x] Add isolated Supabase authorization, settings, and audit tables with RLS.
+- [x] Add per-request permission checks and cover active-session revocation.
+- [x] Implement the owner dashboard, administrator lifecycle, publishing/maintenance controls, security activity, and health checks.
+- [x] Confirm owner access remains available with all administrator controls disabled.
+
+- [x] Apply the additive management migration to the linked Supabase project.
+- [ ] Connect the preview environment key and verify separate real accounts on the protected Vercel preview. See [owner setup and verification](owner-setup.md).
 
 ## 3. Google authentication
 

@@ -1,0 +1,108 @@
+.msa-owner {
+  max-width: 66rem;
+  margin: auto;
+  padding: clamp(1rem, 4vw, 3rem);
+  color: #102941;
+  background: #fff;
+  min-height: 100vh;
+}
+.msa-owner header,
+.msa-owner nav,
+.msa-owner form,
+.owner-control,
+.msa-owner dl div {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.msa-owner header,
+.owner-control,
+.msa-owner dl div {
+  justify-content: space-between;
+}
+.msa-owner header p {
+  color: #645225;
+  font-weight: 700;
+}
+.msa-owner h1,
+.msa-owner h2 {
+  font-family: Georgia, serif;
+  line-height: 1.1;
+}
+.msa-owner h1 {
+  font-size: clamp(2rem, 5vw, 3.25rem);
+}
+.msa-owner h2 {
+  font-size: 1.7rem;
+  margin-bottom: 1rem;
+}
+.msa-owner section {
+  padding: 1.5rem 0;
+  border-top: 1px solid #cfd7dd;
+  scroll-margin-top: 1rem;
+}
+.msa-owner nav {
+  margin: 1.5rem 0;
+}
+.msa-owner a {
+  text-decoration: underline;
+  text-underline-offset: 0.2rem;
+  color: #194d75;
+}
+.msa-owner p {
+  margin: 0.4rem 0;
+}
+.msa-owner [role="alert"] {
+  color: #9b2727;
+}
+.msa-owner input:not([type="checkbox"]),
+.msa-owner button {
+  border: 1px solid #708297;
+  border-radius: 0.375rem;
+  padding: 0.55rem 0.8rem;
+  background: white;
+  max-width: 100%;
+}
+.msa-owner label input:not([type="checkbox"]),
+.msa-owner small {
+  display: block;
+}
+.msa-owner small {
+  color: #4d5c69;
+}
+.msa-owner form {
+  align-items: flex-end;
+  margin: 1rem 0;
+}
+.msa-owner button {
+  color: #173854;
+  font-weight: 600;
+  cursor: pointer;
+}
+.msa-owner button:disabled {
+  opacity: 0.65;
+}
+.msa-owner article,
+.msa-owner li,
+.owner-control,
+.msa-owner dl div {
+  padding: 0.8rem 0;
+  border-bottom: 1px solid #e1e7eb;
+  overflow-wrap: anywhere;
+}
+.msa-owner article button {
+  margin-right: 0.4rem;
+}
+.msa-owner h3 {
+  font-weight: 700;
+}
+.owner-control {
+  flex-wrap: nowrap;
+}
+.owner-control input {
+  width: 1.3rem;
+  height: 1.3rem;
+  flex: none;
+  accent-color: #153d60;
+}

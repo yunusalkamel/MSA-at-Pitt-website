@@ -7,6 +7,7 @@ import AppLoader from "@/components/AppLoader";
 
 import SiteContent, { adminPath } from "./editor/SiteContent";
 
+const Owner = lazy(() => import("./editor/Owner"));
 const Index = lazy(() => import("./pages/Index.tsx"));
 const About = lazy(() => import("./pages/About.tsx"));
 const Events = lazy(() => import("./pages/Events.tsx"));
@@ -25,7 +26,7 @@ const OrgChart = lazy(() => import("./pages/OrgChart.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 const publicProduction = import.meta.env.PROD &&
-  !/^(?:\/admin|\/owner|\/auth)(?:\/|$)/.test(window.location.pathname) &&
+  !/^(?:\/admin|\/owner|\/auth)(?:\/|$)/i.test(window.location.pathname) &&
   window.location.hostname === "msaatpitt.vercel.app";
 
 const ScrollToTop = () => {
@@ -44,6 +45,7 @@ const App = () => (
           <Suspense fallback={<AppLoader />}>
             <Routes>
               <Route path="/" element={<Index />} />
+              {!adminPath && <Route path="/owner" element={<Owner />} />}
               <Route path="/about" element={<About />} />
               <Route path="/events" element={<Events />} />
               <Route path="/gallery" element={<Gallery />} />

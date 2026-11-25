@@ -1,7 +1,7 @@
 import { createClient } from "@sanity/client";
-import { createClient as createAuth } from "@supabase/supabase-js";
+import { management, environment } from "../server/management.js";
 
-const owner = "yunusaalkamel@gmail.com";
+
 const documentId = "website-inline-content";
 const maxImage = 3 * 1024 * 1024;
 const validKey = (key) =>
@@ -54,6 +54,7 @@ export default async function handler(req, res) {
   };
   try {
     if (req.method === "GET") {
+      environment();
       const doc = await createClient(config).getDocument(documentId);
       return res.json({
         revision: doc?._rev || null,
@@ -61,37 +62,17 @@ export default async function handler(req, res) {
       });
     }
     if (req.method !== "POST") return res.status(405).end();
-    const token = req.headers.authorization?.match(/^Bearer (.+)$/)?.[1];
-    if (!token) return res.status(401).end();
-    const auth = createAuth(
-      process.env.VITE_SUPABASE_URL,
-      process.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-      { auth: { persistSession: false, autoRefreshToken: false } },
-    );
-    const {
-      data: { user },
-      error,
-    } = await auth.auth.getUser(token);
-    if (
-      error ||
-      !user?.email_confirmed_at ||
-      user.email?.toLowerCase() !== owner
-    )
-      return res.status(403).end();
-    if (req.body?.action === "session") return res.json({ authorized: true });
-    
+    const actionName = req.body?.action;
+    if (!["publish", "image", "session"].includes(actionName)) return res.status(400).end();
+    const authorize = await management(req);
+    const access = await authorize(actionName);
+    if (actionName === "session") return res.json({ authorized: true, role: access.role });
+
     if (!process.env.SANITY_EDITOR_TOKEN)
       return res.status(503).json({
         error: "SANITY_EDITOR_TOKEN is missing.",
       });
 
-    if (process.env.VERCEL_ENV === "preview" && dataset === "production")
-      return res.status(503).json({
-        error: `Incorrect preview dataset: ${dataset}. Dataset variable ${
-          process.env.SANITY_EDITOR_DATASET ? "is set" : "is missing"
-        }.`,
-      });
-    
     const client = createClient({
       ...config,
       token: process.env.SANITY_EDITOR_TOKEN,
@@ -149,8 +130,15 @@ export default async function handler(req, res) {
             .ifRevisionId(revision)
             .set({ fieldsJson })
             .commit();
+    try {
+      await authorize("published", { revision: doc._rev });
+    } catch {
+      return res.json({ revision: doc._rev, warning: "Published successfully, but the activity log could not be updated." });
+    }
     return res.json({ revision: doc._rev });
   } catch (error) {
+    if (error.publicStatus) return res.status(error.publicStatus).json({error: error.message});
+    if ([401,403].includes(error.statusCode)) return res.status(502).json({error:"Sanity denied this operation. Check the publishing token and dataset permissions."});
     const conflict =
       error.statusCode === 409 || error.response?.statusCode === 409;
     return res
