@@ -1,3 +1,4 @@
+import History from "./History";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import type { Session } from "@supabase/supabase-js";
@@ -33,6 +34,7 @@ function Editor({
     [active, setActive] = useState(false),
     [card, setCard] = useState<{ key: string; scope: string } | null>(null);
   const [link, setLink] = useState<{ key: string; url: string } | null>(null);
+  const [history,setHistory] = useState(false);
   const finish = useRef<() => void>(),
     file = useRef<HTMLInputElement>(null),
     imageKey = useRef("");
@@ -97,7 +99,7 @@ function Editor({
     }
   }
   useEffect(() => {
-    if (!editing || !base || busy) return;
+    if (!editing || !base || busy || history) return;
     function click(e: MouseEvent) {
       const el = e.target instanceof Element ? e.target : null;
       if (!el || el.closest(".msa-tools")) return;
@@ -168,7 +170,7 @@ function Editor({
       document.removeEventListener("dragover", drop, true);
       document.removeEventListener("drop", drop, true);
     };
-  }, [editing, base, busy, session]);
+  }, [editing, base, busy, session, history]);
   function duplicate() {
     if (!card) return;
     finish.current?.();
@@ -257,8 +259,9 @@ function Editor({
     }
   }
   return (
-    <Content.Provider value={{ fields, editing: editing && !!base && !busy }}>
+    <Content.Provider value={{ fields, editing: editing && !!base && !busy && !history }}>
       {children}
+      {history && <History session={session} onClose={()=>setHistory(false)} onRestore={()=>location.reload()}/>}
       <aside
         className="msa-tools"
         aria-label="Page editor"
@@ -268,6 +271,7 @@ function Editor({
             event.preventDefault();
         }}
       >
+        <button disabled={busy || !!dirty || active} title="Publish or discard current edits before opening history" onClick={()=>setHistory(true)}>History</button>
         <select
           aria-label="Go to page"
           value={pathname}

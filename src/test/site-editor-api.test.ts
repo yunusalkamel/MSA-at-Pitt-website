@@ -15,7 +15,8 @@ vi.mock("@supabase/supabase-js", () => ({
 }));
 vi.mock("@sanity/client", () => ({
   createClient: () => ({
-    create: services.create,
+    getDocument: async()=>null,
+    transaction:()=>({create(){return this;},commit:services.create}),
     assets: { upload: services.upload },
   }),
 }));
@@ -90,7 +91,7 @@ it("protects production from previews and preserves edits on conflict", async ()
 });
 
 it("validates link destinations before writing published content", async () => {
-  services.create.mockResolvedValue({ _rev: "b" });
+  services.create.mockResolvedValue([{_id:"website-inline-content", _rev: "b"}]);
   const publish = (url: string) =>
     call({
       action: "publish",
