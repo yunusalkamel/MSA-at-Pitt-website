@@ -157,9 +157,9 @@ const Contact = () => {
                 </TextField></p>
               </div>
               <div className="flex flex-col gap-2 mt-auto">
-                <a href={`mailto:${LINKS.email}`} className="btn-premium text-sm px-5 py-2.5 justify-center"><TextField id="Contact_16">
+                <LinkField fieldId="Contact_destination_1" href={`mailto:${LINKS.email}`} className="btn-premium text-sm px-5 py-2.5 justify-center"><TextField id="Contact_16">
                   Email us </TextField><ArrowRight size={14} />
-                </a>
+                </LinkField>
                 <LinkField fieldId="contact-instagram" href={LINKS.instagram} target="_blank" rel="noopener noreferrer"
                   className="btn-premium-secondary text-sm px-5 py-2.5 justify-center"><TextField id="Contact_17">
                   Instagram DM </TextField><ArrowRight size={14} />
@@ -198,7 +198,7 @@ const Contact = () => {
 
           <p className="text-center text-xs text-muted-foreground/60 font-body mt-8"><TextField id="Contact_21">
             For media or partnership inquiries, please email</TextField>{" "}
-            <a href={`mailto:${LINKS.email}`} className="text-primary hover:underline"><TextField id="Contact_22">{LINKS.email}</TextField></a>
+            <LinkField fieldId="Contact_destination_2" href={`mailto:${LINKS.email}`} className="text-primary hover:underline"><TextField id="Contact_22">{LINKS.email}</TextField></LinkField>
           </p>
         </div>
       </section>

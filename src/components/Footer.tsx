@@ -137,6 +137,15 @@ const Footer = () => {
           </p>
         </div>
 
+        <details className="text-center text-sm mb-4"><summary>Privacy and analytics</summary>
+          <p>We use aggregate Vercel traffic and speed measurements on public pages. We exclude management and counseling pages. Optional Google Analytics measures page visits and link clicks using a random browser identifier. We do not send form entries or contact details.</p>
+          {import.meta.env.VITE_OPTIONAL_ANALYTICS==="true" && location.hostname==="msaatpitt.vercel.app" && <button onClick={()=>{
+            const enabled=localStorage.getItem("msa-analytics")==="yes";
+            localStorage.setItem("msa-analytics",enabled?"no":"yes");
+            if(enabled){localStorage.removeItem("msa-visitor");sessionStorage.removeItem("msa-visit");sessionStorage.removeItem("msa-last");}
+            location.reload();
+          }}>{localStorage.getItem("msa-analytics")==="yes"?"Turn off optional analytics":"Allow optional analytics"}</button>}
+        </details>
         {/* ── Copyright ── */}
         <p className="text-center font-body text-xs" style={{ color: "rgba(255,255,255,.22)" }}>
           © <TextField id="Footer_21">{copyrightYears}</TextField><TextField id="Footer_22"> Muslim Student Association at the University of Pittsburgh

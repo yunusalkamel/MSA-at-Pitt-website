@@ -1,3 +1,4 @@
+import { LinkField } from "@/editor/content";
 import { TextField, itemIdentity, ContentScope, CardCopies } from "@/editor/content";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
@@ -151,9 +152,9 @@ const NewToPitt = () => (
             🕌 Prayer Times &amp; Spaces </TextField><ArrowRight size={13} />
           </Link>
           <span className="hidden sm:block text-border">·</span>
-          <a href="https://docs.google.com/document/d/1sWSKZ-PfdgzmSeO_IcZIlhZtkpinHK4esdQSStORKNQ/edit?usp=sharing" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"><TextField id="NewToPitt_11">
+          <LinkField fieldId="NewToPitt_destination_1" href="https://docs.google.com/document/d/1sWSKZ-PfdgzmSeO_IcZIlhZtkpinHK4esdQSStORKNQ/edit?usp=sharing" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"><TextField id="NewToPitt_11">
             📄 Google Doc </TextField><ArrowRight size={13} />
-          </a>
+          </LinkField>
         </motion.div>
       </div>
     </section>

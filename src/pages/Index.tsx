@@ -1,3 +1,4 @@
+import { LinkField } from "@/editor/content";
 import { TextField, Picture, ContentScope, itemIdentity, CardCopies } from "@/editor/content";
 import { Link } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
@@ -313,8 +314,8 @@ const Index = () => {
             })}
             <Link to="/events" className="btn-premium w-full justify-center mt-1"><TextField id="Index_34">View all events </TextField><ArrowRight size={14} /></Link>
             <div className="flex justify-center gap-5 mt-1">
-              <a href={LINKS.googleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"><Calendar size={11} /><TextField id="Index_35"> Google Calendar</TextField></a>
-              <a href={LINKS.appleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"><Calendar size={11} /><TextField id="Index_36"> Apple Calendar</TextField></a>
+              <LinkField fieldId="Index_destination_1" href={LINKS.googleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"><Calendar size={11} /><TextField id="Index_35"> Google Calendar</TextField></LinkField>
+              <LinkField fieldId="Index_destination_2" href={LINKS.appleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"><Calendar size={11} /><TextField id="Index_36"> Apple Calendar</TextField></LinkField>
             </div>
           </div>
           <div className="hidden md:flex gap-4 items-stretch">
@@ -347,7 +348,7 @@ const Index = () => {
                         </div>
                         <p className="font-satoshi text-muted-foreground text-sm mb-1.5">📍 <TextField id="Index_45">{event.location}</TextField></p>
                         <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed mb-5 flex-1"><TextField id="Index_46">{event.shortBlurb}</TextField></p>
-                        <a href={event.rsvpUrl || LINKS.eventSignupHub} target="_blank" rel="noopener noreferrer" className="btn-premium text-sm px-5 py-2 self-start"><TextField id="Index_47">RSVP </TextField><ArrowRight size={13} /></a>
+                        <LinkField fieldId="Index_destination_3" href={event.rsvpUrl || LINKS.eventSignupHub} target="_blank" rel="noopener noreferrer" className="btn-premium text-sm px-5 py-2 self-start"><TextField id="Index_47">RSVP </TextField><ArrowRight size={13} /></LinkField>
                       </div></ContentScope>
                     );
                   })}
@@ -359,9 +360,9 @@ const Index = () => {
               <p className="font-dm-sans text-muted-foreground text-xs mb-4 leading-relaxed"><TextField id="Index_49">Halaqas, speakers, sisters' events, and more.</TextField></p>
               <Link to="/events" className="btn-premium text-sm px-4 py-2 mb-3 w-full justify-center"><TextField id="Index_50">View All </TextField><ArrowRight size={13} /></Link>
               <div className="flex gap-3">
-                <a href={LINKS.googleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"><Calendar size={11} /><TextField id="Index_51"> Google</TextField></a>
+                <LinkField fieldId="Index_destination_4" href={LINKS.googleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"><Calendar size={11} /><TextField id="Index_51"> Google</TextField></LinkField>
                 <span className="text-border">·</span>
-                <a href={LINKS.appleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"><Calendar size={11} /><TextField id="Index_52"> Apple</TextField></a>
+                <LinkField fieldId="Index_destination_5" href={LINKS.appleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"><Calendar size={11} /><TextField id="Index_52"> Apple</TextField></LinkField>
               </div>
             </div>
           </div>
@@ -383,12 +384,12 @@ const Index = () => {
               Every halaqah, Jummah, social, and iftar — synced straight to your calendar automatically.
             </TextField></p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-              <a href={LINKS.googleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="btn-premium text-sm md:text-base px-7 py-3.5 w-full sm:w-auto justify-center">
+              <LinkField fieldId="Index_destination_6" href={LINKS.googleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="btn-premium text-sm md:text-base px-7 py-3.5 w-full sm:w-auto justify-center">
                 <Calendar size={15} /><TextField id="Index_57"> Add to Google Calendar
-              </TextField></a>
-              <a href={LINKS.appleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="btn-premium-secondary text-sm md:text-base px-7 py-3.5 w-full sm:w-auto justify-center">
+              </TextField></LinkField>
+              <LinkField fieldId="Index_destination_7" href={LINKS.appleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="btn-premium-secondary text-sm md:text-base px-7 py-3.5 w-full sm:w-auto justify-center">
                 <Calendar size={15} /><TextField id="Index_58"> Add to Apple Calendar
-              </TextField></a>
+              </TextField></LinkField>
             </div>
           </div>
         </div>
@@ -509,9 +510,9 @@ const Index = () => {
             <p className="font-dm-sans text-muted-foreground text-base md:text-lg max-w-xl mx-auto mb-8 leading-[1.8] mt-3"><TextField id="Index_77">Join hundreds of students cultivating community and igniting iman at Pitt. Whatever stage of the journey you're on — there's a place for you here.</TextField></p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center mb-8">
               <Link to="/join" className="btn-premium text-base px-8 py-3.5"><TextField id="Index_78">Get Started </TextField><ArrowRight size={16} /></Link>
-              <a href={LINKS.instagram} target="_blank" rel="noopener noreferrer" className="btn-premium-secondary text-base px-8 py-3.5">
+              <LinkField fieldId="Index_destination_8" href={LINKS.instagram} target="_blank" rel="noopener noreferrer" className="btn-premium-secondary text-base px-8 py-3.5">
                 <Instagram size={15} /><TextField id="Index_79"> Follow on Instagram
-              </TextField></a>
+              </TextField></LinkField>
             </div>
             <div className="flex justify-center"><InstagramWidget /></div>
           </motion.div>

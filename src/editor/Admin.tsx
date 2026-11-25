@@ -1,5 +1,11 @@
 import History from "./History";
-import { useLayoutEffect, useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  useLayoutEffect,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
@@ -34,15 +40,20 @@ function Editor({
     [active, setActive] = useState(false),
     [card, setCard] = useState<{ key: string; scope: string } | null>(null);
   const [link, setLink] = useState<{ key: string; url: string } | null>(null);
-  const [history,setHistory] = useState(false);
+  const [preview, setPreview] = useState<Fields | null>(null);
+  const [history, setHistory] = useState(false);
   const finish = useRef<() => void>(),
     file = useRef<HTMLInputElement>(null),
     imageKey = useRef("");
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const undo = useRef<Fields[]>([]), redo = useRef<Fields[]>([]);
+  const undo = useRef<Fields[]>([]),
+    redo = useRef<Fields[]>([]);
   function update(next: Fields, record = true) {
-    if (record) { undo.current = [...undo.current.slice(-29), draft.current]; redo.current = []; }
+    if (record) {
+      undo.current = [...undo.current.slice(-29), draft.current];
+      redo.current = [];
+    }
     draft.current = next;
     setFields(next);
   }
@@ -55,7 +66,7 @@ function Editor({
       .then((s) => {
         if (live) {
           setBase(s);
-          update(s.fields,false);
+          update(s.fields, false);
         }
       })
       .catch((e) => {
@@ -79,12 +90,43 @@ function Editor({
   }, [dirty, active]);
   async function upload(key: string, f: File | undefined) {
     if (!f || !key || busy) return;
-    if (f.size > 3 * 1024 * 1024) {
-      setNotice("Choose an image under 3 MB.");
+    if (!["image/jpeg", "image/png", "image/webp"].includes(f.type)) {
+      setNotice("Choose a JPG, PNG or WebP image.");
       return;
     }
     setBusy(true);
     try {
+      if (f.size > 3 * 1024 * 1024) {
+        if (f.size > 32 * 1024 * 1024)
+          throw Error("Choose an image under 32 MB.");
+        const image = await createImageBitmap(f);
+        try {
+          const scale = Math.min(1, 1920 / Math.max(image.width, image.height));
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.max(1, Math.round(image.width * scale));
+          canvas.height = Math.max(1, Math.round(image.height * scale));
+          const context = canvas.getContext("2d");
+          if (!context) throw Error("Unable to resize this image.");
+          context.drawImage(image, 0, 0, canvas.width, canvas.height);
+          const blob = await new Promise<Blob>((resolve, reject) =>
+            canvas.toBlob(
+              (b) =>
+                b
+                  ? resolve(b)
+                  : reject(Error("Unable to compress this image.")),
+              "image/webp",
+              0.84,
+            ),
+          );
+          if (blob.size > 3 * 1024 * 1024)
+            throw Error(
+              "Choose a smaller image. The optimized upload exceeds 3 MB.",
+            );
+          f = new File([blob], f.name, { type: blob.type });
+        } finally {
+          image.close();
+        }
+      }
       const data = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => resolve(String(reader.result).split(",")[1]);
@@ -101,7 +143,7 @@ function Editor({
     }
   }
   useLayoutEffect(() => {
-    if (!editing || !base || busy || history) return;
+    if (!editing || !base || busy || history || preview) return;
     function click(e: MouseEvent) {
       const el = e.target instanceof Element ? e.target : null;
       if (!el || el.closest(".msa-tools")) return;
@@ -172,7 +214,7 @@ function Editor({
       document.removeEventListener("dragover", drop, true);
       document.removeEventListener("drop", drop, true);
     };
-  }, [editing, base, busy, session, history]);
+  }, [editing, base, busy, session, history, preview]);
   function duplicate() {
     if (!card) return;
     finish.current?.();
@@ -233,7 +275,7 @@ function Editor({
     for (const key of Object.keys(next)) {
       if (key.startsWith(scopePrefix)) delete next[key];
     }
-    delete next[card.key+"/visibility/"+copy];
+    delete next[card.key + "/visibility/" + copy];
     const ids = group.ids.filter((id) => id !== copy);
     if (ids.length) next[card.key] = { kind: "copies", ids };
     else delete next[card.key];
@@ -242,16 +284,21 @@ function Editor({
     setLink(null);
     setNotice("Duplicate removed from the draft.");
   }
-  const instance = card?.scope.slice(card.scope.lastIndexOf("@")+1);
-  const visibilityKey = card ? card.key+"/visibility/"+instance : "";
+  const instance = card?.scope.slice(card.scope.lastIndexOf("@") + 1);
+  const visibilityKey = card ? card.key + "/visibility/" + instance : "";
   const visibility = fields[visibilityKey];
-  const hidden = visibility?.kind==="visibility" && visibility.hidden;
-  function rewind(forward:boolean) {
+  const hidden = visibility?.kind === "visibility" && visibility.hidden;
+  function rewind(forward: boolean) {
     finish.current?.();
-    const source=forward?redo:undo, destination=forward?undo:redo;
-    const previous=source.current.pop();
-    if(previous){destination.current.push(draft.current);update(previous,false);}
-    setCard(null);setLink(null);
+    const source = forward ? redo : undo,
+      destination = forward ? undo : redo;
+    const previous = source.current.pop();
+    if (previous) {
+      destination.current.push(draft.current);
+      update(previous, false);
+    }
+    setCard(null);
+    setLink(null);
   }
   async function publish() {
     finish.current?.();
@@ -264,7 +311,8 @@ function Editor({
         revision: base.revision,
         fields: current,
       });
-      undo.current=[]; redo.current=[];
+      undo.current = [];
+      redo.current = [];
       setBase({ revision, fields: current });
       setNotice(warning || "Published.");
     } catch (e) {
@@ -274,143 +322,210 @@ function Editor({
     }
   }
   return (
-    <Content.Provider value={{ fields, editing: editing && !!base && !busy && !history }}>
+    <Content.Provider
+      value={{
+        fields: preview ?? fields,
+        editing: !preview && editing && !!base && !busy && !history,
+      }}
+    >
       {children}
-      {history && <History session={session} onClose={()=>setHistory(false)} onRestore={()=>location.reload()}/>}
-      <aside
-        className="msa-tools"
-        aria-label="Page editor"
-        onMouseDown={(event) => {
-          // Keep the selection and toolbar stable until the button click runs.
-          if (event.target instanceof Element && event.target.closest("button"))
-            event.preventDefault();
-        }}
-      >
-        <button disabled={busy || !!dirty || active} title="Publish or discard current edits before opening history" onClick={()=>setHistory(true)}>History</button>
-        <select
-          aria-label="Go to page"
-          value={pathname}
-          disabled={busy}
-          onChange={(e) => {
-            finish.current?.();
-            navigate(e.target.value);
+      {history && (
+        <History
+          session={session}
+          onClose={() => setHistory(false)}
+          onPreview={(value) => {
+            setPreview(value);
+            setHistory(false);
           }}
-        >
-          {Object.entries({
-            "/": "Home",
-            "/about": "About",
-            "/events": "Events",
-            "/gallery": "Gallery",
-            "/join": "Join",
-            "/contact": "Contact",
-            "/resources": "Resources",
-            "/resources/new-to-pitt": "New to Pitt",
-            "/resources/prayer": "Prayer",
-            "/resources/prayer-locations": "Prayer locations",
-            "/resources/prayer-times": "Prayer times",
-            "/resources/chaplain": "Chaplain",
-            "/resources/faq": "FAQ",
-            "/board": "Board",
-            ...(pathname.startsWith("/gallery/")
-              ? { [pathname]: "Gallery album" }
-              : {}),
-          }).map(([url, title]) => (
-            <option key={url} value={url}>
-              {title}
-            </option>
-          ))}
-        </select>
-        <button
-          disabled={!base || busy}
-          onClick={() => {
-            finish.current?.();
-            setEditing(!editing);
-          }}
-        >
-          {editing ? "Browse pages" : "Edit content"}
-        </button>
-        {active && (
-          <>
-            {[
-              ["B", "bold", ""],
-              ["I", "italic", ""],
-              ["U", "underline", ""],
-              ["Small", "fontSize", "2"],
-              ["Normal", "fontSize", "3"],
-              ["Large", "fontSize", "5"],
-            ].map(([label, cmd, arg]) => (
-              <button
-                key={label}
-                aria-label={cmd === "fontSize" ? label + " text" : cmd}
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={() => document.execCommand(cmd, false, arg)}
-              >
-                {label}
-              </button>
-            ))}
-          </>
-        )}
-        {editing && <><button disabled={busy || !undo.current.length} onClick={()=>rewind(false)}>Undo</button><button disabled={busy || !redo.current.length} onClick={()=>rewind(true)}>Redo</button></>}
-        {card && editing && <button disabled={busy} onClick={()=>{finish.current?.();field(visibilityKey,{kind:"visibility",hidden:!hidden});}}>{hidden?"Show card":"Hide card"}</button>}
-        {link && editing && (
-          <button disabled={busy} onClick={editLink}>
-            Edit link destination
-          </button>
-        )}
-        {card && editing && (
-          <>
-            <button disabled={busy} onClick={duplicate}>
-              Duplicate card
-            </button>
-            {!card.scope.endsWith("@original") && (
-              <button disabled={busy} onClick={removeCopy}>
-                Remove duplicate
-              </button>
-            )}
-          </>
-        )}
-        <button
-          disabled={!base || busy || (!dirty && !active)}
-          onClick={() => {
-            finish.current?.();
-            if (base) update(base.fields);
-            setCard(null);
-            setLink(null);
-            setNotice("Draft discarded.");
-          }}
-        >
-          Discard
-        </button>
-        <button
-          className="msa-publish"
-          disabled={!base || busy || (!dirty && !active)}
-          onClick={publish}
-        >
-          {busy ? "Saving…" : "Publish"}
-        </button>
-        <button
-          disabled={busy}
-          onClick={() => {
-            if (!dirty || confirm("Discard unpublished changes and sign out?"))
-              void supabase.auth.signOut();
-          }}
-        >
-          Sign out
-        </button>
-        <span role="status">
-          {notice || (!base ? "Loading…" : dirty ? "Unpublished changes" : "")}
-        </span>
-        <input
-          type="file"
-          hidden
-          ref={file}
-          accept="image/png,image/jpeg,image/webp"
-          onChange={(e) => {
-            void upload(imageKey.current, e.target.files?.[0]);
-            e.target.value = "";
-          }}
+          onRestore={() => location.reload()}
         />
-      </aside>
+      )}
+      {preview && (
+        <div className="msa-tools">
+          <button
+            onClick={() => {
+              setPreview(null);
+              setHistory(true);
+            }}
+          >
+            Exit version preview
+          </button>
+        </div>
+      )}
+      {!preview && (
+        <aside
+          className="msa-tools"
+          aria-label="Page editor"
+          onMouseDown={(event) => {
+            // Keep the selection and toolbar stable until the button click runs.
+            if (
+              event.target instanceof Element &&
+              event.target.closest("button")
+            )
+              event.preventDefault();
+          }}
+        >
+          <button
+            disabled={busy || !!dirty || active}
+            title="Publish or discard current edits before opening history"
+            onClick={() => setHistory(true)}
+          >
+            History
+          </button>
+          <select
+            aria-label="Go to page"
+            value={pathname}
+            disabled={busy}
+            onChange={(e) => {
+              finish.current?.();
+              navigate(e.target.value);
+            }}
+          >
+            {Object.entries({
+              "/": "Home",
+              "/about": "About",
+              "/events": "Events",
+              "/gallery": "Gallery",
+              "/join": "Join",
+              "/contact": "Contact",
+              "/resources": "Resources",
+              "/resources/new-to-pitt": "New to Pitt",
+              "/resources/prayer": "Prayer",
+              "/resources/prayer-locations": "Prayer locations",
+              "/resources/prayer-times": "Prayer times",
+              "/resources/chaplain": "Chaplain",
+              "/resources/faq": "FAQ",
+              "/board": "Board",
+              ...(pathname.startsWith("/gallery/")
+                ? { [pathname]: "Gallery album" }
+                : {}),
+            }).map(([url, title]) => (
+              <option key={url} value={url}>
+                {title}
+              </option>
+            ))}
+          </select>
+          <button
+            disabled={!base || busy}
+            onClick={() => {
+              finish.current?.();
+              setEditing(!editing);
+            }}
+          >
+            {editing ? "Browse pages" : "Edit content"}
+          </button>
+          {active && (
+            <>
+              {[
+                ["B", "bold", ""],
+                ["I", "italic", ""],
+                ["U", "underline", ""],
+                ["Small", "fontSize", "2"],
+                ["Normal", "fontSize", "3"],
+                ["Large", "fontSize", "5"],
+              ].map(([label, cmd, arg]) => (
+                <button
+                  key={label}
+                  aria-label={cmd === "fontSize" ? label + " text" : cmd}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => document.execCommand(cmd, false, arg)}
+                >
+                  {label}
+                </button>
+              ))}
+            </>
+          )}
+          {editing && (
+            <>
+              <button
+                disabled={busy || !undo.current.length}
+                onClick={() => rewind(false)}
+              >
+                Undo
+              </button>
+              <button
+                disabled={busy || !redo.current.length}
+                onClick={() => rewind(true)}
+              >
+                Redo
+              </button>
+            </>
+          )}
+          {card && editing && (
+            <button
+              disabled={busy}
+              onClick={() => {
+                finish.current?.();
+                field(visibilityKey, { kind: "visibility", hidden: !hidden });
+              }}
+            >
+              {hidden ? "Show card" : "Hide card"}
+            </button>
+          )}
+          {link && editing && (
+            <button disabled={busy} onClick={editLink}>
+              Edit link destination
+            </button>
+          )}
+          {card && editing && (
+            <>
+              <button disabled={busy} onClick={duplicate}>
+                Duplicate card
+              </button>
+              {!card.scope.endsWith("@original") && (
+                <button disabled={busy} onClick={removeCopy}>
+                  Remove duplicate
+                </button>
+              )}
+            </>
+          )}
+          <button
+            disabled={!base || busy || (!dirty && !active)}
+            onClick={() => {
+              finish.current?.();
+              if (base) update(base.fields);
+              setCard(null);
+              setLink(null);
+              setNotice("Draft discarded.");
+            }}
+          >
+            Discard
+          </button>
+          <button
+            className="msa-publish"
+            disabled={!base || busy || (!dirty && !active)}
+            onClick={publish}
+          >
+            {busy ? "Saving…" : "Publish"}
+          </button>
+          <button
+            disabled={busy}
+            onClick={() => {
+              if (
+                !dirty ||
+                confirm("Discard unpublished changes and sign out?")
+              )
+                void supabase.auth.signOut();
+            }}
+          >
+            Sign out
+          </button>
+          <span role="status">
+            {notice ||
+              (!base ? "Loading…" : dirty ? "Unpublished changes" : "")}
+          </span>
+          <input
+            type="file"
+            hidden
+            ref={file}
+            accept="image/png,image/jpeg,image/webp"
+            onChange={(e) => {
+              void upload(imageKey.current, e.target.files?.[0]);
+              e.target.value = "";
+            }}
+          />
+        </aside>
+      )}
     </Content.Provider>
   );
 }

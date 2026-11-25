@@ -61,7 +61,7 @@ const EventCardBase = ({ event, variant = "standard", index = 0, showSignatureBa
 
     if (action.external) {
       return (
-        <LinkField data-analytics-action={action.href === event.rsvpUrl ? "rsvp_click" : undefined} fieldId={`event-${event.id}-cta`} href={action.href} target="_blank" rel="noopener noreferrer" className={classes}>
+        <LinkField data-event-key={event.id} data-analytics-action={action.kind === "signup" ? "rsvp_click" : undefined} fieldId={`event-${event.id}-cta`} href={action.href} target="_blank" rel="noopener noreferrer" className={classes}>
           {actionBody}
         </LinkField>
       );

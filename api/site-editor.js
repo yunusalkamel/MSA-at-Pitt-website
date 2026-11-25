@@ -3,7 +3,6 @@ import { validEditorLink } from "../shared/editor-links.js";
 import { createClient } from "@sanity/client";
 import { management, environment } from "../server/management.js";
 
-
 const documentId = "website-inline-content";
 const maxImage = 3 * 1024 * 1024;
 const validKey = (key) =>
@@ -15,7 +14,7 @@ const validSize = (size) =>
   [undefined, "small", "normal", "large"].includes(size);
 function validField(value, project, dataset) {
   if (!value || typeof value !== "object") return false;
-  if(value.kind==="visibility") return typeof value.hidden==="boolean";
+  if (value.kind === "visibility") return typeof value.hidden === "boolean";
   if (value.kind === "copies")
     return (
       Array.isArray(value.ids) &&
@@ -40,7 +39,8 @@ function validField(value, project, dataset) {
       (run) =>
         run &&
         typeof run.text === "string" &&
-        validSize(run.size) && [undefined,true,false].includes(run.underline) &&
+        validSize(run.size) &&
+        [undefined, true, false].includes(run.underline) &&
         [undefined, true, false].includes(run.bold) &&
         [undefined, true, false].includes(run.italic),
     )
@@ -67,10 +67,31 @@ export default async function handler(req, res) {
     }
     if (req.method !== "POST") return res.status(405).end();
     const actionName = req.body?.action;
-    if (!["publish","image","session","history","version","restore","snapshot","export"].includes(actionName)) return res.status(400).end();
+    if (
+      ![
+        "publish",
+        "image",
+        "session",
+        "history",
+        "version",
+        "restore",
+        "snapshot",
+        "export",
+      ].includes(actionName)
+    )
+      return res.status(400).end();
     const authorize = await management(req);
-    const access = await authorize(({history:"session",version:"session",restore:"publish",snapshot:"owner_session",export:"owner_session"})[actionName] || actionName);
-    if (actionName === "session") return res.json({ authorized: true, role: access.role });
+    const access = await authorize(
+      {
+        history: "session",
+        version: "session",
+        restore: "publish",
+        snapshot: "owner_session",
+        export: "owner_session",
+      }[actionName] || actionName,
+    );
+    if (actionName === "session")
+      return res.json({ authorized: true, role: access.role });
 
     if (!process.env.SANITY_EDITOR_TOKEN)
       return res.status(503).json({
@@ -81,7 +102,8 @@ export default async function handler(req, res) {
       ...config,
       token: process.env.SANITY_EDITOR_TOKEN,
     });
-    if (["history","version","snapshot","export"].includes(actionName)) return res.json(await versions(client,req.body,access.actor,dataset));
+    if (["history", "version", "snapshot", "export"].includes(actionName))
+      return res.json(await versions(client, req.body, access.actor, dataset));
     if (req.body?.action === "image") {
       const { data } = req.body;
       if (typeof data !== "string" || data.length > (maxImage * 4) / 3 + 4)
@@ -108,33 +130,43 @@ export default async function handler(req, res) {
     }
     const { action, revision, fields } = req.body || {};
     if (
-      action !== "restore" && (action !== "publish" ||
-      !(revision === null || typeof revision === "string") ||
-      !fields ||
-      typeof fields !== "object" ||
-      Array.isArray(fields) ||
-      !Object.entries(fields).every(
-        ([key, v]) => validKey(key) && validField(v, project, dataset),
-      ))
+      action !== "restore" &&
+      (action !== "publish" ||
+        !(revision === null || typeof revision === "string") ||
+        !fields ||
+        typeof fields !== "object" ||
+        Array.isArray(fields) ||
+        !Object.entries(fields).every(
+          ([key, v]) => validKey(key) && validField(v, project, dataset),
+        ))
     )
       return res.status(400).end();
     const result = await versions(client, req.body, access.actor, dataset);
     if (!result.unchanged) {
-      try { await authorize("published", { revision: result.revision }); }
-      catch { result.warning = "Saved with version history. The separate activity feed could not be updated."; }
+      try {
+        await authorize("published", { revision: result.revision });
+      } catch {
+        result.warning =
+          "Saved with version history. The separate activity feed could not be updated.";
+      }
     }
     return res.json(result);
   } catch (error) {
-    if (error.publicStatus) return res.status(error.publicStatus).json({error: error.message});
-    if ([401,403].includes(error.statusCode)) return res.status(502).json({error:"Sanity denied this operation. Check the publishing token and dataset permissions."});
+    if (error.publicStatus)
+      return res.status(error.publicStatus).json({ error: error.message });
+    if ([401, 403].includes(error.statusCode))
+      return res
+        .status(502)
+        .json({
+          error:
+            "Sanity denied this operation. Check the publishing token and dataset permissions.",
+        });
     const conflict =
       error.statusCode === 409 || error.response?.statusCode === 409;
-    return res
-      .status(conflict ? 409 : 502)
-      .json({
-        error: conflict
-          ? "Content changed in another tab. Reload before publishing."
-          : "The content service is unavailable. Please try again.",
-      });
+    return res.status(conflict ? 409 : 502).json({
+      error: conflict
+        ? "Content changed in another tab. Reload before publishing."
+        : "The content service is unavailable. Please try again.",
+    });
   }
 }

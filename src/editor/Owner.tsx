@@ -1,3 +1,4 @@
+import Reports from "./Reports";
 import History from "./History";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
@@ -142,6 +143,7 @@ function Dashboard({ session }: { session: Session }) {
           "Administrators",
           "Website controls",
           "Activity",
+          "Analytics",
           "System health",
         ].map((label) => (
           <a key={label} href={"#" + label.replace(" ", "-")}>
@@ -333,7 +335,7 @@ function Dashboard({ session }: { session: Session }) {
               </button>
             )}
           </section>
-          <History session={session} owner/>
+          <Reports session={session}/><History session={session} owner/>
           <section id="System-health">
             <h2>System health</h2>
             <p>Content dataset · {data.environment}</p>

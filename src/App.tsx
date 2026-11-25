@@ -1,3 +1,4 @@
+import {safePage} from "../shared/traffic.js";
 import { lazy, Suspense, useEffect } from "react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { ThemeProvider } from "@/contexts/ThemeContext";
@@ -26,13 +27,26 @@ const OrgChart = lazy(() => import("./pages/OrgChart.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 const publicProduction = import.meta.env.PROD &&
+  !new URLSearchParams(location.search).has("code") && !/(?:access_token|error_description)=/.test(location.hash) &&
   !/^(?:\/admin|\/owner|\/auth)(?:\/|$)/i.test(window.location.pathname) &&
   window.location.hostname === "msaatpitt.vercel.app";
 
+function sanitize<T extends {url:string}>(event:T):T|null {
+  const url=new URL(event.url,window.location.origin);
+  const page=safePage(url.pathname);
+  if(!page || !safePage(location.pathname) || location.hash.includes("access_token") || new URLSearchParams(location.search).has("code"))return null;
+  return {...event,url:url.origin+page};
+}
 const ScrollToTop = () => {
   const { pathname } = useLocation();
   useEffect(() => {
+    let live=true;
+    if(publicProduction && import.meta.env.VITE_OPTIONAL_ANALYTICS==="true" && localStorage.getItem("msa-analytics")==="yes"){
+      const start=()=>{if(live)void import("./lib/traffic").then(m=>{if(live)m.visit(pathname);});};
+      if(window.requestIdleCallback)window.requestIdleCallback(start);else setTimeout(start,500);
+    }
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    return ()=>{live=false;};
   }, [pathname]);
   return null;
 };
@@ -65,7 +79,7 @@ const App = () => (
             </Routes>
           </Suspense>
           </SiteContent>
-          {publicProduction && <><SpeedInsights /><Analytics /></>}
+          {publicProduction && <><SpeedInsights beforeSend={sanitize}/><Analytics beforeSend={sanitize}/></>}
         </BrowserRouter>
   </ThemeProvider>
 );

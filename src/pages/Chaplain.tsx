@@ -1,3 +1,4 @@
+import { LinkField } from "@/editor/content";
 import { ContentScope, TextField, itemIdentity, CardCopies } from "@/editor/content";
 import { motion } from "framer-motion";
 import { Clock, Mail, ExternalLink, ArrowLeft } from "lucide-react";
@@ -79,13 +80,13 @@ const Chaplain = () => (
               </div>
 
               <div className="flex flex-wrap gap-3">
-                <a
+                <LinkField fieldId="Chaplain_destination_1"
                   href="mailto:imam@pitt.edu"
                   className="inline-flex items-center gap-2 btn-premium-secondary text-sm px-4 py-2"
                   aria-label="Email Imam Muhammad Patel"
                 >
                   <Mail size={14} /><TextField id="Chaplain_15"> Email
-                </TextField></a>
+                </TextField></LinkField>
                 <span
                   className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-body font-semibold text-muted-foreground bg-muted/60 border border-border/50 cursor-default"
                   title="Booking link coming soon"
