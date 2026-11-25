@@ -92,7 +92,13 @@ export async function versions(client, body, actor, dataset) {
       })),
     };
   }
-  if (action === "version") return version(client, body.id);
+  if (action === "version") {
+    const [saved, current] = await Promise.all([
+      version(client, body.id),
+      client.getDocument(liveId),
+    ]);
+    return { ...saved, currentRevision: current?._rev ?? null };
+  }
   const live = await client.getDocument(liveId);
   const before = readFields(live);
   if (action === "export")

@@ -41,6 +41,9 @@ function Editor({
     [card, setCard] = useState<{ key: string; scope: string } | null>(null);
   const [link, setLink] = useState<{ key: string; url: string } | null>(null);
   const [preview, setPreview] = useState<Fields | null>(null);
+  const [picture, setPicture] = useState<{ key: string; alt: string } | null>(
+    null,
+  );
   const [history, setHistory] = useState(false);
   const finish = useRef<() => void>(),
     file = useRef<HTMLInputElement>(null),
@@ -79,6 +82,7 @@ function Editor({
   useEffect(() => {
     setCard(null);
     setLink(null);
+    setPicture(null);
   }, [pathname, editing]);
   const dirty = base && fields !== base.fields;
   useEffect(() => {
@@ -169,10 +173,21 @@ function Editor({
       );
       const text = el.closest<HTMLElement>("[data-edit-text]"),
         image = el.closest<HTMLElement>("[data-edit-image]");
-      if (!text && !image && !anchor) return;
+      if (!text && !image && !anchor) {
+        setPicture(null);
+        return;
+      }
       e.preventDefault();
       e.stopPropagation();
       finish.current?.();
+      setPicture(
+        image
+          ? {
+              key: image.dataset.editImage!,
+              alt: image.getAttribute("alt") || "",
+            }
+          : null,
+      );
       if (image) {
         imageKey.current = image.dataset.editImage!;
         file.current?.click();
@@ -285,6 +300,25 @@ function Editor({
     setNotice("Duplicate removed from the draft.");
   }
   const instance = card?.scope.slice(card.scope.lastIndexOf("@") + 1);
+  const group = card ? fields[card.key] : null;
+  const copyIds = group?.kind === "copies" ? group.ids : [];
+  const position = instance ? copyIds.indexOf(instance) : -1;
+  function moveCopy(delta: number) {
+    if (
+      !card ||
+      position < 0 ||
+      position + delta < 0 ||
+      position + delta >= copyIds.length
+    )
+      return;
+    finish.current?.();
+    const ids = [...copyIds];
+    [ids[position], ids[position + delta]] = [
+      ids[position + delta],
+      ids[position],
+    ];
+    field(card.key, { kind: "copies", ids });
+  }
   const visibilityKey = card ? card.key + "/visibility/" + instance : "";
   const visibility = fields[visibilityKey];
   const hidden = visibility?.kind === "visibility" && visibility.hidden;
@@ -461,6 +495,42 @@ function Editor({
             >
               {hidden ? "Show card" : "Hide card"}
             </button>
+          )}
+          {picture && editing && (
+            <button
+              disabled={busy}
+              onClick={() => {
+                const alt = window.prompt(
+                  "Describe this image for screen readers. Leave blank for decorative images.",
+                  picture.alt,
+                );
+                if (alt === null) return;
+                if (alt.length > 1000) {
+                  setNotice("Use under 1,000 characters.");
+                  return;
+                }
+                field(picture.key + "/alt", { kind: "alt", text: alt });
+                setPicture({ ...picture, alt });
+              }}
+            >
+              Image description
+            </button>
+          )}
+          {editing && position >= 0 && copyIds.length > 1 && (
+            <>
+              <button
+                disabled={busy || position === 0}
+                onClick={() => moveCopy(-1)}
+              >
+                Move copy earlier
+              </button>
+              <button
+                disabled={busy || position === copyIds.length - 1}
+                onClick={() => moveCopy(1)}
+              >
+                Move copy later
+              </button>
+            </>
           )}
           {link && editing && (
             <button disabled={busy} onClick={editLink}>

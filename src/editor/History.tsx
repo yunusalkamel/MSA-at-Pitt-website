@@ -10,6 +10,54 @@ type Row = {
   count: number;
   pages: string[];
 };
+function Value({ field }: { field: Fields[string] | undefined }) {
+  if (!field) return <p>Website default</p>;
+  if (field.kind === "text")
+    return (
+      <p>
+        {field.runs.map((r, i) => (
+          <span
+            key={i}
+            style={{
+              whiteSpace: "pre-wrap",
+              fontWeight: r.bold ? "bold" : undefined,
+              fontStyle: r.italic ? "italic" : undefined,
+              textDecoration: r.underline ? "underline" : undefined,
+              fontSize:
+                r.size === "small"
+                  ? ".85em"
+                  : r.size === "large"
+                    ? "1.25em"
+                    : undefined,
+            }}
+          >
+            {r.text}
+          </span>
+        ))}
+      </p>
+    );
+  if (field.kind === "image")
+    return (
+      <img
+        loading="lazy"
+        src={field.url + "?w=240&auto=format"}
+        width={240}
+        alt="Version image"
+      />
+    );
+  if (field.kind === "copies") return <p>{field.ids.length} duplicate cards</p>;
+  return (
+    <p>
+      {field.kind === "visibility"
+        ? field.hidden
+          ? "Hidden"
+          : "Visible"
+        : field.kind === "alt"
+          ? field.text
+          : field.url}
+    </p>
+  );
+}
 export default function History({
   session,
   owner = false,
@@ -27,7 +75,9 @@ export default function History({
     [more, setMore] = useState(false),
     [dataset, setDataset] = useState(""),
     [search, setSearch] = useState(""),
-    [detail, setDetail] = useState<Row & { before: Fields; after: Fields }>(),
+    [detail, setDetail] = useState<
+      Row & { before: Fields; after: Fields; currentRevision: string | null }
+    >(),
     [notice, setNotice] = useState(""),
     [busy, setBusy] = useState(false);
   async function run(task: () => Promise<void>) {
@@ -51,9 +101,8 @@ export default function History({
     void run(() => load());
   }, [session.user.id]);
   async function restore(side: string, field?: string, page?: string) {
-    const live = await fetch("/api/site-editor", { cache: "no-store" });
-    if (!live.ok) throw Error("Unable to check current revision.");
-    const { revision } = await live.json();
+    if (!detail) return;
+    const revision = detail.currentRevision;
     if (
       !confirm(
         "Restore " +
@@ -72,6 +121,7 @@ export default function History({
       page,
       revision,
     });
+    setDetail(undefined);
     await load();
     onRestore?.();
     setNotice("Restoration published.");
@@ -198,9 +248,9 @@ export default function History({
               <details key={k}>
                 <summary>{k}</summary>
                 <strong>Before</strong>
-                <pre>{JSON.stringify(detail.before[k] ?? null, null, 2)}</pre>
+                <Value field={detail.before[k]} />
                 <strong>After</strong>
-                <pre>{JSON.stringify(detail.after[k] ?? null, null, 2)}</pre>
+                <Value field={detail.after[k]} />
                 <button
                   disabled={busy}
                   onClick={() => run(() => restore("after", k))}

@@ -14,6 +14,8 @@ export const publicPages = [
 ];
 export const interactions = [
   "page_view",
+  "page_exit",
+  "reading_time",
   "navigation_click",
   "rsvp_click",
   "whatsapp_click",

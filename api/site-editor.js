@@ -14,6 +14,7 @@ const validSize = (size) =>
   [undefined, "small", "normal", "large"].includes(size);
 function validField(value, project, dataset) {
   if (!value || typeof value !== "object") return false;
+  if (value.kind === "alt") return typeof value.text==="string" && value.text.length<=1000;
   if (value.kind === "visibility") return typeof value.hidden === "boolean";
   if (value.kind === "copies")
     return (

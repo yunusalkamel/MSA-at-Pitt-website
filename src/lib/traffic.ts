@@ -7,8 +7,8 @@ let page: string | null = null,
 function send(event: string, eventKey?: string) {
   if (
     !page ||
-    document.visibilityState !== "visible" ||
-    !safePage(location.pathname) ||
+    (document.visibilityState !== "visible" && event!=="page_exit" && event!=="reading_time") ||
+    page !== safePage(location.pathname) ||
     localStorage.getItem("msa-analytics") !== "yes"
   )
     return;
@@ -139,6 +139,11 @@ export function visit(path: string) {
   if (!started) {
     started = true;
     document.addEventListener("click", click, { capture: true, passive: true });
+    document.addEventListener("visibilitychange",()=>{
+      if(document.visibilityState==="visible")measured=Date.now();
+      else if(measured){send("reading_time");measured=0;}
+    });
+    window.addEventListener("pagehide",()=>{if(!measured)measured=Date.now();send("page_exit");});
     window.addEventListener("scroll", scroll, { passive: true });
   }
   const next = safePage(path);

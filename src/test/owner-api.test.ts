@@ -84,3 +84,13 @@ it("fails closed when a preview is misconfigured", async () => {
   expect(await call(owner, "control")).toBe(503);
   expect(services.rpc).not.toHaveBeenCalled();
 });
+
+it("denies an administrator direct access to exports and analytics reports", async () => {
+  const { default: reports } = await import("../../api/reports.js");
+  services.rpc.mockResolvedValue({ data: { error: "owner_only" } });
+  for (const action of ["export", "snapshot"])
+    expect(await call(editor, action)).toBe(403);
+  expect(await call(reports, "settings")).toBe(403);
+  expect(await call(reports, "Overview")).toBe(403);
+  expect(services.sanity).not.toHaveBeenCalled();
+});

@@ -20,6 +20,7 @@ export type Field =
   | { kind: "text"; runs: Run[] }
   | { kind: "image"; url: string }
   | { kind: "link"; url: string }
+  | { kind: "alt"; text: string }
   | { kind: "visibility"; hidden: boolean }
   | { kind: "copies"; ids: string[] };
 export type Fields = Record<string, Field>;
@@ -89,11 +90,13 @@ export function TextField({
 }
 export function LinkField({
   fieldId,
+  fallback,
   ...props
-}: AnchorHTMLAttributes<HTMLAnchorElement> & { fieldId: string }) {
+}: AnchorHTMLAttributes<HTMLAnchorElement> & { fieldId: string; fallback?:ReactNode }) {
   const key = useField(fieldId);
   const { fields, editing } = useContext(Content);
   const field = fields[key];
+  if(fallback && !editing && !props.href && field?.kind!=="link") return <>{fallback}</>;
   return (
     <a
       {...props}
@@ -109,6 +112,7 @@ export function Picture({
   const key = useField(fieldId),
     { fields, editing } = useContext(Content),
     value = fields[key];
+  const alt=fields[key+"/alt"];
   const overridden = value?.kind === "image";
   const src = overridden ? value.url : props.src;
   const maxWidth = Number(props.width) || 1920;
@@ -118,6 +122,7 @@ export function Picture({
   return (
     <img
       {...props}
+      alt={alt?.kind==="alt"?alt.text:props.alt}
       src={src}
       srcSet={srcSet || undefined}
       sizes={srcSet ? props.sizes ?? `(max-width: ${maxWidth}px) 100vw, ${maxWidth}px` : undefined}

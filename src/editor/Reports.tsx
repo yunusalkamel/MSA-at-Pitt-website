@@ -7,6 +7,7 @@ const views = [
   "Trend",
   "Pages",
   "Landing",
+  "Exit pages",
   "Acquisition",
   "Campaigns",
   "Page sources",
@@ -22,36 +23,38 @@ const views = [
   "Geography",
   "Returning",
   "Performance",
+  "Slowest pages",
+  "Clarity usability",
 ];
 const iso = (d: Date) => d.toISOString().slice(0, 10);
 function from(days: number) {
   return iso(new Date(Date.now() - (days - 1) * 86400000));
 }
 export default function Reports({ session }: { session: Session }) {
-  const [view, V] = useState("Overview"),
-    [start, S] = useState(from(30)),
-    [end, E] = useState(from(1)),
-    [page, P] = useState(""),
-    [search, Q] = useState(""),
-    [sort, T] = useState({ index: 0, reverse: false });
-  const [data, D] = useState<{
+  const [view, setView] = useState("Overview"),
+    [start, setStart] = useState(from(30)),
+    [end, setEnd] = useState(from(1)),
+    [page, setPage] = useState(""),
+    [search, setSearch] = useState(""),
+    [sort, setSort] = useState({ index: 0, reverse: false });
+  const [data, setData] = useState<{
       headers: string[];
       rows: string[][];
       total?: number;
     }>(),
-    [notice, N] = useState(""),
-    [busy, B] = useState(false),
-    [enabled, A] = useState<boolean>();
+    [notice, setNotice] = useState(""),
+    [busy, setBusy] = useState(false),
+    [enabled, setEnabled] = useState<boolean>();
   const api = (payload: object) => request(session, payload, "/api/reports");
   async function run(task: () => Promise<void>) {
-    B(true);
-    N("");
+    setBusy(true);
+    setNotice("");
     try {
       await task();
     } catch (e) {
-      N(messageOf(e));
+      setNotice(messageOf(e));
     } finally {
-      B(false);
+      setBusy(false);
     }
   }
   const rows = (data?.rows ?? [])
@@ -85,19 +88,23 @@ export default function Reports({ session }: { session: Session }) {
         Google Analytics reports use consented traffic. Chrome UX Report
         measures real-user performance at the 75th percentile.
       </p>
-      <fieldset disabled={busy} onChange={() => D(undefined)}>
+      <fieldset disabled={busy} onChange={() => setData(undefined)}>
         <label>
           Report
-          <select value={view} onChange={(e) => V(e.target.value)}>
+          <select value={view} onChange={(e) => setView(e.target.value)}>
             {views.map((v) => (
               <option key={v}>{v}</option>
             ))}
           </select>
         </label>
-        {view === "Performance" ? (
+        {view === "Slowest pages" ? (
+          <p>Latest available mobile p75, ranked by LCP</p>
+        ) : view === "Clarity usability" ? (
+          <p>Previous 72 hours · Microsoft Clarity</p>
+        ) : view === "Performance" ? (
           <label>
             Location
-            <select value={page} onChange={(e) => P(e.target.value)}>
+            <select value={page} onChange={(e) => setPage(e.target.value)}>
               <option value="">Whole site</option>
               {publicPages.map((v) => (
                 <option key={v}>{v}</option>
@@ -113,14 +120,14 @@ export default function Reports({ session }: { session: Session }) {
                 onChange={(e) => {
                   const n = e.target.value;
                   if (n === "custom") return;
-                  S(
+                  setStart(
                     n === "all"
                       ? "2015-08-14"
                       : n === "year"
                         ? from(1).slice(0, 4) + "-01-01"
                         : from(Number(n)),
                   );
-                  E(from(1));
+                  setEnd(from(1));
                 }}
               >
                 {[
@@ -143,7 +150,7 @@ export default function Reports({ session }: { session: Session }) {
               <input
                 type="date"
                 value={start}
-                onChange={(e) => S(e.target.value)}
+                onChange={(e) => setStart(e.target.value)}
               />
             </label>
             <label>
@@ -151,7 +158,7 @@ export default function Reports({ session }: { session: Session }) {
               <input
                 type="date"
                 value={end}
-                onChange={(e) => E(e.target.value)}
+                onChange={(e) => setEnd(e.target.value)}
               />
             </label>
           </>
@@ -159,9 +166,41 @@ export default function Reports({ session }: { session: Session }) {
         <button
           onClick={() =>
             run(async () => {
-              D(undefined);
-              T({ index: 0, reverse: false });
-              D(await api({ view, start, end, page }));
+              setData(undefined);
+              setSort({ index: 0, reverse: false });
+              const result = await api({ view, start, end, page });
+              if (view === "Event interest") {
+                try {
+                  const { fetchEventsFromCalendar } = await import(
+                    "@/services/eventsApi"
+                  );
+                  const calendar = await fetchEventsFromCalendar();
+                  const names = new Map(
+                    await Promise.all(
+                      calendar.map(async (event) => {
+                        const digest = await crypto.subtle.digest(
+                          "SHA-256",
+                          new TextEncoder().encode(event.id),
+                        );
+                        return [
+                          Array.from(new Uint8Array(digest).slice(0, 8), (n) =>
+                            n.toString(16).padStart(2, "0"),
+                          ).join(""),
+                          event.title,
+                        ] as const;
+                      }),
+                    ),
+                  );
+                  result.rows = result.rows.map(([key, ...rest]: string[]) => [
+                    names.get(key) ?? key,
+                    ...rest,
+                  ]);
+                  result.headers[0] = "Event";
+                } catch {
+                  /* Archived events retain their stable reporting ID. */
+                }
+              }
+              setData(result);
             })
           }
         >
@@ -211,7 +250,7 @@ export default function Reports({ session }: { session: Session }) {
                       minHeight: 2,
                       height: (100 * point.value) / max + "%",
                     }}
-                    onClick={() => N(point.label + " · " + point.value)}
+                    onClick={() => setNotice(point.label + " · " + point.value)}
                   />
                 ))}
               </div>
@@ -223,7 +262,7 @@ export default function Reports({ session }: { session: Session }) {
         <>
           <label>
             Filter results
-            <input value={search} onChange={(e) => Q(e.target.value)} />
+            <input value={search} onChange={(e) => setSearch(e.target.value)} />
           </label>
           <button onClick={csv}>Download CSV</button>
           <div style={{ overflowX: "auto", maxHeight: "28rem" }}>
@@ -234,7 +273,7 @@ export default function Reports({ session }: { session: Session }) {
                     <th key={h}>
                       <button
                         onClick={() =>
-                          T({
+                          setSort({
                             index: i,
                             reverse: sort.index === i && !sort.reverse,
                           })
@@ -276,13 +315,24 @@ export default function Reports({ session }: { session: Session }) {
         <a href="https://pagespeed.web.dev/analysis?url=https%3A%2F%2Fmsaatpitt.vercel.app">
           PageSpeed Insights
         </a>{" "}
-        · <a href="https://clarity.microsoft.com/projects">Clarity projects</a>
+        ·{" "}
+        <a
+          href={
+            /^[a-z0-9]+$/i.test(import.meta.env.VITE_CLARITY_PROJECT_ID || "")
+              ? "https://clarity.microsoft.com/projects/view/" +
+                import.meta.env.VITE_CLARITY_PROJECT_ID +
+                "/heatmaps"
+              : "https://clarity.microsoft.com/projects"
+          }
+        >
+          Clarity heatmaps
+        </a>
       </p>
       <button
         disabled={busy}
         onClick={() =>
           run(async () => {
-            A(
+            setEnabled(
               (
                 await api(
                   enabled === undefined

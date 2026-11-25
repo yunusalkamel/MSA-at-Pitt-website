@@ -118,3 +118,32 @@ it("edits a link without opening it and removes only the selected duplicate", as
     { kind: "link", url: "https://example.org/new" },
   ]);
 });
+
+it("hides an original card and recovers it with draft undo", async () => {
+  render(
+    <MemoryRouter>
+      <Admin>
+        <CardCopies id="space">
+          <TextField id="name">Prayer space</TextField>
+        </CardCopies>
+      </Admin>
+    </MemoryRouter>,
+  );
+  await waitFor(() =>
+    expect(
+      screen.getByText("Prayer space").closest("[data-edit-text]"),
+    ).toBeTruthy(),
+  );
+  fireEvent.click(screen.getByText("Prayer space"));
+  fireEvent.click(await screen.findByRole("button", { name: "Hide card" }));
+  expect(screen.getByText("Hidden card · select to show")).toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: "Undo" }));
+  expect(screen.getByText("Prayer space")).toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: "Redo" }));
+  fireEvent.click(screen.getByRole("button", { name: "Publish" }));
+  await screen.findByText("Published.");
+  expect(Object.values(published)).toContainEqual({
+    kind: "visibility",
+    hidden: true,
+  });
+});

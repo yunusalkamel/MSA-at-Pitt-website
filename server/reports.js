@@ -18,6 +18,7 @@ const reports = {
     ["date"],
     ["totalUsers", "sessions", "screenPageViews", "engagementRate"],
   ],
+  "Exit pages": [["pagePath"], ["eventCount", "totalUsers"]],
   Pages: [
     ["pagePath"],
     ["screenPageViews", "totalUsers", "userEngagementDuration"],
@@ -109,6 +110,86 @@ function validDate(s) {
 export async function report({ view, start, end, page }) {
   const env = environment(),
     id = process.env.GA4_PROPERTY_ID;
+  if (view === "Clarity usability") {
+    if (!process.env.CLARITY_EXPORT_TOKEN)
+      throw fail(
+        503,
+        "Configure the Clarity Data Export token for this deployment.",
+      );
+    return cached(env + "-clarity", 21600000, async () => {
+      const result = await fetch(
+        "https://www.clarity.ms/export-data/api/v1/project-live-insights?numOfDays=3&dimension1=Device",
+        {
+          headers: {
+            Authorization: "Bearer " + process.env.CLARITY_EXPORT_TOKEN,
+          },
+          signal: AbortSignal.timeout(6000),
+        },
+      );
+      if (!result.ok)
+        throw fail(
+          503,
+          result.status === 429
+            ? "Clarity daily reporting quota reached."
+            : "Clarity could not authorize or return the report.",
+        );
+      const rows = [];
+      for (const metric of await result.json()) {
+        if (
+          !/^(DeadClickCount|RageClickCount|ExcessiveScroll|QuickbackClick|ScrollDepth|EngagementTime|ErrorClickCount)$/i.test(
+            String(metric.metricName).replace(/\s/g, ""),
+          )
+        )
+          continue;
+        for (const info of metric.information ?? [])
+          for (const [label, value] of Object.entries(info)) {
+            if (
+              label !== "Device" &&
+              typeof value !== "object" &&
+              /^\d+(?:\.\d+)?$/.test(String(value))
+            )
+              rows.push([
+                metric.metricName,
+                info.Device ?? "All devices",
+                label,
+                String(value),
+              ]);
+          }
+      }
+      return {
+        headers: ["Clarity metric", "Device", "Measure", "Last 72 hours"],
+        rows,
+      };
+    });
+  }
+  if (view === "Slowest pages") {
+    const rows = await Promise.all(
+      [
+        "/",
+        "/events",
+        "/resources/prayer",
+        "/resources",
+        "/about",
+        "/gallery",
+      ].map(async (path) => {
+        const series = await report({ view: "Performance", page: path });
+        const recent = series.rows
+          .filter((r) => r[0] === "PHONE" && Number(r[2]) > 0)
+          .pop();
+        return recent ? [path, ...recent.slice(1)] : null;
+      }),
+    );
+    return {
+      headers: [
+        "Page",
+        "Period ending",
+        "Mobile LCP p75 (ms)",
+        "INP p75 (ms)",
+        "CLS p75",
+      ],
+      rows: rows.filter(Boolean).sort((a, b) => Number(b[2]) - Number(a[2])),
+    };
+  }
   if (view === "Performance") {
     if (env !== "production")
       throw fail(
@@ -285,6 +366,16 @@ export async function report({ view, start, end, page }) {
         },
         body: JSON.stringify({
           dateRanges,
+          ...(view === "Exit pages"
+            ? {
+                dimensionFilter: {
+                  filter: {
+                    fieldName: "eventName",
+                    stringFilter: { matchType: "EXACT", value: "page_exit" },
+                  },
+                },
+              }
+            : {}),
           dimensions: dimensions.map((name) => ({ name })),
           metrics: metrics.map((name) => ({ name })),
           limit: 1000,

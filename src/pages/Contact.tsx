@@ -67,20 +67,17 @@ const ImamCard = () => {
             <Mail size={14} /><TextField id="Contact_6"> Email </TextField>{name.split(" ")[0]}
           </LinkField>
         )}
-        {booking ? (
           <LinkField fieldId="contact-booking"
-            href={booking}
+            href={booking || undefined}
+            fallback={<span className="inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 font-body font-semibold text-sm text-muted-foreground bg-muted/60 border border-border/50 cursor-default"><TextField id="Contact_8">
+            Booking link coming soon
+          </TextField></span>}
             target="_blank"
             rel="noopener noreferrer"
             className="btn-premium text-sm px-5 py-2.5 justify-center"
           >
             <Calendar size={14} /><TextField id="Contact_7"> Book a Meeting
           </TextField></LinkField>
-        ) : (
-          <span className="inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 font-body font-semibold text-sm text-muted-foreground bg-muted/60 border border-border/50 cursor-default"><TextField id="Contact_8">
-            Booking link coming soon
-          </TextField></span>
-        )}
       </div>
     </motion.div>
   );
