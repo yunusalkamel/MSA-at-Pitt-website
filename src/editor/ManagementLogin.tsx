@@ -33,10 +33,46 @@ export default function ManagementLogin({
   owner?: boolean;
 }) {
   const [session, setSession] = useState<Session | null | undefined>(undefined);
+  const [starting, setStarting] = useState(false);
+  const [callbackError] = useState(() => {
+    const url = new URL(location.href);
+    const hash = new URLSearchParams(url.hash.slice(1));
+    return url.searchParams.has("error") || hash.has("error")
+      ? "Sign-in was canceled or expired. Continue with Google to start again."
+      : "";
+  });
   const [approved, setApproved] = useState<string | null>(null),
-    [error, setError] = useState(""),
-    [sent, setSent] = useState(false);
-  const [email, setEmail] = useState("");
+    [error, setError] = useState("");
+  async function googleSignIn() {
+    setStarting(true);
+    setError("");
+    try {
+      const response = await fetch(
+        import.meta.env.VITE_SUPABASE_URL + "/auth/v1/settings",
+        {
+          headers: { apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY },
+          cache: "no-store",
+        },
+      );
+      if (!response.ok)
+        throw new Error("Sign-in is unavailable. Try again shortly.");
+      if (!(await response.json()).external?.google)
+        throw new Error(
+          "Google sign-in needs to be enabled in this site's Supabase project.",
+        );
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: location.origin + (owner ? "/owner" : "/admin"),
+          queryParams: { prompt: "select_account" },
+        },
+      });
+      if (error) throw error;
+    } catch (err) {
+      setError(messageOf(err));
+      setStarting(false);
+    }
+  }
   useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange((_event, next) =>
       setSession(next),
@@ -73,35 +109,11 @@ export default function ManagementLogin({
       ) : session ? (
         <button onClick={() => supabase.auth.signOut()}>Sign out</button>
       ) : (
-        <form
-          onSubmit={async (e) => {
-            e.preventDefault();
-            setError("");
-            const result = await supabase.auth.signInWithOtp({
-              email: email.trim(),
-              options: {
-                emailRedirectTo:
-                  location.origin + (owner ? "/owner" : "/admin"),
-              },
-            });
-            if (result.error) setError(result.error.message);
-            else setSent(true);
-          }}
-        >
-          <label>
-            Email
-            <input
-              type="email"
-              value={email}
-              required
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </label>
-          <button>Send sign-in link</button>
-          {sent && <p>Check your email for the sign-in link.</p>}
-        </form>
+        <button disabled={starting} onClick={googleSignIn}>
+          {starting ? "Opening Google…" : "Continue with Google"}
+        </button>
       )}
-      <p role="alert">{error}</p>
+      <p role="alert">{error || (!session && callbackError)}</p>
     </main>
   );
 }

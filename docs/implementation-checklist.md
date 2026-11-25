@@ -26,7 +26,7 @@ Start from main at `81307ce` (merged inline editor). Each phase gets an isolated
 ## 3. Google authentication
 
 - [ ] Configure Google OAuth and exact permitted callbacks for production and preview.
-- [ ] Implement persistent sessions, verified identity checks, expired/unauthorized states, and sign-out.
+- [x] Implement persistent sessions, verified identity checks, expired/unauthorized states, and sign-out.
 - [ ] Verify OAuth and owner-only authorization in preview with real accounts.
 
 ## 4. Versions, restoration, and backups
