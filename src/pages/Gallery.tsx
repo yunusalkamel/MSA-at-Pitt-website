@@ -7,16 +7,16 @@ import { Eye, Calendar } from "lucide-react";
 import Layout from "@/components/Layout";
 import ArabicVerse from "@/components/ArabicVerse";
 import BridgeBar from "@/components/BridgeBar";
-import patternImg from "@/assets/islamic-pattern.jpg";
+import patternImg from "@/assets/islamic-pattern-360.webp";
 import { useSanityData } from "@/hooks/useSanityData";
 import { QUERIES, urlFor } from "@/lib/sanity";
 
-import kickoffImg from "@/assets/gallery-kickoff.jpg";
-import iftarImg from "@/assets/gallery-iftar.jpg";
-import eidImg from "@/assets/gallery-eid.jpg";
-import topgolfImg from "@/assets/gallery-topgolf.jpg";
-import halaqaImg from "@/assets/gallery-halaqa.jpg";
-import sistersImg from "@/assets/gallery-sisters.jpg";
+import kickoffImg from "@/assets/gallery-kickoff-720.webp";
+import iftarImg from "@/assets/gallery-iftar-720.webp";
+import eidImg from "@/assets/gallery-eid-720.webp";
+import topgolfImg from "@/assets/gallery-topgolf-720.webp";
+import halaqaImg from "@/assets/gallery-halaqa-720.webp";
+import sistersImg from "@/assets/gallery-sisters-720.webp";
 
 type SemesterKey = "all" | "spring26" | "fall25" | "spring25" | "fall24";
 type FilterCategory = SemesterKey | "brothers" | "sisters" | "general" | "signature" | "social" | "dawah" | "cec" | "halaqa" | "jummah" | "sports" | "speaker";
@@ -133,6 +133,7 @@ const AlbumCard = ({ album, index }: { album: GalleryAlbum; index: number }) => 
           alt={album.title}
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           loading="lazy"
+          sizes="(max-width: 767px) 92vw, 560px"
           decoding="async"
           width={900}
           height={560}

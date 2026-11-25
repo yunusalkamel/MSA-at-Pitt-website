@@ -37,7 +37,7 @@ const Footer = () => {
           {/* Left: logo + name + description */}
           <div className="flex flex-col items-center lg:items-start gap-3">
             <Link to="/" className="hover:opacity-85 transition-opacity">
-              <Picture fieldId="Footer_2" src="/msa-logo-white.png" alt="MSA at Pitt" className="h-20 md:h-24 w-auto object-contain" />
+              <Picture fieldId="Footer_2" src="/msa-logo-footer.webp" alt="MSA at Pitt" className="h-20 md:h-24 w-auto object-contain" loading="lazy" decoding="async" sizes="96px" />
             </Link>
             <p className="font-display text-2xl md:text-3xl font-bold leading-tight" style={{ color: "rgba(255,255,255,.9)" }}><TextField id="Footer_3">
               MSA at Pitt

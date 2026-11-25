@@ -7,7 +7,7 @@ import BridgeBar from "@/components/BridgeBar";
 import SectionDivider from "@/components/SectionDivider";
 import SectionHeading from "@/components/SectionHeading";
 import ArabicVerse from "@/components/ArabicVerse";
-import patternImg from "@/assets/islamic-pattern.jpg";
+import patternImg from "@/assets/islamic-pattern-360.webp";
 
 /* ── Data transposed from the MSA Tips for Freshmen Google Doc ── */
 

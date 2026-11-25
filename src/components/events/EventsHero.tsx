@@ -2,7 +2,7 @@ import { ContentScope, TextField } from "@/editor/content";
 import { useRef } from "react";
 import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import { Sparkles } from "lucide-react";
-import patternImg from "@/assets/islamic-pattern.jpg";
+import patternImg from "@/assets/islamic-pattern-360.webp";
 import BridgeBar from "@/components/BridgeBar";
 
 const EventsHero = () => {

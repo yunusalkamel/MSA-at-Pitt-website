@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Instagram, ExternalLink } from "lucide-react";
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { fetchPublicFunction } from "@/services/publicFunctions";
 
 const INSTAGRAM_URL = "https://instagram.com/msa.at.pitt";
 const HANDLE = "@msa.at.pitt";
@@ -14,8 +14,9 @@ const InstagramWidget = () => {
     let cancelled = false;
     const fetchCount = async () => {
       try {
-        const { data, error } = await supabase.functions.invoke("instagram-stats");
-        if (!error && data?.count && !cancelled) {
+        const response = await fetchPublicFunction("instagram-stats");
+        const data = response.ok ? await response.json() : null;
+        if (data?.count && !cancelled) {
           setCount(data.count);
         }
       } catch {

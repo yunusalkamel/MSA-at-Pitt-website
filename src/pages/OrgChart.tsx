@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import Layout from "@/components/Layout";
 import BridgeBar from "@/components/BridgeBar";
 import OrgChart from "@/components/OrgChart";
-import patternImg from "@/assets/islamic-pattern.jpg";
+import patternImg from "@/assets/islamic-pattern-360.webp";
 import { usePageMeta } from "@/lib/usePageMeta";
 
 /**

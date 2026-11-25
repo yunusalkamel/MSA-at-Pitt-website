@@ -6,7 +6,7 @@ import Layout from "@/components/Layout";
 import BridgeBar from "@/components/BridgeBar";
 import SectionDivider from "@/components/SectionDivider";
 import ArabicVerse from "@/components/ArabicVerse";
-import patternImg from "@/assets/islamic-pattern.jpg";
+import patternImg from "@/assets/islamic-pattern-360.webp";
 import { LINKS } from "@/config/links";
 import { usePageMeta } from "@/lib/usePageMeta";
 

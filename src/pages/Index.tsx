@@ -19,9 +19,11 @@ import { useCountUp } from "@/hooks/useCountUp";
 import { useCalendarEvents } from "@/hooks/useCalendarEvents";
 import { useSanityData } from "@/hooks/useSanityData";
 import { QUERIES, urlFor } from "@/lib/sanity";
-import heroImg from "@/assets/hero-gathering.jpg";
-import communityImg from "@/assets/about-community.jpg";
-import patternImg from "@/assets/islamic-pattern.jpg";
+import heroImg from "@/assets/hero-gathering-1600.webp";
+import heroMobileImg from "@/assets/hero-gathering-768.webp";
+import communityImg from "@/assets/about-community-1024.webp";
+import communityMobileImg from "@/assets/about-community-640.webp";
+import patternImg from "@/assets/islamic-pattern-360.webp";
 import { mockEvents, getUpcomingWindow } from "@/data/events";
 import { LINKS } from "@/config/links";
 import { getEventTier } from "@/components/events/calendar-utils";
@@ -115,6 +117,7 @@ const Index = () => {
   const heroSrc = cms?.heroImage?.asset?._ref
     ? urlFor(cms.heroImage).width(1920).height(1080).auto("format").url()
     : heroImg;
+  const animateIntro = !prefersReduced && window.matchMedia("(min-width: 768px)").matches;
   const heroLqip = cms?.heroImage?.lqip as string | undefined;
 
   return (
@@ -137,6 +140,8 @@ const Index = () => {
           )}
           <Picture fieldId="Index_4"
             src={heroSrc}
+            srcSet={heroSrc === heroImg ? `${heroMobileImg} 768w, ${heroImg} 1600w` : undefined}
+            sizes="100vw"
             alt="MSA at Pitt community gathering"
             className="w-full h-full object-cover scale-110"
             width={1920}
@@ -153,11 +158,11 @@ const Index = () => {
         </div>
         <BridgeBar />
         {/* Moon motif removed per spec */}
-        <div className="absolute top-1/4 left-1/6 w-96 h-96 rounded-full bg-primary/12 blur-[140px] pointer-events-none" />
-        <div className="absolute bottom-1/4 right-1/5 w-72 h-72 rounded-full bg-secondary/10 blur-[120px] pointer-events-none" />
+        <div className="hidden md:block absolute top-1/4 left-1/6 w-96 h-96 rounded-full bg-primary/12 blur-[140px] pointer-events-none" />
+        <div className="hidden md:block absolute bottom-1/4 right-1/5 w-72 h-72 rounded-full bg-secondary/10 blur-[120px] pointer-events-none" />
 
-        <motion.div className="relative z-10 text-center px-4 max-w-4xl mx-auto" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}>
-          <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1.4, ease: "easeOut" }} className="mb-8 flex flex-col items-center gap-3">
+        <motion.div className="relative z-10 text-center px-4 max-w-4xl mx-auto" initial={animateIntro && { opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
+          <motion.div initial={animateIntro && { opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.45, ease: "easeOut" }} className="mb-8 flex flex-col items-center gap-3">
             <div className="flex items-center gap-3 w-52">
               <div className="flex-1 h-px bg-gradient-to-r from-transparent to-primary/40" />
               <div className="w-1 h-1 rounded-full bg-primary/60" />
@@ -170,19 +175,19 @@ const Index = () => {
               <div className="flex-1 h-px bg-gradient-to-l from-transparent to-primary/40" />
             </div>
           </motion.div>
-          <motion.p initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="eyebrow text-msa-gold/90 mb-5">
+          <motion.p initial={animateIntro && { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="eyebrow text-msa-gold/90 mb-5">
             <TextField id="Index_7">{d.heroEyebrow}</TextField>
           </motion.p>
           {/* Display headline — extra horizontal padding prevents any descender clipping */}
           <motion.h1
-            initial={{ opacity: 0, y: 28 }}
+            initial={animateIntro && { opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.7 }}
+            transition={{ duration: 0.4 }}
             className="font-display text-6xl md:text-8xl lg:text-9xl font-bold text-accent-foreground leading-[1.05] mb-2 tracking-tight px-2"
           >
             <TextField id="Index_8">{d.heroHeadline}</TextField>
           </motion.h1>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.65, duration: 0.7 }} className="mb-5 px-2">
+          <motion.div initial={animateIntro && { opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="mb-5 px-2">
             <span
               className="font-script text-gradient-gold inline-block pb-3"
               style={{ fontSize: "clamp(3.4rem, 9.5vw, 7.5rem)", lineHeight: 1.2 }}
@@ -190,17 +195,17 @@ const Index = () => {
               <TextField id="Index_9">{d.heroSubheadline}</TextField>
             </span>
           </motion.div>
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.85 }} className="eyebrow text-msa-gold/65 mb-5">
+          <motion.p initial={animateIntro && { opacity: 0 }} animate={{ opacity: 1 }} className="eyebrow text-msa-gold/65 mb-5">
             <TextField id="Index_10">{d.heroTagline}</TextField>
           </motion.p>
-          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.95 }} className="font-dm-sans text-base md:text-lg text-accent-foreground/60 max-w-xl mx-auto mb-10 leading-[1.75]">
+          <motion.div initial={animateIntro && { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="font-dm-sans text-base md:text-lg text-accent-foreground/60 max-w-xl mx-auto mb-10 leading-[1.75]">
             {d.heroBody ? (
               <ContentScope id="Index_11"><PortableTextRenderer value={d.heroBody} /></ContentScope>
             ) : (
               <p><TextField id="Index_12">Connecting Muslim students at Pitt through faith, friendship, and service. Everyone is welcome — wherever you're starting from.</TextField></p>
             )}
           </motion.div>
-          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.1 }} className="flex flex-col sm:flex-row gap-3 justify-center">
+          <motion.div initial={animateIntro && { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link to="/join" className="btn-premium text-base px-8 py-3.5"><TextField id="Index_13">Join the MSA </TextField><ArrowRight size={16} /></Link>
             <Link to="/events" className="btn-premium-secondary text-base px-8 py-3.5"><TextField id="Index_14">See Upcoming Events</TextField></Link>
           </motion.div>
@@ -212,7 +217,7 @@ const Index = () => {
         <div className="absolute bottom-0 left-0 right-0 h-[55vh] md:h-[70vh] pointer-events-none z-[5] dark:hidden" style={{ background: "linear-gradient(to bottom, transparent 0%, rgba(242,171,35,0.06) 25%, rgba(242,171,35,0.22) 50%, rgba(251,240,208,0.75) 72%, rgba(248,243,234,0.96) 88%, #F8F3EA 100%)" }} aria-hidden="true" />
         <div className="absolute bottom-0 left-0 right-0 h-[50vh] md:h-[65vh] pointer-events-none z-[5] hidden dark:block" style={{ background: "linear-gradient(to bottom, transparent 0%, rgba(13,21,40,0.5) 45%, rgba(13,21,40,0.88) 72%, #0D1528 100%)" }} aria-hidden="true" />
 
-        {!prefersReduced && (
+        {animateIntro && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2, duration: 1 }} className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10">
             <div className="w-px h-10 bg-gradient-to-b from-primary/50 via-primary/20 to-transparent animate-pulse mx-auto" />
           </motion.div>
@@ -240,6 +245,8 @@ const Index = () => {
                 <ContentScope id="Index_18"><SanityImage
                   source={cms?.communityImage}
                   fallbackSrc={communityImg}
+                fallbackSrcSet={`${communityMobileImg} 640w, ${communityImg} 1024w`}
+                sizes="(max-width: 767px) 92vw, 570px"
                   width={1280}
                   height={854}
                   alt="MSA students on campus"
@@ -425,6 +432,9 @@ const Index = () => {
                           alt={cell.title}
                           className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                           loading="lazy"
+                          sizes="(max-width: 767px) 72vw, 390px"
+                          width={900}
+                          height={600}
                         />
                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
