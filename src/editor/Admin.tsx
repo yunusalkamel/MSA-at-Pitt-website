@@ -6,10 +6,15 @@ import { Content, type Fields, type Field } from "./content";
 import { loadContent, type Snapshot } from "./SiteContent";
 import { editText } from "./inlineText";
 import "./admin.css";
+import { validEditorLink } from "../../shared/editor-links.js";
 
 import ManagementLogin, { request, messageOf } from "./ManagementLogin";
-export default function Admin({children}: {children: ReactNode}) {
-  return <ManagementLogin>{session => <Editor session={session}>{children}</Editor>}</ManagementLogin>;
+export default function Admin({ children }: { children: ReactNode }) {
+  return (
+    <ManagementLogin>
+      {(session) => <Editor session={session}>{children}</Editor>}
+    </ManagementLogin>
+  );
 }
 
 function Editor({
@@ -27,6 +32,7 @@ function Editor({
   const [notice, setNotice] = useState(""),
     [active, setActive] = useState(false),
     [card, setCard] = useState<{ key: string; scope: string } | null>(null);
+  const [link, setLink] = useState<{ key: string; url: string } | null>(null);
   const finish = useRef<() => void>(),
     file = useRef<HTMLInputElement>(null),
     imageKey = useRef("");
@@ -57,6 +63,7 @@ function Editor({
   }, []);
   useEffect(() => {
     setCard(null);
+    setLink(null);
   }, [pathname, editing]);
   const dirty = base && fields !== base.fields;
   useEffect(() => {
@@ -105,9 +112,18 @@ function Editor({
           ? { key: parent.dataset.editCard!, scope: parent.dataset.copyScope! }
           : null,
       );
+      const anchor = el.closest<HTMLAnchorElement>("[data-edit-link]");
+      setLink(
+        anchor
+          ? {
+              key: anchor.dataset.editLink!,
+              url: anchor.getAttribute("href") ?? "",
+            }
+          : null,
+      );
       const text = el.closest<HTMLElement>("[data-edit-text]"),
         image = el.closest<HTMLElement>("[data-edit-image]");
-      if (!text && !image) return;
+      if (!text && !image && !anchor) return;
       e.preventDefault();
       e.stopPropagation();
       finish.current?.();
@@ -116,12 +132,13 @@ function Editor({
         file.current?.click();
         return;
       }
-      const key = text!.dataset.editText!,
+      if (!text) return;
+      const key = text.dataset.editText!,
         prev = draft.current[key],
-        original = text!.textContent ?? "";
+        original = text.textContent ?? "";
       const oldRuns = prev?.kind === "text" ? prev.runs : undefined;
       setActive(true);
-      finish.current = editText(text!, oldRuns, (runs) => {
+      finish.current = editText(text, oldRuns, (runs) => {
         finish.current = undefined;
         setActive(false);
         if (
@@ -175,6 +192,51 @@ function Editor({
     update(next);
     setNotice("Card duplicated.");
   }
+  function editLink() {
+    if (!link) return;
+    finish.current?.();
+    const response = window.prompt(
+      "Link destination. Leave blank to restore the default.",
+      link.url,
+    );
+    if (response === null) return;
+    const url = response.trim();
+    if (url && !validEditorLink(url)) {
+      setNotice("Enter a full website URL or a mailto: email link.");
+      return;
+    }
+    const next = { ...draft.current };
+    if (url) next[link.key] = { kind: "link", url };
+    else delete next[link.key];
+    update(next);
+    setLink(null);
+    setNotice(
+      url ? "Link ready to publish." : "Default link restored in the draft.",
+    );
+  }
+  function removeCopy() {
+    if (!card || card.scope.endsWith("@original")) return;
+    if (!window.confirm("Remove this duplicate card from the draft?")) return;
+    finish.current?.();
+    const next = { ...draft.current };
+    const group = next[card.key];
+    if (group?.kind !== "copies") return;
+    const copy = card.scope.slice(card.scope.lastIndexOf("@") + 1);
+    const scopePrefix =
+      card.key.slice(0, card.key.lastIndexOf("/") + 1) +
+      encodeURIComponent(card.scope) +
+      "/";
+    for (const key of Object.keys(next)) {
+      if (key.startsWith(scopePrefix)) delete next[key];
+    }
+    const ids = group.ids.filter((id) => id !== copy);
+    if (ids.length) next[card.key] = { kind: "copies", ids };
+    else delete next[card.key];
+    update(next);
+    setCard(null);
+    setLink(null);
+    setNotice("Duplicate removed from the draft.");
+  }
   async function publish() {
     finish.current?.();
     if (!base) return;
@@ -197,11 +259,15 @@ function Editor({
   return (
     <Content.Provider value={{ fields, editing: editing && !!base && !busy }}>
       {children}
-      <aside className="msa-tools" aria-label="Page editor"
+      <aside
+        className="msa-tools"
+        aria-label="Page editor"
         onMouseDown={(event) => {
           // Keep the selection and toolbar stable until the button click runs.
-          if (event.target instanceof Element && event.target.closest("button")) event.preventDefault();
-        }}>
+          if (event.target instanceof Element && event.target.closest("button"))
+            event.preventDefault();
+        }}
+      >
         <select
           aria-label="Go to page"
           value={pathname}
@@ -264,16 +330,30 @@ function Editor({
             ))}
           </>
         )}
-        {card && editing && (
-          <button disabled={busy} onClick={duplicate}>
-            Duplicate card
+        {link && editing && (
+          <button disabled={busy} onClick={editLink}>
+            Edit link destination
           </button>
+        )}
+        {card && editing && (
+          <>
+            <button disabled={busy} onClick={duplicate}>
+              Duplicate card
+            </button>
+            {!card.scope.endsWith("@original") && (
+              <button disabled={busy} onClick={removeCopy}>
+                Remove duplicate
+              </button>
+            )}
+          </>
         )}
         <button
           disabled={!base || busy || (!dirty && !active)}
           onClick={() => {
             finish.current?.();
             if (base) update(base.fields);
+            setCard(null);
+            setLink(null);
             setNotice("Draft discarded.");
           }}
         >

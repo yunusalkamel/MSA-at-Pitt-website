@@ -25,9 +25,16 @@ Start from main at `81307ce` (merged inline editor). Each phase gets an isolated
 
 ## 3. Google authentication
 
-- [ ] Configure Google OAuth and exact permitted callbacks for production and preview.
+- [x] Configure Google OAuth and exact permitted callbacks for production and preview.
 - [x] Implement persistent sessions, verified identity checks, expired/unauthorized states, and sign-out.
 - [ ] Verify OAuth and owner-only authorization in preview with real accounts.
+
+## Editor coverage
+
+- [x] Add inline link destinations to Join, Contact, and shared footer links.
+- [x] Allow removing an individual duplicate card.
+- [ ] Audit remaining editable links, standalone images, and original list items page by page.
+- [ ] Map dynamic event, gallery, and resource fields to their existing content sources before expanding editing.
 
 ## 4. Versions, restoration, and backups
 

@@ -4,6 +4,7 @@ import {
   Fragment,
   type ReactNode,
   type ImgHTMLAttributes,
+  type AnchorHTMLAttributes,
 } from "react";
 import { useLocation } from "react-router-dom";
 import { sanityImageSrcSet } from "@/lib/sanityImageVariants";
@@ -17,6 +18,7 @@ export type Run = {
 export type Field =
   | { kind: "text"; runs: Run[] }
   | { kind: "image"; url: string }
+  | { kind: "link"; url: string }
   | { kind: "copies"; ids: string[] };
 export type Fields = Record<string, Field>;
 export const Content = createContext<{ fields: Fields; editing: boolean }>({
@@ -80,6 +82,21 @@ export function TextField({
           ))
         : children}
     </span>
+  );
+}
+export function LinkField({
+  fieldId,
+  ...props
+}: AnchorHTMLAttributes<HTMLAnchorElement> & { fieldId: string }) {
+  const key = useField(fieldId);
+  const { fields, editing } = useContext(Content);
+  const field = fields[key];
+  return (
+    <a
+      {...props}
+      href={field?.kind === "link" ? field.url : props.href}
+      data-edit-link={editing ? key : undefined}
+    />
   );
 }
 export function Picture({

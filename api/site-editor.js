@@ -1,3 +1,4 @@
+import { validEditorLink } from "../shared/editor-links.js";
 import { createClient } from "@sanity/client";
 import { management, environment } from "../server/management.js";
 
@@ -20,6 +21,7 @@ function validField(value, project, dataset) {
       new Set(value.ids).size === value.ids.length &&
       value.ids.every((id) => /^[a-f0-9-]{36}$/.test(id))
     );
+  if (value.kind === "link") return validEditorLink(value.url);
   if (value.kind === "image")
     return (
       typeof value.url === "string" &&
