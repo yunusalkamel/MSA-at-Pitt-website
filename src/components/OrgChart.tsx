@@ -57,8 +57,20 @@ const Node = ({ spec, large = false }: { spec: NodeSpec; large?: boolean }) => (
   </div>
 );
 
-function MosquePartners(){
-  return <div className="cec-partners">{PARTNERS.filter(p=>p.group==="Mosque").map(p=><LinkField key={p.shortName} fieldId={"partner-"+p.shortName} href={p.href} title={p.name}><Picture fieldId={"partner-logo-"+p.shortName} src={p.src?.replace(/\.[^.]+$/,".webp")} alt="" loading="lazy" width={20} height={20}/>{p.shortName} ↗</LinkField>)}</div>;
+function MosquePartners({ phone = false }: { phone?: boolean }) {
+  return (
+    <div className="cec-partners">
+      {PARTNERS.filter(partner => partner.group === "Mosque").map(partner => (
+        <LinkField key={partner.shortName} fieldId={"partner-" + partner.shortName} href={partner.href} title={partner.name}>
+          <Picture fieldId={"partner-logo-" + partner.shortName} src={partner.src?.replace(/\.[^.]+$/, ".webp")} alt="" loading="lazy" width={20} height={20} />
+          <ContentScope id={(phone ? "OrgChart_38-" : "OrgChart_19-") + itemIdentity(partner.shortName, partner.shortName)}>
+            <TextField id={phone ? "OrgChart_39" : "OrgChart_20"}>{partner.shortName}</TextField>
+          </ContentScope>
+          {" ↗"}
+        </LinkField>
+      ))}
+    </div>
+  );
 }
 const OrgChart = () => {
   const { data } = useSanityData<LeadershipData>(QUERIES.leadership);
@@ -78,7 +90,6 @@ const OrgChart = () => {
   const sisSocial:  NodeSpec = { id: "sis-social", role: "Sisters Social",    name: data?.sistersSocialChairName, color: "amber" };
   const marketing:  NodeSpec = { id: "marketing",  role: "Marketing",         name: data?.marketingChairName,    color: "red"    };
 
-  const cecMosques = ["Attawheed", "ICWP", "MAP", "ICP", "MCCGP"];
 
   useEffect(() => {
     const wrap = wrapRef.current;
@@ -245,7 +256,7 @@ const OrgChart = () => {
         <ContentScope id={"board-"+cec.id}><Node spec={cec} large /></ContentScope>
         <div className="rounded-2xl border border-border/40 bg-background/40 p-4 -mt-1">
           <p className="font-body text-[10px] uppercase tracking-[0.18em] text-muted-foreground/60 text-center mb-2.5 font-semibold"><TextField id="OrgChart_37">Mosque Partners</TextField></p>
-          <MosquePartners/>
+          <MosquePartners phone />
         </div>
       </div>
     </div>

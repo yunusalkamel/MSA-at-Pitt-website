@@ -43,6 +43,7 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
   const [tiles, setTiles] = useState<Tile[]>(start);
   const board = useRef(tiles);
   const [visible, setVisible] = useState(false);
+  const [tabVisible, setTabVisible] = useState(() => !document.hidden);
   const [paused, setPaused] = useState(false);
   const sizes = phone ? "34vw" : "25vw";
   const fieldsReady = useRef(false);
@@ -56,7 +57,7 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
       return { src: custom.url, srcSet: communityImageSizes(custom.url) || sanityImageSrcSet(custom.url, 720) };
     }
     return phone
-      ? { src: photo.src.replace(".webp", "-tile.webp"), srcSet: undefined }
+      ? { src: photo.src.replace(".webp", "-tile.webp"), srcSet: photo.src.replace(".webp", "-tile.webp 432w") }
       : { src: photo.src.replace(".webp", "-320.webp"), srcSet: communityImageSizes(photo.src) };
   }
 
@@ -64,7 +65,13 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
     if (!wall.current) return;
     const observer = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting));
     observer.observe(wall.current);
-    return () => { observer.disconnect(); epoch.current++; };
+    const updateTab = () => setTabVisible(!document.hidden);
+    document.addEventListener("visibilitychange", updateTab);
+    return () => {
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", updateTab);
+      epoch.current++;
+    };
   }, []);
 
   useEffect(() => {
@@ -84,13 +91,14 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
   }, [fields, library]);
 
   async function advance() {
-    if (reduced || busy.current || !wall.current || document.hidden) return;
+    if (reduced || busy.current || !wall.current || document.hidden ||
+        board.current.filter(tile => tile.previous).length >= 2) return;
     const hero = wall.current.closest("[data-photo-hero]");
     if (!hero) return;
     const protectedBoxes = Array.from(hero.querySelectorAll(".hero-words h1, .hero-words .font-script, .hero-words .hero-actions"))
       .map(element => element.getBoundingClientRect());
     const indices = Array.from(wall.current.querySelectorAll("figure")).flatMap((element, index) => {
-      const reserved = index === reserveBridge || (index === 0 && sources.current["//Index_4"]?.kind === "image");
+      const reserved = !!board.current[index].previous || index === reserveBridge || (index === 0 && sources.current["//Index_4"]?.kind === "image");
       return reserved || protectedBoxes.some(box => intersects(box, element.getBoundingClientRect())) ? [] : [index];
     });
     const eligible = indices.filter(index =>
@@ -116,7 +124,7 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
   }
 
   useEffect(() => {
-    if (paused || reduced || !visible) return;
+    if (paused || reduced || !visible || !tabVisible) return;
     let timer: number;
     const schedule = () => {
       const wait = phone ? 1200 + Math.random() * 800 : 500 + Math.random() * 500;
@@ -126,9 +134,12 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
       }, wait);
     };
     const activeEpoch = ++epoch.current;
-    schedule();
+    const images = Array.from(wall.current?.querySelectorAll("img") ?? []);
+    void Promise.allSettled(images.map(image => image.decode())).then(() => {
+      if (epoch.current === activeEpoch) schedule();
+    });
     return () => { epoch.current++; window.clearTimeout(timer); };
-  }, [paused, reduced, visible, phone]);
+  }, [paused, reduced, visible, tabVisible, phone]);
 
   const finish = (index: number, previous: PhotoId, restore: boolean) => {
     if (board.current[index].previous !== previous) return;
@@ -147,6 +158,7 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
                 style={{ objectPosition: phone ? "center" : communityPhoto(previous).focus }} alt="" />}
               <Picture key={photo} fieldId={prefix + photo} fallbackFieldIds={index === 0 ? ["Index_4"] : undefined}
                 {...display} sizes={sizes} alt="" decoding="async" width={720} height={450}
+                {...(index === 0 ? { fetchpriority: "high" } : {})}
                 style={{ objectPosition: phone ? "center" : communityPhoto(photo).focus }}
                 className={previous ? "wall-incoming" : undefined}
                 onAnimationEnd={previous ? () => finish(index, previous, false) : undefined}

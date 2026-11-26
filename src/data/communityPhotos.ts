@@ -77,6 +77,7 @@ const focus: Partial<Record<PhotoId, string>> = {
 
 export const noPortraitTile = new Set<PhotoId>([
   "flowers", "gala-group", "gala-portraits", "hall-group", "students", "volunteers",
+  "ballroom", "banquet", "day-trip", "fajr-group", "grill", "halaqa-circle", "hall-wide", "panel",
 ]);
 
 export function communityPhoto(id: PhotoId) {

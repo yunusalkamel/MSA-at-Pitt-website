@@ -7,7 +7,6 @@ import BackToTop from "./BackToTop";
 // appears above the floating pill and never behind it.
 
 import { EditorialCopy } from "@/editor/content";
-import "@/design/review.css";
 const Layout = ({ children }: { children: ReactNode }) => {
   return (
     <EditorialCopy.Provider value><div data-continuous className="site-layout min-h-screen flex flex-col relative">
@@ -17,10 +16,6 @@ const Layout = ({ children }: { children: ReactNode }) => {
       >
         Skip to content
       </a>
-
-      <div className="pointer-events-none fixed inset-0 gradient-mesh-warm" />
-      <div className="pointer-events-none fixed inset-0 texture-lines opacity-20" />
-      <div className="pointer-events-none fixed inset-0 bg-gradient-to-b from-primary/[0.02] via-transparent to-secondary/[0.02]" />
 
       <Navbar />
       <main id="main-content" role="main" className="flex-1 relative z-10">{children}</main>

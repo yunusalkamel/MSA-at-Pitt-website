@@ -871,7 +871,7 @@ html { scroll-behavior: smooth; }
   --gutter: clamp(20px, 5vw, 48px);
   --section-y: clamp(64px, 8vw, 112px);
   --container: 1200px;
-  --nav-offset: 68px;
+  --nav-offset: calc(var(--space-8) + var(--space-1));
   --hero-top: var(--space-6);
   --hero-bottom: var(--space-7);
   --card-padding: calc(var(--space-4) + var(--space-1));
@@ -883,7 +883,7 @@ html { scroll-behavior: smooth; }
 
 @media (min-width: 768px) {
   :root {
-    --nav-offset: 80px;
+    --nav-offset: calc(var(--space-8) + var(--space-4));
     --hero-top: calc(var(--space-7) + var(--space-2));
     --hero-bottom: var(--space-8);
     --card-padding: calc(var(--space-5) + var(--space-1));
@@ -992,7 +992,6 @@ html { scroll-behavior: smooth; }
 .resource-tile a { font-size: .83rem; font-weight: 700; text-decoration: underline; text-underline-offset: .2em; }
 .resource-tile .tile-detail { font-size: .82rem; }
 .resource-tile .tile-detail-name, .resource-tile .tile-summary { display: none; }
-.resource-tile .tile-description { display: -webkit-box; overflow: hidden; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
 .resource-tile .tile-detail a { display: inline-block; margin-top: var(--space-1); }
 @media (min-width: 768px) {
   .resource-tile { display: block; height: calc(2 * var(--space-10)); color: #f8f3ea; background-color: #193e39; }
@@ -1004,8 +1003,19 @@ html { scroll-behavior: smooth; }
   .resource-tile:is(:hover, :focus-within) .resource-copy { background-color: #10232cee; }
   .resource-tile:is(:hover, :focus-within) .tile-detail { display: block; }
   .resource-tile:is(:hover, :focus-within) .tile-summary { display: none; }
-  .resource-tile .tile-description { -webkit-line-clamp: 4; }
+  .resource-tile .tile-description { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 4; }
   .resource-tile a:focus-visible { outline: 2px solid var(--gold-muted); outline-offset: var(--space-1); }
 }
 
 .site-container { width: min(100%, var(--container)); margin-inline: auto; }
+
+@media (prefers-reduced-motion: reduce) {
+  .page-hero h1 { transform: none !important; }
+}
+@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+  .resource-tile:is(:hover, :focus-within) .tile-detail { animation: resource-flip .22s ease-out; }
+}
+@keyframes resource-flip {
+  from { opacity: 0; transform: perspective(28rem) rotateY(-10deg); }
+  to { opacity: 1; transform: perspective(28rem) rotateY(0); }
+}

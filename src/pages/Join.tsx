@@ -175,7 +175,7 @@ const Join = () => {
       </PageHero>
 
       {/* Steps — pulled in tight to the hero */}
-      <section id="join-options" className="scroll-mt-24 pt-4 pb-20 md:pt-8 md:pb-28 px-4 md:px-8 lg:px-16 xl:px-24 relative overflow-hidden">
+      <section id="join-options" className="section-padding scroll-mt-[var(--nav-offset)] relative overflow-hidden">
         <div className="absolute inset-0 steps-surface pointer-events-none" />
         <div className="absolute inset-0 texture-cross opacity-25 pointer-events-none" />
         <div className="absolute top-1/4 -left-20 w-96 h-96 rounded-full bg-primary/[0.07] blur-[100px] pointer-events-none" />

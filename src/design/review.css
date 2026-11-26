@@ -25,7 +25,6 @@
     #101c2b
   );
 }
-[data-continuous] > div.pointer-events-none.fixed,
 [data-continuous] main [class*="gradient-mesh"],
 [data-continuous] main .steps-surface {
   background: transparent !important;
@@ -578,8 +577,8 @@
   position: absolute;
   inset: 0;
   background-image: url("./grain.png");
-  opacity: .17;
-  mix-blend-mode: soft-light;
+  opacity: .12;
+  pointer-events: none;
 }
 .wall-previous { position: absolute; inset: 0; }
 .wall-incoming { position: relative; animation: wall-fade var(--wall-fade) ease-out both; }
@@ -650,3 +649,9 @@
 .daily-prayers dt small { color: hsl(var(--foreground)); }
 .prayer-card { padding: var(--card-padding); }
 .prayer-nav-time { white-space: nowrap; }
+
+.home-hero ~ :is(.section-padding, .moment-section, .home-prayer, .welcome-path),
+.prayer-start ~ .section-padding {
+  content-visibility: auto;
+  contain-intrinsic-block-size: auto 35rem;
+}

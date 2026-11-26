@@ -72,7 +72,8 @@ const TodayNextEvent = () => {
     <p role="status">Events are taking a moment to load. Check <a href={LINKS.instagram}>@msa.at.pitt</a> on Instagram for this week.</p>
   ) : null;
   const confirmOnInstagram = next.id === "__jummah_sanity__" && !next.location;
-  const destination = confirmOnInstagram ? LINKS.instagram : next.calendarFallbackUrl || "/events";
+  const destination = confirmOnInstagram ? LINKS.instagram
+    : next.id === "__jummah_sanity__" ? "/resources/prayer" : "/events?event=" + encodeURIComponent(next.id);
 
   const timeDisplay = next.timeLabel.includes("·")
     ? next.timeLabel.split("·").slice(1).join("·").trim()

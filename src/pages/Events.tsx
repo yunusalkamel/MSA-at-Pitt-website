@@ -118,7 +118,7 @@ const Events = () => {
 
       {/* ── Signature event hero — only shown when there is a real signature event ── */}
       {featured && isSignature && (
-        <section className="section-padding pt-10 pb-10 gradient-mesh-warm relative overflow-hidden">
+        <section className="section-padding gradient-mesh-warm relative overflow-hidden">
           <div className="absolute inset-0 texture-dots" />
           <div className="max-w-5xl mx-auto relative z-10">
             <ContentScope id="Events_5"><SectionHeading title="Signature Event" label="Don't Miss" /></ContentScope>
@@ -144,7 +144,7 @@ const Events = () => {
           )}
 
           {/* View switcher + sync indicator */}
-          <div className="flex flex-col items-start sm:flex-row sm:items-center justify-between gap-3 mb-5">
+          <div className="events-switcher sticky z-30 flex items-center justify-between gap-3 mb-5 py-2 backdrop-blur-sm">
             <ViewSwitcher view={view} onChange={setView} />
 
             <div className="flex items-center gap-2 text-xs text-muted-foreground/60 font-body">
@@ -162,7 +162,7 @@ const Events = () => {
               ) : loading ? (
                 "Connecting to calendar…"
               ) : (
-                "Calendar synced"
+                error ? "Calendar unavailable" : "Calendar synced"
               )}
               <button
                 onClick={refresh}
@@ -187,7 +187,7 @@ const Events = () => {
             </TextField></LinkField>
           </div>
 
-          <div className={`flex justify-center mb-6 ${view === "agenda" ? "events-switcher sticky z-30 py-2 backdrop-blur-sm" : ""}`}>
+          <div className="flex justify-center mb-6">
             <EventsFilterBar selected={selectedTags} onChange={setSelectedTags} allEvents={sourceEvents} />
           </div>
 

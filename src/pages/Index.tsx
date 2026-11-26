@@ -19,6 +19,7 @@ import BridgeBar from "@/components/BridgeBar";
 import PortableTextRenderer from "@/components/PortableTextRenderer";
 import SanityImage from "@/components/SanityImage";
 import PartnerLogos from "@/components/PartnerLogos";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useCountUp } from "@/hooks/useCountUp";
 import { useCalendarEvents } from "@/hooks/useCalendarEvents";
 import { useSanityData } from "@/hooks/useSanityData";
@@ -105,16 +106,17 @@ const Index = () => {
   // Merge CMS over fallback — only include Sanity values that aren't null/undefined
   const d = { ...FALLBACK, ...Object.fromEntries(Object.entries(cms ?? {}).filter(([, v]) => v != null)) };
 
-  const animateIntro = !prefersReduced;
+  const phone = useIsMobile();
+  const animateIntro = !phone && !prefersReduced;
 
-  const intro = d.heroBody ? (
-    <ContentScope id="Index_11"><PortableTextRenderer value={d.heroBody} /></ContentScope>
-  ) : (
-    <p>
-      <span className="md:hidden"><TextField id="Index_12">Meet Muslim students at Pitt over Friday prayer, a pickup game or a table at iftar. Come to the next gathering.</TextField></span>
-      <span className="hidden md:inline"><TextField id="Index_12">Connecting Muslim students at Pitt through faith, friendship, and service. Everyone is welcome — wherever you're starting from.</TextField></span>
-    </p>
-  );
+  const intro = <>
+    <p className="md:hidden"><TextField id="Index_12">Meet Muslim students at Pitt over Friday prayer, a pickup game or a table at iftar. Come to the next gathering.</TextField></p>
+    <div className="hidden md:block">
+      {d.heroBody
+        ? <ContentScope id="Index_11"><PortableTextRenderer value={d.heroBody} /></ContentScope>
+        : <p><TextField id="Index_12">Connecting Muslim students at Pitt through faith, friendship, and service. Everyone is welcome — wherever you're starting from.</TextField></p>}
+    </div>
+  </>;
 
   const storySection = (<section className="section-padding warm-surface relative overflow-hidden">
         <div className="absolute inset-0 gradient-mesh-warm" />
@@ -324,7 +326,7 @@ const Index = () => {
       <SectionDivider />
 
       {/* ── Subscribe-to-calendar moment ── */}
-      <section className="py-14 md:py-20 relative overflow-hidden">
+      <section className="section-padding relative overflow-hidden">
         <div className="absolute inset-0 gradient-section-emerald-soft" />
         <div className="max-w-4xl mx-auto px-4 relative z-10">
           <div className="liquid-glass-strong rounded-3xl p-6 md:p-10 text-center ring-1 ring-jannah-mid/20 shadow-[0_4px_40px_rgba(20,128,102,0.12)]">

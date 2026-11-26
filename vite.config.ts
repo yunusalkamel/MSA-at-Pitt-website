@@ -33,18 +33,17 @@ export default defineConfig({
           );
           const asset = (name: string) =>
             chunks.find((chunk) => chunk.name === name)?.fileName;
-          const home = asset("Index"),
-            layout = asset("Layout");
-          if (!home || !layout) return [];
-          // Both chunks are static dependencies of the home view, discovered after React starts.
+          const layout = asset("Layout");
+          const routes = {
+            "/": [asset("Index"), layout],
+            "/resources/prayer": [asset("Prayer"), layout],
+          };
           return [
             {
               tag: "script",
               injectTo: "head",
               children:
-                'if(location.pathname==="/"){for(const href of ' +
-                JSON.stringify([home, layout].map((file) => "/" + file)) +
-                '){const link=document.createElement("link");link.rel="modulepreload";link.crossOrigin="anonymous";link.href=href;document.head.append(link)}}',
+                'for(const file of (' + JSON.stringify(routes) + '[location.pathname]||[])){if(!file)continue;const link=document.createElement("link");link.rel="modulepreload";link.crossOrigin="anonymous";link.href="/"+file;document.head.append(link)}',
             },
           ];
         },

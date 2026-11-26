@@ -31,7 +31,7 @@ interface GalleryAlbum {
 
 
 function semesterFor(date: string | undefined) {
-  const match = /^(\d{4})-(0[1-9]|1[0-2])-\d{2}$/.exec(date ?? "");
+  const match = /^(\d{4})-(0[1-9]|1[0-2])-\d{2}(?:$|T)/.exec(date ?? "");
   if (!match) return;
   const [, year, month] = match;
   const fall = Number(month) >= 8;
@@ -197,7 +197,11 @@ const Gallery = () => {
   const filtered = useMemo(() => {
     if (activeFilter === "all") return albums;
     if (/^(?:fall|spring)\d{4}$/.test(activeFilter)) {
-      return albums.filter(album => semesterFor(album.eventDate)?.key === activeFilter);
+      return albums.filter(album => {
+        const dated = semesterFor(album.eventDate);
+        const legacy = activeFilter.replace(/(\d{2})(\d{2})$/, "$2") as SemesterKey;
+        return dated ? dated.key === activeFilter : album.category.includes(legacy);
+      });
     }
     return albums.filter(album => album.category.includes(activeFilter));
   }, [albums, activeFilter]);

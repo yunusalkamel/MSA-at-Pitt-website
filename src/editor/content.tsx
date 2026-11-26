@@ -34,6 +34,7 @@ function editorialText(value: string) {
   return value
     .replace(/^\s*—\s*/, "")
     .replace(/\s*—\s*/g, ", ")
+    .replace(/Source:\s*(?:ICP|Attawheed) via Masjidal\s*↗?/g, "View mosque timetable via Masjidal ↗")
     .replace(/\bTarawih\b/g, "Taraweeh")
     .replace(/\bImam Patel\b/g, "Imam Muhammad")
     .replace(/\bnaseeha\b(?! \(advice\))/g, "naseeha (advice)");
@@ -118,10 +119,12 @@ export function LinkField({
   const { fields, editing } = useContext(Content);
   const field = fields[key];
   if(fallback && !editing && !props.href && field?.kind!=="link") return <>{fallback}</>;
+  const replacedChaplainEmail = field?.kind === "link" && field.url.toLowerCase() === "mailto:imam@pitt.edu" &&
+    (fieldId === "Chaplain_destination_1" || fieldId === "Resources_destination_3");
   return (
     <a
       {...props}
-      href={field?.kind === "link" ? field.url : props.href}
+      href={field?.kind === "link" && !replacedChaplainEmail ? field.url : props.href}
       data-edit-link={editing ? key : undefined}
     />
   );
