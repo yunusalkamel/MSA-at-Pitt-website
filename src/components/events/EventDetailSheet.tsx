@@ -59,7 +59,7 @@ const EventDetailSheet = ({ event, onClose }: Props) => {
           <div className="h-[3px] w-full" style={{
             background: event.isPast
               ? "linear-gradient(90deg, rgba(242,171,35,0.28), rgba(20,128,102,0.28))"
-              : "linear-gradient(90deg, #F2AB23, #148066)"
+              : "linear-gradient(90deg, var(--gold), #148066)"
           }} />
 
           {/* Close button */}

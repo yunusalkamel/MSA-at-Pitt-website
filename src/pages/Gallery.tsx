@@ -1,3 +1,4 @@
+import { PageHero } from "@/components/PageHero";
 import { Picture, TextField, ContentScope, itemIdentity } from "@/editor/content";
 import { useRef, useState, useMemo } from "react";
 import { motion, AnimatePresence, useScroll, useTransform, useReducedMotion } from "framer-motion";
@@ -13,8 +14,8 @@ import { QUERIES, urlFor } from "@/lib/sanity";
 
 import { communityAlbums } from "@/data/communityPhotos";
 
-type SemesterKey = "all" | "spring26" | "fall25" | "spring25" | "fall24";
-type FilterCategory = SemesterKey | "fall" | "spring" | "brothers" | "sisters" | "general" | "signature" | "social" | "dawah" | "cec" | "halaqa" | "jummah" | "sports" | "speaker";
+type SemesterKey = `spring${number}` | `fall${number}`;
+type FilterCategory = "all" | SemesterKey | "fall" | "spring" | "brothers" | "sisters" | "general" | "signature" | "social" | "dawah" | "cec" | "halaqa" | "jummah" | "sports" | "speaker";
 
 interface GalleryAlbum {
   title: string;
@@ -29,31 +30,21 @@ interface GalleryAlbum {
 }
 
 
-const SEMESTER_KEYS: SemesterKey[] = ["spring26", "fall25", "spring25", "fall24"];
-
-function matchSemester(dateStr: string | undefined, key: SemesterKey): boolean {
-  if (!dateStr) return false;
-  const d = new Date(dateStr + "T12:00:00");
-  const yr = d.getFullYear();
-  const mo = d.getMonth();
-  const season = mo >= 7 ? "fall" : "spring";
-  const yy = String(yr).slice(2);
-  return key === `${season}${yy}`;
+function semesterFor(date: string | undefined) {
+  const match = /^(\d{4})-(0[1-9]|1[0-2])-\d{2}(?:$|T)/.exec(date ?? "");
+  if (!match) return;
+  const [, year, month] = match;
+  const fall = Number(month) >= 8;
+  return {
+    key: `${fall ? "fall" : "spring"}${Number(year)}` as SemesterKey,
+    label: `${fall ? "Fall" : "Spring"} '${year.slice(2)}`,
+    sort: Number(year) * 2 + Number(fall),
+  };
 }
 
 type FilterGroup = { label: string; filters: { key: FilterCategory; label: string }[] };
 
-const filterGroups: FilterGroup[] = [
-  {
-    label: "Semester",
-    filters: [
-      { key: "all",      label: "All" },
-      { key: "spring26", label: "Spring '26" },
-      { key: "fall25",   label: "Fall '25" },
-      { key: "spring25", label: "Spring '25" },
-      { key: "fall24",   label: "Fall '24" },
-    ],
-  },
+const categoryGroups: FilterGroup[] = [
   {
     label: "Audience",
     filters: [
@@ -79,10 +70,7 @@ const filterGroups: FilterGroup[] = [
 
 /** Build "Fall '25 · Signature" — semester/year first, event type secondary. */
 const buildLabel = (album: GalleryAlbum) => {
-  const year = album.eventDate ? new Date(album.eventDate).getFullYear() : null;
-  const semester = album.category.includes("fall") ? "Fall" : album.category.includes("spring") ? "Spring" : null;
-  const shortYear = year ? `'${String(year).slice(2)}` : null;
-  const semLabel = semester && shortYear ? `${semester} ${shortYear}` : null;
+  const semLabel = semesterFor(album.eventDate)?.label;
 
   let type = "";
   if (album.category.includes("signature")) type = "Signature";
@@ -96,10 +84,6 @@ const buildLabel = (album: GalleryAlbum) => {
   if (semLabel) return semLabel;
   return type;
 };
-
-function groupLabel(key: FilterCategory) {
-  return filterGroups.flatMap(group => group.filters).find(filter => filter.key === key)?.label ?? "All";
-}
 
 const AlbumCard = ({ album, index }: { album: GalleryAlbum; index: number }) => {
   const imageUrl = album.coverImageUrl ?? (
@@ -163,14 +147,12 @@ const AlbumCard = ({ album, index }: { album: GalleryAlbum; index: number }) => 
   return inner;
 };
 
-import { useDesign } from "@/design/options";
 import { Moments,type RecapAlbum } from "@/design/CommunityPhotos";
 function GalleryRecaps(){
  const {data}=useSanityData<RecapAlbum[]>(QUERIES.communityRecaps);
  return <Moments galleryLink={false} albums={data??[]}/>;
 }
 const Gallery = () => {
-  const design = useDesign();
   usePageMeta({
     title: "Gallery — MSA at Pitt",
     description: "Iftars, kickoffs, halaqas, late-night socials — a year in the life of MSA at Pitt.",
@@ -199,17 +181,34 @@ const Gallery = () => {
     return [...remote, ...communityAlbums.filter(a => !remote.some(r => r.slug === a.slug)).map(a => ({ ...a, category: a.category as FilterCategory[] }))];
   }, [sanityAlbums]);
 
+  const semesters = useMemo(() => {
+    const seen = new Map<SemesterKey, NonNullable<ReturnType<typeof semesterFor>>>();
+    for (const album of albums) {
+      const semester = semesterFor(album.eventDate);
+      if (semester) seen.set(semester.key, semester);
+    }
+    return [...seen.values()].sort((a, b) => b.sort - a.sort);
+  }, [albums]);
+  const filterGroups: FilterGroup[] = [
+    { label: "Semester", filters: [{ key: "all", label: "All" }, ...semesters] },
+    ...categoryGroups,
+  ];
+  const activeLabel = filterGroups.flatMap(group => group.filters).find(filter => filter.key === activeFilter)?.label ?? "All";
   const filtered = useMemo(() => {
     if (activeFilter === "all") return albums;
-    if ((SEMESTER_KEYS as readonly string[]).includes(activeFilter)) {
-      return albums.filter((a) => a.category.includes(activeFilter) || matchSemester(a.eventDate, activeFilter as SemesterKey));
+    if (/^(?:fall|spring)\d{4}$/.test(activeFilter)) {
+      return albums.filter(album => {
+        const dated = semesterFor(album.eventDate);
+        const legacy = activeFilter.replace(/(\d{2})(\d{2})$/, "$2") as SemesterKey;
+        return dated ? dated.key === activeFilter : album.category.includes(legacy);
+      });
     }
-    return albums.filter((a) => a.category.includes(activeFilter));
+    return albums.filter(album => album.category.includes(activeFilter));
   }, [albums, activeFilter]);
 
   return (
     <Layout>
-      <section ref={heroRef} className="relative md:min-h-[50vh] flex flex-col items-center justify-center pt-24 pb-8 md:pt-36 md:pb-20 text-center px-4 overflow-hidden">
+      <PageHero ref={heroRef} className="relative text-center overflow-hidden">
         <motion.div className="absolute inset-0" style={{ y: bgY }}>
           <div className="absolute inset-0 bg-accent" />
           <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: "200px" }} />
@@ -219,7 +218,7 @@ const Gallery = () => {
           <div className="absolute bottom-1/4 right-1/4 w-56 h-56 rounded-full bg-secondary/8 blur-[80px]" />
         </motion.div>
         <motion.div className="relative z-10 max-w-3xl mx-auto" style={{ opacity: contentOpacity }}>
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="font-body text-xs uppercase tracking-[0.3em] text-primary font-semibold mb-5"><TextField id="Gallery_7">
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="font-body text-xs uppercase tracking-[0.3em] text-primary font-semibold page-hero-kicker"><TextField id="Gallery_7">
             Memories
           </TextField></motion.p>
           <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="font-display text-5xl md:text-7xl font-bold text-accent-foreground mb-4 leading-[1.05] px-2"><TextField id="Gallery_8">
@@ -234,14 +233,14 @@ const Gallery = () => {
             Iftars, kickoffs, halaqas, late-night socials — a year in the life of MSA at Pitt.
           </TextField></motion.p>
         </motion.div>
-      </section>
+      </PageHero>
 
-      {design.moments && <GalleryRecaps/>}
-      {design.recap && <div className="recap-link"><Link to="/events">Come to the next gathering →</Link></div>}
-      {(!design.moments || albums.length>0) && <><section className="py-3 liquid-glass-strong sticky top-[68px] md:top-[76px] z-30 border-b border-border/30">
+      <GalleryRecaps/>
+      <div className="recap-link"><Link to="/events">Come to the next gathering →</Link></div>
+      {albums.length > 0 && <><section className="py-3 liquid-glass-strong sticky nav-sticky z-30 border-b border-border/30">
         <div className="max-w-5xl mx-auto px-4">
           <button type="button" aria-controls="album-filters" aria-expanded={showFilters} className="md:hidden w-full flex items-center justify-between min-h-11 text-sm font-semibold" onClick={() => setShowFilters(v => !v)}>
-            Filter albums <span>{groupLabel(activeFilter)} {showFilters ? "▴" : "▾"}</span>
+            Filter albums <span>{activeLabel} {showFilters ? "▴" : "▾"}</span>
           </button>
           <div id="album-filters" className={`space-y-2 ${showFilters ? "" : "hidden md:block"}`}>
           {filterGroups.map((group) => (

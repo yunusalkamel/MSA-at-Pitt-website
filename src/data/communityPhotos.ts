@@ -1,4 +1,7 @@
+// The 55-photo library is shared by the gallery, event cards, resources, and About.
+// The two 26-photo wall lists below are curated independently for light and dark.
 const captions = {
+  "reflection-room": "Students together in the William Pitt Union Reflection Room",
   "mural-dinner": "Friends over dinner beside a colorful mural",
   "halaqa-circle": "Students sitting together in a halaqa circle",
   "campus-lawn": "Students talking on the lawn at Pitt",
@@ -56,9 +59,34 @@ const captions = {
 } as const;
 
 export type PhotoId = keyof typeof captions;
+export const fullCommunityLibrary = Object.keys(captions) as PhotoId[];
+
+const focus: Partial<Record<PhotoId, string>> = {
+  "campus-lawn": "50% 18%",
+  "lawn-prayer": "right top",
+  "river-talk": "70% 38%",
+  "fajr-bridge": "57% 39%",
+  "fajr-group": "48% 69%",
+  "fall-walk": "60% 62%",
+  "halaqa-circle": "55% 72%",
+  "riverside-friends": "65% 50%",
+  "riverside-breakfast": "60% 69%",
+  "mural-dinner": "60% 77%",
+  "hall-conversation": "50% 62%",
+  "rink-friends": "54% 51%",
+};
+
 export function communityPhoto(id: PhotoId) {
-  return { id, title: captions[id], src: "/photos/community/" + id + ".webp" };
+  return { id, title: captions[id], src: "/photos/community/" + id + ".webp", focus: focus[id] ?? "50% 38%" };
 }
+
+
+export const pillarPhotos = {
+  community: ["tea", "friendsgiving-hall"],
+  iman: ["halaqa-circle", "volunteers"],
+} satisfies Record<string, PhotoId[]>;
+
+export const campusPrayerPhoto = communityPhoto("lawn-prayer");
 
 export const daylightWall: PhotoId[] = [
   "campus-lawn", "riverside-friends", "flowers", "friendsgiving-serve",
@@ -73,21 +101,30 @@ export const eveningWall: PhotoId[] = [
   "cookout", "sudan-iftar", "grill", "gala-group",
   "river-talk", "ballroom", "halaqa-circle", "rink-friends",
   "banquet", "panel", "flowers", "fajr-group",
-  "potluck", "friendsgiving-hall", "lakeshore", "riverside-breakfast",
+  "potluck", "friendsgiving-hall", "fajr-bridge", "riverside-breakfast",
   "campus-lawn", "hall-conversation", "students", "tea", "serving", "henna",
 ];
 
 function album(slug: string, title: string, category: string[], ids: PhotoId[], eventDate?: string) {
-  const shots = ids.map(communityPhoto);
+  const caption = albumCaption({ title, eventDate });
+  const shots = ids.map((id) => ({ ...communityPhoto(id), caption }));
   return {
     slug, title, category, eventDate,
     coverImageUrl: shots[0].src,
     photoCount: shots.length,
-    photos: shots.map(p => ({ url: p.src, caption: p.title })),
-    shots: shots.map(p => ({ src: p.src, caption: p.title })),
+    photos: shots.map(p => ({ url: p.src, caption: p.caption })),
+    shots: shots.map(p => ({ src: p.src, caption: p.caption })),
   };
 }
 
+export function albumCaption({ title, eventDate }: { title: string; eventDate?: string }) {
+  const date = eventDate && new Date(eventDate + "T12:00:00");
+  return date && Number.isFinite(date.getTime())
+    ? title + ", " + date.toLocaleDateString("en-US", { month: "long", year: "numeric" })
+    : title;
+}
+
+// TODO: Fill in confirmed event dates for Friendsgiving and the bundled albums without dates.
 export const communityAlbums = [
   album("pitt-friendsgiving", "Friendsgiving", ["social", "general", "fall25"], ["friendsgiving-serve", "friendsgiving-food", "friendsgiving-hall", "friendsgiving-table"]),
   album("pitt-msa-gala", "MSA Gala", ["signature", "general", "spring26"], ["gala-portraits", "gala-table", "gala-group"], "2026-04-17"),
@@ -95,8 +132,14 @@ export const communityAlbums = [
   album("pitt-card-making", "Making cards together", ["social", "general", "spring26"], ["craft-table", "craft-friends", "craft-detail", "craft-group", "lettering"], "2026-03-22"),
   album("pitt-sudan-iftar", "Sudan Iftar", ["general", "spring25"], ["sudan-iftar"], "2025-03-26"),
   album("pitt-on-the-ice", "On the ice", ["social", "general", "spring26"], ["rink-group", "rink-friends", "rink-skates"], "2026-01-16"),
-  album("pitt-campus-life", "Around campus", ["general"], ["campus-lawn", "students", "flowers", "henna", "tea", "fall-walk", "campus-friends", "lawn-prayer", "lawn-friends", "meeting", "gathering"]),
+  album("pitt-campus-life", "Around campus", ["general"], ["reflection-room", "campus-lawn", "students", "flowers", "henna", "tea", "fall-walk", "campus-friends", "lawn-prayer", "lawn-friends", "meeting", "gathering"]),
   album("pitt-community-table", "At the community table", ["general"], ["mural-dinner", "potluck", "volunteers", "dinner-friends", "table-friends", "serving", "cookout", "grill"]),
   album("pitt-days-out", "Days out together", ["social", "general"], ["riverside-friends", "river-talk", "river-speaker", "park-day", "day-trip", "lakeshore", "friends-dusk"]),
   album("pitt-gatherings", "In the audience", ["general"], ["halaqa-circle", "hall-wide", "lecture", "hall-conversation", "hall-friends", "hall-group", "ballroom", "banquet", "panel"]),
 ];
+
+export function wallCaption(id: PhotoId) {
+  const src = communityPhoto(id).src;
+  const album = communityAlbums.find(entry => entry.shots.some(shot => shot.src === src));
+  return album ? albumCaption(album) : captions[id];
+}

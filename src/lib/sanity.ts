@@ -114,7 +114,7 @@ export const QUERIES = {
   }`,
 
   communityRecaps: `*[_type == "galleryAlbum"] | order(coalesce(order, 9999) asc, eventDate desc) [0...3] {
-    title, "slug": slug.current,
+    title, eventDate, "slug": slug.current,
     coverImage { ..., "lqip": asset->metadata.lqip },
     "shots": photos[defined(image.asset)][0...12]{"src": image.asset->url, caption},
     eventDate

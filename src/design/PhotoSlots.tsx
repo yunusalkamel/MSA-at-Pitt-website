@@ -24,7 +24,7 @@ const sets: Record<string, readonly Photo[]> = {
   "Benedum Room 403": [["benedum-room", "Prayer mat inside Benedum Room 403", 443]],
 };
 
-export function PhotoSlots({ name, wide = false }: { name: string; wide?: boolean }) {
+export function PhotoSlots({ name, wide = false, publicHidden = false }: { name: string; wide?: boolean; publicHidden?: boolean }) {
   const photos = sets[name] ?? [];
   const [index, setIndex] = useState(0);
   const [open, setOpen] = useState(false);
@@ -38,12 +38,13 @@ export function PhotoSlots({ name, wide = false }: { name: string; wide?: boolea
   const alt = fields[key + "/alt"];
   const caption = alt?.kind === "alt" ? alt.text : description;
   const available = !!file || fields[key]?.kind === "image";
-  const placeholder = name.startsWith("School of Public Health") ? "/photos/prayer/room-photo-pending.svg" : undefined;
   const count = Math.max(1, photos.length);
   const step = (delta: number) => setIndex(i => (i + delta + count) % count);
   useEffect(() => {
     if (open) dialog.current?.showModal();
   }, [open]);
+
+  if (!editing && (publicHidden || !available)) return null;
 
   const prefix = "/photos/prayer/" + file;
   const cardSource = originalWidth ? prefix + ".webp" : prefix + "-card.jpg";
@@ -51,7 +52,7 @@ export function PhotoSlots({ name, wide = false }: { name: string; wide?: boolea
     <Picture fieldId={fieldId}
       srcSet={!full && wide && file ? `${prefix}-thumb.webp 340w, ${cardSource} ${originalWidth ?? 720}w` : undefined}
       sizes={wide && !full ? "(max-width: 767px) 34vw, 380px" : undefined}
-      src={file ? prefix + (full ? "" : "-thumb") + ".webp" : placeholder}
+      src={file ? prefix + (full ? "" : "-thumb") + ".webp" : undefined}
       emptyLabel="Photo coming soon" alt={description || (available ? name : "Photo coming soon")} width={full ? 1440 : wide ? 720 : 340}
       loading={full ? "eager" : "lazy"} decoding="async" />
   );
@@ -70,7 +71,10 @@ export function PhotoSlots({ name, wide = false }: { name: string; wide?: boolea
       )}
       {open && createPortal(
         <dialog ref={dialog} className="venue-viewer" aria-label={name + " photos"}
-          onClose={() => { setOpen(false); trigger.current?.focus({ preventScroll: true }); }}
+          onClose={() => {
+            setOpen(false);
+            trigger.current?.focus({ preventScroll: true });
+          }}
           onClick={e => { if (e.target === dialog.current) dialog.current.close(); }}
           onKeyDown={e => {
             if (e.key === "ArrowLeft" || e.key === "ArrowRight") {

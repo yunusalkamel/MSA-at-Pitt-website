@@ -1,3 +1,4 @@
+import { PageHero } from "@/components/PageHero";
 import { ContentScope, TextField } from "@/editor/content";
 import { motion } from "framer-motion";
 import Layout from "@/components/Layout";
@@ -26,12 +27,12 @@ const BoardPage = () => {
   return (
     <Layout>
       {/* Hero */}
-      <section className="relative py-28 md:py-36 text-center px-4 overflow-hidden">
+      <PageHero className="relative text-center overflow-hidden">
         <div className="absolute inset-0 gradient-mesh-gold" />
         <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: "200px" }} />
         <BridgeBar />
         <div className="relative z-10 max-w-3xl mx-auto">
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xs uppercase tracking-[0.3em] text-primary font-semibold mb-5"><TextField id="OrgChart_2">
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xs uppercase tracking-[0.3em] text-primary font-semibold page-hero-kicker"><TextField id="OrgChart_2">
             Leadership
           </TextField></motion.p>
           <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="font-display text-5xl md:text-7xl font-bold text-foreground mb-4 px-2 leading-[1.05]"><TextField id="OrgChart_3">
@@ -41,7 +42,7 @@ const BoardPage = () => {
             The students running the show this year.
           </TextField></motion.p>
         </div>
-      </section>
+      </PageHero>
 
       <section className="py-10 px-4 pb-20">
         <div className="max-w-5xl mx-auto">

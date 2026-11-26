@@ -1,3 +1,4 @@
+import { getSiteOrigin, isSiteOrigin } from "../shared/site-origin.js";
 import { analyticsSettings } from "../server/analytics-settings.js";
 import { publicPages, interactions } from "../shared/traffic.js";
 export default async function handler(req, res) {
@@ -5,7 +6,7 @@ export default async function handler(req, res) {
   if (
     req.method !== "POST" ||
     process.env.VERCEL_ENV !== "production" ||
-    req.headers.origin !== "https://msaatpitt.vercel.app"
+    !isSiteOrigin(req.headers.origin, process.env.SITE_ORIGIN, [process.env.VERCEL_PROJECT_PRODUCTION_URL, process.env.VERCEL_URL])
   )
     return res.status(403).end();
   const {
@@ -39,7 +40,7 @@ export default async function handler(req, res) {
       !(await analyticsSettings()).enabled
     )
       return res.status(204).end();
-    const origin = "https://msaatpitt.vercel.app";
+    const origin = getSiteOrigin(process.env.SITE_ORIGIN);
     const params = {
       page_location: origin + page,
       session_id: session,

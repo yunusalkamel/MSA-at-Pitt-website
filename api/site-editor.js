@@ -61,9 +61,11 @@ export default async function handler(req, res) {
     if (req.method === "GET") {
       environment();
       const doc = await createClient(config).getDocument(documentId);
+      const fields = JSON.parse(doc?.fieldsJson || "{}");
+      res.setHeader("Cache-Control", "public, s-maxage=60, stale-while-revalidate=600");
       return res.json({
         revision: doc?._rev || null,
-        fields: JSON.parse(doc?.fieldsJson || "{}"),
+        fields,
       });
     }
     if (req.method !== "POST") return res.status(405).end();

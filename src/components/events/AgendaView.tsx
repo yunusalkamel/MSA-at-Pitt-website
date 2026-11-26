@@ -192,7 +192,7 @@ const AgendaView = ({ events, autoShowPast = false }: { events: MSAEvent[]; auto
         {/* Past events — shown above upcoming when toggled/auto */}
         {showPast && pastGroups.map((group) => (
           <div key={group.label}>
-            <div className="sticky top-[112px] md:top-[120px] z-20 py-2 mb-2">
+            <div className="sticky agenda-sticky z-20 py-2 mb-2">
               <span className="eyebrow text-jannah-mid/50 dark:text-msa-gold/40">{group.label}</span>
             </div>
             <div className="space-y-2">
@@ -210,7 +210,7 @@ const AgendaView = ({ events, autoShowPast = false }: { events: MSAEvent[]; auto
         {/* Upcoming events */}
         {upcomingGroups.map((group) => (
           <div key={group.label}>
-            <div className="sticky top-[112px] md:top-[120px] z-20 py-2 mb-2">
+            <div className="sticky agenda-sticky z-20 py-2 mb-2">
               <span className="eyebrow text-jannah-mid dark:text-msa-gold/70">{group.label}</span>
             </div>
             <div className="space-y-2">

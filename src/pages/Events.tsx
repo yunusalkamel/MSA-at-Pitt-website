@@ -1,3 +1,5 @@
+import { useSearchParams } from "react-router-dom";
+import EventDetailSheet from "@/components/events/EventDetailSheet";
 import { LinkField } from "@/editor/content";
 import { TextField, itemIdentity, ContentScope } from "@/editor/content";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -17,7 +19,6 @@ import SectionHeading from "@/components/SectionHeading";
 import SectionDivider from "@/components/SectionDivider";
 import patternImg from "@/assets/geometric-tile.svg";
 import {
-  mockEvents,
   getFeaturedEvent,
   getUpcomingWindow,
 } from "@/data/events";
@@ -38,24 +39,25 @@ const RelativeTime = ({ at }: { at: number }) => {
   return <>{`Synced ${formatDistanceToNow(new Date(at), { addSuffix: true })}`}</>;
 };
 
-import { useDesign } from "@/design/options";
 const Events = () => {
-  const {agenda} = useDesign();
   usePageMeta({
     title: "Events — MSA at Pitt",
     description: "Halaqas, iftars, socials, and more. Subscribe once, never miss a moment.",
   });
   const prefersReduced = useReducedMotion();
   const isMobile = useIsMobile();
-  const [view, setView] = useState<View>("calendar");
+  const [view, setView] = useState<View>(() => isMobile ? "agenda" : "calendar");
   const [selectedTags, setSelectedTags] = useState<string[]>(["All"]);
   const { events: remoteEvents, loading, error, lastSyncedAt, refresh } = useCalendarEvents();
 
-  useEffect(() => {
-    setView(isMobile && agenda ? "agenda" : "calendar");
-  }, [isMobile,agenda]);
-
-  const sourceEvents = error ? mockEvents : remoteEvents;
+  const [query, setQuery] = useSearchParams();
+  const sourceEvents = remoteEvents;
+  const selectedEvent = sourceEvents.find(event => event.id === query.get("event")) ?? null;
+  const closeEvent = () => setQuery(current => {
+    const next = new URLSearchParams(current);
+    next.delete("event");
+    return next;
+  }, { replace: true });
   const featured = getFeaturedEvent(sourceEvents);
   // Only show the "Signature" treatment if the event is *actually* tagged Signature
   const isSignature = !!featured && featured.tags.includes("Signature");
@@ -112,10 +114,11 @@ const Events = () => {
   return (
     <Layout>
       <EventsHero />
+      <EventDetailSheet event={selectedEvent} onClose={closeEvent} />
 
       {/* ── Signature event hero — only shown when there is a real signature event ── */}
       {featured && isSignature && (
-        <section className="section-padding pt-10 pb-10 gradient-mesh-warm relative overflow-hidden">
+        <section className="section-padding gradient-mesh-warm relative overflow-hidden">
           <div className="absolute inset-0 texture-dots" />
           <div className="max-w-5xl mx-auto relative z-10">
             <ContentScope id="Events_5"><SectionHeading title="Signature Event" label="Don't Miss" /></ContentScope>
@@ -127,23 +130,21 @@ const Events = () => {
       <div className="glass-divider-thick" />
 
       {/* Main events section */}
-      <section className="section-padding warm-surface relative overflow-hidden">
+      <section className="section-padding warm-surface relative">
         <div className="absolute inset-0 gradient-mesh-warm" />
         <div className="absolute inset-0 texture-cross opacity-50" />
 
         <div className="max-w-5xl mx-auto relative z-10">
 
-          {error && (
+          {error && sourceEvents.length === 0 && (
             <div className="mb-5 rounded-xl border border-primary/20 bg-primary/[0.06] px-4 py-3 text-sm text-foreground/80"><TextField id="Events_7">
-              Live calendar temporarily unavailable — showing recurring events only.</TextField>{" "}
-              <LinkField fieldId="Events_destination_1" href={LINKS.linktree} target="_blank" rel="noopener noreferrer" className="text-primary font-semibold hover:underline"><TextField id="Events_8">
-                See Linktree for the full schedule →
-              </TextField></LinkField>
+              Events are taking a moment to load. Check </TextField>
+              <LinkField fieldId="Events_destination_1" href={LINKS.instagram} target="_blank" rel="noopener noreferrer" className="text-primary font-semibold hover:underline">@msa.at.pitt</LinkField><TextField id="Events_8"> on Instagram for this week.</TextField>
             </div>
           )}
 
           {/* View switcher + sync indicator */}
-          <div className="flex flex-col items-start sm:flex-row sm:items-center justify-between gap-3 mb-5">
+          <div className="events-switcher sticky z-30 flex items-center justify-between gap-3 mb-5 py-2 backdrop-blur-sm">
             <ViewSwitcher view={view} onChange={setView} />
 
             <div className="flex items-center gap-2 text-xs text-muted-foreground/60 font-body">
@@ -153,7 +154,7 @@ const Events = () => {
                   background:
                     lastSyncedAt && Date.now() - lastSyncedAt < 10 * 60 * 1000
                       ? "#148066"
-                      : "#F2AB23",
+                      : "var(--gold)",
                 }}
               />
               {lastSyncedAt ? (
@@ -161,7 +162,7 @@ const Events = () => {
               ) : loading ? (
                 "Connecting to calendar…"
               ) : (
-                "Calendar synced"
+                error ? "Calendar unavailable" : "Calendar synced"
               )}
               <button
                 onClick={refresh}
@@ -186,7 +187,7 @@ const Events = () => {
             </TextField></LinkField>
           </div>
 
-          <div className={`flex justify-center mb-6 ${view === "agenda" ? "sticky top-[68px] md:top-[76px] z-30 py-2 backdrop-blur-sm" : ""}`}>
+          <div className="flex justify-center mb-6">
             <EventsFilterBar selected={selectedTags} onChange={setSelectedTags} allEvents={sourceEvents} />
           </div>
 

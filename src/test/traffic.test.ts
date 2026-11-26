@@ -31,6 +31,7 @@ it("blocks collection in preview and rejects sensitive client payloads", async (
     headers: { origin: "https://msaatpitt.vercel.app" },
     body: { page: "/resources/chaplain", event: "page_view" },
   };
+  vi.stubEnv("VERCEL_PROJECT_PRODUCTION_URL", "msaatpitt.vercel.app");
   vi.stubEnv("VERCEL_ENV", "preview");
   let response = res();
   await handler(req, response);

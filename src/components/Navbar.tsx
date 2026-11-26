@@ -1,25 +1,23 @@
 import { TextField, itemIdentity, ContentScope } from "@/editor/content";
-import { useState, useEffect, useRef } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { Menu, X, ArrowRight, ChevronDown, Moon, Sun } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "@/contexts/ThemeContext";
 import AnnouncementBar from "./AnnouncementBar";
 
-import { useDesign } from "@/design/options";
 import { PrayerLink } from "@/design/DailyPrayers";
-const originalNav = [
+const navLinks = [
   { to: "/", label: "Home", exact: true },
   { to: "/about", label: "About" },
   { to: "/events", label: "Events" },
-  { to: "/gallery", label: "Gallery" },
+  { to: "/resources/prayer", label: "Prayer" },
 ];
 
-const originalChildren = [
+const resourcesChildren = [
   { to: "/resources", label: "All Resources" },
   { to: "/resources/new-to-pitt", label: "New to Pitt" },
-  { to: "/resources/prayer", label: "Prayer" },
+  { to: "/gallery", label: "Gallery" },
   { to: "/resources/chaplain", label: "Chaplain" },
   { to: "/resources/faq", label: "FAQ" },
 ];
@@ -42,19 +40,53 @@ const prefetchRoute = (path: string) => {
 };
 
 const Navbar = () => {
-  const {prayerNav,nextPrayer} = useDesign();
-  const navLinks = prayerNav ? originalNav.map(item=>item.to==="/gallery"?{to:"/resources/prayer",label:"Prayer"}:item) : originalNav;
-  const resourcesChildren = prayerNav ? originalChildren.map(item=>item.to==="/resources/prayer"?{to:"/gallery",label:"Gallery"}:item) : originalChildren;
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [resourcesOpen, setResourcesOpen] = useState(false);
   const [mobileResourcesOpen, setMobileResourcesOpen] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
   const { theme, toggle: toggleTheme } = useTheme();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const navRef = useRef<HTMLElement>(null);
+  const resourcesRef = useRef<HTMLDivElement>(null);
+  const resourcesLink = useRef<HTMLAnchorElement>(null);
+  const firstResource = useRef<HTMLAnchorElement>(null);
+  const timer = useRef<number>();
+  const focusOnOpen = useRef(false);
+  const focusMenu = () => {
+    window.clearTimeout(timer.current);
+    if (resourcesOpen) {
+      firstResource.current?.focus();
+      return;
+    }
+    focusOnOpen.current = true;
+    setResourcesOpen(true);
+  };
+  useLayoutEffect(() => {
+    if (!resourcesOpen || !focusOnOpen.current) return;
+    focusOnOpen.current = false;
+    firstResource.current?.focus();
+  }, [resourcesOpen]);
+  function scheduleResources(open: boolean) {
+    window.clearTimeout(timer.current);
+    timer.current = window.setTimeout(() => {
+      if (open || !resourcesRef.current?.contains(document.activeElement)) setResourcesOpen(open);
+    }, open ? 80 : 180);
+  }
 
-  const isResourcesActive = (location.pathname.startsWith("/resources") && !(prayerNav && location.pathname==="/resources/prayer")) || (prayerNav && location.pathname==="/gallery") || location.pathname === "/prayer-times";
+  useLayoutEffect(() => {
+    const nav = navRef.current;
+    if (!nav) return;
+    const update = () => document.documentElement.style.setProperty("--nav-offset", `${nav.offsetHeight}px`);
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(nav);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => () => window.clearTimeout(timer.current), []);
+
+  const isResourcesActive = (location.pathname.startsWith("/resources") && location.pathname !== "/resources/prayer") || location.pathname.startsWith("/gallery");
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -63,6 +95,7 @@ const Navbar = () => {
   }, []);
 
   useEffect(() => {
+    window.clearTimeout(timer.current);
     setMobileOpen(false);
     setResourcesOpen(false);
     setMobileResourcesOpen(false);
@@ -86,6 +119,7 @@ const Navbar = () => {
 
   return (
     <nav
+      ref={navRef}
       className="fixed top-0 left-0 right-0 z-50 flex flex-col pointer-events-none"
       role="navigation"
       aria-label="Main navigation"
@@ -93,14 +127,13 @@ const Navbar = () => {
       <AnnouncementBar />
 
       {/* Floating pill */}
-      <div className="flex justify-center px-4 pt-3 md:pt-4 w-full">
+      <div className="nav-shell">
         <motion.div
           initial={{ y: -16, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className={`pointer-events-auto w-full max-w-5xl transition-all duration-500 rounded-2xl px-4 md:px-6 ${
-            scrolled ? "liquid-glass-strong shadow-lg" : "liquid-glass"
-          }`}
+          className="glass nav-pill pointer-events-auto w-full rounded-2xl"
+          data-scrolled={scrolled || undefined}
         >
           <div className="flex items-center justify-between h-14 md:h-16">
             <Link
@@ -108,12 +141,12 @@ const Navbar = () => {
               className="flex shrink-0 items-center gap-2 font-body font-extrabold text-sm md:text-lg tracking-wide hover:opacity-80 transition-opacity rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-msa-gold/60 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
             >
               <img src="/photos/brand/msa-logo.webp" width={32} height={32} className="w-8 h-8" alt="" />
-              <span className="hidden sm:inline"><span className="text-jannah-mid dark:text-jannah-light"><TextField id="Navbar_1">MSA</TextField></span>{" "}
-              <span className="text-msa-blue dark:text-white/90"><TextField id="Navbar_2">At Pitt</TextField></span></span>
+              <span className="hidden whitespace-nowrap min-[350px]:inline"><span className="text-jannah-mid dark:text-jannah-light"><TextField id="Navbar_1">MSA</TextField></span>{" "}
+              <span className="text-msa-blue dark:text-white/90"><TextField id="Navbar_2">at Pitt</TextField></span></span>
             </Link>
 
             {/* Desktop nav */}
-            {nextPrayer && <PrayerLink/>}
+            <PrayerLink/>
             <div className="hidden md:flex items-center gap-6">
               {navLinks.map((link) => {
                 const isActive = link.exact
@@ -143,52 +176,54 @@ const Navbar = () => {
                 );
               })}
 
-              <DropdownMenuPrimitive.Root open={resourcesOpen} onOpenChange={setResourcesOpen}>
-                <DropdownMenuPrimitive.Trigger asChild>
-                  <button
-                    onMouseEnter={() => { setResourcesOpen(true); resourcesChildren.forEach(c => prefetchRoute(c.to)); }}
-                    aria-current={isResourcesActive ? "page" : undefined}
-                    className={`relative text-[14px] font-semibold font-body transition-colors duration-200 pb-0.5 flex items-center gap-1 outline-none rounded focus-visible:ring-2 focus-visible:ring-msa-gold/60 ${
-                      isResourcesActive
-                        ? "text-jannah-mid dark:text-msa-gold"
-                        : "text-ink-mid/70 dark:text-white/45 hover:text-ink dark:hover:text-white/80"
-                    }`}
-                  ><TextField id="Navbar_5">
-                    Resources
-                    </TextField><ChevronDown size={13} className={`transition-transform duration-200 ${resourcesOpen ? "rotate-180" : ""}`} />
-                    {isResourcesActive && (
-                      <motion.div
-                        layoutId="nav-underline"
-                        className="absolute -bottom-1 left-0 right-0 h-[1.5px] bg-jannah-mid dark:bg-msa-gold rounded-full"
-                      />
-                    )}
-                  </button>
-                </DropdownMenuPrimitive.Trigger>
-                <DropdownMenuPrimitive.Portal>
-                  <DropdownMenuPrimitive.Content
-                    align="end"
-                    sideOffset={12}
-                    className="z-[60] w-56 liquid-glass-strong rounded-2xl p-2 shadow-xl [clip-path:inset(0_round_1rem)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2"
-                  >
-                    {resourcesChildren.map((child) => {
-                      const isChildActive = location.pathname === child.to;
-                      return (
-                        <ContentScope key={child.to} id={"Navbar_6-" + itemIdentity(child, child.to)}><DropdownMenuPrimitive.Item
-                          key={child.to}
-                          onSelect={() => { prefetchRoute(child.to); navigate(child.to); }}
-                          className={`px-3 py-2 rounded-xl text-sm font-semibold font-body transition-colors duration-150 outline-none cursor-default select-none ${
-                            isChildActive
-                              ? "text-jannah-mid dark:text-msa-gold bg-jannah/[0.07] dark:bg-msa-gold/[0.08]"
-                              : "text-ink dark:text-white/70 data-[highlighted]:bg-black/[0.04] dark:data-[highlighted]:bg-white/[0.04] data-[highlighted]:text-jannah-mid dark:data-[highlighted]:text-msa-gold"
-                          }`}
-                        >
+              <div
+                className="nav-resources"
+                ref={resourcesRef}
+                onPointerEnter={event => { if (event.pointerType === "mouse") scheduleResources(true); }}
+                onPointerLeave={event => { if (event.pointerType === "mouse") scheduleResources(false); }}
+                onFocus={() => { window.clearTimeout(timer.current); }}
+                onBlur={event => {
+                  if (!event.currentTarget.contains(event.relatedTarget as Node | null)) scheduleResources(false);
+                }}
+                onKeyDown={event => {
+                  if (event.key === "ArrowDown" && !(event.target as HTMLElement).closest("ul")) {
+                    event.preventDefault();
+                    focusMenu();
+                  }
+                  if (event.key === "Escape" && resourcesOpen) {
+                    event.preventDefault();
+                    resourcesLink.current?.focus();
+                    window.clearTimeout(timer.current);
+                    setResourcesOpen(false);
+                  }
+                }}
+              >
+                <Link
+                  ref={resourcesLink} to="/resources"
+                  onFocus={() => { setResourcesOpen(true); prefetchRoute("/resources"); }}
+                  onClick={() => setResourcesOpen(false)}
+                  aria-current={location.pathname === "/resources" ? "page" : undefined}
+                  className={`nav-resources-link ${isResourcesActive ? "text-jannah-mid dark:text-msa-gold" : ""}`}
+                ><TextField id="Navbar_5">Resources</TextField></Link>
+                <button
+                  type="button" aria-label="Resources submenu" aria-expanded={resourcesOpen} aria-controls="resources-submenu"
+                  onClick={() => resourcesOpen ? setResourcesOpen(false) : focusMenu()}
+                ><ChevronDown size={13} aria-hidden="true" /></button>
+                <ul id="resources-submenu" className="glass nav-resources-menu" hidden={!resourcesOpen}>
+                  {resourcesChildren.map((child, index) => (
+                    <li key={child.to}>
+                      <ContentScope id={"Navbar_6-" + itemIdentity(child, child.to)}>
+                        <Link ref={index === 0 ? firstResource : undefined} to={child.to}
+                          aria-current={location.pathname === child.to ? "page" : undefined}
+                          onFocus={() => prefetchRoute(child.to)} onMouseEnter={() => prefetchRoute(child.to)}
+                          onClick={() => setResourcesOpen(false)}>
                           <TextField id="Navbar_13">{child.label}</TextField>
-                        </DropdownMenuPrimitive.Item></ContentScope>
-                      );
-                    })}
-                  </DropdownMenuPrimitive.Content>
-                </DropdownMenuPrimitive.Portal>
-              </DropdownMenuPrimitive.Root>
+                        </Link>
+                      </ContentScope>
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
               <button
                 onClick={toggleTheme}
@@ -208,14 +243,14 @@ const Navbar = () => {
               <button
                 onClick={toggleTheme}
                 aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-                className="flex items-center justify-center w-9 h-9 rounded-xl text-ink-mid/70 dark:text-white/60 hover:text-jannah-mid dark:hover:text-msa-gold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-msa-gold/60"
+                className="flex items-center justify-center w-9 h-9 rounded-xl text-ink-mid/70 dark:text-white/60 hover:text-jannah-mid dark:hover:text-msa-gold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-msa-gold/60"
                 style={{ backdropFilter: 'blur(16px)', background: 'rgba(255,255,255,0.18)', border: '1px solid rgba(255,255,255,0.25)' }}
               >
                 {theme === "dark" ? <Sun size={17} strokeWidth={2} /> : <Moon size={17} strokeWidth={2} />}
               </button>
               <button
                 onClick={() => setMobileOpen(!mobileOpen)}
-                className="flex items-center justify-center w-9 h-9 rounded-xl text-foreground transition-all duration-200 -mr-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-msa-gold/60"
+                className="flex items-center justify-center w-9 h-9 rounded-xl text-foreground transition-colors duration-200 -mr-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-msa-gold/60"
                 style={{ backdropFilter: 'blur(16px)', background: 'rgba(255,255,255,0.18)', border: '1px solid rgba(255,255,255,0.25)' }}
                 aria-label="Toggle menu"
                 aria-expanded={mobileOpen}

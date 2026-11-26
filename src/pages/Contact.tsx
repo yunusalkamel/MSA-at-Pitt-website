@@ -1,3 +1,4 @@
+import { PageHero } from "@/components/PageHero";
 import { LinkField, CardCopies, TextField, ContentScope } from "@/editor/content";
 import { motion } from "framer-motion";
 import { Mail, BookOpen, MessageSquare, ArrowRight, Calendar } from "lucide-react";
@@ -27,9 +28,9 @@ const ImamCard = () => {
   const title = data?.imamTitle || "Spiritual Guidance";
   const bio =
     data?.imamBio ||
-    "For Islamic counseling, naseeha, or personal guidance — our chaplain is available to all students.";
-  const officeHours = data?.imamOfficeHours || "Monday 5–6 PM after his halaqah · Friday 3–4 PM";
-  const email = data?.imamEmail;
+    "For Islamic counseling, naseeha (advice), or personal guidance — our chaplain is available to all students.";
+  const officeHours = data?.imamOfficeHours || LINKS.chaplainOfficeHours;
+  const email = data?.imamEmail?.trim() || LINKS.chaplainEmail;
   const booking = data?.imamBookingUrl;
 
   return (
@@ -92,7 +93,7 @@ const Contact = () => {
   return (
     <Layout>
       {/* Hero */}
-      <section className="relative py-28 md:py-36 overflow-hidden text-center">
+      <PageHero className="relative overflow-hidden text-center">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0 gradient-mesh-warm" />
           <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: '220px' }} />
@@ -105,7 +106,7 @@ const Contact = () => {
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="font-body text-xs uppercase tracking-[0.3em] text-primary font-semibold mb-5"
+            className="font-body text-xs uppercase tracking-[0.3em] text-primary font-semibold page-hero-kicker"
           ><TextField id="Contact_10">
             Get In Touch
           </TextField></motion.p>
@@ -127,7 +128,7 @@ const Contact = () => {
             Whether you have a question, need support, or just want to say salam — we're here.
           </TextField></motion.p>
         </div>
-      </section>
+      </PageHero>
 
       {/* Contact cards */}
       <section className="section-padding warm-surface relative overflow-hidden">

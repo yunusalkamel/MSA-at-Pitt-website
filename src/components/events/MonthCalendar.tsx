@@ -166,7 +166,7 @@ const MonthView = ({
                 ${isToday ? "text-primary" : hasEvents ? "text-foreground" : "text-muted-foreground"}`}>
                 {day}
               </span>
-              <div className="w-full flex flex-col gap-[3px]">
+              <div className="w-full flex flex-col gap-1">
                 {dayEvents.map((ev, idx) => (
                   <EventChip key={`${ev.id}-${idx}`} event={ev} compact={compact} onClick={(e) => handleEventClick(ev, e)} />
                 ))}
@@ -180,7 +180,7 @@ const MonthView = ({
       <div className="flex items-start justify-between gap-3 mt-4 px-1">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
           {[
-            { label: "Signature", color: "#F2AB23" },
+            { label: "Signature", color: "var(--gold)" },
             { label: "Upcoming",  color: "#148066" },
             { label: "Recurring", color: "#60A5FA" },
           ].map(({ label, color }) => (
@@ -203,12 +203,11 @@ const MonthView = ({
 // ── Mobile month view — color-coded event indicators ─────────────────────────
 
 // A = category pills with count badge, B = 1 pill per event, C = 1 dot per event
-const MOBILE_INDICATOR: "A" | "B" | "C" = "A";
 
 // Gold = signature, Green = special one-off, Blue = recurring (jumuah / halaqa)
 // Dot/pill colors match the tier system: gold=signature, jannah=upcoming, blue=recurring
 const EVENT_COLORS = {
-  signature: "#F2AB23",
+  signature: "var(--gold)",
   upcoming:  "#148066",
   recurring: "#60A5FA",
 } as const;
@@ -273,7 +272,7 @@ const MobileMonthView = ({
       </div>
 
       {/* Day cells */}
-      <div className="grid grid-cols-7 gap-[3px]">
+      <div className="grid grid-cols-7 gap-1">
         {cells.map((day, i) => {
           if (day === null) return <div key={`empty-${i}`} className="h-14" />;
           const dateStr = formatDateStr(year, month, day);
@@ -306,9 +305,8 @@ const MobileMonthView = ({
                 {day}
               </span>
 
-              {/* Mode A: 1 pill per color category + count badge if >1 of same */}
-              {hasEvents && MOBILE_INDICATOR === "A" && (
-                <div className="flex flex-col gap-[3px] w-full px-1.5">
+              {hasEvents && (
+                <div className="flex flex-col gap-1 w-full px-1.5">
                   {colors.slice(0, 3).map((color) => {
                     const count = dayEvents.filter(e => getEventColor(e) === color).length;
                     return (
@@ -325,39 +323,6 @@ const MobileMonthView = ({
                 </div>
               )}
 
-              {/* Mode B: 1 pill per event (chronological), max 4 */}
-              {hasEvents && MOBILE_INDICATOR === "B" && (
-                <div className="flex flex-col gap-[2px] w-full px-1.5">
-                  {sortEvents(dayEvents).slice(0, 4).map((ev, i, arr) => {
-                    const isLastSlot = i === 3 && dayEvents.length > 4;
-                    const extra = dayEvents.length - 3;
-                    return isLastSlot ? (
-                      <div key="more" className="h-1.5 rounded-full w-full bg-muted-foreground/30 flex items-center justify-center">
-                        <span className="text-[7px] font-bold text-muted-foreground/60">+{extra}</span>
-                      </div>
-                    ) : (
-                      <div
-                        key={ev.id}
-                        className="h-1.5 rounded-full w-full"
-                        style={{ background: getEventColor(ev), opacity: indicatorOpacity }}
-                      />
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* Mode C: 1 dot per event (bigger), max 5 */}
-              {hasEvents && MOBILE_INDICATOR === "C" && (
-                <div className="flex gap-[3px] items-center justify-center flex-wrap">
-                  {dayEvents.slice(0, 5).map((ev, ci) => (
-                    <span
-                      key={ci}
-                      className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                      style={{ background: getEventColor(ev), opacity: indicatorOpacity }}
-                    />
-                  ))}
-                </div>
-              )}
             </div>
           );
         })}
@@ -372,11 +337,7 @@ const MobileMonthView = ({
             { color: EVENT_COLORS.recurring, label: "Recurring" },
           ].map(({ color, label }) => (
             <span key={label} className="flex items-center gap-1.5 text-[9px] text-muted-foreground">
-              {MOBILE_INDICATOR === "C" ? (
-                <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: color }} />
-              ) : (
-                <span className="w-3.5 h-1.5 rounded-full flex-shrink-0" style={{ background: color }} />
-              )}
+              <span className="w-3.5 h-1.5 rounded-full flex-shrink-0" style={{ background: color }} />
               {label}
             </span>
           ))}
@@ -494,7 +455,7 @@ const WeekView = ({
               onClick={() => hasEvents && onSelectDate(dateStr)}
               title={hijriLabelW || undefined}
               style={hijriBgColorW ? { backgroundColor: hijriBgColorW } : undefined}
-              className={`min-h-[72px] rounded-xl flex flex-col gap-[3px] p-1 border transition-all duration-200 relative overflow-hidden
+              className={`min-h-[72px] rounded-xl flex flex-col gap-1 p-1 border transition-all duration-200 relative overflow-hidden
                 ${isToday
                   ? "border-primary/40"
                   : hasEvents
@@ -519,7 +480,7 @@ const WeekView = ({
       <div className="flex items-start justify-between gap-3 mt-4 px-1">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
           {[
-            { label: "Signature", color: "#F2AB23" },
+            { label: "Signature", color: "var(--gold)" },
             { label: "Upcoming",  color: "#148066" },
             { label: "Recurring", color: "#60A5FA" },
           ].map(({ label, color }) => (

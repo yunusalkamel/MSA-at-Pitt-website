@@ -1,3 +1,4 @@
+import { PageHero } from "@/components/PageHero";
 import { Picture, LinkField } from "@/editor/content";
 import { TextField, itemIdentity, ContentScope, CardCopies } from "@/editor/content";
 import { motion } from "framer-motion";
@@ -134,13 +135,13 @@ const Bullets = ({ items }: { items: string[] }) => (
 const NewToPitt = () => (
   <Layout>
     {/* Hero */}
-    <section className="relative pt-24 pb-6 md:py-36 text-center px-4 overflow-hidden">
+    <PageHero className="relative text-center overflow-hidden">
       <div className="absolute inset-0 gradient-mesh-gold" />
       <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: "200px" }} />
           
           <BridgeBar />
       <div className="relative z-10 max-w-3xl mx-auto">
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xs uppercase tracking-[0.3em] text-primary font-semibold mb-5"><TextField id="NewToPitt_5">
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xs uppercase tracking-[0.3em] text-primary font-semibold page-hero-kicker"><TextField id="NewToPitt_5">
           Resources
         </TextField></motion.p>
         <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="font-display text-5xl md:text-7xl font-bold text-foreground mb-4"><TextField id="NewToPitt_6">
@@ -163,7 +164,7 @@ const NewToPitt = () => (
           </LinkField>
         </motion.div>
       </div>
-    </section>
+    </PageHero>
 
     {/* Content */}
     <section className="section-padding !pt-10 md:!pt-14 relative overflow-hidden">

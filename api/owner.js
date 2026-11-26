@@ -59,6 +59,8 @@ export default async function handler(req, res) {
       "add",
       "note",
       "administrator",
+      "add_owner",
+      "transfer_ownership",
       "control",
       "health",
     ].includes(action)

@@ -7,7 +7,7 @@ const BridgeBar = ({ className = "" }: { className?: string }) => (
   <div
     className={`absolute top-0 left-0 right-0 h-[3px] z-10 ${className}`}
     style={{
-      background: "linear-gradient(90deg, transparent, #F2AB23 25%, #148066 75%, transparent)",
+      background: "linear-gradient(90deg, transparent, var(--gold) 25%, #148066 75%, transparent)",
     }}
     aria-hidden="true"
   />

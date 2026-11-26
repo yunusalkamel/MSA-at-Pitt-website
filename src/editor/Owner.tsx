@@ -25,6 +25,7 @@ type Overview = {
   environment: string;
   controls: Record<string, boolean>;
   administrators: Admin[];
+  owners?: string[];
   activity: Activity[];
   lastPublication: string | null;
 };
@@ -70,6 +71,7 @@ function Dashboard({ session }: { session: Session }) {
     [health, setHealth] = useState<Record<string, string>>();
   const [search, setSearch] = useState(""),
     [filter, setFilter] = useState(""),
+    [ownerEmail, setOwnerEmail] = useState(""),
     [email, setEmail] = useState(""),
     [note, setNote] = useState("");
   const [busy, setBusy] = useState(false),
@@ -140,6 +142,7 @@ function Dashboard({ session }: { session: Session }) {
       <nav aria-label="Management sections">
         {[
           "Overview",
+          "Owners",
           "Administrators",
           "Website controls",
           "Activity",
@@ -170,9 +173,34 @@ function Dashboard({ session }: { session: Session }) {
             <p>Latest recorded publication · {date(data.lastPublication)}</p>
             <a href="/admin">Open website editor →</a>
           </section>
+          <section id="Owners">
+            <h2>Owners</h2>
+            <ul>{(data.owners ?? [session.user.email]).map(address => <li key={address}>{address}</li>)}</ul>
+            <form onSubmit={(event) => {
+              event.preventDefault();
+              const target = ownerEmail.trim().toLowerCase();
+              const transfer = (event.nativeEvent as SubmitEvent).submitter?.getAttribute("value") === "transfer";
+              if (transfer && !window.confirm(`Transfer your ownership to ${target} and sign out?`)) return;
+              void run(async () => {
+                if (transfer) {
+                  await api("transfer_ownership", { email: target });
+                  await supabase.auth.signOut();
+                } else {
+                  await change("add_owner", { email: target });
+                  setOwnerEmail("");
+                }
+              });
+            }}>
+              <label>
+                Verified account email
+                <input required type="email" value={ownerEmail} onChange={event => setOwnerEmail(event.target.value)} />
+              </label>
+              <button disabled={busy}>Add co-owner</button>
+              <button disabled={busy} value="transfer">Transfer my ownership</button>
+            </form>
+          </section>
           <section id="Administrators">
             <h2>Administrators</h2>
-            <p>Permanent owner · {session.user.email}</p>
             <form
               onSubmit={(e) => {
                 e.preventDefault();

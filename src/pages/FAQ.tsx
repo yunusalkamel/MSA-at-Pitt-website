@@ -1,3 +1,5 @@
+import { useChaplainDetails } from "@/hooks/useChaplainDetails";
+import { PageHero } from "@/components/PageHero";
 import { TextField, ContentScope, itemIdentity, CardCopies } from "@/editor/content";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -14,6 +16,11 @@ import { QUERIES } from "@/lib/sanity";
 interface FAQItem {
   q: string;
   a: string | React.ReactNode;
+}
+
+function ChaplainAvailability() {
+  const { officeHours } = useChaplainDetails();
+  return <>Imam Muhammad Patel is available {officeHours}.</>;
 }
 
 // ── Fallback content (shown while Sanity loads or if fetch fails) ──────────────
@@ -64,7 +71,7 @@ const FALLBACK_FAQS: FAQItem[] = [
   },
   {
     q: "Where can I find the university chaplain?",
-    a: (<>Imam Muhammad Patel is available Monday 5–6 PM after his halaqah and Friday 3–4 PM. <Link to="/resources/chaplain" className="text-primary underline underline-offset-2 hover:opacity-80"><TextField id="FAQ_9">Visit the Chaplain page</TextField></Link> to learn more and get his contact info.</>),
+    a: (<><ChaplainAvailability /> <Link to="/resources/chaplain" className="text-primary underline underline-offset-2 hover:opacity-80"><TextField id="FAQ_9">Visit the Chaplain page</TextField></Link> to learn more and get his contact info.</>),
   },
 ];
 
@@ -118,19 +125,25 @@ const FAQ = () => {
   // Map Sanity shape → local shape, or fall back to hardcoded list
   const faqs: FAQItem[] =
     sanityFAQs && sanityFAQs.length > 0
-      ? sanityFAQs.map((item) => ({ q: item.question, a: item.answer as string }))
+      ? sanityFAQs.map((item) => ({
+          q: item.question,
+          a: /(?:chaplain|imam muhammad|imam patel)/i.test(item.question) && /(?:office hours|where|when|meet)/i.test(item.question)
+            ? FALLBACK_FAQS.at(-1)!.a
+            : item.answer,
+        }))
       : FALLBACK_FAQS;
 
   return (
     <Layout>
       {/* Hero */}
-      <section className="relative py-32 md:py-40 overflow-hidden">
+      <PageHero className="relative overflow-hidden">
         <div className="absolute inset-0">
           <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: "200px" }} />
           <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-secondary/5" />
           <BridgeBar />
         </div>
-        <div className="relative z-10 text-center px-4 max-w-3xl mx-auto">
+        <div className="relative z-10 text-center max-w-3xl mx-auto">
+          <div className="page-hero-kicker" aria-hidden="true" />
           <motion.h1
             initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
@@ -156,7 +169,7 @@ const FAQ = () => {
             </Link>
           </motion.div>
         </div>
-      </section>
+      </PageHero>
 
       {/* FAQ List */}
       <section className="section-padding relative">

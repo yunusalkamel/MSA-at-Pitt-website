@@ -59,6 +59,8 @@ it("authenticates every owner action before returning private data", async () =>
     "add",
     "note",
     "administrator",
+    "add_owner",
+    "transfer_ownership",
     "control",
     "health",
   ])

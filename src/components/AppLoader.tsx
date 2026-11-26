@@ -7,7 +7,7 @@ const AppLoader = () => (
     {/* Gold progress bar at the very top */}
     <div
       className="absolute top-0 left-0 h-[3px] animate-[progress_1.4s_ease-in-out_infinite]"
-      style={{ background: "linear-gradient(90deg, #F2AB23, #E8960A)", width: "65%" }}
+      style={{ background: "linear-gradient(90deg, var(--gold), #E8960A)", width: "65%" }}
     />
 
     {/* Bismillah */}

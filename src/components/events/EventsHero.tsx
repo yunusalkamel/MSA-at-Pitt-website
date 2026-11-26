@@ -1,3 +1,4 @@
+import { PageHero } from "@/components/PageHero";
 import { Picture, TextField } from "@/editor/content";
 import { useRef } from "react";
 import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
@@ -13,7 +14,7 @@ const EventsHero = () => {
   const contentOpacity = useTransform(scrollYProgress, [0, 0.7], prefersReduced ? [1, 1] : [1, 0]);
 
   return (
-    <section ref={ref} className="relative pt-24 pb-9 md:py-36 text-center px-4 overflow-hidden">
+    <PageHero ref={ref} className="relative text-center overflow-hidden">
       <motion.div className="absolute inset-0" style={{ y: bgY }}>
         <div className="absolute inset-0 bg-accent" />
         <Picture fieldId="events-hall" src={communityPhoto("banquet").src} alt="Tables filled with students at an MSA banquet" sizes="100vw" width={1280} height={600} className="absolute inset-0 h-full w-full object-cover object-center" />
@@ -32,9 +33,9 @@ const EventsHero = () => {
           initial={{ opacity: 0, scale: 0.6 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
-          className="mb-5"
+          className="page-hero-kicker"
         >
-          <Sparkles className="inline text-primary" size={36} />
+          <Sparkles className="inline text-primary" size={16} />
         </motion.div>
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
@@ -53,7 +54,7 @@ const EventsHero = () => {
           From halaqas to banquets, iftars to socials — find your next moment with the community.
         </TextField></motion.p>
       </motion.div>
-    </section>
+    </PageHero>
   );
 };
 

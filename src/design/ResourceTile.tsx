@@ -1,6 +1,6 @@
-import { useState, type ReactNode } from "react";
-import { Picture } from "@/editor/content";
-import { useDesign } from "./options";
+import { useContext, useId, useState, type ReactNode } from "react";
+import { Info, X } from "lucide-react";
+import { Content, Picture } from "@/editor/content";
 
 type Props = {
   title: ReactNode;
@@ -10,66 +10,49 @@ type Props = {
   primary: ReactNode;
   body: ReactNode;
   extra?: ReactNode;
+  summary?: ReactNode;
+  detailTitle?: ReactNode;
+  hint?: ReactNode;
+  hasOwnPage?: boolean;
 };
-export function ResourceTile({
-  title,
-  label,
-  photo,
-  tone,
-  primary,
-  body,
-  extra,
-}: Props) {
-  const { cards, details } = useDesign();
+
+export function ResourceTile({ title, label, photo, tone, primary, body, extra, summary, detailTitle, hint, hasOwnPage }: Props) {
+  const detailsId = useId();
+  const { editing } = useContext(Content);
   const [expanded, setExpanded] = useState(false);
   const [hovered, setHovered] = useState(false);
-  const open = details === "Always visible" || expanded;
-  const showDetails = open || hovered;
+  const showDetails = expanded || hovered;
   return (
-    <article
-      className="resource-review resource-tile"
-      data-finish={cards}
-      data-tone={tone}
-      data-back={showDetails || undefined}
-      onPointerEnter={event => {
-        if (details === "Desktop flip" && event.pointerType === "mouse" &&
-            window.matchMedia("(min-width: 768px) and (hover: hover)").matches) setHovered(true);
-      }}
+    <article className="resource-tile" data-tone={tone} data-back={showDetails || undefined}
+      data-linked={hasOwnPage && !editing || undefined} aria-label={label}
+      onPointerEnter={event => { if (event.pointerType === "mouse") setHovered(true); }}
       onPointerLeave={() => setHovered(false)}
-    >
-      {(cards === "Photo tint" || cards === "Frosted photo") && (
-        <Picture
-          fieldId="resource-backdrop"
-          src={photo}
-          alt=""
-          loading="lazy"
-          sizes="(max-width: 767px) 90px, 360px"
-          width={500}
-          height={360}
-        />
-      )}
+      onFocusCapture={event => {
+        if (event.target.closest("a") && event.target.matches(":focus-visible")) setHovered(true);
+      }}
+      onBlurCapture={event => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setHovered(false);
+      }}>
+      <Picture fieldId="resource-backdrop" src={photo} alt="" loading="lazy" decoding="async"
+        sizes="(width < 768px) 100px, 360px" width={500} height={360} />
       <div className="resource-copy">
         <h3>{title}</h3>
-        {showDetails && (
-          <div className="tile-detail">
-            <p>{body}</p>
-            {extra}
-          </div>
-        )}
-        <div className="resource-actions">{primary}</div>
+        {summary && <p className="tile-summary">{summary}</p>}
+        <div className="tile-detail" id={detailsId}>
+          {detailTitle && <p className="tile-detail-name" aria-hidden="true">{detailTitle}</p>}
+          <p className="tile-description">{body}</p>
+        </div>
+        {hint && <span className="sr-only">{hint}</span>}
+        <div className="resource-actions">
+          <div className="resource-primary">{primary}</div>
+          {extra && <div className="resource-extra">{extra}</div>}
+        </div>
       </div>
-      {details !== "Always visible" && (
-        <button
-          className="tile-info"
-          aria-label={
-            (open ? "Hide details for " : "Show details for ") + label
-          }
-          aria-expanded={showDetails}
-          onClick={() => { setHovered(false); setExpanded(v => !v); }}
-        >
-          {open ? "×" : "ⓘ"}
-        </button>
-      )}
+      <button type="button" className="tile-info" aria-controls={detailsId} aria-expanded={showDetails}
+        aria-label={(showDetails ? "Hide details for " : "Show details for ") + label}
+        onClick={() => { setHovered(false); setExpanded(!showDetails); }}>
+        {showDetails ? <X size={15} aria-hidden="true"/> : <Info size={16} aria-hidden="true"/>}
+      </button>
     </article>
   );
 }

@@ -1,3 +1,4 @@
+import { PageHero } from "@/components/PageHero";
 import { LinkField, TextField, ContentScope, itemIdentity, CardCopies } from "@/editor/content";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
@@ -114,7 +115,7 @@ const Join = () => {
       </AnimatePresence>
 
       {/* Hero */}
-      <section className="relative pt-24 pb-5 md:pt-32 md:pb-12 overflow-x-hidden text-center">
+      <PageHero className="join-hero relative overflow-x-hidden text-center">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0 gradient-mesh-gold" />
           <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: '220px' }} />
@@ -123,11 +124,11 @@ const Join = () => {
           <div className="absolute bottom-1/4 right-1/4 w-56 h-56 rounded-full bg-secondary/8 blur-[80px]" />
         </div>
 
-        <div className="relative z-10 px-4 max-w-3xl mx-auto">
+        <div className="relative z-10 max-w-3xl mx-auto">
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="font-body text-xs uppercase tracking-[0.3em] text-primary font-semibold mb-5"
+            className="font-body text-xs uppercase tracking-[0.3em] text-primary font-semibold page-hero-kicker"
           ><TextField id="Join_4">
             Membership
           </TextField></motion.p>
@@ -145,12 +146,12 @@ const Join = () => {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.35 }}
-            className="font-dm-sans text-base md:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed mb-8"
+            className="font-dm-sans text-base md:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed"
           ><TextField id="Join_7">
             Come to a gathering, bring a friend, or look around first. You’re welcome to drop by before you register.
           </TextField></motion.p>
 
-          <div className="flex flex-wrap justify-center gap-2 mb-6">
+          <div className="join-hero-actions flex flex-wrap justify-center">
             <Link to="/events" className="btn-premium text-sm px-5 py-2.5"><TextField id="join-visit">Find a gathering</TextField><ArrowRight size={15}/></Link>
             <a href="#join-options" className="btn-premium-secondary text-sm px-5 py-2.5"><TextField id="join-options-link">Ways to join</TextField></a>
           </div>
@@ -171,10 +172,10 @@ const Join = () => {
             </TextField></p>
           </motion.div>
         </div>
-      </section>
+      </PageHero>
 
       {/* Steps — pulled in tight to the hero */}
-      <section id="join-options" className="scroll-mt-24 pt-4 pb-20 md:pt-8 md:pb-28 px-4 md:px-8 lg:px-16 xl:px-24 relative overflow-hidden">
+      <section id="join-options" className="join-steps section-padding relative overflow-hidden">
         <div className="absolute inset-0 steps-surface pointer-events-none" />
         <div className="absolute inset-0 texture-cross opacity-25 pointer-events-none" />
         <div className="absolute top-1/4 -left-20 w-96 h-96 rounded-full bg-primary/[0.07] blur-[100px] pointer-events-none" />
@@ -195,12 +196,12 @@ const Join = () => {
                   <div className="absolute left-[1.35rem] top-[4.5rem] bottom-0 w-px bg-gradient-to-b from-primary/30 to-primary/5" />
                 )}
 
-                <div className="flex gap-6 py-8">
+                <div className="join-step flex">
                   <div className="flex-shrink-0 w-11 h-11 rounded-full liquid-glass flex items-center justify-center relative z-10">
                     <span className="font-mono text-xs font-bold text-primary/80 tracking-wider"><TextField id="Join_10">{step.num}</TextField></span>
                   </div>
 
-                  <div className="flex-1 pt-1.5">
+                  <div className="flex-1 min-w-0 pt-1.5">
                     <h3 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-2 leading-tight">
                       <TextField id="Join_11">{step.headline}</TextField>
                     </h3>
@@ -215,7 +216,7 @@ const Join = () => {
                           <button
                             type="button"
                             onClick={handleJoined}
-                            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors font-body font-semibold self-center"
+                            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors font-body font-semibold sm:self-center"
                           >
                             <CheckCircle2 size={15} /><TextField id="Join_14"> I've submitted it
                           </TextField></button>

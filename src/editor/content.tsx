@@ -30,6 +30,15 @@ export const Content = createContext<{ fields: Fields; editing: boolean }>({
   editing: false,
 });
 export const EditorialCopy = createContext(false);
+function editorialText(value: string) {
+  return value
+    .replace(/^\s*—\s*/, "")
+    .replace(/\s*—\s*/g, ", ")
+    .replace(/Source:\s*(?:ICP|Attawheed) via Masjidal\s*↗?/g, "View mosque timetable via Masjidal ↗")
+    .replace(/\bTarawih\b/g, "Taraweeh")
+    .replace(/\bImam Patel\b/g, "Imam Muhammad")
+    .replace(/\bnaseeha\b(?! \(advice\))/g, "naseeha (advice)");
+}
 const Scope = createContext("");
 export function ContentScope({
   id,
@@ -53,20 +62,29 @@ export function useField(id: string) {
     (shared ? "shared" : pathname.replace(/\/$/, "") || "/") + scope + "/" + id
   );
 }
+export function usePlainTextField(id: string, fallback: string, fallbackFieldKeys: string[] = []) {
+  const key = useField(id);
+  const { fields } = useContext(Content);
+  const field = [key, ...fallbackFieldKeys].map(candidate => fields[candidate]).find(value => value?.kind === "text");
+  return field?.kind === "text" ? field.runs.map(run => run.text).join("") : fallback;
+}
+
 export function TextField({
   id,
   children,
+  fallbackFieldKeys = [],
 }: {
   id: string;
   children: ReactNode;
+  fallbackFieldKeys?: string[];
 }) {
   const key = useField(id),
     { fields, editing } = useContext(Content);
   const revised = useContext(EditorialCopy);
-  if (revised && typeof children === "string") children = children.replace(/^\s*—\s*/, "").replace(/\s*—\s*/g, ", ");
+  if (revised && typeof children === "string") children = editorialText(children);
   if (typeof children !== "string" && typeof children !== "number")
     return <>{children}</>;
-  const field = fields[key];
+  const field = fields[key] ?? fallbackFieldKeys.map(alias => fields[alias]).find(value => value?.kind === "text");
   if (!editing && field?.kind !== "text") return <>{children}</>;
   return (
     <span data-edit-text={editing ? key : undefined}>
@@ -85,7 +103,7 @@ export function TextField({
                   : undefined,
               }}
             >
-              {r.text}
+              {revised ? editorialText(r.text) : r.text}
             </span>
           ))
         : children}
@@ -101,10 +119,12 @@ export function LinkField({
   const { fields, editing } = useContext(Content);
   const field = fields[key];
   if(fallback && !editing && !props.href && field?.kind!=="link") return <>{fallback}</>;
+  const replacedChaplainEmail = field?.kind === "link" && field.url.toLowerCase() === "mailto:imam@pitt.edu" &&
+    (fieldId === "Chaplain_destination_1" || fieldId === "Resources_destination_3");
   return (
     <a
       {...props}
-      href={field?.kind === "link" ? field.url : props.href}
+      href={field?.kind === "link" && !replacedChaplainEmail ? field.url : props.href}
       data-edit-link={editing ? key : undefined}
     />
   );
@@ -113,13 +133,18 @@ export function Picture({
   fieldId,
   emptyLabel,
   editorOnlyPlaceholder,
+  fixedSource,
+  fallbackFieldIds = [],
+  fallbackFieldKeys = [],
   ...props
-}: ImgHTMLAttributes<HTMLImageElement> & { fieldId: string; emptyLabel?: string; editorOnlyPlaceholder?: boolean }) {
+}: ImgHTMLAttributes<HTMLImageElement> & { fieldId: string; emptyLabel?: string; editorOnlyPlaceholder?: boolean; fixedSource?: boolean; fallbackFieldIds?: string[]; fallbackFieldKeys?: string[] }) {
   const key = useField(fieldId),
-    { fields, editing } = useContext(Content),
-    value = fields[key];
-  const alt=fields[key+"/alt"];
-  const overridden = value?.kind === "image";
+    { fields, editing } = useContext(Content);
+  const fallbackKeys = [...fallbackFieldKeys, ...fallbackFieldIds.map(id => key.slice(0, -fieldId.length) + id)];
+  const fallback = fallbackKeys.find(id => fields[id]?.kind === "image");
+  const value = fields[key] ?? (fallback ? fields[fallback] : undefined);
+  const alt = fields[key+"/alt"] ?? (fallback ? fields[fallback+"/alt"] : undefined);
+  const overridden = !fixedSource && value?.kind === "image";
   const originalSrc = overridden ? value.url : props.src;
   const retiredPicnic = originalSrc?.includes("/fb311b741cf77c989aeffca328c66551045e3372-640x640.webp");
   const src = retiredPicnic ? "/photos/community/campus-friends.webp" : originalSrc;
@@ -138,7 +163,7 @@ export function Picture({
       src={src}
       srcSet={srcSet || undefined}
       sizes={srcSet ? props.sizes ?? `(max-width: ${maxWidth}px) 100vw, ${maxWidth}px` : undefined}
-      data-edit-image={editing ? key : undefined}
+      data-edit-image={editing && !fixedSource ? key : undefined}
     />
   );
 }

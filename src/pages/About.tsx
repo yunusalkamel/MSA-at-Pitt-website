@@ -1,4 +1,6 @@
-import { Picture, ContentScope, TextField, itemIdentity, CardCopies } from "@/editor/content";
+import { useContext } from "react";
+import { PageHero } from "@/components/PageHero";
+import { Content, Picture, ContentScope, TextField, itemIdentity, CardCopies } from "@/editor/content";
 import { motion } from "framer-motion";
 import { BookOpen, PartyPopper, HeartHandshake, Globe, Sparkles } from "lucide-react";
 import Layout from "@/components/Layout";
@@ -16,14 +18,13 @@ const communityCards = [
   { icon: HeartHandshake, title: "Support & Resources", desc: "Wellness resources, freshman survival tips, revert resources — we've got your back.", gradient: "from-[#14345A] to-[#11233C]" },
 ];
 const imanCards = [
-  { icon: BookOpen, title: "Faith & Spirituality", desc: "Weekly Jummah, halaqas, Ramadan programming, and collaborations with the Islamic Center of Pittsburgh.", gradient: "from-[#F2AB23] to-[#C9A84C]" },
+  { icon: BookOpen, title: "Faith & Spirituality", desc: "Weekly Jummah, halaqas, Ramadan programming, and collaborations with the Islamic Center of Pittsburgh.", gradient: "from-[var(--gold)] to-[var(--gold-muted)]" },
   { icon: Globe, title: "Service & Da'wah", desc: "Service projects, volunteering, masjid partnerships, and giving back to Pittsburgh.", gradient: "from-[#8A6212] to-[#148066]" },
 ];
 
-import { useDesign } from "@/design/options";
-import { communityPhoto } from "@/data/communityPhotos";
+import { communityPhoto, pillarPhotos } from "@/data/communityPhotos";
 const About = () => {
-  const design = useDesign();
+  const { editing } = useContext(Content);
   usePageMeta({
     title: "About — MSA at Pitt",
     description: "We host the prayer space, organize the iftars, run the halaqas, and put on the events that fill the year. Founded 1997.",
@@ -31,9 +32,9 @@ const About = () => {
   return (
     <Layout>
       {/* Hero */}
-      <section className="relative py-32 md:py-44 overflow-hidden">
+      <PageHero className="relative overflow-hidden">
         <div className="absolute inset-0">
-          <Picture fieldId="About_1" src={communityPhoto(design.realPhotos ? "river-talk" : "hall-wide").src} sizes="100vw" alt="Students gathered for an MSA program" className="w-full h-full object-cover scale-105" loading="eager" width={1280} height={720} />
+          <Picture fieldId="About_1" src={communityPhoto("river-talk").src} sizes="100vw" alt="Students gathered for an MSA program" className="w-full h-full object-cover scale-105" loading="eager" width={1280} height={720} />
           <div className="absolute inset-0 bg-gradient-to-b from-accent/90 via-accent/60 to-accent/90" />
           <div className="absolute inset-0 opacity-[0.05]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: '200px' }} />
           <BridgeBar />
@@ -46,9 +47,9 @@ const About = () => {
             initial={{ opacity: 0, scale: 0.5, rotate: -8 }}
             animate={{ opacity: 1, scale: 1, rotate: 0 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
-            className="mb-6"
+            className="page-hero-kicker"
           >
-            <Sparkles className="inline text-primary" size={44} />
+            <Sparkles className="inline text-primary" size={16} />
           </motion.div>
           <motion.h1
             initial={{ opacity: 0, y: 32 }}
@@ -75,7 +76,7 @@ const About = () => {
             Cultivate Community, Ignite Iman.
           </TextField></motion.p>
         </div>
-      </section>
+      </PageHero>
 
       {/* Mission + Who We Are — same topic, no divider needed */}
       <section className="section-padding gradient-mesh-warm relative overflow-hidden">
@@ -124,7 +125,7 @@ const About = () => {
             <div className="relative group">
               <div className="absolute -inset-1 bg-gradient-to-br from-primary via-secondary to-primary rounded-3xl opacity-30 group-hover:opacity-45 transition-opacity duration-500 blur-sm" />
               <div className="relative glass-card p-3">
-                <Picture fieldId="About_10" src={communityPhoto(design.realPhotos ? "craft-table" : "gala-portraits").src} sizes="(max-width: 767px) 92vw, 570px" alt="MSA community" className="rounded-2xl w-full object-cover aspect-[4/3]" loading="lazy" width={1280} height={854} />
+                <Picture fieldId="About_10" src={communityPhoto("craft-table").src} sizes="(max-width: 767px) 92vw, 570px" alt="MSA community" className="rounded-2xl w-full object-cover aspect-[4/3]" loading="lazy" width={1280} height={854} />
               </div>
             </div>
             <motion.div
@@ -161,13 +162,6 @@ const About = () => {
         </div>
       </section>
 
-      <div className="mx-auto max-w-6xl px-4 pb-4">
-        <Picture fieldId="community-banner" src="/photos/brand/banner.webp" srcSet="/photos/brand/banner-760.webp 760w, /photos/brand/banner.webp 1774w"
-          sizes="(max-width: 767px) 94vw, min(94vw, 1120px)" width={1774} height={444} loading="lazy"
-          alt="Cultivate community, ignite iman. A collage of MSA at Pitt events."
-          className="w-full h-auto rounded-xl" />
-      </div>
-
       {/* Topic change: Mission → What We Do */}
       <SectionDivider />
 
@@ -186,7 +180,7 @@ const About = () => {
               <div className="grid sm:grid-cols-2 gap-5">
                 {communityCards.map((item, i) => (
                   <CardCopies key={item.title} id={"About_20-" + itemIdentity(item, item.title)}><GlassCard key={item.title} delay={i * 0.08}>
-                    {design.cardPhotos && <Picture fieldId="focus-photo" src={communityPhoto(i === 0 ? "flowers" : "craft-group").src} alt="" loading="lazy" width={460} height={250} className="community-card-photo"/>}
+                    <Picture fieldId="focus-photo" src={communityPhoto(pillarPhotos.community[i]).src} alt="" loading="lazy" width={460} height={250} className="community-card-photo"/>
                     <div className={`bg-gradient-to-br ${item.gradient} w-14 h-14 rounded-xl flex items-center justify-center mb-4 shadow-lg`}>
                       <item.icon className="text-white" size={24} />
                     </div>
@@ -202,7 +196,7 @@ const About = () => {
               <div className="grid sm:grid-cols-2 gap-5">
                 {imanCards.map((item, i) => (
                   <CardCopies key={item.title} id={"About_24-" + itemIdentity(item, item.title)}><GlassCard key={item.title} delay={0.16 + i * 0.08}>
-                    {design.cardPhotos && <Picture fieldId="focus-photo" src={communityPhoto(i === 0 ? "halaqa-circle" : "serving").src} alt="" loading="lazy" width={460} height={250} className="community-card-photo"/>}
+                    <Picture fieldId="focus-photo" src={communityPhoto(pillarPhotos.iman[i]).src} alt="" loading="lazy" width={460} height={250} className="community-card-photo"/>
                     <div className={`bg-gradient-to-br ${item.gradient} w-14 h-14 rounded-xl flex items-center justify-center mb-4 shadow-lg`}>
                       <item.icon className="text-white" size={24} />
                     </div>
@@ -231,17 +225,18 @@ const About = () => {
       {/* Topic change: Leadership → Closing */}
       <SectionDivider />
 
-      {/* Closing — 49:13 (peoples and tribes meeting one another) fits About */}
       <section className="section-padding-sm gradient-section-gold-soft">
-        <div className="max-w-3xl mx-auto">
-          <div className="glass-card-strong glass-glow p-8 md:p-12">
-            <ContentScope id="About_28"><ArabicVerse
-              arabic="يَا أَيُّهَا النَّاسُ إِنَّا خَلَقْنَاكُم مِّن ذَكَرٍ وَأُنثَىٰ وَجَعَلْنَاكُمْ شُعُوبًا وَقَبَائِلَ لِتَعَارَفُوا"
-              translation="O mankind, We created you from male and female and made you peoples and tribes that you may know one another."
-              reference="Quran 49:13"
-            /></ContentScope>
-          </div>
-        </div>
+        <Picture fieldId="community-banner" src="/photos/brand/banner.webp" srcSet="/photos/brand/banner-760.webp 760w, /photos/brand/banner.webp 1774w"
+          sizes="(max-width: 767px) 94vw, min(94vw, 1120px)" width={1774} height={444} loading="lazy"
+          alt="Cultivate community, ignite iman. A collage of MSA at Pitt events."
+          className="mx-auto max-w-6xl w-full h-auto rounded-xl" />
+        {editing && (
+          <ContentScope id="About_28"><ArabicVerse
+            arabic="يَا أَيُّهَا النَّاسُ إِنَّا خَلَقْنَاكُم مِّن ذَكَرٍ وَأُنثَىٰ وَجَعَلْنَاكُمْ شُعُوبًا وَقَبَائِلَ لِتَعَارَفُوا"
+            translation="O mankind, We created you from male and female and made you peoples and tribes that you may know one another."
+            reference="Quran 49:13"
+          /></ContentScope>
+        )}
       </section>
     </Layout>
   );

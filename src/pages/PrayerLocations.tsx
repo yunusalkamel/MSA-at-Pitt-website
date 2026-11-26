@@ -1,3 +1,4 @@
+import { PageHero } from "@/components/PageHero";
 import { ContentScope, TextField, itemIdentity, CardCopies } from "@/editor/content";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
@@ -67,13 +68,13 @@ const masajid = [
 const PrayerLocations = () => (
   <Layout>
     {/* Hero */}
-    <section className="relative py-28 md:py-36 text-center px-4 overflow-hidden">
+    <PageHero className="relative text-center overflow-hidden">
       <div className="absolute inset-0 gradient-mesh-gold" />
       <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: "200px" }} />
           
           <BridgeBar />
       <div className="relative z-10 max-w-3xl mx-auto">
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xs uppercase tracking-[0.3em] text-primary font-semibold mb-5"><TextField id="PrayerLocations_2">
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xs uppercase tracking-[0.3em] text-primary font-semibold page-hero-kicker"><TextField id="PrayerLocations_2">
           Resources
         </TextField></motion.p>
         <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="font-display text-5xl md:text-7xl font-bold text-foreground mb-4"><TextField id="PrayerLocations_3">
@@ -92,7 +93,7 @@ const PrayerLocations = () => (
           </Link>
         </motion.div>
       </div>
-    </section>
+    </PageHero>
 
     {/* On-campus */}
     <section className="section-padding relative overflow-hidden">

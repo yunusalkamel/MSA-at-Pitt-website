@@ -13,16 +13,18 @@ export default {
       },
     },
     extend: {
+      spacing: {
+        1: "var(--space-1)", 2: "var(--space-2)", 3: "var(--space-3)", 4: "var(--space-4)",
+        6: "var(--space-5)", 8: "var(--space-6)", 12: "var(--space-7)", 16: "var(--space-8)",
+        24: "var(--space-9)", 32: "var(--space-10)",
+      },
       fontFamily: {
         display: ['Cormorant Garamond', 'Georgia', 'serif'],
         body: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
         arabic: ['Amiri', 'serif'],
         script: ['Pinyon Script', 'cursive'],
-        burgues: ['Burgues Script', 'cursive'],
         satoshi: ['Satoshi', 'system-ui', 'sans-serif'],
         'dm-sans': ['DM Sans', 'system-ui', 'sans-serif'],
-        barlow: ['Barlow Condensed', 'system-ui', 'sans-serif'],
-        outfit: ['Outfit', 'system-ui', 'sans-serif'],
         mono: ['Space Mono', 'monospace'],
       },
       colors: {
