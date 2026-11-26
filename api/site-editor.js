@@ -145,7 +145,7 @@ export default async function handler(req, res) {
     const result = await versions(client, req.body, access.actor, dataset);
     if (!result.unchanged) {
       try {
-        await authorize("published", { revision: result.revision });
+        await authorize("published", { revision: action + ":" + result.id });
       } catch {
         result.warning =
           "Saved with version history. The separate activity feed could not be updated.";
