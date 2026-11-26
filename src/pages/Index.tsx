@@ -1,4 +1,4 @@
-import { communityPhoto } from "@/data/communityPhotos";
+import { campusPrayerPhoto, communityPhoto } from "@/data/communityPhotos";
 import { nextGathering } from "@/lib/nextGathering";
 import { HeroPhotos, Moments } from "@/design/CommunityPhotos";
 import { WelcomePath,NextEvent } from "@/design/Welcome";
@@ -351,7 +351,14 @@ const Index = () => {
 
       <SectionDivider />
 
-      <div className="home-prayer"><DailyPrayers /></div>
+      <div className="home-prayer">
+        <figure>
+          <Picture fieldId="campus-prayer-photo" src={campusPrayerPhoto.src}
+            alt={campusPrayerPhoto.title} width={720} height={480} loading="lazy" decoding="async"
+            sizes="(width < 768px) 90vw, 400px" />
+        </figure>
+        <DailyPrayers />
+      </div>
 
       <SectionDivider />
 

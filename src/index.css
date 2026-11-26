@@ -976,6 +976,8 @@ html { scroll-behavior: smooth; }
 .resource-tile:focus-visible { outline: 2px solid var(--gold-muted); outline-offset: var(--space-1); }
 .resource-tile > img { position: absolute; inset: 0; width: 23%; height: 100%; object-fit: cover; object-position: 50% 38%; }
 .resource-tile > img[src*="imam-muhammad-patel"] { object-position: center 17%; }
+img[src*="/lawn-prayer"] { object-position: right top; }
+.resource-tile > img[src*="/lawn-prayer"] { object-position: right top; }
 .resource-tile .resource-copy {
   position: relative;
   grid-column: 2;

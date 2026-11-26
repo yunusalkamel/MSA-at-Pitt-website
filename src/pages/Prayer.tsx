@@ -1,5 +1,5 @@
 import { LinkField } from "@/editor/content";
-import { ContentScope, TextField, itemIdentity, CardCopies } from "@/editor/content";
+import { ContentScope, TextField, itemIdentity, CardCopies, Picture } from "@/editor/content";
 import { lazy, Suspense, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, MapPin, Building2, Landmark, ExternalLink } from "lucide-react";
@@ -13,6 +13,7 @@ import { DailyPrayers } from "@/design/DailyPrayers";
 import { usePrayerSchedule } from "@/hooks/usePrayerSchedule";
 import { PageHero } from "@/components/PageHero";
 import { PhotoSlots } from "@/design/PhotoSlots";
+import { campusPrayerPhoto } from "@/data/communityPhotos";
 
 const SolarAlmanac = lazy(() => import("@/design/SolarAlmanac"));
 
@@ -89,7 +90,10 @@ const Prayer = () => {
     <Layout>
 
 
-      <PageHero className="text-center">
+      <PageHero className="prayer-page-hero text-center">
+        <Picture fieldId="prayer-hero-photo" className="prayer-hero-photo" src={campusPrayerPhoto.src}
+          alt="" width={720} height={480} loading="lazy" decoding="async"
+          sizes="(width < 768px) 100vw, 720px" />
         <p className="page-hero-kicker text-xs uppercase tracking-[0.3em] text-primary font-semibold"><TextField id="Prayer_2" fallbackFieldKeys={["/resources/prayer-times/PrayerTimes_2"]}>Resources</TextField></p>
         <h1 className="font-display font-bold text-foreground"><TextField id="Prayer_3" fallbackFieldKeys={["/resources/prayer-times/PrayerTimes_3"]}>Prayer at </TextField><TextField id="Prayer_4" fallbackFieldKeys={["/resources/prayer-times/PrayerTimes_4"]}>Pitt</TextField></h1>
         <p className="text-muted-foreground text-lg max-w-xl mx-auto"><TextField id="Prayer_5" fallbackFieldKeys={["/resources/prayer-times/PrayerTimes_5"]}>Daily times, campus prayer rooms, and Friday prayer.</TextField></p>

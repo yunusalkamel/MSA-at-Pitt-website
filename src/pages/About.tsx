@@ -185,7 +185,7 @@ const About = () => {
               <div className="grid sm:grid-cols-2 gap-5">
                 {communityCards.map((item, i) => (
                   <CardCopies key={item.title} id={"About_20-" + itemIdentity(item, item.title)}><GlassCard key={item.title} delay={i * 0.08}>
-                    <Picture fieldId="focus-photo" src={communityPhoto(i === 0 ? "flowers" : "craft-group").src} alt="" loading="lazy" width={460} height={250} className="community-card-photo"/>
+                    <Picture fieldId="focus-photo" src={communityPhoto(i === 0 ? "lawn-prayer" : "craft-group").src} alt="" loading="lazy" width={460} height={250} className="community-card-photo"/>
                     <div className={`bg-gradient-to-br ${item.gradient} w-14 h-14 rounded-xl flex items-center justify-center mb-4 shadow-lg`}>
                       <item.icon className="text-white" size={24} />
                     </div>

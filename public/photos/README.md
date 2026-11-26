@@ -6,4 +6,6 @@
 
 Community images have a full WebP and smaller `-320` and `-720` versions. The phone collage uses `-tile.webp` portrait crops. Wide groups and images that lose their subject in a portrait crop stay out of the phone collage.
 
+The campus prayer image comes from `_MG_7190.JPG`. The portrait export and responsive crops keep the top and right edges of the photograph.
+
 Captions use the album name and its verified month and year when available. Undated albums show their name. The missing dates are tracked in the photo data.

@@ -3,7 +3,7 @@ import { PageHero } from "@/components/PageHero";
 import { LinkField } from "@/editor/content";
 import { TextField, itemIdentity, ContentScope, CardCopies } from "@/editor/content";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { communityPhoto } from "@/data/communityPhotos";
+import { campusPrayerPhoto, communityPhoto } from "@/data/communityPhotos";
 import { ResourceTile } from "@/design/ResourceTile";
 import { motion } from "framer-motion";
 import { BookOpen, Heart, Moon, MessageSquare, Link as LinkIcon, ArrowRight, Mail, Clock, Calendar } from "lucide-react";
@@ -116,7 +116,7 @@ const Resources = () => {
             {resourceCard(resources[0], 0)}
 
             {/* Prayer card — combined prayer page */}
-            <CardCopies id="resource-prayer"><ResourceTile label="Prayer" title={<TextField id={mobile?"Resources_23":"Resources_26"}>Prayer</TextField>} body={<TextField id={mobile?"Resources_24":"Resources_27"}>Daily times, Jummah and places to pray on campus.</TextField>} photo="/photos/prayer/jummah-ballroom.webp" tone="pine" primary={<Link to="/resources/prayer"><TextField id={mobile?"Resources_25":"Resources_28"}>Open prayer guide</TextField> →</Link>} /></CardCopies>
+            <CardCopies id="resource-prayer"><ResourceTile label="Prayer" title={<TextField id={mobile?"Resources_23":"Resources_26"}>Prayer</TextField>} body={<TextField id={mobile?"Resources_24":"Resources_27"}>Daily times, Jummah and places to pray on campus.</TextField>} photo={campusPrayerPhoto.src} tone="pine" primary={<Link to="/resources/prayer"><TextField id={mobile?"Resources_25":"Resources_28"}>Open prayer guide</TextField> →</Link>} /></CardCopies>
 
             {/* Chaplain card */}
             <CardCopies id="resource-chaplain"><ResourceTile label="University Chaplain" title={<TextField id={mobile?"Resources_29":"Resources_33"}>University Chaplain</TextField>} body={<TextField id={mobile?"Resources_30":"Resources_34"}>Office hours, spiritual guidance and a space to talk.</TextField>} summary={<TextField id="Resources_35">{officeHours}</TextField>} photo="/photos/prayer/imam-muhammad-patel.webp" tone="slate" primary={<Link to="/resources/chaplain"><TextField id={mobile?"Resources_31":"Resources_36"}>Meet the chaplain</TextField> →</Link>} extra={<LinkField fieldId="Resources_destination_3" href={"mailto:" + email}><TextField id="Resources_32">Email the chaplain</TextField> ↗</LinkField>}/></CardCopies>

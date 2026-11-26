@@ -611,6 +611,41 @@
 .home-stats { margin-top: calc(-1 * var(--space-6)); padding-inline: var(--gutter); }
 .home-stats > div { padding: var(--space-4) var(--space-5); }
 .moment-section, .home-prayer, .welcome-path { padding-inline: var(--gutter); }
+.home-prayer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--grid-gap);
+}
+.home-prayer figure {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--space-4);
+  aspect-ratio: 1.9;
+}
+.home-prayer figure img,
+.prayer-hero-photo {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+}
+.prayer-page-hero { isolation: isolate; overflow: hidden; }
+.prayer-hero-photo {
+  inset-inline-start: auto;
+  z-index: -1;
+  opacity: .19;
+  mask-image: linear-gradient(to bottom, #000 12%, transparent 100%);
+}
+.dark .prayer-hero-photo { opacity: .23; }
+@media (min-width: 768px) {
+  .home-prayer { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); }
+  .home-prayer figure { aspect-ratio: auto; }
+  .prayer-hero-photo {
+    width: 58%;
+    mask-image: linear-gradient(to left, #000 18%, transparent 100%);
+  }
+}
 .upcoming-invite {
   max-width: none;
   width: auto;

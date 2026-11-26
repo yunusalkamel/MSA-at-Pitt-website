@@ -155,11 +155,11 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
           return (
             <figure key={index} data-hero-tile={index} data-photo={photo}>
               {previous && <img className="wall-previous" {...source(previous, index)} sizes={sizes}
-                style={{ objectPosition: phone ? "center" : communityPhoto(previous).focus }} alt="" />}
+                style={{ objectPosition: phone && previous !== "lawn-prayer" ? "center" : communityPhoto(previous).focus }} alt="" />}
               <Picture key={photo} fieldId={prefix + photo} fallbackFieldIds={index === 0 ? ["Index_4"] : undefined}
                 {...display} sizes={sizes} alt="" decoding="async" width={720} height={450}
                 {...(index === 0 ? { fetchpriority: "high" } : {})}
-                style={{ objectPosition: phone ? "center" : communityPhoto(photo).focus }}
+                style={{ objectPosition: phone && photo !== "lawn-prayer" ? "center" : communityPhoto(photo).focus }}
                 className={previous ? "wall-incoming" : undefined}
                 onAnimationEnd={previous ? () => finish(index, previous, false) : undefined}
                 onError={previous ? () => finish(index, previous, true) : undefined} />

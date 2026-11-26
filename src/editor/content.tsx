@@ -133,17 +133,18 @@ export function Picture({
   fieldId,
   emptyLabel,
   editorOnlyPlaceholder,
+  fixedSource,
   fallbackFieldIds = [],
   fallbackFieldKeys = [],
   ...props
-}: ImgHTMLAttributes<HTMLImageElement> & { fieldId: string; emptyLabel?: string; editorOnlyPlaceholder?: boolean; fallbackFieldIds?: string[]; fallbackFieldKeys?: string[] }) {
+}: ImgHTMLAttributes<HTMLImageElement> & { fieldId: string; emptyLabel?: string; editorOnlyPlaceholder?: boolean; fixedSource?: boolean; fallbackFieldIds?: string[]; fallbackFieldKeys?: string[] }) {
   const key = useField(fieldId),
     { fields, editing } = useContext(Content);
   const fallbackKeys = [...fallbackFieldKeys, ...fallbackFieldIds.map(id => key.slice(0, -fieldId.length) + id)];
   const fallback = fallbackKeys.find(id => fields[id]?.kind === "image");
   const value = fields[key] ?? (fallback ? fields[fallback] : undefined);
   const alt = fields[key+"/alt"] ?? (fallback ? fields[fallback+"/alt"] : undefined);
-  const overridden = value?.kind === "image";
+  const overridden = !fixedSource && value?.kind === "image";
   const originalSrc = overridden ? value.url : props.src;
   const retiredPicnic = originalSrc?.includes("/fb311b741cf77c989aeffca328c66551045e3372-640x640.webp");
   const src = retiredPicnic ? "/photos/community/campus-friends.webp" : originalSrc;
@@ -162,7 +163,7 @@ export function Picture({
       src={src}
       srcSet={srcSet || undefined}
       sizes={srcSet ? props.sizes ?? `(max-width: ${maxWidth}px) 100vw, ${maxWidth}px` : undefined}
-      data-edit-image={editing ? key : undefined}
+      data-edit-image={editing && !fixedSource ? key : undefined}
     />
   );
 }

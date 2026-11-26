@@ -63,6 +63,7 @@ export const fullCommunityLibrary = Object.keys(captions) as PhotoId[];
 
 const focus: Partial<Record<PhotoId, string>> = {
   "campus-lawn": "50% 18%",
+  "lawn-prayer": "right top",
   "river-talk": "70% 38%",
   "fajr-bridge": "57% 39%",
   "fajr-group": "48% 69%",
@@ -84,6 +85,8 @@ export function communityPhoto(id: PhotoId) {
   return { id, title: captions[id], src: "/photos/community/" + id + ".webp", focus: focus[id] ?? "50% 38%" };
 }
 
+
+export const campusPrayerPhoto = communityPhoto("lawn-prayer");
 
 export const daylightWall: PhotoId[] = [
   "campus-lawn", "riverside-friends", "flowers", "friendsgiving-serve",
