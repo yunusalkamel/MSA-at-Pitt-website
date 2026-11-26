@@ -92,6 +92,10 @@ async function capture(browser, width, height, theme, writeImages) {
         await page.locator("html").evaluate(el => getComputedStyle(el).getPropertyValue("--nav-offset").trim()));
     }
     if (name === "prayer") {
+      const photo = page.locator(".prayer-hero-photo");
+      await page.waitForFunction(() => document.querySelector(".prayer-hero-photo")?.naturalWidth > 0);
+      assert.match(await photo.getAttribute("src"), /lawn-prayer\.webp$/);
+      assert.equal(await photo.evaluate(img => getComputedStyle(img).objectPosition), "100% 0%");
       assert.equal((await prayerTimes(page)).length, 6);
       assert.equal(await page.locator("img[src*='room-photo-pending']").count(), 0);
       assert.equal(await page.locator("#ctop").count(), 0);
@@ -278,7 +282,7 @@ async function galleryAndChaplain(browser) {
   await visit(page, "/gallery");
   await page.getByRole("button", { name: "Fall '26", exact: true }).click();
   await page.getByRole("heading", { name: "Fall album from the calendar check" }).waitFor();
-  assert.equal(await page.getByRole("heading", { name: "Spring album from the calendar check" }).count(), 0);
+  await page.getByRole("heading", { name: "Spring album from the calendar check" }).waitFor({ state: "detached" });
   await page.getByRole("button", { name: "Spring '27", exact: true }).click();
   await page.getByRole("heading", { name: "Spring album from the calendar check" }).waitFor();
   await visit(page, "/resources/chaplain");
