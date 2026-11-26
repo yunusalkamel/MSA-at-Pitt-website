@@ -14,50 +14,10 @@ import patternImg from "@/assets/islamic-pattern-360.webp";
 declare global { interface Window { Chart: any; } }
 
 // ─── Solar prayer time calculator ────────────────────────────────────────────
-const DEG = Math.PI / 180;
-function julianDate(y: number, m: number, d: number) {
-  if (m <= 2) { y--; m += 12; }
-  const A = Math.floor(y / 100);
-  return Math.floor(365.25*(y+4716)) + Math.floor(30.6001*(m+1)) + d + (2-A+Math.floor(A/4)) - 1524.5;
-}
-function easternTZ(y: number, m: number, d: number) {
-  const nthSun = (yr: number, mo: number, n: number) => {
-    const fd = new Date(yr, mo-1, 1).getDay();
-    return (fd === 0 ? 1 : 8 - fd) + (n-1)*7;
-  };
-  const dt = new Date(y, m-1, d);
-  return (dt >= new Date(y, 2, nthSun(y,3,2)) && dt < new Date(y, 10, nthSun(y,11,1))) ? -4 : -5;
-}
-function calcDay(lat: number, lng: number, y: number, m: number, d: number) {
-  const tz = easternTZ(y, m, d);
-  const D = julianDate(y, m, d) - 2451545.0;
-  const g = ((357.529 + 0.98560028*D) % 360 + 360) % 360;
-  const q = ((280.459 + 0.98564736*D) % 360 + 360) % 360;
-  const L = ((q + 1.915*Math.sin(g*DEG) + 0.020*Math.sin(2*g*DEG)) % 360 + 360) % 360;
-  const e = 23.439 - 0.00000036*D;
-  const RA = Math.atan2(Math.cos(e*DEG)*Math.sin(L*DEG), Math.cos(L*DEG)) / DEG / 15;
-  const dec = Math.asin(Math.sin(e*DEG)*Math.sin(L*DEG)) / DEG;
-  let EqT = q/15 - RA; EqT = EqT - Math.round(EqT/24)*24;
-  const noon = 12 - lng/15 - EqT + tz;
-  const HA = (ang: number) => {
-    const c = (Math.sin(ang*DEG) - Math.sin(lat*DEG)*Math.sin(dec*DEG)) / (Math.cos(lat*DEG)*Math.cos(dec*DEG));
-    return Math.abs(c) > 1 ? null : Math.acos(c) / DEG / 15;
-  };
-  const Hs = HA(-0.8333), Hf = HA(-15);
-  const elevA = Math.atan(1 / (1 + Math.tan(Math.abs(lat - dec)*DEG))) / DEG;
-  const Ha = HA(elevA);
-  const fl = (v: number) => Math.floor(v*60);
-  const rnd = (v: number) => Math.round(v*60);
-  return {
-    Fajr:    Hf != null ? fl(noon - Hf)    : null,
-    Sunrise: Hs != null ? fl(noon - Hs)    : null,
-    Dhuhr:   rnd(noon),
-    Asr:     Ha != null ? rnd(noon + Ha)   : null,
-    Maghrib: Hs != null ? rnd(noon + Hs + 1/60) : null,
-    Isha:    Hf != null ? rnd(noon + Hf + 1/60) : null,
-  };
-}
-
+import { calcDay, fm } from "@/lib/prayerClock";
+import { DailyPrayers,pittsburghDate } from "@/design/DailyPrayers";
+import { useDesign } from "@/design/options";
+import { PhotoSlots } from "@/design/PhotoSlots";
 const MN = ['','January','February','March','April','May','June','July','August','September','October','November','December'];
 const MNS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 type DayEntry = { yr: number; mo: number; d: number; lbl: string;
@@ -99,13 +59,6 @@ const PC = [
   { n:"Maghrib", c:"#378ADD", k:"Maghrib", p:1 },
   { n:"Isha",    c:"#7F77DD", k:"Isha",    p:1 },
 ];
-
-function fm(x: number|null) {
-  if (x == null) return "—";
-  const h = Math.floor(x/60) % 24, m = Math.round(x % 60);
-  const ap = h < 12 ? "am" : "pm", hh = h === 0 ? 12 : h > 12 ? h-12 : h;
-  return `${hh}:${m < 10 ? "0"+m : m}${ap}`;
-}
 
 // ─── Location data ────────────────────────────────────────────────────────────
 const onCampus = [
@@ -167,13 +120,18 @@ const masajid = [
 // ─── Component ────────────────────────────────────────────────────────────────
 const Prayer = () => {
   const [todayHtml, setTodayHtml] = useState<string>("loading...");
+  const design = useDesign();
+  const [west,setWest]=useState(false);
+  const [expanded,setExpanded] = useState(false);
+  const showChart = !design.simpleTimes || expanded;
   const initRef = useRef(false);
 
   useEffect(() => {
-    if (initRef.current) return;
+    if (!showChart || initRef.current) return;
     initRef.current = true;
 
     const lifecycle = new AbortController();
+    const canvases = ["ctop","cbot"].map(id => document.getElementById(id));
     let script = document.getElementById("chartjs-cdn");
     if (!script) {
       script = document.createElement("script");
@@ -187,23 +145,23 @@ const Prayer = () => {
     return () => {
       lifecycle.abort();
       initRef.current = false;
-      ["ctop","cbot"].forEach(id => {
-        const el = document.getElementById(id) as HTMLCanvasElement;
+      canvases.forEach(el => {
         if (el) window.Chart?.getChart?.(el)?.destroy();
       });
     };
-  }, []);
+  }, [showChart,west,design.simpleTimes]);
 
   function boot(signal: AbortSignal) {
     const Chart = window.Chart;
     if (!Chart) return;
 
-    let allDays = buildDays(ICP_LAT, ICP_LNG);
+    let currentLat=design.simpleTimes && west?ATT_LAT:ICP_LAT, currentLng=design.simpleTimes && west?ATT_LNG:ICP_LNG;
+    let allDays = buildDays(currentLat,currentLng);
     let { RAM: RAM_BLOCKS, BRK: BRK_BLOCKS } = buildZones(allDays);
     let loadedYears = new Set<number>();
     let visibleRequest: AbortController | undefined;
     let fetchTimer: ReturnType<typeof setTimeout>;
-    const now = new Date(), CY = now.getFullYear(), CM = now.getMonth()+1, CD = now.getDate();
+    const {year:CY,month:CM,day:CD}=pittsburghDate(new Date());
     let TI = allDays.findIndex(x => x.yr === CY && x.mo === CM && x.d === CD);
     const SPANS: Record<string,number> = { "1mo":35, "6mo":182, "year":365 };
     let curSpan = SPANS["year"];
@@ -212,13 +170,14 @@ const Prayer = () => {
     let aIdx = TI;
     let vis = [true,true,true,true,true,true];
     let dragging = false, dragClientX = 0, dragWinStart = 0, rafId: number|null = null;
-    let currentLat = ICP_LAT, currentLng = ICP_LNG;
+
     signal.addEventListener("abort", () => {
       clearTimeout(fetchTimer);
       visibleRequest?.abort();
     }, { once: true });
 
     function renderTodayBar() {
+      if(design.simpleTimes) return;
       if (TI < 0) { setTodayHtml('<span style="font-size:.7rem;color:rgba(17,35,60,.5)">No data for today</span>'); return; }
       const T = allDays[TI];
       const dow = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][new Date(T.yr, T.mo-1, T.d).getDay()];
@@ -283,6 +242,7 @@ const Prayer = () => {
     }
 
     function queueVisibleYears(reset = false) {
+      if(design.simpleTimes)return; // The compact chart and daily summary share the same calculated schedule.
       clearTimeout(fetchTimer);
       if (reset) {
         visibleRequest?.abort();
@@ -630,8 +590,9 @@ const Prayer = () => {
       {/* ── Prayer Times Chart ───────────────────────────────────── */}
       <section className="py-10 px-4 pb-14">
         <div className="max-w-4xl mx-auto">
-          <motion.div initial={{opacity:0,y:16}} animate={{opacity:1,y:0}} transition={{delay:.1}} className="glass-card rounded-2xl p-6">
-            <div style={{display:"flex",gap:".5rem",marginBottom:"1.1rem"}}>
+          {design.simpleTimes && <><DailyPrayers west={west} onLocation={setWest}/><button className="chart-disclosure" aria-expanded={expanded} onClick={()=>setExpanded(v=>!v)}><span aria-hidden>◐</span> {expanded?"Close the solar almanac":"Open the solar almanac"} <span aria-hidden>{expanded?"−":"+"}</span></button></>}
+          {showChart && <motion.div key={design.simpleTimes?String(west):"original"} initial={{opacity:0,y:16}} animate={{opacity:1,y:0}} transition={{delay:.1}} className="glass-card rounded-2xl p-6">
+            <div style={{display:design.simpleTimes?"none":"flex",gap:".5rem",marginBottom:"1.1rem"}}>
               <button className="msm on" data-mid="QKMnW1LB" data-lat="40.4490" data-lng="-79.9619" data-name="ICP">
                 <span className="msm-dot"></span>
                 <span className="msm-labels"><span className="msm-name"><TextField id="Prayer_6">ICP</TextField></span><span className="msm-loc"><TextField id="Prayer_7">Oakland · Pittsburgh</TextField></span></span>
@@ -645,13 +606,13 @@ const Prayer = () => {
             <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
               <div>
                 <p className="text-xs uppercase tracking-[0.22em] text-primary font-semibold mb-1"><TextField id="Prayer_10">Prayer Timing Trends</TextField></p>
-                <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground" id="card-title">Islamic Center of Pittsburgh</h2>
+                <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground" id="card-title">{design.simpleTimes && west?"Attawheed Islamic Center":"Islamic Center of Pittsburgh"}</h2>
               </div>
               <button id="today-btn" style={{background:"transparent",border:".5px solid #C9A84C",borderRadius:"9px",padding:".28rem .65rem",cursor:"pointer",fontSize:".82rem",color:"#C9A84C",fontWeight:500,fontFamily:"var(--font-body)"}}><TextField id="Prayer_11">↩ Today</TextField></button>
             </div>
 
-            <div style={{display:"flex",flexWrap:"wrap",alignItems:"center",gap:".3rem .9rem",padding:".55rem .85rem",background:"rgba(201,168,76,.07)",border:".5px solid rgba(201,168,76,.22)",borderRadius:"10px",marginBottom:".7rem",minHeight:"38px",fontFamily:"var(--font-body)"}}
-              dangerouslySetInnerHTML={{__html: todayHtml}} />
+            {!design.simpleTimes && <div style={{display:"flex",flexWrap:"wrap",alignItems:"center",gap:".3rem .9rem",padding:".55rem .85rem",background:"rgba(201,168,76,.07)",border:".5px solid rgba(201,168,76,.22)",borderRadius:"10px",marginBottom:".7rem",minHeight:"38px",fontFamily:"var(--font-body)"}}
+              dangerouslySetInnerHTML={{__html: todayHtml}} />}
 
             <div id="togs" style={{display:"flex",flexWrap:"wrap",gap:".35rem",marginBottom:".55rem"}}></div>
 
@@ -679,13 +640,13 @@ const Prayer = () => {
               <span id="range-label" style={{fontSize:".72rem",color:"hsl(var(--muted-foreground))",fontFamily:"var(--font-body)"}}></span>
               <div style={{display:"flex",alignItems:"center",gap:".75rem",flexWrap:"wrap"}}>
                 <button className="app-btn" id="app-dl"><TextField id="Prayer_17">⬇ Download Athan+</TextField></button>
-                <a id="src-link" href="https://masjidal.com/widget/monthly/v2/?masjid_id=QKMnW1LB" target="_blank" rel="noopener noreferrer"
+                <a id="src-link" href={"https://masjidal.com/widget/monthly/v2/?masjid_id="+(design.simpleTimes && west?"zKz8QzAO":"QKMnW1LB")} target="_blank" rel="noopener noreferrer"
                   style={{fontSize:".7rem",color:"hsl(var(--muted-foreground))",textDecoration:"none",display:"flex",alignItems:"center",gap:"3px",fontFamily:"var(--font-body)",transition:"color .14s"}}><TextField id="Prayer_18">
-                  Source: ICP via Masjidal ↗
+                  {design.simpleTimes?"View mosque timetable ↗":"Source: ICP via Masjidal ↗"}
                 </TextField></a>
               </div>
             </div>
-          </motion.div>
+          </motion.div>}
         </div>
       </section>
 
@@ -755,6 +716,7 @@ const Prayer = () => {
               </div>
             </div>
           </motion.div>
+          {design.locationPhotos && <PhotoSlots name="Jummah prayer" count={3}/>}
         </div>
       </section>
 
@@ -796,6 +758,7 @@ const Prayer = () => {
                     </li></ContentScope>
                   ))}
                 </ul>
+                {design.locationPhotos && <PhotoSlots name={space.name} count={i<2?3:1}/>}
               </motion.div></CardCopies>
             ))}
           </div>
@@ -824,9 +787,9 @@ const Prayer = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: i * 0.08 }}
-                className="liquid-glass-hover p-6 md:p-7 rounded-2xl"
+                data-mosque-side={design.locationPhotos?(i===0?"left":"right"):undefined} className="liquid-glass-hover p-6 md:p-7 rounded-2xl"
               >
-                <h3 className="font-display text-lg font-bold text-foreground mb-1"><TextField id="Prayer_37">{m.name}</TextField></h3>
+                <div className="mosque-information"><h3 className="font-display text-lg font-bold text-foreground mb-1">{design.mosqueLinks?<LinkField fieldId="mosque-website" href={i===0?"https://icp-pgh.org":"https://attawheed.org"}><TextField id="Prayer_37">{m.name}</TextField> ↗</LinkField>:<TextField id="Prayer_37">{m.name}</TextField>}</h3>
                 <p className="text-sm text-primary font-semibold mb-3"><TextField id="Prayer_38">{m.distance}</TextField></p>
                 <ul className="space-y-1.5">
                   {m.details.map((d, j) => (
@@ -835,6 +798,8 @@ const Prayer = () => {
                     </li></ContentScope>
                   ))}
                 </ul>
+                </div>
+                {design.locationPhotos && <PhotoSlots name={m.name} count={1}/>}
               </motion.div></CardCopies>
             ))}
           </div>

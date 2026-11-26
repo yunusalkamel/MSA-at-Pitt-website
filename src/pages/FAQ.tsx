@@ -32,7 +32,7 @@ const FALLBACK_FAQS: FAQItem[] = [
   },
   {
     q: "What events are good for someone brand new?",
-    a: (<>Our weekly halaqas are a great low-key starting point — they're informal, welcoming, and a good way to meet people. Socials like TopGolf or Eid celebrations are also perfect first events. <Link to="/events" className="text-primary underline underline-offset-2 hover:opacity-80"><TextField id="FAQ_1">Check the Events page</TextField></Link> to see what's coming up.</>),
+    a: (<>Our weekly halaqas are a great low-key starting point. They're informal, welcoming, and a good way to meet people. Socials like TopGolf or Eid celebrations are also perfect first events. <Link to="/events" className="text-primary underline underline-offset-2 hover:opacity-80"><TextField id="FAQ_1">Check the Events page</TextField></Link> to see what's coming up.</>),
   },
   {
     q: "I just took my shahada / I'm exploring Islam. Is MSA for me?",
@@ -44,7 +44,7 @@ const FALLBACK_FAQS: FAQItem[] = [
   },
   {
     q: "Where can I find halal food on or near campus?",
-    a: (<>There are several options — The Eatery's fresh beef and chicken breast are halal, and there are multiple restaurants within walking distance including Shah's, Omar's Halal Grill, and Bengal Kabab House. <Link to="/resources/new-to-pitt" className="text-primary underline underline-offset-2 hover:opacity-80"><TextField id="FAQ_4">Our New to Pitt guide</TextField></Link> has the full list, categorized by distance.</>),
+    a: (<>There are several options. The Eatery's fresh beef and chicken breast are halal, and there are multiple restaurants within walking distance including Shah's, Omar's Halal Grill, and Bengal Kabab House. <Link to="/resources/new-to-pitt" className="text-primary underline underline-offset-2 hover:opacity-80"><TextField id="FAQ_4">Our New to Pitt guide</TextField></Link> has the full list, categorized by distance.</>),
   },
   {
     q: "How do I stay updated on events?",
@@ -60,7 +60,7 @@ const FALLBACK_FAQS: FAQItem[] = [
   },
   {
     q: "How can I give anonymous feedback to the MSA board?",
-    a: (<>We have an anonymous suggestions form on our <Link to="/resources" className="text-primary underline underline-offset-2 hover:opacity-80"><TextField id="FAQ_8">Resources page</TextField></Link> — both a general form and a sisters-only form (read only by a trusted sister on the board). We genuinely read every response.</>),
+    a: (<>We have an anonymous suggestions form on our <Link to="/resources" className="text-primary underline underline-offset-2 hover:opacity-80"><TextField id="FAQ_8">Resources page</TextField></Link>, with both a general form and a sisters-only form (read only by a trusted sister on the board). We genuinely read every response.</>),
   },
   {
     q: "Where can I find the university chaplain?",

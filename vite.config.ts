@@ -4,6 +4,7 @@ import path from "path";
 
 export default defineConfig({
   define: {
+    __DESIGN_PREVIEW__: JSON.stringify(process.env.VERCEL_ENV === "preview" || (!process.env.VERCEL_ENV && process.env.NODE_ENV !== "production")),
     __SITE_DATASET__: JSON.stringify(
       process.env.VERCEL_ENV === "preview" ? "preview" : "production",
     ),

@@ -11,7 +11,7 @@ interface Partner {
   hasBackground?: boolean;
 }
 
-const PARTNERS: Partner[] = [
+export const PARTNERS: Partner[] = [
   // Mosques
   { name: "Attawheed Islamic Center",              shortName: "Attawheed",  src: "/partners/attawheed.jpg",  href: "https://attawheed.org",      group: "Mosque",      hasBackground: true },
   { name: "Islamic Center of Pittsburgh",          shortName: "ICP",        src: "/partners/icp.jpeg",       href: "https://icp-pgh.org",        group: "Mosque",      hasBackground: true },

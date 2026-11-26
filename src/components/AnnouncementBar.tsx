@@ -1,3 +1,4 @@
+import { useDesign } from "@/design/options";
 import { LinkField } from "@/editor/content";
 import { TextField } from "@/editor/content";
 import { useState } from "react";
@@ -22,16 +23,20 @@ const TYPE_STYLES = {
 
 // This is rendered INSIDE the fixed navbar so it never goes behind it
 export default function AnnouncementBar() {
-  const { data } = useSanityData<AnnouncementData>(QUERIES.announcement);
+  const {notice,sampleNotice} = useDesign();
+  const { data: live } = useSanityData<AnnouncementData>(QUERIES.announcement);
   const [dismissed, setDismissed] = useState(false);
 
-  if (!data?.isActive || !data.message || dismissed) return null;
+  const sample = sampleNotice && !live?.isActive;
+  const data: AnnouncementData | null = sample ? {isActive:true,message:"Sample announcement · Explore upcoming MSA events",type:"info",linkLabel:"See events",linkUrl:"/events"} : live;
+  if (!data?.isActive || !data.message || (dismissed && !sample)) return null;
 
   const s = TYPE_STYLES[data.type ?? "info"];
 
   return (
     <AnimatePresence>
       <motion.div
+        data-compact-notice={notice || undefined}
         key="ann-bar"
         initial={{ height: 0, opacity: 0 }}
         animate={{ height: "auto", opacity: 1 }}
@@ -53,13 +58,13 @@ export default function AnnouncementBar() {
               </LinkField>
             )}
           </div>
-          <button
+          {!sample && <button
             onClick={() => setDismissed(true)}
             aria-label="Dismiss"
             className={`flex-shrink-0 p-1 rounded transition-colors ${s.close}`}
           >
             <X size={13} />
-          </button>
+          </button>}
         </div>
       </motion.div>
     </AnimatePresence>

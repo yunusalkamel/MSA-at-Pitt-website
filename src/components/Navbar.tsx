@@ -7,14 +7,16 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "@/contexts/ThemeContext";
 import AnnouncementBar from "./AnnouncementBar";
 
-const navLinks = [
+import { useDesign } from "@/design/options";
+import { PrayerLink } from "@/design/DailyPrayers";
+const originalNav = [
   { to: "/", label: "Home", exact: true },
   { to: "/about", label: "About" },
   { to: "/events", label: "Events" },
   { to: "/gallery", label: "Gallery" },
 ];
 
-const resourcesChildren = [
+const originalChildren = [
   { to: "/resources", label: "All Resources" },
   { to: "/resources/new-to-pitt", label: "New to Pitt" },
   { to: "/resources/prayer", label: "Prayer" },
@@ -40,6 +42,9 @@ const prefetchRoute = (path: string) => {
 };
 
 const Navbar = () => {
+  const {prayerNav,nextPrayer} = useDesign();
+  const navLinks = prayerNav ? originalNav.map(item=>item.to==="/gallery"?{to:"/resources/prayer",label:"Prayer"}:item) : originalNav;
+  const resourcesChildren = prayerNav ? originalChildren.map(item=>item.to==="/resources/prayer"?{to:"/gallery",label:"Gallery"}:item) : originalChildren;
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [resourcesOpen, setResourcesOpen] = useState(false);
@@ -49,7 +54,7 @@ const Navbar = () => {
   const { theme, toggle: toggleTheme } = useTheme();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
-  const isResourcesActive = location.pathname.startsWith("/resources") || location.pathname === "/prayer-times";
+  const isResourcesActive = (location.pathname.startsWith("/resources") && !(prayerNav && location.pathname==="/resources/prayer")) || (prayerNav && location.pathname==="/gallery") || location.pathname === "/prayer-times";
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -107,6 +112,7 @@ const Navbar = () => {
             </Link>
 
             {/* Desktop nav */}
+            {nextPrayer && <PrayerLink/>}
             <div className="hidden md:flex items-center gap-6">
               {navLinks.map((link) => {
                 const isActive = link.exact

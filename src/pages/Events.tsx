@@ -38,7 +38,9 @@ const RelativeTime = ({ at }: { at: number }) => {
   return <>{`Synced ${formatDistanceToNow(new Date(at), { addSuffix: true })}`}</>;
 };
 
+import { useDesign } from "@/design/options";
 const Events = () => {
+  const {agenda} = useDesign();
   usePageMeta({
     title: "Events — MSA at Pitt",
     description: "Halaqas, iftars, socials, and more. Subscribe once, never miss a moment.",
@@ -50,8 +52,8 @@ const Events = () => {
   const { events: remoteEvents, loading, error, lastSyncedAt, refresh } = useCalendarEvents();
 
   useEffect(() => {
-    setView("calendar");
-  }, [isMobile]);
+    setView(isMobile && agenda ? "agenda" : "calendar");
+  }, [isMobile,agenda]);
 
   const sourceEvents = error ? mockEvents : remoteEvents;
   const featured = getFeaturedEvent(sourceEvents);
