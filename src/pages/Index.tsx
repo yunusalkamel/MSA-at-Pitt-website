@@ -1,4 +1,4 @@
-import { campusPrayerPhoto, communityPhoto } from "@/data/communityPhotos";
+import { campusPrayerPhoto, communityPhoto, pillarPhotos } from "@/data/communityPhotos";
 import { nextGathering } from "@/lib/nextGathering";
 import { HeroPhotos, Moments } from "@/design/CommunityPhotos";
 import { WelcomePath,NextEvent } from "@/design/Welcome";
@@ -353,7 +353,7 @@ const Index = () => {
                     const Icon = ICON_MAP[pillar.iconName] ?? Users;
                     return (
                       <CardCopies key={pillar.title} id={"Index_71-" + itemIdentity(pillar, pillar.title)}><motion.div key={pillar.title} variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4 } } }} className="glass-card-hover p-6 md:p-8">
-                        <Picture fieldId="pillar-photo" src={communityPhoto(pillars === d.imanPillars ? (i === 0 ? "halaqa-circle" : "volunteers") : (i === 0 ? "tea" : "friendsgiving-hall")).src} alt="" className="community-card-photo" loading="lazy" width={460} height={250}/>
+                        <Picture fieldId="pillar-photo" src={communityPhoto(pillarPhotos[pillars === d.imanPillars ? "iman" : "community"][Math.min(i, 1)]).src} alt="" className="community-card-photo" loading="lazy" width={460} height={250}/>
                         <div className="gold-gradient w-11 h-11 rounded-xl flex items-center justify-center mb-5 shadow-sm">
                           <Icon className="text-primary-foreground" size={20} />
                         </div>

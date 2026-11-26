@@ -33,6 +33,8 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
   const parallax = useHeroParallax();
   const wall = useRef<HTMLDivElement>(null);
   const last = useRef(-1);
+  const lastChanged = useRef(start.map(() => 0));
+  const changes = useRef(0);
   const busy = useRef(false);
   const epoch = useRef(0);
   const prefix = night ? "CommunityHero_evening_" : "CommunityHero_day_";
@@ -104,10 +106,15 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
       const reserved = !!board.current[index].previous || index === reserveBridge || (index === 0 && sources.current["//Index_4"]?.kind === "image");
       return reserved || protectedBoxes.some(box => intersects(box, element.getBoundingClientRect())) ? [] : [index];
     });
-    const eligible = indices.filter(index =>
-      (last.current < 0 || apart(index, last.current, columns)) && indices.some(other => apart(index, other, columns)));
+    const movable = indices.filter(index => index !== last.current);
+    const eligible = phone ? movable : movable.filter(index =>
+      last.current < 0 || apart(index, last.current, columns));
     if (!eligible.length) return;
-    const slot = eligible[Math.floor(Math.random() * eligible.length)];
+    const oldest = Math.min(...eligible.map(index => lastChanged.current[index]));
+    const due = eligible.filter(index => lastChanged.current[index] === oldest);
+    const spaced = due.filter(index => last.current < 0 || apart(index, last.current, columns));
+    const slots = spaced.length ? spaced : due;
+    const slot = slots[Math.floor(Math.random() * slots.length)];
     const shown = new Set(board.current.flatMap((tile, index) => [source(tile.photo, index).src, ...(tile.previous ? [source(tile.previous, index).src] : [])]));
     const alternatives = library.filter(id => !shown.has(source(id, slot).src));
     if (!alternatives.length) return;
@@ -122,6 +129,7 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
     try { await img.decode(); } catch { return; } finally { busy.current = false; }
     if (epoch.current !== currentEpoch || document.hidden || !wall.current) return;
     last.current = slot;
+    lastChanged.current[slot] = ++changes.current;
     board.current = board.current.map((tile, i) => i === slot ? { photo, previous: tile.photo } : tile);
     setTiles(board.current);
   }
@@ -130,7 +138,7 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
     if (paused || reduced || !visible || !tabVisible) return;
     let timer: number;
     const schedule = () => {
-      const wait = phone ? 1200 + Math.random() * 800 : 500 + Math.random() * 500;
+      const wait = phone ? 1800 + Math.random() * 900 : 1600 + Math.random() * 700;
       timer = window.setTimeout(async () => {
         await advance();
         if (epoch.current === activeEpoch) schedule();
@@ -154,18 +162,19 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
     <div className="community-media">
       <motion.div className="photo-arrangement" ref={wall} style={{ y: parallax }} aria-hidden="true">
         {tiles.map(({ photo, previous }, index) => {
-          const display = source(photo, index);
           return (
             <figure key={index} data-hero-tile={index} data-photo={photo}>
-              {previous && <img className="wall-previous" {...source(previous, index)} sizes={sizes}
-                style={{ objectPosition: communityPhoto(previous).focus }} alt="" />}
-              <Picture key={photo} fieldId={prefix + photo} fallbackFieldIds={index === 0 ? ["Index_4"] : undefined}
-                {...display} sizes={sizes} alt="" decoding="async" width={720} height={450}
-                {...(index === 0 ? { fetchpriority: "high" } : {})}
-                style={{ objectPosition: communityPhoto(photo).focus }}
-                className={previous ? "wall-incoming" : undefined}
-                onAnimationEnd={previous ? () => finish(index, previous, false) : undefined}
-                onError={previous ? () => finish(index, previous, true) : undefined} />
+              {(previous ? [previous, photo] : [photo]).map(id => {
+                const outgoing = id === previous;
+                const incoming = !!previous && !outgoing;
+                return <Picture key={id} fieldId={prefix + id} fallbackFieldIds={index === 0 ? ["Index_4"] : undefined}
+                  {...source(id, index)} sizes={sizes} alt="" decoding="async" width={720} height={450}
+                  {...(index === 0 && !outgoing ? { fetchpriority: "high" } : {})}
+                  style={{ objectPosition: communityPhoto(id).focus }}
+                  className={outgoing ? "wall-previous" : incoming ? "wall-incoming" : undefined}
+                  onAnimationEnd={incoming ? () => finish(index, previous, false) : undefined}
+                  onError={incoming ? () => finish(index, previous, true) : undefined} />;
+              })}
               <figcaption className="sr-only"><TextField id={`CommunityCaption_${photo}`}>{wallCaption(photo)}</TextField></figcaption>
             </figure>
           );

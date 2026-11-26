@@ -24,9 +24,9 @@ const sets: Record<string, readonly Photo[]> = {
   "Benedum Room 403": [["benedum-room", "Prayer mat inside Benedum Room 403", 443]],
 };
 
-export function PhotoSlots({ name, wide = false, publicHidden = false, featured = 0 }: { name: string; wide?: boolean; publicHidden?: boolean; featured?: number }) {
+export function PhotoSlots({ name, wide = false, publicHidden = false }: { name: string; wide?: boolean; publicHidden?: boolean }) {
   const photos = sets[name] ?? [];
-  const [index, setIndex] = useState(featured);
+  const [index, setIndex] = useState(0);
   const [open, setOpen] = useState(false);
   const dialog = useRef<HTMLDialogElement>(null);
   const touchStart = useRef<number | null>(null);
@@ -73,7 +73,6 @@ export function PhotoSlots({ name, wide = false, publicHidden = false, featured 
         <dialog ref={dialog} className="venue-viewer" aria-label={name + " photos"}
           onClose={() => {
             setOpen(false);
-            if (featured) setIndex(featured);
             trigger.current?.focus({ preventScroll: true });
           }}
           onClick={e => { if (e.target === dialog.current) dialog.current.close(); }}

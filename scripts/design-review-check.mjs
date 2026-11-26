@@ -99,13 +99,10 @@ async function capture(browser, width, height, theme, writeImages) {
         await page.locator("html").evaluate(el => getComputedStyle(el).getPropertyValue("--nav-offset").trim()));
     }
     if (name === "prayer") {
-      const photo = page.locator(".prayer-hero-photo");
-      await page.waitForFunction(() => document.querySelector(".prayer-hero-photo")?.naturalWidth > 0);
-      assert.match(await photo.getAttribute("src"), /lawn-prayer\.webp$/);
-      assert.equal(await photo.evaluate(img => getComputedStyle(img).objectPosition), "100% 0%");
+      assert.equal(await page.locator(".page-hero h1").innerText(), "Prayer at Pitt");
+      await page.locator("#ctop").waitFor();
       assert.equal((await prayerTimes(page)).length, 6);
       assert.equal(await page.locator("img[src*='room-photo-pending']").count(), 0);
-      assert.equal(await page.locator("#ctop").count(), 0);
     }
     if (writeImages && output) await page.screenshot({ path: `${output}/${width}x${height}-${theme}-${name}.png` });
   }
@@ -159,10 +156,10 @@ async function interactions(browser) {
   assert.equal((await card.boundingBox()).height, box.height);
   await page.mouse.move(5, 5);
   await card.locator(".tile-detail").waitFor({ state: "hidden" });
-  await card.getByRole("link", { name: /Read the Tips/ }).focus();
+  await card.getByRole("button", { name: "Show details for Tips for Freshmen" }).press("Enter");
   await card.locator(".tile-detail").waitFor({ state: "visible" });
   assert.equal((await card.boundingBox()).height, box.height);
-  assert.equal(await card.locator(".tile-description").evaluate(el => getComputedStyle(el).webkitLineClamp), "5");
+  assert.equal(await card.locator(".tile-description").evaluate(el => getComputedStyle(el).webkitLineClamp), "4");
   await page.mouse.click(box.x + 14, box.y + 14);
   await page.waitForURL("**/resources/new-to-pitt");
 
@@ -173,7 +170,6 @@ async function interactions(browser) {
   await page.waitForURL("**/resources/prayer");
   assert.deepEqual(await prayerTimes(page), homeTimes);
   assert.equal(await pill(page).getAttribute("aria-label"), nextPrayer);
-  await page.getByRole("button", { name: /Open solar almanac/i }).click();
   await page.waitForFunction(() => window.Chart?.getChart(document.getElementById("ctop")));
   const chartToday = await page.evaluate(() => {
     const a = window.Chart.getChart("ctop"), b = window.Chart.getChart("cbot");
@@ -192,7 +188,6 @@ async function interactions(browser) {
   await page.getByLabel("Almanac location").selectOption("west");
   await page.getByRole("heading", { name: "Attawheed Islamic Center", exact: true }).waitFor();
   assert.deepEqual(await prayerTimes(page), homeTimes);
-  await page.getByRole("button", { name: /Close solar almanac/i }).click();
   await page.getByRole("button", { name: /View WPU Reflection Room photos/ }).click();
   const dialog = page.getByRole("dialog", { name: "WPU Reflection Room photos" });
   await dialog.waitFor();
@@ -253,13 +248,14 @@ async function motion(browser, width, height) {
     const incoming = page.locator(".wall-incoming");
     await incoming.waitFor();
     assert.equal(await page.locator("img.wall-previous").count(), 1);
-    assert.equal(await incoming.evaluate(el => getComputedStyle(el).animationDuration), columns === 2 ? "0.5s" : "0.4s");
+    assert.equal(await incoming.evaluate(el => getComputedStyle(el).animationDuration), columns === 2 ? "1.1s" : "1s");
     const after = await tileList(page);
     const different = before.flatMap((id, index) => id === after[index] ? [] : [index]);
     assert.equal(different.length, 1);
     const position = different[0];
     const previous = changed.at(-1);
-    if (previous != null) assert.ok(Math.max(Math.abs(position % columns - previous % columns),
+    if (previous != null) assert.notEqual(position, previous);
+    if (previous != null && columns > 2) assert.ok(Math.max(Math.abs(position % columns - previous % columns),
       Math.abs(Math.floor(position / columns) - Math.floor(previous / columns))) > 1);
     changed.push(position);
     checkDistinct(after);
@@ -290,7 +286,7 @@ async function motion(browser, width, height) {
   await page.waitForTimeout(2100);
   assert.deepEqual(await tileList(page), offscreen);
   await context.close();
-  console.log(`${width}: paused, automatic, hidden-tab and offscreen collage motion verified. Swaps avoid text and adjacent tiles.`);
+  console.log(`${width}: paused, automatic, hidden-tab and offscreen collage motion verified. Swaps avoid text and repeated tiles.`);
 }
 
 async function galleryAndChaplain(browser) {

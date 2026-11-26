@@ -81,6 +81,11 @@ export function communityPhoto(id: PhotoId) {
 }
 
 
+export const pillarPhotos = {
+  community: ["tea", "friendsgiving-hall"],
+  iman: ["halaqa-circle", "volunteers"],
+} satisfies Record<string, PhotoId[]>;
+
 export const campusPrayerPhoto = communityPhoto("lawn-prayer");
 
 export const daylightWall: PhotoId[] = [
