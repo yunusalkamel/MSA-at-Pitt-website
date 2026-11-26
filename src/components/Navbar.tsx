@@ -52,11 +52,21 @@ const Navbar = () => {
   const resourcesLink = useRef<HTMLAnchorElement>(null);
   const firstResource = useRef<HTMLAnchorElement>(null);
   const timer = useRef<number>();
+  const focusOnOpen = useRef(false);
   const focusMenu = () => {
     window.clearTimeout(timer.current);
+    if (resourcesOpen) {
+      firstResource.current?.focus();
+      return;
+    }
+    focusOnOpen.current = true;
     setResourcesOpen(true);
-    requestAnimationFrame(() => firstResource.current?.focus());
   };
+  useLayoutEffect(() => {
+    if (!resourcesOpen || !focusOnOpen.current) return;
+    focusOnOpen.current = false;
+    firstResource.current?.focus();
+  }, [resourcesOpen]);
   function scheduleResources(open: boolean) {
     window.clearTimeout(timer.current);
     timer.current = window.setTimeout(() => {
