@@ -73,6 +73,7 @@ for (const [name, engine, width] of [
           await page.getByRole("button", { name: "Close design controls" }).click();
           await page.screenshot({path: process.env.REVIEW_SCREENSHOTS + "/" + option.toLowerCase().replace(" ", "-") + ".png"});
           await bar.click();
+          await page.locator("summary").filter({ hasText: /^Home$/ }).click();
         }
       }
     }
