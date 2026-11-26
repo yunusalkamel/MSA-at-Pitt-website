@@ -15,7 +15,6 @@ import { usePageMeta } from "@/lib/usePageMeta";
 import SectionHeading from "@/components/SectionHeading";
 import SectionDivider from "@/components/SectionDivider";
 import ArabicVerse from "@/components/ArabicVerse";
-import BridgeBar from "@/components/BridgeBar";
 import PortableTextRenderer from "@/components/PortableTextRenderer";
 import SanityImage from "@/components/SanityImage";
 import PartnerLogos from "@/components/PartnerLogos";
@@ -251,24 +250,9 @@ const Index = () => {
     <Layout>
       {/* ── Hero ─────────────────────────────────────────────────── */}
       <section data-photo-hero className="home-hero relative flex items-center justify-center overflow-hidden">
-        <BridgeBar />
-        {/* Moon motif removed per spec */}
-        <div className="hidden md:block absolute top-1/4 left-1/6 w-96 h-96 rounded-full bg-primary/12 blur-[140px] pointer-events-none" />
-        <div className="hidden md:block absolute bottom-1/4 right-1/5 w-72 h-72 rounded-full bg-secondary/10 blur-[120px] pointer-events-none" />
-
         <motion.div className="hero-words relative z-10 text-center px-4 max-w-4xl mx-auto" initial={animateIntro && { opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
           <motion.div initial={animateIntro && { opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.45, ease: "easeOut" }} className="mb-8 flex flex-col items-center gap-3">
-            <div className="flex items-center gap-3 w-52">
-              <div className="flex-1 h-px bg-gradient-to-r from-transparent to-primary/40" />
-              <div className="w-1 h-1 rounded-full bg-primary/60" />
-              <div className="flex-1 h-px bg-gradient-to-l from-transparent to-primary/40" />
-            </div>
             <p className="font-arabic text-2xl md:text-3xl text-primary/80 tracking-wide" dir="rtl"><TextField id="Index_6">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</TextField></p>
-            <div className="flex items-center gap-3 w-52">
-              <div className="flex-1 h-px bg-gradient-to-r from-transparent to-primary/40" />
-              <div className="w-1 h-1 rounded-full bg-primary/60" />
-              <div className="flex-1 h-px bg-gradient-to-l from-transparent to-primary/40" />
-            </div>
           </motion.div>
           <motion.p initial={animateIntro && { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="eyebrow text-msa-gold/90 mb-5">
             <TextField id="Index_7">{d.heroEyebrow}</TextField>
@@ -303,10 +287,6 @@ const Index = () => {
         </motion.div>
 
         <HeroPhotos/>
-        {/* Seamless fade into the section below — light uses a gold shimmer, dark fades to navy */}
-        <div className="absolute bottom-0 left-0 right-0 h-[55vh] md:h-[70vh] pointer-events-none z-[5] dark:hidden" style={{ background: "linear-gradient(to bottom, transparent 0%, rgba(242,171,35,0.06) 25%, rgba(242,171,35,0.22) 50%, rgba(251,240,208,0.75) 72%, rgba(248,243,234,0.96) 88%, #F8F3EA 100%)" }} aria-hidden="true" />
-        <div className="absolute bottom-0 left-0 right-0 h-[50vh] md:h-[65vh] pointer-events-none z-[5] hidden dark:block" style={{ background: "linear-gradient(to bottom, transparent 0%, rgba(13,21,40,0.5) 45%, rgba(13,21,40,0.88) 72%, #0D1528 100%)" }} aria-hidden="true" />
-
       </section>
 
       {/* ── Stats — overlaps slightly into the warm section below ── */}

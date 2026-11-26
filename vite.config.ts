@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { getSiteOrigin } from "./shared/site-origin.js";
 import { daylightWall, eveningWall } from "./src/data/communityPhotos";
+import { communityImageSizes } from "./src/lib/communityImageSizes";
 
 const siteOrigin = getSiteOrigin(process.env.SITE_ORIGIN);
 
@@ -40,16 +41,36 @@ export default defineConfig({
             "/": [asset("Index"), layout],
             "/resources/prayer": [asset("Prayer"), layout],
           };
-          return [
-            {
-              tag: "script",
-              injectTo: "head",
-              children:
-                'for(const file of (' + JSON.stringify(routes) + '[location.pathname]||[])){if(!file)continue;const link=document.createElement("link");link.rel="modulepreload";link.crossOrigin="anonymous";link.href="/"+file;document.head.append(link)}' +
-                'if(location.pathname==="/" && matchMedia("(width < 768px)").matches){const link=document.createElement("link");link.rel="preload";link.as="image";link.fetchPriority="high";link.href="/photos/community/"+(document.documentElement.classList.contains("dark")?' +
-                JSON.stringify(eveningWall[0]) + ':' + JSON.stringify(daylightWall[0]) + ')+"-tile.webp";document.head.append(link)}',
-            },
-          ];
+          const phonePhotos = [daylightWall[0], eveningWall[0]].map((id) => ({
+            href: `/photos/community/${id}-320.webp`,
+            srcset: communityImageSizes(`/photos/community/${id}.webp`),
+          }));
+          return [{
+            tag: "script",
+            injectTo: "head",
+            children: `
+              for (const file of (${JSON.stringify(routes)}[location.pathname] || [])) {
+                if (!file) continue;
+                const link = document.createElement("link");
+                link.rel = "modulepreload";
+                link.crossOrigin = "anonymous";
+                link.href = "/" + file;
+                document.head.append(link);
+              }
+              if (location.pathname === "/" && matchMedia("(width < 768px)").matches) {
+                const dark = document.documentElement.classList.contains("dark");
+                const photo = ${JSON.stringify(phonePhotos)}[Number(dark)];
+                const link = document.createElement("link");
+                link.rel = "preload";
+                link.as = "image";
+                link.fetchPriority = "high";
+                link.href = photo.href;
+                link.imageSrcset = photo.srcset;
+                link.imageSizes = "50vw";
+                document.head.append(link);
+              }
+            `,
+          }];
         },
       },
     },

@@ -1,4 +1,3 @@
-/* Review controls stay on the preview origin and use the site's own theme. */
 .daily-prayers select {
   color: hsl(var(--foreground));
   background: hsl(var(--background));
@@ -49,22 +48,6 @@
   font-size: 12px;
   font-weight: 650;
   background: linear-gradient(transparent, #091913cb);
-}
-[data-texture="Film grain"] figure::before,
-[data-texture="Halftone"] figure::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-[data-texture="Film grain"] figure::before {
-  background-image: url("./grain.png");
-  opacity: 0.14;
-  mix-blend-mode: soft-light;
-}
-[data-texture="Halftone"] figure::before {
-  background: radial-gradient(#082722 1px, transparent 1px) 0 0/4px 4px;
-  opacity: 0.25;
 }
 .chart-disclosure {
   border: 1px solid hsl(var(--border));
@@ -454,23 +437,22 @@
   background: hsl(var(--foreground));
   color: hsl(var(--background));
 }
-[data-collection] .moment-grid {
-  gap: var(--space-1);
-}
-[data-collection] .moment-grid figure {
+
+.recap-gallery .moment-grid figure {
   border-radius: 4px;
 }
-[data-collection] .moment-grid figcaption {
+.recap-gallery .moment-grid figcaption {
   font-size: 11px;
 }
-[data-collection="Contact sheet"] .moment-grid {
+.recap-gallery .moment-grid {
+  gap: var(--space-1);
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
-[data-collection="Contact sheet"] .moment-grid figure:first-child {
+.recap-gallery .moment-grid figure:first-child {
   grid-column: span 2;
   grid-row: span 2;
 }
-[data-collection="Contact sheet"] .moment-grid figure:first-child img {
+.recap-gallery .moment-grid figure:first-child img {
   height: 100%;
 }
 .recap-controls {
@@ -485,14 +467,10 @@
   .daily-prayers dl > div {
     padding: var(--space-2) var(--space-1);
   }
-  [data-collection="Contact sheet"] .moment-grid {
+  .recap-gallery .moment-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
-
-/* Give all four phone photos their own visible space above the welcome copy. */
-
-/* Full-bleed photography with the strongest tint immediately behind the copy. */
 
 .prayer-start { padding: 0 var(--gutter) var(--space-7); }
 .daily-prayers h1 {
@@ -547,13 +525,13 @@
 
 .home-hero {
   --wall-columns: 4;
+  --wall-rows: 4;
   --wall-fade: 400ms;
   isolation: isolate;
   min-height: 100svh;
   justify-content: flex-start;
   padding: calc(var(--nav-offset) + var(--space-7)) max(var(--gutter), 7vw) var(--space-8);
 }
-.home-hero > .absolute, .home-hero > .hidden.absolute { display: none; }
 .home-hero::before, .wall-region, .community-media, .photo-arrangement { position: absolute; inset: 0; }
 .home-hero::before {
   content: "";
@@ -565,7 +543,7 @@
 .wall-region { z-index: -2; pointer-events: none; }
 .photo-arrangement {
   display: grid;
-  grid-template: repeat(var(--wall-columns), minmax(0, 1fr)) / repeat(var(--wall-columns), minmax(0, 1fr));
+  grid-template: repeat(var(--wall-rows), minmax(0, 1fr)) / repeat(var(--wall-columns), minmax(0, 1fr));
   gap: var(--space-1);
   background: #d1b675;
 }
@@ -597,7 +575,6 @@
 .wall-controls button { display: grid; place-items: center; width: calc(var(--space-7) - var(--space-1)); aspect-ratio: 1; }
 .hero-words { width: 100%; max-width: min(46vw, 620px); margin: 0; padding: 0; text-align: left; }
 .hero-words > div:first-child { align-items: flex-start; margin-bottom: var(--space-4); }
-.hero-words > div:first-child > div { display: none; }
 .hero-words > div:first-child p { color: var(--gold-text); }
 .hero-words .eyebrow { color: #425e51; letter-spacing: .13em; line-height: 1.6; }
 .dark .hero-words .eyebrow, .dark .hero-words > div:first-child p { color: #ebca81; }
@@ -659,10 +636,15 @@
 }
 @media (width < 768px) {
   .home-hero {
-    --wall-columns: 3;
+    --wall-columns: 2;
     --wall-fade: 500ms;
     align-items: flex-end;
     padding: max(calc(var(--nav-offset) + var(--space-8)), 36svh) var(--gutter) var(--space-7);
+  }
+  .wall-region {
+    bottom: auto;
+    aspect-ratio: 3 / 4;
+    mask-image: linear-gradient(#000 0% 74%, transparent);
   }
   .home-hero::before { background: linear-gradient(0deg, #f9f5e9 0%, #f9f5e9f5 26%, #f9f5e9df 49%, #f9f5e95c 68%, transparent 84%); }
   .dark .home-hero::before { background: linear-gradient(0deg, #101c2b 0%, #101c2bf8 27%, #101c2bd9 49%, #101c2b69 67%, transparent 84%); }

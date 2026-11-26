@@ -925,7 +925,7 @@ html { scroll-behavior: smooth; }
   box-shadow: 0 12px 34px #060d2060, inset 0 1px 0 #ccd9eb39;
 }
 .nav-shell { display: flex; justify-content: center; padding: var(--space-3) var(--space-4) 0; }
-.nav-pill { max-width: min(var(--container), 64rem); padding-inline: var(--space-4); transition: box-shadow .3s ease, background-color .3s ease; }
+.nav-pill { max-width: min(var(--container), 64rem); padding-inline: var(--space-3); transition: box-shadow .3s ease, background-color .3s ease; }
 .nav-pill[data-scrolled] { box-shadow: 0 14px 36px #15202d28, inset 0 1px 0 #fff6dfaa; }
 .dark .nav-pill[data-scrolled] { box-shadow: 0 14px 36px #060d2080, inset 0 1px 0 #ccd9eb39; }
 .nav-resources { display: flex; position: relative; align-items: center; font-size: .875rem; font-weight: 650; }

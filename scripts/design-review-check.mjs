@@ -54,12 +54,18 @@ const pill = page => page.locator(".next-prayer-link");
 async function checkWall(page, columns) {
   const tiles = page.locator("[data-hero-tile] img:not(.wall-previous)");
   await page.waitForFunction(() => Array.from(document.querySelectorAll("[data-hero-tile] img")).every(img => img.complete && img.naturalWidth));
-  assert.equal(await tiles.count(), columns ** 2);
+  assert.equal(await tiles.count(), columns * 4);
   assert.equal(await tiles.evaluateAll(images => new Set(images.map(img => img.currentSrc)).size), columns ** 2);
   checkDistinct(await tileList(page));
   await page.getByRole("group", { name: "Photos from MSA at Pitt gatherings" }).waitFor();
   assert.equal(await page.locator(".photo-arrangement").getAttribute("aria-hidden"), "true");
-  if (columns === 3) assert.ok(await tiles.evaluateAll(images => images.every(img => img.currentSrc.endsWith("-tile.webp"))));
+  const frames = await tiles.evaluateAll(images => images.map(img => {
+    const { width, height, x, y } = img.parentElement.getBoundingClientRect();
+    return { width, height, x, y };
+  }));
+  assert.equal(new Set(frames.map(frame => frame.x)).size, columns);
+  assert.equal(new Set(frames.map(frame => frame.y)).size, 4);
+  if (columns === 2) assert.ok(frames.every(frame => frame.width > frame.height));
 }
 
 async function capture(browser, width, height, theme, writeImages) {
@@ -71,7 +77,7 @@ async function capture(browser, width, height, theme, writeImages) {
   for (const [name, route] of pages) {
     await visit(page, route);
     if (name === "home") {
-      await checkWall(page, width < 768 ? 3 : 4);
+      await checkWall(page, width < 768 ? 2 : 4);
       assert.equal(await page.getByRole("button", { name: "Pause photos" }).count(), 0);
       if (width === 390 && theme === "dark" && writeImages) {
         const still = await tileList(page);
@@ -199,6 +205,13 @@ async function announcementAndPhone(browser) {
     const results = [];
     for (const [, route] of pages.slice(1)) {
       await visit(page, route);
+      if (width < 768) {
+        const [brand, time] = await Promise.all([
+          page.getByRole("link", { name: "MSA at Pitt home" }).boundingBox(),
+          pill(page).boundingBox(),
+        ]);
+        assert.ok(brand && time && brand.x + brand.width < time.x);
+      }
       const strip = page.getByText("Campus announcement for the navigation check");
       await strip.waitFor();
       await page.waitForTimeout(700);
@@ -223,7 +236,7 @@ async function motion(browser, width, height) {
   const context = await contextFor(browser, width, height, "light", "no-preference");
   const page = await context.newPage();
   await visit(page, "/");
-  const columns = width < 768 ? 3 : 4;
+  const columns = width < 768 ? 2 : 4;
   await checkWall(page, columns);
   await page.getByRole("button", { name: "Pause photos" }).click();
   const paused = await tileList(page);
@@ -236,7 +249,7 @@ async function motion(browser, width, height) {
     const incoming = page.locator(".wall-incoming");
     await incoming.waitFor();
     assert.equal(await page.locator("img.wall-previous").count(), 1);
-    assert.equal(await incoming.evaluate(el => getComputedStyle(el).animationDuration), columns === 3 ? "0.5s" : "0.4s");
+    assert.equal(await incoming.evaluate(el => getComputedStyle(el).animationDuration), columns === 2 ? "0.5s" : "0.4s");
     const after = await tileList(page);
     const different = before.flatMap((id, index) => id === after[index] ? [] : [index]);
     assert.equal(different.length, 1);

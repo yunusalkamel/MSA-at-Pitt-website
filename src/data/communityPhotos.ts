@@ -76,11 +76,6 @@ const focus: Partial<Record<PhotoId, string>> = {
   "rink-friends": "54% 51%",
 };
 
-export const noPortraitTile = new Set<PhotoId>([
-  "flowers", "gala-group", "gala-portraits", "hall-group", "students", "volunteers",
-  "ballroom", "banquet", "day-trip", "fajr-group", "grill", "halaqa-circle", "hall-wide", "panel",
-]);
-
 export function communityPhoto(id: PhotoId) {
   return { id, title: captions[id], src: "/photos/community/" + id + ".webp", focus: focus[id] ?? "50% 38%" };
 }

@@ -8,7 +8,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { communityImageSizes } from "@/lib/communityImageSizes";
 import { sanityImageSrcSet } from "@/lib/sanityImageVariants";
 import {
-  albumCaption, communityAlbums, communityPhoto, daylightWall, eveningWall, noPortraitTile, wallCaption, type PhotoId,
+  albumCaption, communityAlbums, communityPhoto, daylightWall, eveningWall, wallCaption, type PhotoId,
 } from "@/data/communityPhotos";
 
 type Tile = { photo: PhotoId; previous?: PhotoId };
@@ -21,11 +21,10 @@ function apart(a: number, b: number, columns: number) {
 }
 
 function Wall({ phone, night }: { phone: boolean; night: boolean }) {
-  const columns = phone ? 3 : 4;
+  const columns = phone ? 2 : 4;
+  const rows = 4;
   const reserveBridge = !phone && night ? 7 : -1;
-  const library = useMemo(() => (night ? eveningWall : daylightWall).filter(
-    id => phone ? !noPortraitTile.has(id) && id !== "fajr-bridge" : true,
-  ), [phone, night]);
+  const library = night ? eveningWall : daylightWall;
   const { fields } = useContext(Content);
   const sources = useRef(fields);
   sources.current = fields;
@@ -36,16 +35,16 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
   const epoch = useRef(0);
   const prefix = night ? "CommunityHero_evening_" : "CommunityHero_day_";
   const start = useMemo(() => {
-    const photos = library.filter(id => reserveBridge < 0 || id !== "fajr-bridge").slice(0, columns * columns);
+    const photos = library.filter(id => reserveBridge < 0 || id !== "fajr-bridge").slice(0, columns * rows);
     if (reserveBridge >= 0) photos[reserveBridge] = "fajr-bridge";
     return photos.map(photo => ({ photo }));
-  }, [library, columns, reserveBridge]);
+  }, [library, columns, rows, reserveBridge]);
   const [tiles, setTiles] = useState<Tile[]>(start);
   const board = useRef(tiles);
   const [visible, setVisible] = useState(false);
   const [tabVisible, setTabVisible] = useState(() => !document.hidden);
   const [paused, setPaused] = useState(false);
-  const sizes = phone ? "34vw" : "25vw";
+  const sizes = phone ? "50vw" : "25vw";
   const fieldsReady = useRef(false);
 
   function source(id: PhotoId, slot = -1) {
@@ -56,9 +55,7 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
     if (custom) {
       return { src: custom.url, srcSet: communityImageSizes(custom.url) || sanityImageSrcSet(custom.url, 720) };
     }
-    return phone
-      ? { src: photo.src.replace(".webp", "-tile.webp"), srcSet: photo.src.replace(".webp", "-tile.webp 432w") }
-      : { src: photo.src.replace(".webp", "-320.webp"), srcSet: communityImageSizes(photo.src) };
+    return { src: photo.src.replace(".webp", "-320.webp"), srcSet: communityImageSizes(photo.src) };
   }
 
   useEffect(() => {
@@ -106,7 +103,7 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
     if (!eligible.length) return;
     const slot = eligible[Math.floor(Math.random() * eligible.length)];
     const shown = new Set(board.current.flatMap((tile, index) => [source(tile.photo, index).src, ...(tile.previous ? [source(tile.previous, index).src] : [])]));
-    const alternatives = library.filter(id => id !== "fajr-bridge" && !shown.has(source(id, slot).src));
+    const alternatives = library.filter(id => !shown.has(source(id, slot).src));
     if (!alternatives.length) return;
     const photo = alternatives[Math.floor(Math.random() * alternatives.length)];
     const next = source(photo, slot);
@@ -155,11 +152,11 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
           return (
             <figure key={index} data-hero-tile={index} data-photo={photo}>
               {previous && <img className="wall-previous" {...source(previous, index)} sizes={sizes}
-                style={{ objectPosition: phone && previous !== "lawn-prayer" ? "center" : communityPhoto(previous).focus }} alt="" />}
+                style={{ objectPosition: communityPhoto(previous).focus }} alt="" />}
               <Picture key={photo} fieldId={prefix + photo} fallbackFieldIds={index === 0 ? ["Index_4"] : undefined}
                 {...display} sizes={sizes} alt="" decoding="async" width={720} height={450}
                 {...(index === 0 ? { fetchpriority: "high" } : {})}
-                style={{ objectPosition: phone && photo !== "lawn-prayer" ? "center" : communityPhoto(photo).focus }}
+                style={{ objectPosition: communityPhoto(photo).focus }}
                 className={previous ? "wall-incoming" : undefined}
                 onAnimationEnd={previous ? () => finish(index, previous, false) : undefined}
                 onError={previous ? () => finish(index, previous, true) : undefined} />
@@ -222,7 +219,7 @@ export function Moments({
         description: p.caption || album.title,
       })) ?? [];
   return (
-    <section className="moment-section" data-collection="Contact sheet">
+    <section className="moment-section recap-gallery">
       <div className="moment-heading">
         <div>
           {galleryLink && <small className="eyebrow"><TextField id="Index_59">Our Gallery</TextField></small>}
