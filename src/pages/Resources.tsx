@@ -1,5 +1,9 @@
 import { LinkField } from "@/editor/content";
 import { TextField, itemIdentity, ContentScope, CardCopies } from "@/editor/content";
+import { useDesign } from "@/design/options";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { photos } from "@/design/CommunityPhotos";
+import { Picture } from "@/editor/content";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { BookOpen, Heart, Moon, MessageSquare, Link as LinkIcon, ArrowRight, Mail, Clock, Calendar } from "lucide-react";
@@ -51,6 +55,22 @@ const resources = [
 const FlipCard = ({ resource, index }: { resource: typeof resources[0]; index: number }) => {
   const [flipped, setFlipped] = useState(false);
 
+  const mobile = useIsMobile();
+  const {cards,details} = useDesign();
+  if (cards !== "Current" || details === "Desktop flip") {
+    const showFlip = details === "Desktop flip";
+    return <article className="resource-review" data-finish={cards} data-flip={showFlip || undefined} data-back={flipped || undefined}>
+      {(cards==="Photo tint" || cards==="Frosted photo") && <Picture fieldId="resource-backdrop" src={photos[[2,0,1,4][index%4]].src} alt="" loading="lazy" width={500} height={360}/>}
+      <div className="resource-copy"><resource.icon size={23}/>
+        <h3><TextField id={mobile?"Resources_1":"Resources_8"}>{resource.title}</TextField></h3>
+        <p className="resource-front"><TextField id={mobile?"Resources_2":"Resources_9"}>{resource.desc}</TextField></p>
+        <p className="resource-back"><TextField id={mobile?"Resources_3":"Resources_13"}>{resource.backDesc}</TextField></p>
+        {showFlip && <button className="detail-toggle" aria-pressed={flipped} onClick={()=>setFlipped(v=>!v)}>{flipped?"Show summary":"More details"} ↻</button>}
+        <div className="resource-actions">{resource.ctas.filter(cta=>!cta.href.startsWith("#")).map(cta=><ContentScope key={cta.label} id={(cta.internal?(mobile?"Resources_4-":"Resources_14-"):(mobile?"Resources_6-":"Resources_16-"))+itemIdentity(cta,cta.label)}>
+          {cta.internal?<Link to={cta.href}><TextField id={mobile?"Resources_5":"Resources_15"}>{cta.label}</TextField> →</Link>:<LinkField fieldId={mobile?"Resources_destination_1":"Resources_destination_2"} href={cta.href} target="_blank" rel="noopener noreferrer"><TextField id={mobile?"Resources_7":"Resources_17"}>{cta.label}</TextField> ↗</LinkField>}
+        </ContentScope>)}</div>
+      </div></article>;
+  }
   return (
     <motion.div
       initial={{ opacity: 0, y: 24 }}

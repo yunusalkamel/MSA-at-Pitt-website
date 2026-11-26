@@ -10,6 +10,7 @@ const ViewSwitcher = ({ view, onChange }: Props) => (
     {(["agenda", "calendar"] as View[]).map((v) => (
       <button
         key={v}
+        aria-pressed={view===v}
         onClick={() => onChange(v)}
         className={`px-4 py-1.5 rounded-full text-sm font-semibold font-body transition-all duration-200 capitalize
           ${view === v ? "gold-gradient text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}

@@ -1,4 +1,5 @@
-import {TextField,LinkField} from "@/editor/content";
+import { useDesign } from "@/design/options";
+import {Picture,TextField,LinkField} from "@/editor/content";
 import { motion } from "framer-motion";
 import { ArrowRight, CalendarPlus, Camera, Clock, MapPin, Star } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -28,6 +29,7 @@ interface Props {
 }
 
 const EventCardBase = ({ event, variant = "standard", index = 0, showSignatureBadge = false }: Props) => {
+  const {eventPhotos,eventActions} = useDesign();
   const day = new Date(event.startDate + "T12:00:00").getDate();
   const month = new Date(event.startDate + "T12:00:00")
     .toLocaleString("en-US", { month: "short" })
@@ -38,11 +40,14 @@ const EventCardBase = ({ event, variant = "standard", index = 0, showSignatureBa
   const tier = getEventTier(event);
   const action = resolveEventAction(event);
 
+  const actionLabel = eventActions && action.kind === "learn-more"
+    ? action.href === event.googleCalendarUrl ? "View event in calendar" : action.href === event.calendarFallbackUrl ? "Open MSA calendar" : action.href?.includes("linktr.ee/") ? "Open MSA event links" : "View event details"
+    : action.label;
   const renderAction = () => {
     if (!action.href) {
       return (
         <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold glass-card text-foreground">
-          {action.label}
+          {actionLabel}
         </span>
       );
     }
@@ -50,7 +55,7 @@ const EventCardBase = ({ event, variant = "standard", index = 0, showSignatureBa
     const actionBody = (
       <>
         {action.kind === "gallery" && <Camera size={isFeatured ? 14 : 12} />}
-        {action.label}
+        {actionLabel}
         {action.kind !== "gallery" && <ArrowRight size={isFeatured ? 16 : 12} />}
       </>
     );
@@ -86,6 +91,7 @@ const EventCardBase = ({ event, variant = "standard", index = 0, showSignatureBa
         <div className="absolute -inset-[2px] rounded-2xl bg-gradient-to-br from-primary/40 via-secondary/20 to-primary/30 opacity-60 group-hover:opacity-80 transition-opacity blur-sm" />
 
         <div className="relative glass-card-strong p-0 overflow-hidden rounded-2xl">
+          {eventPhotos && <Picture fieldId={"cover-"+event.id} src={event.coverImage} alt={event.title} emptyLabel={"Photo for "+event.title} loading="lazy" width={960} height={400} className="w-full max-h-64 object-cover"/>}
           <div className="flex flex-col lg:flex-row">
             {/* Left rail: gold for Signature, neutral primary for plain "Up Next" featured */}
             <div className={`lg:w-56 shrink-0 flex flex-col items-center justify-center py-8 lg:py-0 gap-1 ${

@@ -11,7 +11,9 @@ const WhatsAppIcon = ({ size = 20 }: { size?: number }) => (
   </svg>
 );
 
+import { useDesign } from "@/design/options";
 const Footer = () => {
+  const {footer} = useDesign();
   const currentYear = new Date().getFullYear();
   const copyrightYears = currentYear > 2025 ? `2025–${currentYear}` : "2025";
 
@@ -53,27 +55,27 @@ const Footer = () => {
 
             {/* Explore — left aligned */}
             <div className="flex flex-col gap-2.5 items-start">
-              <p className="font-body text-[10px] font-bold uppercase tracking-[0.2em] mb-1" style={{ color: "rgba(242,171,35,.6)" }}><TextField id="Footer_6">Explore</TextField></p>
-              {[
+              <p className="font-body text-[10px] font-bold uppercase tracking-[0.2em] mb-1" style={{ color: "rgba(242,171,35,.6)" }}><TextField id="Footer_6">{footer?"Get involved":"Explore"}</TextField></p>
+              {(footer?[{to:"/events",l:"Attend an event"},{to:"/join",l:"Join the MSA"},{to:"/gallery",l:"See our community"},{to:"/about",l:"Meet the board"}]:[
                 { to: "/about",   l: "About"   },
                 { to: "/events",  l: "Events"  },
                 { to: "/gallery", l: "Gallery" },
                 { to: "/join",    l: "Join"    },
-              ].map(({ to, l }) => (
+              ]).map(({ to, l }) => (
                 <ContentScope key={to} id={"Footer_7-" + to}><Link key={to} to={to} className="footer-link font-body text-sm"><TextField id="Footer_8">{l}</TextField></Link></ContentScope>
               ))}
             </div>
 
             {/* Resources — center aligned */}
             <div className="flex flex-col gap-2.5 items-center text-center">
-              <p className="font-body text-[10px] font-bold uppercase tracking-[0.2em] mb-1" style={{ color: "rgba(242,171,35,.6)" }}><TextField id="Footer_9">Resources</TextField></p>
-              {[
+              <p className="font-body text-[10px] font-bold uppercase tracking-[0.2em] mb-1" style={{ color: "rgba(242,171,35,.6)" }}><TextField id="Footer_9">{footer?"Campus life":"Resources"}</TextField></p>
+              {(footer?[{to:"/resources/new-to-pitt",l:"Student guide"},{to:"/resources/prayer",l:"Prayer on campus"},{to:"/resources/chaplain",l:"Meet the chaplain"},{to:"/resources",l:"All resources"}]:[
                 { to: "/resources",                  l: "All Resources"    },
                 { to: "/resources/new-to-pitt",      l: "New to Pitt"      },
                 { to: "/resources/prayer-locations", l: "Prayer Locations" },
                 { to: "/prayer-times",               l: "Prayer Times"     },
                 { to: "/resources/faq",              l: "FAQ"              },
-              ].map(({ to, l }) => (
+              ]).map(({ to, l }) => (
                 <ContentScope key={to} id={"Footer_10-" + to}><Link key={to} to={to} className="footer-link font-body text-sm text-center whitespace-nowrap"><TextField id="Footer_11">{l}</TextField></Link></ContentScope>
               ))}
             </div>

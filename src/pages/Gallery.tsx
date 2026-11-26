@@ -171,7 +171,10 @@ const AlbumCard = ({ album, index }: { album: GalleryAlbum; index: number }) => 
   return inner;
 };
 
+import { useDesign } from "@/design/options";
+import { Moments } from "@/design/CommunityPhotos";
 const Gallery = () => {
+  const design = useDesign();
   usePageMeta({
     title: "Gallery — MSA at Pitt",
     description: "Iftars, kickoffs, halaqas, late-night socials — a year in the life of MSA at Pitt.",
@@ -198,8 +201,8 @@ const Gallery = () => {
         coverImage: a.coverImage,
       }));
     }
-    return FALLBACK_ALBUMS;
-  }, [sanityAlbums]);
+    return design.realPhotos?[]:FALLBACK_ALBUMS;
+  }, [sanityAlbums,design.realPhotos]);
 
   const filtered = useMemo(() => {
     if (activeFilter === "all") return albums;
@@ -238,6 +241,8 @@ const Gallery = () => {
         </motion.div>
       </section>
 
+      {design.realPhotos && !albums.length && <Moments galleryLink={false}/>}
+      {design.recap && <div className="recap-link"><Link to="/events">Come to the next gathering →</Link></div>}
       <section className="py-3 liquid-glass-strong sticky top-[68px] md:top-[76px] z-30 border-b border-border/30">
         <div className="max-w-5xl mx-auto px-4 space-y-2">
           {filterGroups.map((group) => (

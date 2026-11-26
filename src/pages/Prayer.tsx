@@ -14,50 +14,10 @@ import patternImg from "@/assets/islamic-pattern-360.webp";
 declare global { interface Window { Chart: any; } }
 
 // ─── Solar prayer time calculator ────────────────────────────────────────────
-const DEG = Math.PI / 180;
-function julianDate(y: number, m: number, d: number) {
-  if (m <= 2) { y--; m += 12; }
-  const A = Math.floor(y / 100);
-  return Math.floor(365.25*(y+4716)) + Math.floor(30.6001*(m+1)) + d + (2-A+Math.floor(A/4)) - 1524.5;
-}
-function easternTZ(y: number, m: number, d: number) {
-  const nthSun = (yr: number, mo: number, n: number) => {
-    const fd = new Date(yr, mo-1, 1).getDay();
-    return (fd === 0 ? 1 : 8 - fd) + (n-1)*7;
-  };
-  const dt = new Date(y, m-1, d);
-  return (dt >= new Date(y, 2, nthSun(y,3,2)) && dt < new Date(y, 10, nthSun(y,11,1))) ? -4 : -5;
-}
-function calcDay(lat: number, lng: number, y: number, m: number, d: number) {
-  const tz = easternTZ(y, m, d);
-  const D = julianDate(y, m, d) - 2451545.0;
-  const g = ((357.529 + 0.98560028*D) % 360 + 360) % 360;
-  const q = ((280.459 + 0.98564736*D) % 360 + 360) % 360;
-  const L = ((q + 1.915*Math.sin(g*DEG) + 0.020*Math.sin(2*g*DEG)) % 360 + 360) % 360;
-  const e = 23.439 - 0.00000036*D;
-  const RA = Math.atan2(Math.cos(e*DEG)*Math.sin(L*DEG), Math.cos(L*DEG)) / DEG / 15;
-  const dec = Math.asin(Math.sin(e*DEG)*Math.sin(L*DEG)) / DEG;
-  let EqT = q/15 - RA; EqT = EqT - Math.round(EqT/24)*24;
-  const noon = 12 - lng/15 - EqT + tz;
-  const HA = (ang: number) => {
-    const c = (Math.sin(ang*DEG) - Math.sin(lat*DEG)*Math.sin(dec*DEG)) / (Math.cos(lat*DEG)*Math.cos(dec*DEG));
-    return Math.abs(c) > 1 ? null : Math.acos(c) / DEG / 15;
-  };
-  const Hs = HA(-0.8333), Hf = HA(-15);
-  const elevA = Math.atan(1 / (1 + Math.tan(Math.abs(lat - dec)*DEG))) / DEG;
-  const Ha = HA(elevA);
-  const fl = (v: number) => Math.floor(v*60);
-  const rnd = (v: number) => Math.round(v*60);
-  return {
-    Fajr:    Hf != null ? fl(noon - Hf)    : null,
-    Sunrise: Hs != null ? fl(noon - Hs)    : null,
-    Dhuhr:   rnd(noon),
-    Asr:     Ha != null ? rnd(noon + Ha)   : null,
-    Maghrib: Hs != null ? rnd(noon + Hs + 1/60) : null,
-    Isha:    Hf != null ? rnd(noon + Hf + 1/60) : null,
-  };
-}
-
+import { calcDay, fm } from "@/lib/prayerClock";
+import { DailyPrayers } from "@/design/DailyPrayers";
+import { useDesign } from "@/design/options";
+import { PhotoSlots } from "@/design/PhotoSlots";
 const MN = ['','January','February','March','April','May','June','July','August','September','October','November','December'];
 const MNS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 type DayEntry = { yr: number; mo: number; d: number; lbl: string;
@@ -99,13 +59,6 @@ const PC = [
   { n:"Maghrib", c:"#378ADD", k:"Maghrib", p:1 },
   { n:"Isha",    c:"#7F77DD", k:"Isha",    p:1 },
 ];
-
-function fm(x: number|null) {
-  if (x == null) return "—";
-  const h = Math.floor(x/60) % 24, m = Math.round(x % 60);
-  const ap = h < 12 ? "am" : "pm", hh = h === 0 ? 12 : h > 12 ? h-12 : h;
-  return `${hh}:${m < 10 ? "0"+m : m}${ap}`;
-}
 
 // ─── Location data ────────────────────────────────────────────────────────────
 const onCampus = [
@@ -167,13 +120,17 @@ const masajid = [
 // ─── Component ────────────────────────────────────────────────────────────────
 const Prayer = () => {
   const [todayHtml, setTodayHtml] = useState<string>("loading...");
+  const design = useDesign();
+  const [expanded,setExpanded] = useState(false);
+  const showChart = !design.simpleTimes || expanded;
   const initRef = useRef(false);
 
   useEffect(() => {
-    if (initRef.current) return;
+    if (!showChart || initRef.current) return;
     initRef.current = true;
 
     const lifecycle = new AbortController();
+    const canvases = ["ctop","cbot"].map(id => document.getElementById(id));
     let script = document.getElementById("chartjs-cdn");
     if (!script) {
       script = document.createElement("script");
@@ -187,12 +144,11 @@ const Prayer = () => {
     return () => {
       lifecycle.abort();
       initRef.current = false;
-      ["ctop","cbot"].forEach(id => {
-        const el = document.getElementById(id) as HTMLCanvasElement;
+      canvases.forEach(el => {
         if (el) window.Chart?.getChart?.(el)?.destroy();
       });
     };
-  }, []);
+  }, [showChart]);
 
   function boot(signal: AbortSignal) {
     const Chart = window.Chart;
@@ -630,7 +586,8 @@ const Prayer = () => {
       {/* ── Prayer Times Chart ───────────────────────────────────── */}
       <section className="py-10 px-4 pb-14">
         <div className="max-w-4xl mx-auto">
-          <motion.div initial={{opacity:0,y:16}} animate={{opacity:1,y:0}} transition={{delay:.1}} className="glass-card rounded-2xl p-6">
+          {design.simpleTimes && <><DailyPrayers locations/><button className="chart-disclosure" aria-expanded={expanded} onClick={()=>setExpanded(v=>!v)}>{expanded?"▾":"▸"} Explore seasonal prayer times</button></>}
+          {showChart && <motion.div initial={{opacity:0,y:16}} animate={{opacity:1,y:0}} transition={{delay:.1}} className="glass-card rounded-2xl p-6">
             <div style={{display:"flex",gap:".5rem",marginBottom:"1.1rem"}}>
               <button className="msm on" data-mid="QKMnW1LB" data-lat="40.4490" data-lng="-79.9619" data-name="ICP">
                 <span className="msm-dot"></span>
@@ -685,7 +642,7 @@ const Prayer = () => {
                 </TextField></a>
               </div>
             </div>
-          </motion.div>
+          </motion.div>}
         </div>
       </section>
 
@@ -755,6 +712,7 @@ const Prayer = () => {
               </div>
             </div>
           </motion.div>
+          {design.locationPhotos && <PhotoSlots name="Jummah prayer" count={2}/>}
         </div>
       </section>
 
@@ -796,6 +754,7 @@ const Prayer = () => {
                     </li></ContentScope>
                   ))}
                 </ul>
+                {design.locationPhotos && <PhotoSlots name={space.name} count={i<2?2:1}/>}
               </motion.div></CardCopies>
             ))}
           </div>
@@ -835,6 +794,8 @@ const Prayer = () => {
                     </li></ContentScope>
                   ))}
                 </ul>
+                {design.mosqueLinks && <LinkField fieldId="mosque-website" className="directory-link" href={i===0?"https://icp-pgh.org":"https://attawheed.org"}>Visit mosque website ↗</LinkField>}
+                {design.locationPhotos && <PhotoSlots name={m.name} count={1}/>}
               </motion.div></CardCopies>
             ))}
           </div>

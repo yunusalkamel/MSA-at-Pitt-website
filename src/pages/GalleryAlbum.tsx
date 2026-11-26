@@ -1,3 +1,4 @@
+import { useDesign } from "@/design/options";
 import { Picture, ContentScope, TextField, itemIdentity } from "@/editor/content";
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
@@ -33,6 +34,7 @@ export default function GalleryAlbumPage() {
 }
 
 const GalleryAlbum = ({ slug }: { slug: string }) => {
+  const {recap} = useDesign();
   const { data: album, loading } = useSanityData<AlbumData>(QUERIES.galleryAlbumBySlug, { slug });
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
@@ -174,6 +176,7 @@ const GalleryAlbum = ({ slug }: { slug: string }) => {
         </div>
       </section>
 
+      {recap && <div className="recap-link"><Link to="/events">Come to the next gathering →</Link></div>}
       {/* Lightbox */}
       {lightboxIndex !== null && (
         <ContentScope id={"GalleryAlbum_10-"+itemIdentity(photos[lightboxIndex],lightboxIndex)}><Lightbox

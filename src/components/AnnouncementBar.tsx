@@ -1,3 +1,4 @@
+import { useDesign } from "@/design/options";
 import { LinkField } from "@/editor/content";
 import { TextField } from "@/editor/content";
 import { useState } from "react";
@@ -22,6 +23,7 @@ const TYPE_STYLES = {
 
 // This is rendered INSIDE the fixed navbar so it never goes behind it
 export default function AnnouncementBar() {
+  const {notice} = useDesign();
   const { data } = useSanityData<AnnouncementData>(QUERIES.announcement);
   const [dismissed, setDismissed] = useState(false);
 
@@ -32,6 +34,7 @@ export default function AnnouncementBar() {
   return (
     <AnimatePresence>
       <motion.div
+        data-compact-notice={notice || undefined}
         key="ann-bar"
         initial={{ height: 0, opacity: 0 }}
         animate={{ height: "auto", opacity: 1 }}

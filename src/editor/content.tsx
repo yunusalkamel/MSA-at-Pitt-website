@@ -28,6 +28,7 @@ export const Content = createContext<{ fields: Fields; editing: boolean }>({
   fields: {},
   editing: false,
 });
+export const EditorialCopy = createContext(false);
 const Scope = createContext("");
 export function ContentScope({
   id,
@@ -60,6 +61,8 @@ export function TextField({
 }) {
   const key = useField(id),
     { fields, editing } = useContext(Content);
+  const revised = useContext(EditorialCopy);
+  if (revised && typeof children === "string") children = children.replace(/^\s*—\s*/, "").replace(/\s*—\s*/g, ", ");
   if (typeof children !== "string" && typeof children !== "number")
     return <>{children}</>;
   const field = fields[key];
@@ -107,14 +110,18 @@ export function LinkField({
 }
 export function Picture({
   fieldId,
+  emptyLabel,
   ...props
-}: ImgHTMLAttributes<HTMLImageElement> & { fieldId: string }) {
+}: ImgHTMLAttributes<HTMLImageElement> & { fieldId: string; emptyLabel?: string }) {
   const key = useField(fieldId),
     { fields, editing } = useContext(Content),
     value = fields[key];
   const alt=fields[key+"/alt"];
   const overridden = value?.kind === "image";
   const src = overridden ? value.url : props.src;
+  if (!src && emptyLabel) {
+    return <span className="photo-slot-empty" data-edit-image={editing ? key : undefined} role="img" aria-label={emptyLabel}>{emptyLabel}</span>;
+  }
   const maxWidth = Number(props.width) || 1920;
   const srcSet = overridden || !props.srcSet
     ? src && sanityImageSrcSet(src, maxWidth)
