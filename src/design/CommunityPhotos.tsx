@@ -47,7 +47,7 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
     return photos.map(photo => ({ photo }));
   }, [library, columns, rows, reserveBridge, phone]);
   const [tiles, setTiles] = useState<Tile[]>(start);
-  const lastChanged = useRef(start.map((_, index) => phone && index < columns * 2 ? -1 : 0));
+  const lastChanged = useRef<number[]>(start.map((_, index) => phone && index < columns * 2 ? -1 : 0));
   const board = useRef(tiles);
   const [visible, setVisible] = useState(false);
   const [tabVisible, setTabVisible] = useState(() => !document.hidden);
