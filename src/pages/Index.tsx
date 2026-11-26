@@ -1,14 +1,13 @@
-import { communityPhoto, communityAlbums } from "@/data/communityPhotos";
+import { communityPhoto } from "@/data/communityPhotos";
 import { nextGathering } from "@/lib/nextGathering";
-import { useDesign } from "@/design/options";
-import { HeroPhotos, Moments, useHeroPhone } from "@/design/CommunityPhotos";
+import { HeroPhotos, Moments } from "@/design/CommunityPhotos";
 import { WelcomePath,NextEvent } from "@/design/Welcome";
 import { DailyPrayers } from "@/design/DailyPrayers";
 import { LinkField } from "@/editor/content";
 import { TextField, Picture, ContentScope, itemIdentity, CardCopies } from "@/editor/content";
 import { Link } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, Heart, Users, Moon, HandHeart, Calendar, Instagram } from "lucide-react";
+import { ArrowRight, Heart, Users, Moon, HandHeart, Calendar, Instagram, type LucideIcon } from "lucide-react";
 import { useMemo } from "react";
 import InstagramWidget from "@/components/InstagramWidget";
 import Layout from "@/components/Layout";
@@ -16,16 +15,14 @@ import { usePageMeta } from "@/lib/usePageMeta";
 import SectionHeading from "@/components/SectionHeading";
 import SectionDivider from "@/components/SectionDivider";
 import ArabicVerse from "@/components/ArabicVerse";
-import KhatamOverlay from "@/components/KhatamOverlay";
 import BridgeBar from "@/components/BridgeBar";
 import PortableTextRenderer from "@/components/PortableTextRenderer";
 import SanityImage from "@/components/SanityImage";
 import PartnerLogos from "@/components/PartnerLogos";
-import TodayNextEvent from "@/components/TodayNextEvent";
 import { useCountUp } from "@/hooks/useCountUp";
 import { useCalendarEvents } from "@/hooks/useCalendarEvents";
 import { useSanityData } from "@/hooks/useSanityData";
-import { QUERIES, urlFor } from "@/lib/sanity";
+import { QUERIES } from "@/lib/sanity";
 import patternImg from "@/assets/geometric-tile.svg";
 import { getUpcomingWindow } from "@/data/events";
 import { LINKS } from "@/config/links";
@@ -53,7 +50,7 @@ const FALLBACK = {
   ],
 };
 
-const ICON_MAP: Record<string, React.FC<{ size?: number; className?: string }>> = {
+const ICON_MAP: Record<string, LucideIcon> = {
   Users, Heart, Moon, HandHeart,
 };
 
@@ -96,59 +93,40 @@ const Index = () => {
     title: "The MSA at Pitt — A Home Away From Home",
     description: "Connecting Muslim students at Pitt through faith, friendship, and service. Everyone is welcome.",
   });
-  const design = useDesign();
-  const photoHero = design.hero !== "Current";
-  const phone = useHeroPhone();
-  const moveIntro = phone && design.hero === "Collage" && design.framing === "Full screen" && design.mobileHero !== "Full overlay";
   const prefersReduced = useReducedMotion();
   const yearsActive = new Date().getFullYear() - 1997;
   const { data: cms } = useSanityData<any>(QUERIES.homePage);
-  const { data: galleryPreview } = useSanityData<SanityGalleryAlbum[]>(design.moments || photoHero ? QUERIES.communityRecaps:QUERIES.galleryAlbumsPreview);
+  const { data: galleryPreview } = useSanityData<SanityGalleryAlbum[]>(QUERIES.communityRecaps);
   const { events: remoteEvents, loading: eventsLoading, error: eventsError } = useCalendarEvents();
   const sourceEvents = remoteEvents;
+  const featuredOnPhone = nextGathering(remoteEvents);
   const upcomingScrollEvents = useMemo(() => getUpcomingWindow(sourceEvents, 15, 3), [sourceEvents]);
 
   // Merge CMS over fallback — only include Sanity values that aren't null/undefined
   const d = { ...FALLBACK, ...Object.fromEntries(Object.entries(cms ?? {}).filter(([, v]) => v != null)) };
 
-  const galleryCells = useMemo(() => {
-    const published = (galleryPreview ?? []).slice(0, 6).map((album) => ({
-      title: album.title,
-      slug: album.slug as string | undefined,
-      imageUrl: album.coverImage?.asset?._ref
-        ? urlFor(album.coverImage).width(900).height(600).fit("crop").auto("format").url()
-        : undefined,
-      lqip: album.coverImage?.lqip as string | undefined,
-    })).filter(c => c.imageUrl);
-    return published.length ? published : communityAlbums.slice(0, 4).map(a => ({ title: a.title, slug: a.slug, imageUrl: a.coverImageUrl, lqip: undefined }));
-  }, [galleryPreview]);
-
-  const heroSrc = cms?.heroImage?.asset?._ref
-    ? urlFor(cms.heroImage).width(1920).height(1080).auto("format").url()
-    : communityPhoto("gala-group").src;
-  const animateIntro = !prefersReduced && window.matchMedia("(min-width: 768px)").matches;
-  const heroLqip = cms?.heroImage?.lqip as string | undefined;
+  const animateIntro = !prefersReduced;
 
   const intro = d.heroBody ? (
     <ContentScope id="Index_11"><PortableTextRenderer value={d.heroBody} /></ContentScope>
   ) : (
-    <p><TextField id="Index_12">{design.plainCopy
-      ? "Meet Muslim students at Pitt over Friday prayer, a pickup game or a table at iftar. Come to the next gathering."
-      : "Connecting Muslim students at Pitt through faith, friendship, and service. Everyone is welcome — wherever you're starting from."}
-    </TextField></p>
+    <p>
+      <span className="md:hidden"><TextField id="Index_12">Meet Muslim students at Pitt over Friday prayer, a pickup game or a table at iftar. Come to the next gathering.</TextField></span>
+      <span className="hidden md:inline"><TextField id="Index_12">Connecting Muslim students at Pitt through faith, friendship, and service. Everyone is welcome — wherever you're starting from.</TextField></span>
+    </p>
   );
 
-  const storySection = (<section className="section-padding pt-28 md:pt-32 warm-surface relative overflow-hidden">
+  const storySection = (<section className="section-padding warm-surface relative overflow-hidden">
         <div className="absolute inset-0 gradient-mesh-warm" />
-        <div hidden={design.cleanPattern} className="absolute inset-0 texture-khatam opacity-[0.6]" />
-        <div className="max-w-7xl mx-auto relative z-10">
+
+        <div className="site-container relative z-10">
           <div className="grid md:grid-cols-2 gap-16 items-center">
             <motion.div initial={prefersReduced ? false : { opacity: 0, x: -24 }} whileInView={prefersReduced ? undefined : { opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.55 }} className="relative group">
               <div className="absolute -inset-1.5 bg-gradient-to-br from-primary/30 via-secondary/15 to-primary/20 opacity-40 group-hover:opacity-60 transition-opacity duration-500 blur-sm" style={{ borderRadius: '22px' }} />
               <div className="relative liquid-glass p-3" style={{ borderRadius: '20px' }}>
                 <ContentScope id="Index_18"><SanityImage
                   source={cms?.communityImage}
-                  fallbackSrc={communityPhoto(design.realPhotos ? "gala-portraits" : "friendsgiving-table").src}
+                  fallbackSrc={communityPhoto("gala-portraits").src}
                 sizes="(max-width: 767px) 92vw, 570px"
                   width={1280}
                   height={854}
@@ -182,8 +160,9 @@ const Index = () => {
   const eventsSection = (<section className="section-padding warm-surface-deep relative overflow-hidden">
         <div className="absolute inset-0 gradient-mesh-gold" />
         <div className="absolute inset-0 texture-dots" />
-        <div className="max-w-7xl mx-auto relative z-10">
+        <div className="site-container relative z-10">
           <ContentScope id="Index_26"><SectionHeading title="What's coming up" subtitle="Stay connected and never miss a moment." /></ContentScope>
+          <NextEvent event={featuredOnPhone} />
           {eventsError && sourceEvents.length === 0 && (
             <div className="mb-4 rounded-xl border border-primary/20 bg-primary/[0.06] px-4 py-3 text-sm text-foreground/80"><TextField id="Index_27">
               Events are taking a moment to load. Check </TextField><a href={LINKS.instagram}>@msa.at.pitt</a><TextField id="Index_events_status_suffix"> on Instagram for this week.
@@ -194,7 +173,7 @@ const Index = () => {
               <div className="glass-card p-6 flex items-center justify-center min-h-[120px]">
                 <div className="w-6 h-6 rounded-full border-2 border-primary border-t-transparent animate-spin" />
               </div>
-            ) : upcomingScrollEvents.slice(0, 3).map((event) => {
+            ) : upcomingScrollEvents.filter(event => event.id !== featuredOnPhone?.id).slice(0, 3).map((event) => {
               const { month, day } = formatEventMonthDay(event.startDate);
               return (
                 <ContentScope key={event.id} id={"Index_28-" + itemIdentity(event, event.id)}><div key={event.id} className="glass-card p-4 flex gap-4">
@@ -269,38 +248,7 @@ const Index = () => {
   return (
     <Layout>
       {/* ── Hero ─────────────────────────────────────────────────── */}
-      <section data-mobile-hero={design.mobileHero} data-wash={photoHero ? design.wash : undefined} data-framing={photoHero ? design.framing : undefined} data-photo-hero={photoHero || undefined} className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        {!photoHero && <div className="absolute inset-0">
-          {/* Blur-up backdrop — kills the bundled-fallback flash */}
-          {heroLqip && (
-            <div
-              aria-hidden="true"
-              className="absolute inset-0"
-              style={{
-                backgroundImage: `url(${heroLqip})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                transform: "scale(1.1)",
-              }}
-            />
-          )}
-          <Picture fieldId="Index_4"
-            src={heroSrc}
-            sizes="100vw"
-            alt="MSA at Pitt community gathering"
-            className="w-full h-full object-cover scale-110"
-            width={1920}
-            height={1080}
-            loading="eager"
-            // @ts-ignore — fetchpriority is valid HTML, React 18 accepts lowercase
-            fetchpriority="high"
-            decoding="async"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#060B18]/90 via-[#0D1528]/55 to-[#14345A]/90" />
-          <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: "280px" }} />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_80%_45%,rgba(20,128,102,.22)_0%,transparent_50%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_15%_60%,rgba(242,171,35,.1)_0%,transparent_50%)]" />
-        </div>}
+      <section data-photo-hero className="home-hero relative flex items-center justify-center overflow-hidden">
         <BridgeBar />
         {/* Moon motif removed per spec */}
         <div className="hidden md:block absolute top-1/4 left-1/6 w-96 h-96 rounded-full bg-primary/12 blur-[140px] pointer-events-none" />
@@ -343,46 +291,35 @@ const Index = () => {
           <motion.p initial={animateIntro && { opacity: 0 }} animate={{ opacity: 1 }} className="eyebrow text-msa-gold/65 mb-5">
             <TextField id="Index_10">{d.heroTagline}</TextField>
           </motion.p>
-          {!moveIntro && <motion.div initial={animateIntro && { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="font-dm-sans text-base md:text-lg text-accent-foreground/60 max-w-xl mx-auto mb-10 leading-[1.75]">
+          <motion.div initial={animateIntro && { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="font-dm-sans text-base md:text-lg text-accent-foreground/60 max-w-xl mx-auto mb-10 leading-[1.75]">
             {intro}
-          </motion.div>}
-          <motion.div initial={animateIntro && { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row gap-3 justify-center">
-            {design.eventFirst ? <><Link to="/events" className="btn-premium text-base px-8 py-3.5"><TextField id="Index_14">See Upcoming Events</TextField><ArrowRight size={16}/></Link><Link to="/join" className="btn-premium-secondary text-base px-8 py-3.5"><TextField id="Index_13">Join the MSA</TextField></Link></> : <><Link to="/join" className="btn-premium text-base px-8 py-3.5"><TextField id="Index_13">Join the MSA </TextField><ArrowRight size={16} /></Link>
-            <Link to="/events" className="btn-premium-secondary text-base px-8 py-3.5"><TextField id="Index_14">See Upcoming Events</TextField></Link></>}
           </motion.div>
-
-          {!design.nextEvent && <TodayNextEvent />}
+          <motion.div initial={animateIntro && { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="hero-actions flex flex-col sm:flex-row justify-center">
+            <Link to="/join" className="btn-premium text-base"><TextField id="Index_13">Join the MSA </TextField><ArrowRight size={16} /></Link>
+            <Link to="/events" className="btn-premium-secondary text-base"><TextField id="Index_14">See Upcoming Events</TextField></Link>
+          </motion.div>
         </motion.div>
 
-        {photoHero && <HeroPhotos/>}
+        <HeroPhotos/>
         {/* Seamless fade into the section below — light uses a gold shimmer, dark fades to navy */}
         <div className="absolute bottom-0 left-0 right-0 h-[55vh] md:h-[70vh] pointer-events-none z-[5] dark:hidden" style={{ background: "linear-gradient(to bottom, transparent 0%, rgba(242,171,35,0.06) 25%, rgba(242,171,35,0.22) 50%, rgba(251,240,208,0.75) 72%, rgba(248,243,234,0.96) 88%, #F8F3EA 100%)" }} aria-hidden="true" />
         <div className="absolute bottom-0 left-0 right-0 h-[50vh] md:h-[65vh] pointer-events-none z-[5] hidden dark:block" style={{ background: "linear-gradient(to bottom, transparent 0%, rgba(13,21,40,0.5) 45%, rgba(13,21,40,0.88) 72%, #0D1528 100%)" }} aria-hidden="true" />
 
-        {animateIntro && !design.cleanStats && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2, duration: 1 }} className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10">
-            <div className="w-px h-10 bg-gradient-to-b from-primary/50 via-primary/20 to-transparent animate-pulse mx-auto" />
-          </motion.div>
-        )}
       </section>
 
       {/* ── Stats — overlaps slightly into the warm section below ── */}
-      <section data-stats={design.cleanStats?design.stats:undefined} data-clean-stats={design.cleanStats || undefined} className="relative z-20 px-4 md:px-8 -mt-[4rem] mb-[-5rem] bg-transparent">
-        <motion.div initial={design.cleanStats?false:{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: design.cleanStats?0:1.3, duration: 0.6 }} className="liquid-glass-stats rounded-3xl max-w-3xl mx-3 sm:mx-auto p-4 md:p-6 grid grid-cols-3 items-stretch gap-0 overflow-hidden">
+      <section className="home-stats relative z-20">
+        <motion.div className="glass rounded-3xl max-w-3xl mx-auto grid grid-cols-3 items-stretch overflow-hidden">
           <ContentScope id="Index_15"><StatItem numericValue={d.statEventsPerSemester} suffix="+" label="Events per Semester" sub="halaqas, socials, speakers & more" bordered /></ContentScope>
           <ContentScope id="Index_16"><StatItem value={String(d.statFoundedYear)} label="Founded at Pitt" sub="community since day one" bordered /></ContentScope>
           <ContentScope id="Index_17"><StatItem numericValue={d.statMemberCount} suffix="+" label="Community Members" sub="and growing every year" /></ContentScope>
         </motion.div>
       </section>
 
-      {moveIntro && <div className="mobile-welcome-intro">{intro}</div>}
-
-      {design.nextEvent && (!eventsError || remoteEvents.length>0) && <NextEvent event={nextGathering(remoteEvents)}/>}
-      {design.eventsOrder ? eventsSection : storySection}
+      {eventsSection}
       <SectionDivider />
-      {design.eventsOrder ? storySection : eventsSection}
-      {design.moments && <Moments albums={galleryPreview??[]}/>}
-
+      {storySection}
+      <Moments albums={galleryPreview ?? []} />
 
       <SectionDivider />
 
@@ -412,69 +349,15 @@ const Index = () => {
 
       <SectionDivider />
 
-      {/* ── Gallery Preview — wired to Sanity albums ───────────── */}
-      {design.homePrayer && <div className="home-prayer"><DailyPrayers/></div>}
-      {!design.homePrayer && (galleryPreview ?? []).length > 0 && (
-        <section className="py-10 md:py-14 warm-surface relative overflow-hidden">
-          <div className="absolute inset-0 gradient-mesh-warm pointer-events-none" />
-          <div className="absolute inset-0 texture-dots opacity-40 pointer-events-none" />
-          <div className="relative z-10">
-            {/* Header row — constrained, button inline with text */}
-            <div className="px-4 md:px-6 max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
-              <div>
-                <p className="eyebrow text-jannah-mid dark:text-msa-gold/70 mb-1"><TextField id="Index_59">Our Gallery</TextField></p>
-                <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground leading-tight"><TextField id="Index_60">Moments from MSA</TextField></h2>
-              </div>
-              <Link to="/gallery" className="btn-premium-secondary text-sm px-5 py-2.5 self-start sm:self-auto flex-shrink-0"><TextField id="Index_61">
-                Browse Gallery </TextField><ArrowRight size={14} />
-              </Link>
-            </div>
-
-            {/* Horizontal scroll strip — no overflow clipping */}
-            <div className="overflow-x-auto pb-2" style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" } as React.CSSProperties}>
-              <div className="flex gap-3 px-4 md:px-6 min-w-max">
-                {galleryCells.filter(c => c.imageUrl).map((cell, i) => {
-                  const Card = (
-                    <motion.div
-                      className="relative rounded-2xl overflow-hidden group cursor-pointer flex-shrink-0"
-                      style={{ width: "clamp(220px, 30vw, 340px)", height: "clamp(150px, 20vw, 230px)", ...(cell.lqip ? { backgroundImage: `url(${cell.lqip})`, backgroundSize: "cover", backgroundPosition: "center" } : {}) }}
-                      initial={prefersReduced ? false : { opacity: 0, x: 16 }}
-                      whileInView={prefersReduced ? undefined : { opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.45, delay: i * 0.08 }}
-                    >
-                      {cell.imageUrl && (
-                        <Picture fieldId="Index_62"
-                          src={cell.imageUrl}
-                          alt={cell.title}
-                          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                          loading="lazy"
-                          sizes="(max-width: 767px) 72vw, 390px"
-                          width={900}
-                          height={600}
-                        />
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
-                      <p className="absolute bottom-3 left-3 right-3 font-display text-white font-semibold text-sm drop-shadow-md leading-tight"><TextField id="Index_63">{cell.title}</TextField></p>
-                    </motion.div>
-                  );
-                  return cell.slug
-                    ? <ContentScope key={cell.slug} id={"Index_64-" + itemIdentity(cell, cell.slug)}><Link key={cell.slug} to={`/gallery/${cell.slug}`}><TextField id="Index_65">{Card}</TextField></Link></ContentScope>
-                    : <ContentScope key={cell.title + i} id={"Index_66-" + itemIdentity(cell, cell.title + i)}><div key={cell.title + i}><TextField id="Index_67">{Card}</TextField></div></ContentScope>;
-                })}
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
+      <div className="home-prayer"><DailyPrayers /></div>
 
       <SectionDivider />
 
       {/* ── Pillars ─────────────────────────────────────────────── */}
       <section className="section-padding warm-surface relative overflow-hidden">
         <div className="absolute inset-0 gradient-mesh-warm" />
-        <div hidden={design.cleanPattern} className="absolute inset-0 texture-khatam opacity-[0.55]" />
-        <div className="max-w-7xl mx-auto relative z-10">
+
+        <div className="site-container relative z-10">
           <ContentScope id="Index_68"><SectionHeading title="What drives us" label="Our Pillars" /></ContentScope>
           <div className="grid md:grid-cols-2 gap-10 md:gap-16">
             {[
@@ -488,7 +371,7 @@ const Index = () => {
                     const Icon = ICON_MAP[pillar.iconName] ?? Users;
                     return (
                       <CardCopies key={pillar.title} id={"Index_71-" + itemIdentity(pillar, pillar.title)}><motion.div key={pillar.title} variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4 } } }} className="glass-card-hover p-6 md:p-8">
-                        {design.cardPhotos && <Picture fieldId="pillar-photo" src={communityPhoto(pillars === d.imanPillars ? (i === 0 ? "halaqa-circle" : "volunteers") : (i === 0 ? "tea" : "friendsgiving-hall")).src} alt="" className="community-card-photo" loading="lazy" width={460} height={250}/>}
+                        <Picture fieldId="pillar-photo" src={communityPhoto(pillars === d.imanPillars ? (i === 0 ? "halaqa-circle" : "volunteers") : (i === 0 ? "tea" : "friendsgiving-hall")).src} alt="" className="community-card-photo" loading="lazy" width={460} height={250}/>
                         <div className="gold-gradient w-11 h-11 rounded-xl flex items-center justify-center mb-5 shadow-sm">
                           <Icon className="text-primary-foreground" size={20} />
                         </div>
@@ -508,7 +391,7 @@ const Index = () => {
 
       {/* ── Partner logos — credibility surface ────────────────── */}
       <PartnerLogos />
-      {design.newcomer && <WelcomePath/>}
+      <WelcomePath/>
 
       <SectionDivider />
 

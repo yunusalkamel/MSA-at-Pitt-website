@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { LinkField, TextField } from "@/editor/content";
 import { LINKS } from "@/config/links";
-import { resolveEventAction } from "@/components/events/resolveEventAction";
 import type { MSAEvent } from "@/data/events";
 export function WelcomePath() {
   return (
@@ -17,7 +16,7 @@ export function WelcomePath() {
             prayer rooms, food and getting around Pitt.
           </p>
           <Link to="/events">Find an event →</Link>
-          <Link to="/resources/new-to-pitt">Read the student guide ↗</Link>
+          <Link to="/resources/new-to-pitt">Read the student guide →</Link>
         </article>
         <article>
           <h3>Stay in the loop</h3>
@@ -36,12 +35,12 @@ export function WelcomePath() {
 }
 export function NextEvent({ event }: { event?: MSAEvent }) {
   if (!event) return null;
-  const action = resolveEventAction(event);
+  const signup = event.rsvpUrl || event.signupUrl;
   return (
-    <section className="upcoming-invite">
+    <section className="upcoming-invite md:hidden">
       <div>
         <small>Featured gathering</small>
-        <h2>{event.title}</h2>
+        <h3>{event.title}</h3>
         <p>
           {[
             new Date(event.startDate + "T12:00:00").toLocaleDateString(
@@ -55,17 +54,17 @@ export function NextEvent({ event }: { event?: MSAEvent }) {
             .join(" · ")}
         </p>
       </div>
-      {action.kind === "signup" && action.href ? (
+      {signup ? (
         <LinkField
           fieldId={"next-rsvp-" + event.id}
           data-event-key={event.id}
           data-analytics-action="rsvp_click"
-          href={action.href}
+          href={signup}
         >
-          RSVP ↗
+          RSVP {signup.startsWith("/") ? "→" : "↗"}
         </LinkField>
       ) : (
-        <Link to="/events">Event details →</Link>
+        <Link to={"/events?event=" + encodeURIComponent(event.id)}>Event details →</Link>
       )}
     </section>
   );

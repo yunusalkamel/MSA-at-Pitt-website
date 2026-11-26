@@ -56,9 +56,11 @@ export function useField(id: string) {
 export function TextField({
   id,
   children,
+  fallbackFieldKeys = [],
 }: {
   id: string;
   children: ReactNode;
+  fallbackFieldKeys?: string[];
 }) {
   const key = useField(id),
     { fields, editing } = useContext(Content);
@@ -66,7 +68,7 @@ export function TextField({
   if (revised && typeof children === "string") children = children.replace(/^\s*—\s*/, "").replace(/\s*—\s*/g, ", ");
   if (typeof children !== "string" && typeof children !== "number")
     return <>{children}</>;
-  const field = fields[key];
+  const field = fields[key] ?? fallbackFieldKeys.map(alias => fields[alias]).find(value => value?.kind === "text");
   if (!editing && field?.kind !== "text") return <>{children}</>;
   return (
     <span data-edit-text={editing ? key : undefined}>
@@ -113,12 +115,16 @@ export function Picture({
   fieldId,
   emptyLabel,
   editorOnlyPlaceholder,
+  fallbackFieldIds = [],
+  fallbackFieldKeys = [],
   ...props
-}: ImgHTMLAttributes<HTMLImageElement> & { fieldId: string; emptyLabel?: string; editorOnlyPlaceholder?: boolean }) {
+}: ImgHTMLAttributes<HTMLImageElement> & { fieldId: string; emptyLabel?: string; editorOnlyPlaceholder?: boolean; fallbackFieldIds?: string[]; fallbackFieldKeys?: string[] }) {
   const key = useField(fieldId),
-    { fields, editing } = useContext(Content),
-    value = fields[key];
-  const alt=fields[key+"/alt"];
+    { fields, editing } = useContext(Content);
+  const fallbackKeys = [...fallbackFieldKeys, ...fallbackFieldIds.map(id => key.slice(0, -fieldId.length) + id)];
+  const fallback = fallbackKeys.find(id => fields[id]?.kind === "image");
+  const value = fields[key] ?? (fallback ? fields[fallback] : undefined);
+  const alt = fields[key+"/alt"] ?? (fallback ? fields[fallback+"/alt"] : undefined);
   const overridden = value?.kind === "image";
   const originalSrc = overridden ? value.url : props.src;
   const retiredPicnic = originalSrc?.includes("/fb311b741cf77c989aeffca328c66551045e3372-640x640.webp");

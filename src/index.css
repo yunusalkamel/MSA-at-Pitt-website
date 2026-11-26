@@ -276,14 +276,7 @@
     box-shadow: 0 16px 48px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.7);
     border-color: rgba(210, 190, 155, 0.48);
   }
-  .liquid-glass-stats {
-    background: rgba(248, 243, 234, 0.22);
-    backdrop-filter: blur(56px) saturate(200%) brightness(1.05);
-    -webkit-backdrop-filter: blur(56px) saturate(200%) brightness(1.05);
-    border: 1px solid rgba(242, 171, 35, 0.22);
-    box-shadow: 0 12px 48px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.45), inset 0 -1px 0 rgba(0,0,0,0.03), 0 0 0 1px rgba(255,255,255,0.08) inset;
-    border-radius: var(--radius);
-  }
+  
 
   .font-arabic { font-family: var(--font-arabic); }
   .font-body { font-family: var(--font-body); }
@@ -782,11 +775,7 @@
   border-color: rgba(242, 171, 35, 0.18);
   box-shadow: 0 16px 48px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.06);
 }
-.dark .liquid-glass-stats {
-  background: rgba(6, 11, 24, 0.35);
-  border-color: rgba(242, 171, 35, 0.18);
-  box-shadow: 0 12px 48px rgba(0,0,0,.35), 0 2px 8px rgba(0,0,0,.15), inset 0 1px 0 rgba(255,255,255,.06), 0 0 0 1px rgba(255,255,255,0.04) inset;
-}
+
 
 /* Glass cards → dark */
 .dark .glass-card {
@@ -1018,3 +1007,5 @@ html { scroll-behavior: smooth; }
   .resource-tile .tile-description { -webkit-line-clamp: 4; }
   .resource-tile a:focus-visible { outline: 2px solid var(--gold-muted); outline-offset: var(--space-1); }
 }
+
+.site-container { width: min(100%, var(--container)); margin-inline: auto; }

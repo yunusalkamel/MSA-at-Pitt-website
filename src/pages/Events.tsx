@@ -1,3 +1,5 @@
+import { useSearchParams } from "react-router-dom";
+import EventDetailSheet from "@/components/events/EventDetailSheet";
 import { LinkField } from "@/editor/content";
 import { TextField, itemIdentity, ContentScope } from "@/editor/content";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -48,7 +50,14 @@ const Events = () => {
   const [selectedTags, setSelectedTags] = useState<string[]>(["All"]);
   const { events: remoteEvents, loading, error, lastSyncedAt, refresh } = useCalendarEvents();
 
+  const [query, setQuery] = useSearchParams();
   const sourceEvents = remoteEvents;
+  const selectedEvent = sourceEvents.find(event => event.id === query.get("event")) ?? null;
+  const closeEvent = () => setQuery(current => {
+    const next = new URLSearchParams(current);
+    next.delete("event");
+    return next;
+  }, { replace: true });
   const featured = getFeaturedEvent(sourceEvents);
   // Only show the "Signature" treatment if the event is *actually* tagged Signature
   const isSignature = !!featured && featured.tags.includes("Signature");
@@ -105,6 +114,7 @@ const Events = () => {
   return (
     <Layout>
       <EventsHero />
+      <EventDetailSheet event={selectedEvent} onClose={closeEvent} />
 
       {/* ── Signature event hero — only shown when there is a real signature event ── */}
       {featured && isSignature && (
