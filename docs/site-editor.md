@@ -1,6 +1,6 @@
 # Publishing from /admin
 
-Open `/admin` and request a sign-in link for `yunusaalkamel@gmail.com`. The server verifies this email against Supabase Auth for every write. Choose a page in the toolbar. Click text and select words to format them. Drop a JPG, PNG or WebP (up to 3 MB) onto a photo, or click it to browse. Click a repeatable card and choose **Duplicate card**. Use **Browse pages** to follow links or open interactive elements. **Publish** saves the current edits across pages. **Discard** restores the last published content.
+Open `/admin` and sign in with an authorized Google account. The server confirms your identity and environment permissions for every write. Choose a page in the toolbar. Click text and select words to format them. Drop a JPG, PNG or WebP (up to 3 MB) onto a photo, or click it to browse. Click a repeatable card and choose **Duplicate card**. Use **Browse pages** to follow links or open interactive elements. **Publish** saves the current edits across pages. **Discard** restores the last published content.
 
 ## Connect a deployment
 
