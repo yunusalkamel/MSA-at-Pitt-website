@@ -7,7 +7,7 @@ import Layout from "@/components/Layout";
 import BridgeBar from "@/components/BridgeBar";
 import SectionDivider from "@/components/SectionDivider";
 import ArabicVerse from "@/components/ArabicVerse";
-import patternImg from "@/assets/islamic-pattern-360.webp";
+import patternImg from "@/assets/geometric-tile.svg";
 import { useSanityData } from "@/hooks/useSanityData";
 import { QUERIES } from "@/lib/sanity";
 
@@ -64,7 +64,7 @@ const FALLBACK_FAQS: FAQItem[] = [
   },
   {
     q: "Where can I find the university chaplain?",
-    a: (<>Imam Muhammad Patel is available Tuesday &amp; Thursday 4–6 PM. <Link to="/resources/chaplain" className="text-primary underline underline-offset-2 hover:opacity-80"><TextField id="FAQ_9">Visit the Chaplain page</TextField></Link> to learn more and get his contact info.</>),
+    a: (<>Imam Muhammad Patel is available Monday 5–6 PM after his halaqah and Friday 3–4 PM. <Link to="/resources/chaplain" className="text-primary underline underline-offset-2 hover:opacity-80"><TextField id="FAQ_9">Visit the Chaplain page</TextField></Link> to learn more and get his contact info.</>),
   },
 ];
 

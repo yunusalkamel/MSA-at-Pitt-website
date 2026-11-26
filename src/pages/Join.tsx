@@ -1,4 +1,5 @@
 import { LinkField, TextField, ContentScope, itemIdentity, CardCopies } from "@/editor/content";
+import { Link } from "react-router-dom";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { Instagram, ExternalLink, ArrowRight, CheckCircle2, Users, Calendar, Heart, MessageCircle, Sparkles } from "lucide-react";
@@ -6,16 +7,16 @@ import Layout from "@/components/Layout";
 import BridgeBar from "@/components/BridgeBar";
 import SectionDivider from "@/components/SectionDivider";
 import ArabicVerse from "@/components/ArabicVerse";
-import patternImg from "@/assets/islamic-pattern-360.webp";
+import patternImg from "@/assets/geometric-tile.svg";
 import { LINKS } from "@/config/links";
 import { usePageMeta } from "@/lib/usePageMeta";
 
 const steps = [
   {
     num: "01",
-    headline: "Make it official.",
+    headline: "Register when you’re ready.",
     copy: "Fill out the MSA registration form to stay in the loop, receive announcements, and be counted as part of our community.",
-    cta: "Register Now",
+    cta: "Open membership form",
     href: LINKS.registrationForm,
   },
   {
@@ -113,7 +114,7 @@ const Join = () => {
       </AnimatePresence>
 
       {/* Hero */}
-      <section className="relative pt-28 pb-12 md:pt-36 md:pb-16 overflow-x-hidden text-center">
+      <section className="relative pt-24 pb-5 md:pt-32 md:pb-12 overflow-x-hidden text-center">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0 gradient-mesh-gold" />
           <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: '220px' }} />
@@ -136,9 +137,9 @@ const Join = () => {
             transition={{ delay: 0.15 }}
             className="font-display text-5xl md:text-7xl font-bold text-foreground mb-6 leading-tight px-2"
           ><TextField id="Join_5">
-            Ready to be part of
+            Come as you are.
             </TextField><br />
-            <span className="inline-block text-gradient-gold italic pb-2"><TextField id="Join_6">something bigger?</TextField></span>
+            <span className="inline-block text-gradient-gold italic pb-2"><TextField id="Join_6">Stay as long as you like.</TextField></span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 16 }}
@@ -146,9 +147,13 @@ const Join = () => {
             transition={{ delay: 0.35 }}
             className="font-dm-sans text-base md:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed mb-8"
           ><TextField id="Join_7">
-            No matter who you are or where you're coming from, there's a place for you in MSA at Pitt.
+            Come to a gathering, bring a friend, or look around first. You’re welcome to drop by before you register.
           </TextField></motion.p>
 
+          <div className="flex flex-wrap justify-center gap-2 mb-6">
+            <Link to="/events" className="btn-premium text-sm px-5 py-2.5"><TextField id="join-visit">Find a gathering</TextField><ArrowRight size={15}/></Link>
+            <a href="#join-options" className="btn-premium-secondary text-sm px-5 py-2.5"><TextField id="join-options-link">Ways to join</TextField></a>
+          </div>
           {/* Soft visual bridge — eyebrow + ornament — pulls Step 01 closer */}
           <motion.div
             initial={{ opacity: 0, y: 12 }}
@@ -162,14 +167,14 @@ const Join = () => {
               <div className="flex-1 h-px bg-gradient-to-l from-transparent to-primary/35" />
             </div>
             <p className="font-body text-[11px] uppercase tracking-[0.22em] text-jannah-mid dark:text-msa-gold/70 font-semibold"><TextField id="Join_8">
-              4 steps · 2 minutes
+              Join at your own pace
             </TextField></p>
           </motion.div>
         </div>
       </section>
 
       {/* Steps — pulled in tight to the hero */}
-      <section className="pt-4 pb-20 md:pt-8 md:pb-28 px-4 md:px-8 lg:px-16 xl:px-24 relative overflow-hidden">
+      <section id="join-options" className="scroll-mt-24 pt-4 pb-20 md:pt-8 md:pb-28 px-4 md:px-8 lg:px-16 xl:px-24 relative overflow-hidden">
         <div className="absolute inset-0 steps-surface pointer-events-none" />
         <div className="absolute inset-0 texture-cross opacity-25 pointer-events-none" />
         <div className="absolute top-1/4 -left-20 w-96 h-96 rounded-full bg-primary/[0.07] blur-[100px] pointer-events-none" />
@@ -256,15 +261,15 @@ const Join = () => {
       <section className="section-padding gradient-section-gold-soft relative overflow-hidden">
         <div className="absolute inset-0 texture-dots opacity-40 pointer-events-none" />
         <div className="max-w-5xl mx-auto relative z-10">
-          <div className="text-center mb-12">
+          <div className="text-center mb-5 md:mb-9">
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.45 }}
             >
-              <p className="font-body text-xs uppercase tracking-[0.2em] text-primary/70 font-semibold mb-2"><TextField id="Join_20">After you join</TextField></p>
-              <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground"><TextField id="Join_21">What happens next</TextField></h2>
+              <p className="font-body text-xs uppercase tracking-[0.2em] text-primary/70 font-semibold mb-2"><TextField id="Join_20">Around campus</TextField></p>
+              <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground"><TextField id="Join_21">Find your people</TextField></h2>
             </motion.div>
           </div>
 
@@ -312,7 +317,7 @@ const Join = () => {
               rel="noopener noreferrer"
               className="btn-premium flex-shrink-0"
             ><TextField id="Join_27">
-              Register Now </TextField><ArrowRight size={15} />
+              Open membership form </TextField><ArrowRight size={15} />
             </LinkField>
           </motion.div>
         </div>

@@ -22,6 +22,8 @@ const groups: { title: string; url: string; keys: (Choice | Switch)[] }[] = [
     keys: [
       "hero",
       "framing",
+      "wash",
+      "mobileHero",
       "density",
       "realPhotos",
       "cardPhotos",
@@ -72,6 +74,8 @@ const groups: { title: string; url: string; keys: (Choice | Switch)[] }[] = [
 const labels = {
   hero: "Hero layout",
   framing: "Hero framing",
+  wash: "Hero gradient",
+  mobileHero: "Mobile hero",
   density: "Collage density",
   chapters: "Section transitions",
   stats: "Stats position",

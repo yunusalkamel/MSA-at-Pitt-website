@@ -4,7 +4,7 @@ import { Mail, BookOpen, MessageSquare, ArrowRight, Calendar } from "lucide-reac
 import Layout from "@/components/Layout";
 import BridgeBar from "@/components/BridgeBar";
 import ArabicVerse from "@/components/ArabicVerse";
-import patternImg from "@/assets/islamic-pattern-360.webp";
+import patternImg from "@/assets/geometric-tile.svg";
 import { LINKS } from "@/config/links";
 import { usePageMeta } from "@/lib/usePageMeta";
 import { useSanityData } from "@/hooks/useSanityData";
@@ -28,7 +28,7 @@ const ImamCard = () => {
   const bio =
     data?.imamBio ||
     "For Islamic counseling, naseeha, or personal guidance — our chaplain is available to all students.";
-  const officeHours = data?.imamOfficeHours;
+  const officeHours = data?.imamOfficeHours || "Monday 5–6 PM after his halaqah · Friday 3–4 PM";
   const email = data?.imamEmail;
   const booking = data?.imamBookingUrl;
 

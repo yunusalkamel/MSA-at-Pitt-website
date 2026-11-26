@@ -1,8 +1,8 @@
-import { ContentScope, TextField } from "@/editor/content";
+import { Picture, TextField } from "@/editor/content";
 import { useRef } from "react";
 import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import { Sparkles } from "lucide-react";
-import patternImg from "@/assets/islamic-pattern-360.webp";
+import { communityPhoto } from "@/data/communityPhotos";
 import BridgeBar from "@/components/BridgeBar";
 
 const EventsHero = () => {
@@ -13,16 +13,12 @@ const EventsHero = () => {
   const contentOpacity = useTransform(scrollYProgress, [0, 0.7], prefersReduced ? [1, 1] : [1, 0]);
 
   return (
-    <section ref={ref} className="relative py-28 md:py-36 text-center px-4 overflow-hidden">
+    <section ref={ref} className="relative pt-24 pb-9 md:py-36 text-center px-4 overflow-hidden">
       <motion.div className="absolute inset-0" style={{ y: bgY }}>
         <div className="absolute inset-0 bg-accent" />
-        <div
-          className="absolute inset-0 opacity-[0.04]"
-          style={{ backgroundImage: `url(${patternImg})`, backgroundSize: "200px" }}
-        />
-
+        <Picture fieldId="events-hall" src={communityPhoto("banquet").src} alt="Tables filled with students at an MSA banquet" sizes="100vw" width={1280} height={600} className="absolute inset-0 h-full w-full object-cover object-center" />
         <BridgeBar />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-accent/40 to-accent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-accent/50 via-accent/70 to-accent/85" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_40%,rgba(20,128,102,.15)_0%,transparent_55%)]" />
         <div className="absolute top-1/4 left-1/4 w-72 h-72 rounded-full bg-primary/10 blur-[100px]" />
         <div className="absolute bottom-1/4 right-1/4 w-64 h-64 rounded-full bg-secondary/10 blur-[100px]" />

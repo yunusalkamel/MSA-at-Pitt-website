@@ -1,4 +1,4 @@
-import { LinkField } from "@/editor/content";
+import { Picture, LinkField } from "@/editor/content";
 import { ContentScope, TextField, itemIdentity, CardCopies } from "@/editor/content";
 import { motion } from "framer-motion";
 import { Clock, Mail, ExternalLink, ArrowLeft } from "lucide-react";
@@ -7,7 +7,7 @@ import Layout from "@/components/Layout";
 import BridgeBar from "@/components/BridgeBar";
 import SectionDivider from "@/components/SectionDivider";
 import ArabicVerse from "@/components/ArabicVerse";
-import patternImg from "@/assets/islamic-pattern-360.webp";
+import patternImg from "@/assets/geometric-tile.svg";
 
 const Chaplain = () => (
   <Layout>
@@ -47,15 +47,8 @@ const Chaplain = () => (
           className="glass-card-strong rounded-2xl overflow-hidden"
         >
           <div className="grid md:grid-cols-[280px_1fr] gap-0">
-            {/* Photo placeholder */}
-            <div className="relative bg-gradient-to-br from-secondary/10 to-primary/10 flex items-center justify-center min-h-[280px] md:min-h-full">
-              <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: "150px" }} />
-              <div className="relative z-10 flex flex-col items-center gap-3 px-6 text-center">
-                <div className="w-28 h-28 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 border-2 border-primary/25 flex items-center justify-center">
-                  <span className="font-display text-3xl font-bold text-primary/50"><TextField id="Chaplain_7">MP</TextField></span>
-                </div>
-                <p className="font-body text-xs text-muted-foreground/60 italic"><TextField id="Chaplain_8">Photo coming soon</TextField></p>
-              </div>
+            <div className="flex items-center justify-center bg-secondary/5 p-4 md:p-5">
+              <Picture fieldId="Chaplain_portrait" src="/photos/prayer/imam-muhammad-patel.webp" alt="Imam Muhammad Patel" width={720} height={916} loading="lazy" className="block w-40 md:w-full h-auto rounded-md" />
             </div>
 
             {/* Info */}
@@ -75,7 +68,7 @@ const Chaplain = () => (
                 <Clock size={15} className="text-primary mt-0.5 flex-shrink-0" />
                 <div>
                   <p className="font-body font-semibold text-foreground text-sm"><TextField id="Chaplain_13">Office Hours</TextField></p>
-                  <p className="font-body text-muted-foreground text-sm mt-0.5"><TextField id="Chaplain_14">Tuesday &amp; Thursday, 4:00 – 6:00 PM</TextField></p>
+                  <p className="font-body text-muted-foreground text-sm mt-0.5"><TextField id="Chaplain_14">Monday 5–6 PM after his halaqah · Friday 3–4 PM</TextField></p>
                 </div>
               </div>
 

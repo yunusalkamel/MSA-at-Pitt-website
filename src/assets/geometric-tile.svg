@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120" fill="none" stroke="#b28a42" stroke-width="1">
+  <defs><pattern id="tile" width="60" height="60" patternUnits="userSpaceOnUse">
+    <path d="M30 4 56 30 30 56 4 30Z M12 12h36v36H12Z"/>
+    <path d="M30 18 42 30 30 42 18 30Z M0 0l12 12m36 0L60 0M0 60l12-12m36 0 12 12"/>
+  </pattern></defs>
+  <path fill="url(#tile)" stroke="none" d="M0 0h120v120H0z"/>
+</svg>

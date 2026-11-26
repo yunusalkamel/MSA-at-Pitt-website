@@ -1,4 +1,4 @@
-import { LinkField } from "@/editor/content";
+import { Picture, LinkField } from "@/editor/content";
 import { TextField, itemIdentity, ContentScope, CardCopies } from "@/editor/content";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
@@ -8,7 +8,7 @@ import BridgeBar from "@/components/BridgeBar";
 import SectionDivider from "@/components/SectionDivider";
 import SectionHeading from "@/components/SectionHeading";
 import ArabicVerse from "@/components/ArabicVerse";
-import patternImg from "@/assets/islamic-pattern-360.webp";
+import patternImg from "@/assets/geometric-tile.svg";
 
 /* ── Data transposed from the MSA Tips for Freshmen Google Doc ── */
 
@@ -93,22 +93,28 @@ const sports = [
   "Only a once-a-week commitment. Ask around if you don't have a team — people are always willing to play.",
 ];
 
+function topicId(title: string) {
+  return title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/-$/, "");
+}
+
 /* ── Section component ── */
-const Section = ({ icon: Icon, title, children, delay = 0 }: {
-  icon: typeof MapPin; title: string; children: React.ReactNode; delay?: number;
+const Section = ({ icon: Icon, title, children, photo, delay = 0 }: {
+  icon: typeof MapPin; title: string; children: React.ReactNode; photo?: string; delay?: number;
 }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true, margin: "-40px" }}
     transition={{ duration: 0.45, delay }}
-    className="liquid-glass-hover p-6 md:p-8 rounded-2xl"
+    id={topicId(title)}
+    className="scroll-mt-24 liquid-glass-hover p-4 md:p-8 rounded-2xl"
   >
     <div className="flex items-center gap-3 mb-4">
       <div className="gold-gradient w-10 h-10 rounded-xl flex items-center justify-center shadow-sm flex-shrink-0">
         <Icon className="text-primary-foreground" size={18} />
       </div>
       <h3 className="font-display text-xl md:text-2xl font-bold text-foreground"><TextField id="NewToPitt_1">{title}</TextField></h3>
+      {photo && <Picture fieldId="guide-photo" src={photo} alt="" width={160} height={92} sizes="(max-width: 767px) 76px, 160px" loading="lazy" className="ml-auto flex-none w-[76px] md:w-40 aspect-[1.75] rounded-md object-cover" />}
     </div>
     {children}
   </motion.div>
@@ -128,7 +134,7 @@ const Bullets = ({ items }: { items: string[] }) => (
 const NewToPitt = () => (
   <Layout>
     {/* Hero */}
-    <section className="relative py-28 md:py-36 text-center px-4 overflow-hidden">
+    <section className="relative pt-24 pb-6 md:py-36 text-center px-4 overflow-hidden">
       <div className="absolute inset-0 gradient-mesh-gold" />
       <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: "200px" }} />
           
@@ -164,7 +170,15 @@ const NewToPitt = () => (
       <div className="absolute inset-0 steps-surface" />
       <div className="absolute inset-0 texture-dots opacity-50" />
       
-      <div className="max-w-4xl mx-auto relative z-10 space-y-6">
+      <div className="max-w-4xl mx-auto relative z-10 space-y-4 md:space-y-6">
+        <details className="md:hidden rounded-xl border border-border px-4">
+          <summary className="cursor-pointer py-3 text-sm font-semibold">Jump to a topic</summary>
+          <nav aria-label="Student guide topics" className="grid grid-cols-2 pb-2 text-sm">
+            {["General Day-to-Day Tips", "Roommates & Dorms", "Halal Food", "Ramadan Tips", "Networking & Professional Growth", "Social Life & Community", "Commuters", "Sports & Recreation"].map(title => (
+              <a key={title} href={"#" + topicId(title)} className="flex items-center min-h-11 pr-3 underline underline-offset-4">{title}</a>
+            ))}
+          </nav>
+        </details>
         <ContentScope id="NewToPitt_12"><Section icon={BookOpen} title="General Day-to-Day Tips">
           <ContentScope id="NewToPitt_13"><Bullets items={dayToDay} /></ContentScope>
         </Section></ContentScope>
@@ -190,7 +204,7 @@ const NewToPitt = () => (
           <p className="text-muted-foreground text-sm leading-relaxed">{halalFood.desserts.join(" · ")}</p>
         </Section></ContentScope>
 
-        <ContentScope id="NewToPitt_24"><Section icon={Mic2} title="Ramadan Tips" delay={0.15}>
+        <ContentScope id="NewToPitt_24"><Section icon={Mic2} title="Ramadan Tips" photo="/photos/community/sudan-iftar.webp" delay={0.15}>
           <ContentScope id="NewToPitt_25"><Bullets items={ramadanTips} /></ContentScope>
         </Section></ContentScope>
 
@@ -198,7 +212,7 @@ const NewToPitt = () => (
           <ContentScope id="NewToPitt_27"><Bullets items={networking} /></ContentScope>
         </Section></ContentScope>
 
-        <ContentScope id="NewToPitt_28"><Section icon={Users} title="Social Life & Community" delay={0.25}>
+        <ContentScope id="NewToPitt_28"><Section icon={Users} title="Social Life & Community" photo="/photos/community/rink-group.webp" delay={0.25}>
           <ContentScope id="NewToPitt_29"><Bullets items={socialLife} /></ContentScope>
           <div className="liquid-glass p-4 mt-4 border-l-2 border-primary/30">
             <p className="text-sm text-foreground italic leading-relaxed"><TextField id="NewToPitt_30">

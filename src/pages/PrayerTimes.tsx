@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import Layout from "@/components/Layout";
 import BridgeBar from "@/components/BridgeBar";
-import patternImg from "@/assets/islamic-pattern-360.webp";
+import patternImg from "@/assets/geometric-tile.svg";
 
 declare global { interface Window { Chart: any; } }
 
