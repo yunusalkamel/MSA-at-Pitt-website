@@ -163,6 +163,7 @@ export default function History({
 }) {
   const [rows, setRows] = useState<Row[]>([]),
     [more, setMore] = useState(false),
+    [loaded, setLoaded] = useState(false),
     [dataset, setDataset] = useState(""),
     [search, setSearch] = useState(""),
     [detail, setDetail] = useState<
@@ -184,6 +185,7 @@ export default function History({
   async function load(offset = 0) {
     const r = await request(session, { action: "history", offset });
     setDataset(r.dataset);
+    setLoaded(true);
     setRows((old) => (offset ? [...old, ...r.rows] : r.rows));
     setMore(r.rows.length === 40);
   }
@@ -220,6 +222,9 @@ export default function History({
     <section className="msa-history" aria-label="Content history">
       <h2>Content history · {dataset}</h2>
       {onClose && <button onClick={onClose}>Close history</button>}
+      <button disabled={busy} onClick={() => run(() => load())}>
+        Refresh history
+      </button>
       <label>
         Search loaded versions by account, date, action or page
         <input value={search} onChange={(e) => setSearch(e.target.value)} />
@@ -285,7 +290,7 @@ export default function History({
             </li>
           ))}
       </ul>
-      {!rows.length && !busy && <p>No recorded versions.</p>}
+      {loaded && !rows.length && !busy && !notice && <p>No recorded versions.</p>}
       {more && (
         <button disabled={busy} onClick={() => run(() => load(rows.length))}>
           Load older versions
