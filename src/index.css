@@ -586,7 +586,7 @@
     transition: transform 0.15s ease, box-shadow 0.15s ease;
     font-family: var(--font-body);
     letter-spacing: 0.01em;
-    padding: 0.6rem 1.5rem;
+    padding: var(--space-3) var(--space-5);
   }
   .btn:hover { transform: translateY(-1px); }
   .btn:active { transform: translateY(0) scale(0.99); }
@@ -655,13 +655,13 @@
   .pull-quote-gold {
     border-left: 3px solid var(--gold);
     background: #FBF0D0;
-    padding: 1rem 1.25rem;
+    padding: var(--space-4) var(--card-padding);
     border-radius: 0 var(--radius) var(--radius) 0;
   }
   .pull-quote-jannah {
     border-left: 3px solid #148066;
     background: #C8E8DF;
-    padding: 1rem 1.25rem;
+    padding: var(--space-4) var(--card-padding);
     border-radius: 0 var(--radius) var(--radius) 0;
   }
 
@@ -844,13 +844,13 @@ html { scroll-behavior: smooth; }
 .prayer-back, .prayer-map {
   display: inline-flex;
   align-items: center;
-  gap: .35rem;
+  gap: var(--space-2);
   font-size: .8rem;
   font-weight: 650;
   text-decoration: underline;
   text-underline-offset: 3px;
 }
-.prayer-back { margin-bottom: .65rem; min-height: 32px; color: hsl(var(--muted-foreground)); }
+.prayer-back { margin-bottom: var(--space-3); min-height: var(--space-6); color: hsl(var(--muted-foreground)); }
 .prayer-map { min-height: 32px; color: hsl(var(--foreground)); }
 .prayer-map svg { flex: none; }
 @media (max-width: 767px) {

@@ -9,6 +9,7 @@ const siteOrigin = getSiteOrigin(process.env.SITE_ORIGIN);
 export default defineConfig({
   define: {
     __SITE_ORIGIN__: JSON.stringify(siteOrigin),
+    __VERCEL_PRODUCTION_HOST__: JSON.stringify(process.env.VERCEL_PROJECT_PRODUCTION_URL || ""),
     __SITE_DATASET__: JSON.stringify(
       process.env.VERCEL_ENV === "preview" ? "preview" : "production",
     ),

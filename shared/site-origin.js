@@ -14,6 +14,5 @@ export function isSiteOrigin(origin, configured, vercelHosts = []) {
   if (!origin) return false;
   return origin === getSiteOrigin(configured) ||
     origin === defaultOrigin || origin === "https://www." + primaryHost ||
-    origin === "https://msaatpitt." + "vercel.app" ||
     vercelHosts.some(host => host && origin === "https://" + host);
 }
