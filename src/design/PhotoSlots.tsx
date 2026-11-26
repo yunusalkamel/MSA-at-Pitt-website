@@ -49,11 +49,44 @@ function TrialPhoto({ name, index }: { name: string; index: number }) {
   );
 }
 export function PhotoSlots({ name, count }: { name: string; count: number }) {
+  const track = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(0);
   return (
-    <div className="location-photos">
-      {Array.from({ length: count }, (_, i) => (
-        <TrialPhoto key={i} name={name} index={i} />
-      ))}
+    <div className="venue-photos">
+      <div
+        className="location-photos"
+        ref={track}
+        role="region"
+        aria-label={name + " photos"}
+        tabIndex={count > 1 ? 0 : undefined}
+        onScroll={(e) => {
+          const el = e.currentTarget;
+          setActive(Math.round(el.scrollLeft / (el.clientWidth || 1)));
+        }}
+      >
+        {Array.from({ length: count }, (_, i) => (
+          <TrialPhoto key={i} name={name} index={i} />
+        ))}
+      </div>
+      {count > 1 && (
+        <div className="photo-pages">
+          {Array.from({ length: count }, (_, i) => (
+            <button
+              key={i}
+              aria-label={name + " photo " + (i + 1)}
+              aria-pressed={active === i}
+              onClick={() =>
+                track.current?.scrollTo({
+                  left: i * track.current.clientWidth,
+                  behavior: "instant",
+                })
+              }
+            >
+              <span />
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

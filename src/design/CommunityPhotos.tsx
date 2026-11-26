@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useHeroTrials } from "./heroTrials";
+import { useEffect, useState, useRef, type CSSProperties } from "react";
 import { Picture, TextField } from "@/editor/content";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useDesign } from "./options";
@@ -7,6 +8,7 @@ import flowers from "@/assets/community/flowers.webp";
 import students from "@/assets/community/students.webp";
 import football from "@/assets/community/football.webp";
 import charity from "@/assets/community/charity-week.webp";
+import { useReducedMotion } from "framer-motion";
 import { Link } from "react-router-dom";
 
 export const photos = [
@@ -18,10 +20,27 @@ export const photos = [
 ];
 type Photo = (typeof photos)[number];
 export function HeroPhotos({ albums = [] }: { albums?: Photo[] }) {
-  const { hero, themed, texture } = useDesign();
+  const { hero, themed, texture, density } = useDesign();
   const { theme } = useTheme();
   const [index, setIndex] = useState(0);
-  const [playing, setPlaying] = useState(false);
+  const reduced = useReducedMotion();
+  const host = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+  const [paused, setPaused] = useState(false);
+  const [reelPlaying, setReelPlaying] = useState(false);
+  const collage = hero === "Collage";
+  const columns = Number(density[0]);
+  const playing = collage
+    ? !paused && !reduced
+    : hero === "Photo reel" && reelPlaying;
+  useEffect(() => {
+    if (!host.current) return;
+    const observer = new IntersectionObserver(([entry]) =>
+      setVisible(entry.isIntersecting),
+    );
+    observer.observe(host.current);
+    return () => observer.disconnect();
+  }, []);
   const [video, setVideo] = useState<File>();
   const [url, setUrl] = useState("");
   useEffect(() => {
@@ -31,27 +50,44 @@ export function HeroPhotos({ albums = [] }: { albums?: Photo[] }) {
     return () => URL.revokeObjectURL(link);
   }, [video]);
   const night = themed && theme === "dark";
-  const series = [
-    ...(night
-      ? [photos[3], photos[1], photos[0]]
-      : [photos[0], photos[2], photos[1]]),
-    ...albums,
-    photos[4],
-  ];
+  const trials = useHeroTrials(night ? "dark" : "light");
+  const series = trials.length
+    ? trials
+    : [
+        ...(night
+          ? [photos[3], photos[1], photos[4], photos[0], photos[2]]
+          : [photos[0], photos[2], photos[1], photos[4], photos[3]]),
+        ...albums,
+      ];
   useEffect(() => {
-    if (!playing || hero !== "Photo reel") return;
+    if (!playing || !visible) return;
     const timer = window.setInterval(() => {
       if (!document.hidden) setIndex((i) => (i + 1) % series.length);
-    }, 4500);
+    }, 5600);
     return () => window.clearInterval(timer);
-  }, [playing, hero, series.length]);
+  }, [playing, visible, series.length]);
   const offset = index % series.length;
   const shown =
     hero === "Collage"
-      ? series.slice(0, 3)
+      ? Array.from(
+          { length: columns * columns },
+          (_, i) =>
+            series[
+              (i +
+                (series.length <= columns ? Math.floor(i / columns) : 0) +
+                offset) %
+                series.length
+            ],
+        )
       : [series[hero === "Photo reel" ? offset : 0]];
   return (
-    <div className="community-media" data-layout={hero} data-texture={texture}>
+    <div
+      ref={host}
+      style={{ "--tiles": columns } as CSSProperties}
+      className="community-media"
+      data-layout={hero}
+      data-texture={texture}
+    >
       {hero === "Video" && url ? (
         <video
           key={url}
@@ -64,21 +100,37 @@ export function HeroPhotos({ albums = [] }: { albums?: Photo[] }) {
       ) : (
         <div className="photo-arrangement">
           {shown.map((p, i) => (
-            <figure key={p.id}>
+            <figure key={i}>
               <Picture
                 fieldId={`CommunityHero_${night ? "evening" : "day"}_${p.id}`}
                 src={p.src}
                 alt={p.title}
-                sizes="(max-width: 767px) 88vw, 520px"
+                sizes={collage ? Math.ceil(100 / columns) + "vw" : "100vw"}
                 width={700}
                 height={450}
                 loading={i ? "lazy" : "eager"}
+                decoding="async"
               />
               <figcaption>
                 <TextField id={`CommunityCaption_${p.id}`}>{p.title}</TextField>
               </figcaption>
             </figure>
           ))}
+        </div>
+      )}
+      {collage && (
+        <div className="wall-controls">
+          {!reduced && (
+            <button aria-pressed={paused} onClick={() => setPaused((v) => !v)}>
+              {paused ? "Play photos" : "Pause photos"}
+            </button>
+          )}
+          <button
+            onClick={() => setIndex((i) => (i + 1) % series.length)}
+            aria-label="Change collage photos"
+          >
+            Next ↗
+          </button>
         </div>
       )}
       {hero === "Photo reel" && (
@@ -100,7 +152,10 @@ export function HeroPhotos({ albums = [] }: { albums?: Photo[] }) {
           >
             →
           </button>
-          <button aria-pressed={playing} onClick={() => setPlaying((v) => !v)}>
+          <button
+            aria-pressed={playing}
+            onClick={() => setReelPlaying((v) => !v)}
+          >
             {playing ? "Pause reel" : "Play reel"}
           </button>
         </div>
@@ -121,29 +176,105 @@ export function HeroPhotos({ albums = [] }: { albums?: Photo[] }) {
     </div>
   );
 }
-export function Moments({ galleryLink = true }: { galleryLink?: boolean }) {
+export type RecapAlbum = {
+  slug: string;
+  title: string;
+  shots?: { src: string; caption?: string }[];
+};
+function recapSrc(src: string, width: number) {
+  if (!src.startsWith("https://cdn.sanity.io/images/")) return src;
+  const url = new URL(src);
+  url.searchParams.set("w", String(width));
+  url.searchParams.set("auto", "format");
+  return url.href;
+}
+export function Moments({
+  galleryLink = true,
+  albums = [],
+}: {
+  galleryLink?: boolean;
+  albums?: RecapAlbum[];
+}) {
+  const { collection } = useDesign();
+  const [selected, setSelected] = useState("");
+  const [frame, setFrame] = useState(0);
+  const series = albums.filter((a) => a.shots?.some((p) => p.src));
+  const album = series.find((a) => a.slug === selected) ?? series[0];
+  const shots =
+    album?.shots
+      ?.filter((p) => p.src)
+      .map((p, i) => ({
+        id: album.slug + "-" + i,
+        src: p.src,
+        title: p.caption || album.title,
+      })) ?? photos;
+  const index = frame % shots.length;
+  const spotlight = collection === "Spotlight";
   return (
-    <section className="moment-section">
+    <section className="moment-section" data-collection={collection}>
       <div className="moment-heading">
         <h2>Life with MSA</h2>
         {galleryLink && <Link to="/gallery">Explore the gallery ↗</Link>}
       </div>
+      {series.length > 0 && (
+        <div className="recap-selector">
+          {series.map((a) => (
+            <button
+              key={a.slug}
+              aria-pressed={album.slug === a.slug}
+              onClick={() => {
+                setSelected(a.slug);
+                setFrame(0);
+              }}
+            >
+              {a.title}
+            </button>
+          ))}
+        </div>
+      )}
       <div className="moment-grid">
-        {[photos[4], photos[3], photos[1]].map((p) => (
+        {(spotlight ? [shots[index]] : shots).map((p) => (
           <figure key={p.id}>
             <Picture
               fieldId={"Moment_" + p.id}
-              src={p.src}
+              src={recapSrc(p.src, spotlight ? 1024 : 480)}
               alt={p.title}
               loading="lazy"
-              width={480}
-              height={300}
+              sizes={spotlight ? "90vw" : "(max-width: 767px) 48vw, 300px"}
+              width={spotlight ? 1024 : 480}
+              height={spotlight ? 620 : 300}
             />
             <figcaption>
               <TextField id={"MomentCaption_" + p.id}>{p.title}</TextField>
             </figcaption>
           </figure>
         ))}
+      </div>
+      <div className="recap-controls">
+        {spotlight && (
+          <>
+            <button
+              aria-label="Previous moment"
+              onClick={() =>
+                setFrame((index + shots.length - 1) % shots.length)
+              }
+            >
+              ←
+            </button>
+            <span>
+              {index + 1} / {shots.length}
+            </span>
+            <button
+              aria-label="Next moment"
+              onClick={() => setFrame((index + 1) % shots.length)}
+            >
+              →
+            </button>
+          </>
+        )}
+        {album && (
+          <Link to={"/gallery/" + album.slug}>Open {album.title} album ↗</Link>
+        )}
       </div>
     </section>
   );

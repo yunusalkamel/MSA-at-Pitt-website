@@ -15,7 +15,7 @@ declare global { interface Window { Chart: any; } }
 
 // ─── Solar prayer time calculator ────────────────────────────────────────────
 import { calcDay, fm } from "@/lib/prayerClock";
-import { DailyPrayers } from "@/design/DailyPrayers";
+import { DailyPrayers,pittsburghDate } from "@/design/DailyPrayers";
 import { useDesign } from "@/design/options";
 import { PhotoSlots } from "@/design/PhotoSlots";
 const MN = ['','January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -121,6 +121,7 @@ const masajid = [
 const Prayer = () => {
   const [todayHtml, setTodayHtml] = useState<string>("loading...");
   const design = useDesign();
+  const [west,setWest]=useState(false);
   const [expanded,setExpanded] = useState(false);
   const showChart = !design.simpleTimes || expanded;
   const initRef = useRef(false);
@@ -148,18 +149,19 @@ const Prayer = () => {
         if (el) window.Chart?.getChart?.(el)?.destroy();
       });
     };
-  }, [showChart]);
+  }, [showChart,west,design.simpleTimes]);
 
   function boot(signal: AbortSignal) {
     const Chart = window.Chart;
     if (!Chart) return;
 
-    let allDays = buildDays(ICP_LAT, ICP_LNG);
+    let currentLat=design.simpleTimes && west?ATT_LAT:ICP_LAT, currentLng=design.simpleTimes && west?ATT_LNG:ICP_LNG;
+    let allDays = buildDays(currentLat,currentLng);
     let { RAM: RAM_BLOCKS, BRK: BRK_BLOCKS } = buildZones(allDays);
     let loadedYears = new Set<number>();
     let visibleRequest: AbortController | undefined;
     let fetchTimer: ReturnType<typeof setTimeout>;
-    const now = new Date(), CY = now.getFullYear(), CM = now.getMonth()+1, CD = now.getDate();
+    const {year:CY,month:CM,day:CD}=pittsburghDate(new Date());
     let TI = allDays.findIndex(x => x.yr === CY && x.mo === CM && x.d === CD);
     const SPANS: Record<string,number> = { "1mo":35, "6mo":182, "year":365 };
     let curSpan = SPANS["year"];
@@ -168,13 +170,14 @@ const Prayer = () => {
     let aIdx = TI;
     let vis = [true,true,true,true,true,true];
     let dragging = false, dragClientX = 0, dragWinStart = 0, rafId: number|null = null;
-    let currentLat = ICP_LAT, currentLng = ICP_LNG;
+
     signal.addEventListener("abort", () => {
       clearTimeout(fetchTimer);
       visibleRequest?.abort();
     }, { once: true });
 
     function renderTodayBar() {
+      if(design.simpleTimes) return;
       if (TI < 0) { setTodayHtml('<span style="font-size:.7rem;color:rgba(17,35,60,.5)">No data for today</span>'); return; }
       const T = allDays[TI];
       const dow = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][new Date(T.yr, T.mo-1, T.d).getDay()];
@@ -239,6 +242,7 @@ const Prayer = () => {
     }
 
     function queueVisibleYears(reset = false) {
+      if(design.simpleTimes)return; // The compact chart and daily summary share the same calculated schedule.
       clearTimeout(fetchTimer);
       if (reset) {
         visibleRequest?.abort();
@@ -586,9 +590,9 @@ const Prayer = () => {
       {/* ── Prayer Times Chart ───────────────────────────────────── */}
       <section className="py-10 px-4 pb-14">
         <div className="max-w-4xl mx-auto">
-          {design.simpleTimes && <><DailyPrayers locations/><button className="chart-disclosure" aria-expanded={expanded} onClick={()=>setExpanded(v=>!v)}>{expanded?"▾":"▸"} Explore seasonal prayer times</button></>}
-          {showChart && <motion.div initial={{opacity:0,y:16}} animate={{opacity:1,y:0}} transition={{delay:.1}} className="glass-card rounded-2xl p-6">
-            <div style={{display:"flex",gap:".5rem",marginBottom:"1.1rem"}}>
+          {design.simpleTimes && <><DailyPrayers west={west} onLocation={setWest}/><button className="chart-disclosure" aria-expanded={expanded} onClick={()=>setExpanded(v=>!v)}><span aria-hidden>◐</span> {expanded?"Close the solar almanac":"Open the solar almanac"} <span aria-hidden>{expanded?"−":"+"}</span></button></>}
+          {showChart && <motion.div key={design.simpleTimes?String(west):"original"} initial={{opacity:0,y:16}} animate={{opacity:1,y:0}} transition={{delay:.1}} className="glass-card rounded-2xl p-6">
+            <div style={{display:design.simpleTimes?"none":"flex",gap:".5rem",marginBottom:"1.1rem"}}>
               <button className="msm on" data-mid="QKMnW1LB" data-lat="40.4490" data-lng="-79.9619" data-name="ICP">
                 <span className="msm-dot"></span>
                 <span className="msm-labels"><span className="msm-name"><TextField id="Prayer_6">ICP</TextField></span><span className="msm-loc"><TextField id="Prayer_7">Oakland · Pittsburgh</TextField></span></span>
@@ -602,13 +606,13 @@ const Prayer = () => {
             <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
               <div>
                 <p className="text-xs uppercase tracking-[0.22em] text-primary font-semibold mb-1"><TextField id="Prayer_10">Prayer Timing Trends</TextField></p>
-                <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground" id="card-title">Islamic Center of Pittsburgh</h2>
+                <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground" id="card-title">{design.simpleTimes && west?"Attawheed Islamic Center":"Islamic Center of Pittsburgh"}</h2>
               </div>
               <button id="today-btn" style={{background:"transparent",border:".5px solid #C9A84C",borderRadius:"9px",padding:".28rem .65rem",cursor:"pointer",fontSize:".82rem",color:"#C9A84C",fontWeight:500,fontFamily:"var(--font-body)"}}><TextField id="Prayer_11">↩ Today</TextField></button>
             </div>
 
-            <div style={{display:"flex",flexWrap:"wrap",alignItems:"center",gap:".3rem .9rem",padding:".55rem .85rem",background:"rgba(201,168,76,.07)",border:".5px solid rgba(201,168,76,.22)",borderRadius:"10px",marginBottom:".7rem",minHeight:"38px",fontFamily:"var(--font-body)"}}
-              dangerouslySetInnerHTML={{__html: todayHtml}} />
+            {!design.simpleTimes && <div style={{display:"flex",flexWrap:"wrap",alignItems:"center",gap:".3rem .9rem",padding:".55rem .85rem",background:"rgba(201,168,76,.07)",border:".5px solid rgba(201,168,76,.22)",borderRadius:"10px",marginBottom:".7rem",minHeight:"38px",fontFamily:"var(--font-body)"}}
+              dangerouslySetInnerHTML={{__html: todayHtml}} />}
 
             <div id="togs" style={{display:"flex",flexWrap:"wrap",gap:".35rem",marginBottom:".55rem"}}></div>
 
@@ -636,9 +640,9 @@ const Prayer = () => {
               <span id="range-label" style={{fontSize:".72rem",color:"hsl(var(--muted-foreground))",fontFamily:"var(--font-body)"}}></span>
               <div style={{display:"flex",alignItems:"center",gap:".75rem",flexWrap:"wrap"}}>
                 <button className="app-btn" id="app-dl"><TextField id="Prayer_17">⬇ Download Athan+</TextField></button>
-                <a id="src-link" href="https://masjidal.com/widget/monthly/v2/?masjid_id=QKMnW1LB" target="_blank" rel="noopener noreferrer"
+                <a id="src-link" href={"https://masjidal.com/widget/monthly/v2/?masjid_id="+(design.simpleTimes && west?"zKz8QzAO":"QKMnW1LB")} target="_blank" rel="noopener noreferrer"
                   style={{fontSize:".7rem",color:"hsl(var(--muted-foreground))",textDecoration:"none",display:"flex",alignItems:"center",gap:"3px",fontFamily:"var(--font-body)",transition:"color .14s"}}><TextField id="Prayer_18">
-                  Source: ICP via Masjidal ↗
+                  {design.simpleTimes?"View mosque timetable ↗":"Source: ICP via Masjidal ↗"}
                 </TextField></a>
               </div>
             </div>
@@ -712,7 +716,7 @@ const Prayer = () => {
               </div>
             </div>
           </motion.div>
-          {design.locationPhotos && <PhotoSlots name="Jummah prayer" count={2}/>}
+          {design.locationPhotos && <PhotoSlots name="Jummah prayer" count={3}/>}
         </div>
       </section>
 
@@ -754,7 +758,7 @@ const Prayer = () => {
                     </li></ContentScope>
                   ))}
                 </ul>
-                {design.locationPhotos && <PhotoSlots name={space.name} count={i<2?2:1}/>}
+                {design.locationPhotos && <PhotoSlots name={space.name} count={i<2?3:1}/>}
               </motion.div></CardCopies>
             ))}
           </div>
@@ -783,9 +787,9 @@ const Prayer = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: i * 0.08 }}
-                className="liquid-glass-hover p-6 md:p-7 rounded-2xl"
+                data-mosque-side={design.locationPhotos?(i===0?"left":"right"):undefined} className="liquid-glass-hover p-6 md:p-7 rounded-2xl"
               >
-                <h3 className="font-display text-lg font-bold text-foreground mb-1"><TextField id="Prayer_37">{m.name}</TextField></h3>
+                <div className="mosque-information"><h3 className="font-display text-lg font-bold text-foreground mb-1">{design.mosqueLinks?<LinkField fieldId="mosque-website" href={i===0?"https://icp-pgh.org":"https://attawheed.org"}><TextField id="Prayer_37">{m.name}</TextField> ↗</LinkField>:<TextField id="Prayer_37">{m.name}</TextField>}</h3>
                 <p className="text-sm text-primary font-semibold mb-3"><TextField id="Prayer_38">{m.distance}</TextField></p>
                 <ul className="space-y-1.5">
                   {m.details.map((d, j) => (
@@ -794,7 +798,7 @@ const Prayer = () => {
                     </li></ContentScope>
                   ))}
                 </ul>
-                {design.mosqueLinks && <LinkField fieldId="mosque-website" className="directory-link" href={i===0?"https://icp-pgh.org":"https://attawheed.org"}>Visit mosque website ↗</LinkField>}
+                </div>
                 {design.locationPhotos && <PhotoSlots name={m.name} count={1}/>}
               </motion.div></CardCopies>
             ))}

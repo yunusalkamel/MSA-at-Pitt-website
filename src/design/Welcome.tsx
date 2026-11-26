@@ -30,14 +30,6 @@ export function WelcomePath() {
           </LinkField>
           <Link to="/join">Become a member →</Link>
         </article>
-        <article>
-          <h3>Lend a hand</h3>
-          <p>
-            Ask the board where an extra pair of hands would help at the next
-            gathering.
-          </p>
-          <Link to="/contact">Contact the board →</Link>
-        </article>
       </div>
     </section>
   );
@@ -48,7 +40,7 @@ export function NextEvent({ event }: { event?: MSAEvent }) {
   return (
     <section className="upcoming-invite">
       <div>
-        <small>Next gathering</small>
+        <small>Featured gathering</small>
         <h2>{event.title}</h2>
         <p>
           {[

@@ -1,3 +1,4 @@
+import { setHeroTrials, useHeroTrials } from "./heroTrials";
 import "./review.css";
 import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
@@ -20,6 +21,8 @@ const groups: { title: string; url: string; keys: (Choice | Switch)[] }[] = [
     url: "/",
     keys: [
       "hero",
+      "framing",
+      "density",
       "realPhotos",
       "cardPhotos",
       "themed",
@@ -28,18 +31,29 @@ const groups: { title: string; url: string; keys: (Choice | Switch)[] }[] = [
       "nextEvent",
       "eventsOrder",
       "cleanStats",
+      "stats",
       "cleanPattern",
       "gradient",
+      "chapters",
       "homePrayer",
       "moments",
       "newcomer",
       "plainCopy",
+      "punctuation",
     ],
   },
   {
     title: "Navigation and footer",
     url: "/",
-    keys: ["notice", "prayerNav", "nextPrayer", "lunar", "footer"],
+    keys: [
+      "notice",
+      "sampleNotice",
+      "themeFade",
+      "prayerNav",
+      "nextPrayer",
+      "lunar",
+      "footer",
+    ],
   },
   {
     title: "Prayer",
@@ -53,10 +67,15 @@ const groups: { title: string; url: string; keys: (Choice | Switch)[] }[] = [
     keys: ["agenda", "eventPhotos", "eventActions"],
   },
   { title: "About", url: "/about", keys: ["partners"] },
-  { title: "Gallery", url: "/gallery", keys: ["recap"] },
+  { title: "Gallery", url: "/gallery", keys: ["collection", "recap"] },
 ];
 const labels = {
   hero: "Hero layout",
+  framing: "Hero framing",
+  density: "Collage density",
+  chapters: "Section transitions",
+  stats: "Stats position",
+  collection: "Gallery presentation",
   texture: "Photo texture",
   cards: "Resource card finish",
   details: "Card details",
@@ -65,6 +84,8 @@ export default function ReviewPanel() {
   const [open, setOpen] = useState(false);
   const { before, picks } = useReview();
   const { theme, toggle } = useTheme();
+  const setThemePhotos = picks.themed ? theme : "light";
+  const trials = useHeroTrials(setThemePhotos);
   const trigger = useRef<HTMLButtonElement>(null);
   function close() {
     setOpen(false);
@@ -153,6 +174,44 @@ export default function ReviewPanel() {
                     {switches[k as Switch]}
                   </label>
                 ),
+              )}
+              {g.title === "Home" && (
+                <div className="hero-trials">
+                  <label>
+                    Try {setThemePhotos === "light" ? "daylight" : "evening"}{" "}
+                    hero photos
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={(e) => {
+                        const selected = Array.from(
+                          e.currentTarget.files ?? [],
+                        );
+                        if (selected.length) {
+                          setHeroTrials(setThemePhotos, selected);
+                          changeReview({
+                            before: false,
+                            picks: {
+                              ...picks,
+                              hero:
+                                picks.hero === "Current"
+                                  ? "Collage"
+                                  : picks.hero,
+                            },
+                          });
+                        }
+                        e.target.value = "";
+                      }}
+                    />
+                  </label>
+                  <small>Photos stay in this tab until you refresh.</small>
+                  {trials.length > 0 && (
+                    <button onClick={() => setHeroTrials(setThemePhotos, [])}>
+                      Clear {trials.length} trial photos
+                    </button>
+                  )}
+                </div>
               )}
             </details>
           ))}

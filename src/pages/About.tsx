@@ -24,8 +24,6 @@ const imanCards = [
   { icon: Globe, title: "Service & Da'wah", desc: "Service projects, volunteering, masjid partnerships, and giving back to Pittsburgh.", gradient: "from-[#8A6212] to-[#148066]" },
 ];
 
-import { PARTNERS } from "@/components/PartnerLogos";
-import { LinkField } from "@/editor/content";
 import { useDesign } from "@/design/options";
 import { photos } from "@/design/CommunityPhotos";
 const About = () => {
@@ -218,9 +216,6 @@ const About = () => {
       {/* Topic change: Focus areas → Leadership */}
       <SectionDivider />
 
-      {design.partners && <section className="partner-directory"><h2>Mosque partners</h2><div>{PARTNERS.filter(p=>p.group==="Mosque").map(p=><LinkField key={p.shortName} fieldId={"partner-"+p.shortName} href={p.href}>
-        <Picture fieldId={"partner-logo-"+p.shortName} src={p.src?.replace(/\.[^.]+$/, ".webp")} alt="" loading="lazy" width={48} height={48}/><TextField id={"partner-name-"+p.shortName}>{p.name}</TextField><span aria-hidden>↗</span>
-      </LinkField>)}</div></section>}
       {/* Leadership */}
       <section className="section-padding gradient-mesh-warm relative overflow-hidden">
         <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: '200px' }} />

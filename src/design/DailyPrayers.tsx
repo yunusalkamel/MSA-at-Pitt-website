@@ -12,10 +12,13 @@ const clock = new Intl.DateTimeFormat("en-US", {
   minute: "2-digit",
   hourCycle: "h23",
 });
-function localSchedule(date: Date, west: boolean) {
-  const parts = Object.fromEntries(
+export function pittsburghDate(date: Date) {
+  return Object.fromEntries(
     clock.formatToParts(date).map((p) => [p.type, Number(p.value)]),
   );
+}
+function localSchedule(date: Date, west: boolean) {
+  const parts = pittsburghDate(date);
   const times = calcDay(
     west ? 40.4065 : 40.449,
     west ? -80.0839 : -79.9619,
@@ -69,9 +72,14 @@ export function PrayerLink() {
     </Link>
   );
 }
-export function DailyPrayers({ locations = false }: { locations?: boolean }) {
-  const [west, setWest] = useState(false);
-  const { now, times } = useSchedule(west);
+export function DailyPrayers({
+  west = false,
+  onLocation,
+}: {
+  west?: boolean;
+  onLocation?: (west: boolean) => void;
+}) {
+  const { now, times, next } = useSchedule(west);
   const { lunar } = useDesign();
   return (
     <section className="daily-prayers">
@@ -85,16 +93,14 @@ export function DailyPrayers({ locations = false }: { locations?: boolean }) {
               day: "numeric",
             })}
           </small>
-          <h2>
-            {lunar && <Moon aria-hidden size={24} />} Today’s prayer times
-          </h2>
+          <h2>{lunar && <Moon aria-hidden size={24} />} Prayer at Pitt</h2>
         </div>
-        {locations ? (
+        {onLocation ? (
           <label>
             Location
-            <select
+            <select aria-label="Prayer location"
               value={west ? "west" : "oakland"}
-              onChange={(e) => setWest(e.target.value === "west")}
+              onChange={(e) => onLocation(e.target.value === "west")}
             >
               <option value="oakland">ICP · Oakland</option>
               <option value="west">Attawheed · Carnegie</option>
@@ -106,8 +112,11 @@ export function DailyPrayers({ locations = false }: { locations?: boolean }) {
       </div>
       <dl>
         {Object.entries(times).map(([name, time]) => (
-          <div key={name}>
-            <dt>{name}</dt>
+          <div key={name} data-next={name === next || undefined}>
+            <dt>
+              {name}
+              {name === next && <small>Next</small>}
+            </dt>
             <dd>{fm(time)}</dd>
           </div>
         ))}

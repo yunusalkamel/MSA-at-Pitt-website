@@ -172,7 +172,11 @@ const AlbumCard = ({ album, index }: { album: GalleryAlbum; index: number }) => 
 };
 
 import { useDesign } from "@/design/options";
-import { Moments } from "@/design/CommunityPhotos";
+import { Moments,type RecapAlbum } from "@/design/CommunityPhotos";
+function GalleryRecaps(){
+ const {data}=useSanityData<RecapAlbum[]>(QUERIES.communityRecaps);
+ return <Moments galleryLink={false} albums={data??[]}/>;
+}
 const Gallery = () => {
   const design = useDesign();
   usePageMeta({
@@ -201,8 +205,8 @@ const Gallery = () => {
         coverImage: a.coverImage,
       }));
     }
-    return design.realPhotos?[]:FALLBACK_ALBUMS;
-  }, [sanityAlbums,design.realPhotos]);
+    return design.realPhotos||design.moments?[]:FALLBACK_ALBUMS;
+  }, [sanityAlbums,design.realPhotos,design.moments]);
 
   const filtered = useMemo(() => {
     if (activeFilter === "all") return albums;
@@ -241,9 +245,9 @@ const Gallery = () => {
         </motion.div>
       </section>
 
-      {design.realPhotos && !albums.length && <Moments galleryLink={false}/>}
+      {design.moments && <GalleryRecaps/>}
       {design.recap && <div className="recap-link"><Link to="/events">Come to the next gathering →</Link></div>}
-      <section className="py-3 liquid-glass-strong sticky top-[68px] md:top-[76px] z-30 border-b border-border/30">
+      {(!design.moments || albums.length>0) && <><section className="py-3 liquid-glass-strong sticky top-[68px] md:top-[76px] z-30 border-b border-border/30">
         <div className="max-w-5xl mx-auto px-4 space-y-2">
           {filterGroups.map((group) => (
             <ContentScope key={group.label} id={"Gallery_11-" + itemIdentity(group, group.label)}><div key={group.label} className="flex items-center gap-3 min-w-0">
@@ -292,6 +296,7 @@ const Gallery = () => {
         </div>
       </section>
 
+      </>}
       <section className="section-padding-sm gradient-section-emerald-soft">
         <div className="max-w-2xl mx-auto">
           <div className="glass-card-strong glass-glow p-8 md:p-12">

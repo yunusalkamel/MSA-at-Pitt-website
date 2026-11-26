@@ -1,3 +1,4 @@
+import { nextGathering } from "@/lib/nextGathering";
 import { useDesign } from "@/design/options";
 import { HeroPhotos, Moments, photos } from "@/design/CommunityPhotos";
 import { WelcomePath,NextEvent } from "@/design/Welcome";
@@ -89,6 +90,7 @@ interface SanityGalleryAlbum {
   title: string;
   slug: string;
   coverImage?: { asset?: { _ref?: string }; lqip?: string };
+  shots?: {src:string;caption?:string}[];
   eventDate?: string;
 }
 
@@ -102,7 +104,7 @@ const Index = () => {
   const prefersReduced = useReducedMotion();
   const yearsActive = new Date().getFullYear() - 1997;
   const { data: cms } = useSanityData<any>(QUERIES.homePage);
-  const { data: galleryPreview } = useSanityData<SanityGalleryAlbum[]>(QUERIES.galleryAlbumsPreview);
+  const { data: galleryPreview } = useSanityData<SanityGalleryAlbum[]>(design.moments || photoHero ? QUERIES.communityRecaps:QUERIES.galleryAlbumsPreview);
   const { events: remoteEvents, loading: eventsLoading, error: eventsError } = useCalendarEvents();
   const sourceEvents = eventsError ? mockEvents : remoteEvents;
   const upcomingScrollEvents = useMemo(() => getUpcomingWindow(sourceEvents, 15, 3), [sourceEvents]);
@@ -259,7 +261,7 @@ const Index = () => {
   return (
     <Layout>
       {/* ── Hero ─────────────────────────────────────────────────── */}
-      <section data-photo-hero={photoHero || undefined} className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      <section data-framing={photoHero ? design.framing : undefined} data-photo-hero={photoHero || undefined} className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {!photoHero && <div className="absolute inset-0">
           {/* Blur-up backdrop — kills the bundled-fallback flash */}
           {heroLqip && (
@@ -349,7 +351,7 @@ const Index = () => {
           {!design.nextEvent && <TodayNextEvent />}
         </motion.div>
 
-        {photoHero && <HeroPhotos albums={galleryCells.flatMap(c=>c.imageUrl?[{id:c.slug||c.title,src:c.imageUrl,title:c.title}]:[])}/>}
+        {photoHero && <HeroPhotos albums={(galleryPreview??[]).flatMap(a=>(a.shots??[]).filter(p=>p.src).map((p,i)=>({id:a.slug+"-"+i,src:p.src+"?w=800&auto=format",title:p.caption||a.title}))).concat(galleryCells.flatMap(c=>c.imageUrl?[{id:c.slug||c.title,src:c.imageUrl,title:c.title}]:[]))}/>}
         {/* Seamless fade into the section below — light uses a gold shimmer, dark fades to navy */}
         <div className="absolute bottom-0 left-0 right-0 h-[55vh] md:h-[70vh] pointer-events-none z-[5] dark:hidden" style={{ background: "linear-gradient(to bottom, transparent 0%, rgba(242,171,35,0.06) 25%, rgba(242,171,35,0.22) 50%, rgba(251,240,208,0.75) 72%, rgba(248,243,234,0.96) 88%, #F8F3EA 100%)" }} aria-hidden="true" />
         <div className="absolute bottom-0 left-0 right-0 h-[50vh] md:h-[65vh] pointer-events-none z-[5] hidden dark:block" style={{ background: "linear-gradient(to bottom, transparent 0%, rgba(13,21,40,0.5) 45%, rgba(13,21,40,0.88) 72%, #0D1528 100%)" }} aria-hidden="true" />
@@ -362,7 +364,7 @@ const Index = () => {
       </section>
 
       {/* ── Stats — overlaps slightly into the warm section below ── */}
-      <section data-clean-stats={design.cleanStats || undefined} className="relative z-20 px-4 md:px-8 -mt-[4rem] mb-[-5rem] bg-transparent">
+      <section data-stats={design.cleanStats?design.stats:undefined} data-clean-stats={design.cleanStats || undefined} className="relative z-20 px-4 md:px-8 -mt-[4rem] mb-[-5rem] bg-transparent">
         <motion.div initial={design.cleanStats?false:{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: design.cleanStats?0:1.3, duration: 0.6 }} className="liquid-glass-stats rounded-3xl max-w-3xl mx-3 sm:mx-auto p-4 md:p-6 grid grid-cols-3 items-stretch gap-0 overflow-hidden">
           <ContentScope id="Index_15"><StatItem numericValue={d.statEventsPerSemester} suffix="+" label="Events per Semester" sub="halaqas, socials, speakers & more" bordered /></ContentScope>
           <ContentScope id="Index_16"><StatItem value={String(d.statFoundedYear)} label="Founded at Pitt" sub="community since day one" bordered /></ContentScope>
@@ -370,11 +372,11 @@ const Index = () => {
         </motion.div>
       </section>
 
-      {design.nextEvent && !eventsError && <NextEvent event={upcomingScrollEvents[0]}/>}
+      {design.nextEvent && (!eventsError || remoteEvents.length>0) && <NextEvent event={nextGathering(remoteEvents)}/>}
       {design.eventsOrder ? eventsSection : storySection}
       <SectionDivider />
       {design.eventsOrder ? storySection : eventsSection}
-      {design.moments && <Moments/>}
+      {design.moments && <Moments albums={galleryPreview??[]}/>}
 
 
       <SectionDivider />
@@ -466,7 +468,7 @@ const Index = () => {
       {/* ── Pillars ─────────────────────────────────────────────── */}
       <section className="section-padding warm-surface relative overflow-hidden">
         <div className="absolute inset-0 gradient-mesh-warm" />
-        <div className="absolute inset-0 texture-khatam opacity-[0.55]" />
+        <div hidden={design.cleanPattern} className="absolute inset-0 texture-khatam opacity-[0.55]" />
         <div className="max-w-7xl mx-auto relative z-10">
           <ContentScope id="Index_68"><SectionHeading title="What drives us" label="Our Pillars" /></ContentScope>
           <div className="grid md:grid-cols-2 gap-10 md:gap-16">

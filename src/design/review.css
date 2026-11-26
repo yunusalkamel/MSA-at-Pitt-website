@@ -684,3 +684,496 @@
     animation: none !important;
   }
 }
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 220ms;
+  animation-timing-function: ease-in-out;
+}
+[data-photo-hero][data-framing="Full screen"] {
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  max-width: none;
+  min-height: 100svh;
+  padding: 8rem max(7vw, 24px) 6rem;
+  gap: 0;
+}
+[data-framing="Full screen"] .community-media {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  align-self: stretch;
+  width: 100%;
+}
+[data-framing="Full screen"] .photo-arrangement,
+[data-framing="Full screen"] .community-video {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  box-shadow: none;
+}
+[data-framing="Full screen"] .photo-arrangement figure {
+  height: 100%;
+  min-height: 0;
+}
+[data-framing="Full screen"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgba(250, 246, 234, 0.99) 0%,
+    rgba(250, 246, 234, 0.95) 27%,
+    rgba(250, 246, 234, 0.8) 40%,
+    rgba(250, 246, 234, 0.12) 67%,
+    transparent 85%
+  );
+}
+.dark [data-framing="Full screen"]::before {
+  background: linear-gradient(
+    90deg,
+    #0c1927f7,
+    #0c1927de 30%,
+    #0c1927a3 46%,
+    #0c192730 68%,
+    transparent 85%
+  );
+}
+[data-framing="Full screen"] .hero-words {
+  margin: 0;
+  max-width: min(46vw, 620px);
+}
+[data-framing="Full screen"] .hero-words .font-dm-sans {
+  color: hsl(var(--foreground));
+}
+[data-framing="Full screen"] .photo-arrangement figcaption {
+  display: none;
+}
+[data-layout="Collage"].community-media .photo-arrangement {
+  grid-template-columns: repeat(var(--tiles), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--tiles), minmax(0, 1fr));
+  gap: 2px;
+  background: #f5f0df;
+}
+[data-layout="Collage"].community-media .photo-arrangement figure {
+  grid-column: auto;
+  height: 100%;
+  min-height: 0;
+}
+[data-framing="Split layout"] [data-layout="Collage"] .photo-arrangement {
+  aspect-ratio: 1.28;
+}
+.wall-controls,
+.recap-controls,
+.recap-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.wall-controls,
+.media-controls,
+.movie-picker {
+  position: relative;
+  z-index: 2;
+}
+[data-framing="Full screen"] .wall-controls,
+[data-framing="Full screen"] .media-controls,
+[data-framing="Full screen"] .movie-picker {
+  position: absolute;
+  top: clamp(5.5rem, 12vh, 9rem);
+  right: 5%;
+  color: white;
+  border-radius: 12px;
+  padding: 4px 8px;
+  background: #122522db;
+}
+[data-framing="Full screen"] .community-media:has(video) {
+  z-index: 11;
+  inset: auto 4% 6% auto;
+  width: min(50%, 42rem);
+  height: auto;
+}
+[data-framing="Full screen"] .community-media:has(video) .movie-picker {
+  position: static;
+}
+.wall-controls button,
+.recap-controls button,
+.recap-selector button {
+  min-height: 36px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 650;
+}
+[data-stats="Low float"] {
+  margin-top: -2.25rem;
+  padding-block: 0 1rem;
+}
+[data-stats="Low float"] > div {
+  background: color-mix(in srgb, hsl(var(--background)) 92%, transparent);
+  box-shadow: 0 6px 24px #1429221a;
+}
+[data-chapters="Fine rules"] main > section.section-padding,
+[data-chapters="Fine rules"] .moment-section,
+[data-chapters="Fine rules"] .welcome-path {
+  border-block-start: 1px solid
+    color-mix(in srgb, hsl(var(--foreground)) 16%, transparent);
+}
+[data-chapters="Soft color bands"]
+  main
+  > section.section-padding:nth-of-type(even) {
+  box-shadow: inset 0 46px 80px -55px #a87d3080;
+}
+[data-chapters] .welcome-path > div {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.daily-prayers {
+  padding: clamp(18px, 3vw, 36px);
+  border: 1px solid hsl(var(--border));
+  border-radius: 18px;
+  background: color-mix(in srgb, hsl(var(--background)) 80%, transparent);
+}
+.daily-prayers dl {
+  gap: 0;
+  align-items: stretch;
+  border-block: 1px solid hsl(var(--border));
+  padding-block: 8px;
+}
+.daily-prayers dl > div {
+  padding: 10px;
+  border: 0;
+}
+.daily-prayers dl [data-next] {
+  border-radius: 9px;
+  background: color-mix(in srgb, #61816d 17%, transparent);
+}
+.daily-prayers dt {
+  font-weight: 650;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.daily-prayers dt small {
+  font:
+    600 9px/1 var(--font-body),
+    sans-serif;
+  letter-spacing: 0.02em;
+}
+.daily-prayers dd {
+  font-variant-numeric: tabular-nums;
+  margin-top: 5px;
+}
+.chart-disclosure {
+  border: 0;
+  padding: 5px 2px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  letter-spacing: 0.03em;
+  color: hsl(var(--muted-foreground));
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.venue-photos {
+  width: min(100%, 19rem);
+  min-width: 0;
+}
+.venue-photos .location-photos {
+  display: flex;
+  gap: 0;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  border-radius: 9px;
+}
+.venue-photos .location-photos figure {
+  margin: 0;
+  flex: 0 0 100%;
+  max-width: none;
+  min-width: 0;
+  aspect-ratio: 2.55;
+  scroll-snap-align: start;
+}
+.photo-pages {
+  display: flex;
+  justify-content: center;
+}
+.photo-pages button {
+  padding: 7px 5px;
+  display: grid;
+  place-items: center;
+  min-height: 24px;
+}
+.photo-pages span {
+  width: 6px;
+  height: 6px;
+  background: hsl(var(--muted-foreground));
+  border-radius: 50%;
+  opacity: 0.4;
+}
+.photo-pages [aria-pressed="true"] span {
+  opacity: 1;
+  width: 14px;
+  border-radius: 8px;
+}
+[data-mosque-side] {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(90px, 1fr);
+  gap: 18px;
+  align-items: center;
+}
+[data-mosque-side="left"] {
+  grid-template-columns: minmax(90px, 1fr) minmax(0, 2fr);
+}
+[data-mosque-side="left"] .venue-photos {
+  grid-row: 1;
+  grid-column: 1;
+}
+[data-mosque-side="left"] .mosque-information {
+  grid-column: 2;
+}
+[data-mosque-side] .venue-photos {
+  width: 100%;
+}
+[data-mosque-side] .location-photos {
+  margin: 0;
+}
+[data-mosque-side] .location-photos figure {
+  aspect-ratio: 1.25;
+}
+.mosque-information h3 a {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+.cec-partners {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 7px 12px;
+}
+.cec-partners a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 650;
+}
+.cec-partners img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+.resource-tile {
+  min-height: 220px;
+  --wash: #19473d;
+}
+.resource-tile[data-tone="clay"] {
+  --wash: #75452c;
+}
+.resource-tile[data-tone="slate"] {
+  --wash: #24384c;
+}
+.resource-tile[data-tone="plum"] {
+  --wash: #5b3847;
+}
+.resource-tile:has(> img)::before {
+  background: linear-gradient(
+    180deg,
+    transparent 8%,
+    color-mix(in srgb, var(--wash) 60%, transparent) 55%,
+    #071916ed 100%
+  );
+}
+.resource-tile[data-back]:has(> img)::before {
+  background: color-mix(in srgb, var(--wash) 93%, transparent);
+}
+.resource-tile .resource-copy {
+  justify-content: flex-end;
+}
+.resource-tile .resource-actions {
+  margin-top: 0;
+}
+.resource-tile .tile-info {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #102328bb;
+  color: white;
+  font-size: 18px;
+}
+.tile-detail a {
+  display: inline-block;
+  margin-top: 5px;
+  text-decoration: underline;
+}
+.resource-tile h3 {
+  padding-right: 22px;
+}
+@media (hover: hover) and (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+  .resource-tile[data-back] .tile-detail {
+    animation: turn-card 0.28s ease-out;
+  }
+}
+.recap-selector {
+  margin: 0 0 12px;
+}
+.recap-selector button {
+  border: 1px solid hsl(var(--border));
+  border-radius: 1.2rem;
+}
+.recap-selector [aria-pressed="true"] {
+  background: hsl(var(--foreground));
+  color: hsl(var(--background));
+}
+[data-collection] .moment-grid {
+  gap: 5px;
+}
+[data-collection] .moment-grid figure {
+  border-radius: 4px;
+}
+[data-collection] .moment-grid figcaption {
+  font-size: 11px;
+}
+[data-collection="Contact sheet"] .moment-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+[data-collection="Contact sheet"] .moment-grid figure:first-child {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+[data-collection="Contact sheet"] .moment-grid figure:first-child img {
+  height: 100%;
+}
+[data-collection="Filmstrip"] .moment-grid {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 9px 5px;
+  background: #172923;
+  border-block: 4px dotted #b9b5a6;
+}
+[data-collection="Filmstrip"] figure {
+  flex: 0 0 min(72vw, 320px);
+  scroll-snap-align: start;
+}
+[data-collection="Spotlight"] .moment-grid {
+  grid-template-columns: 1fr;
+}
+[data-collection="Spotlight"] .moment-grid img {
+  height: clamp(220px, 39vw, 460px);
+}
+.recap-controls {
+  margin-top: 10px;
+  justify-content: flex-end;
+}
+.recap-controls a {
+  text-decoration: underline;
+  font-size: 13px;
+}
+@media (max-width: 767px) {
+  [data-photo-hero][data-framing="Full screen"] {
+    justify-content: flex-end;
+    padding: 9rem 22px 5rem;
+  }
+  [data-framing="Full screen"] .hero-words {
+    max-width: 100%;
+    align-self: flex-start;
+  }
+  [data-framing="Full screen"]::before {
+    background: linear-gradient(
+      0deg,
+      #f9f5e9 0%,
+      #f9f5e9f5 26%,
+      #f9f5e9df 49%,
+      #f9f5e95c 70%,
+      transparent 86%
+    );
+  }
+  .dark [data-framing="Full screen"]::before {
+    background: linear-gradient(
+      0deg,
+      #101c2b 0%,
+      #101c2bf5 28%,
+      #101c2bd1 48%,
+      #101c2b38 73%,
+      transparent 86%
+    );
+  }
+  [data-framing="Full screen"] .wall-controls,
+  [data-framing="Full screen"] .media-controls,
+  [data-framing="Full screen"] .movie-picker {
+    top: 6rem;
+    right: 10px;
+  }
+  [data-framing="Full screen"] .community-media:has(video) {
+    width: 94%;
+    right: 3%;
+    bottom: auto;
+    top: 6rem;
+  }
+  [data-framing="Full screen"] .hero-words .font-dm-sans {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  [data-clean-stats] > div {
+    margin-inline: auto;
+  }
+  .daily-prayers dl > div {
+    padding: 8px 5px;
+  }
+  [data-mosque-side],
+  [data-mosque-side="left"] {
+    grid-template-columns: minmax(0, 1fr) 80px;
+    gap: 10px;
+  }
+  [data-mosque-side="left"] {
+    grid-template-columns: 80px minmax(0, 1fr);
+  }
+  [data-mosque-side] .photo-slot-empty {
+    font-size: 10px;
+    padding: 5px 4px 30px;
+  }
+  [data-mosque-side] .location-photos figure {
+    aspect-ratio: 0.84;
+  }
+  .venue-photos .location-photos figure button {
+    font-size: 10px;
+  }
+  [data-collection="Contact sheet"] .moment-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  [data-chapters] .welcome-path > div {
+    grid-template-columns: 1fr;
+  }
+}
+
+.hero-trials {
+  border-top: 1px solid hsl(var(--border));
+  margin-block: 8px;
+  padding-top: 8px;
+}
+.hero-trials label {
+  display: grid;
+}
+.hero-trials input[type="file"] {
+  width: 100%;
+  height: auto;
+}
+.hero-trials small,
+.hero-trials button {
+  display: block;
+  padding: 4px 0;
+}
+.hero-trials button {
+  text-decoration: underline;
+}
