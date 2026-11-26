@@ -87,7 +87,7 @@ const GalleryAlbum = ({ album, loading }: { album: AlbumData | null; loading: bo
         <div className="relative z-10 max-w-5xl mx-auto px-4">
           <Link
             to="/gallery"
-            className="inline-flex items-center gap-2 text-white/50 hover:text-white/90 transition-colors font-body text-sm mb-6"
+            className="inline-flex items-center gap-2 text-white/50 hover:text-white/90 transition-colors font-body text-sm page-hero-kicker"
           >
             <ArrowLeft size={14} /><TextField id="GalleryAlbum_4">
             All Albums

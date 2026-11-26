@@ -25,7 +25,7 @@ type NodeColor = "navy" | "gold" | "gray" | "green" | "teal" | "blue" | "pink" |
 
 const headerClasses: Record<NodeColor, string> = {
   navy:   "bg-[#E6F1FB] text-[#0C447C] dark:bg-[#0C447C]/25 dark:text-[#A6CDF1]",
-  gold:   "bg-[#FAEEDA] text-[#633806] dark:bg-[#633806]/30 dark:text-[#F2AB23]",
+  gold:   "bg-[#FAEEDA] text-[#633806] dark:bg-[#633806]/30 dark:text-[var(--gold)]",
   gray:   "bg-[#F1EFE8] text-[#444441] dark:bg-white/[0.06] dark:text-white/70",
   green:  "bg-[#EAF3DE] text-[#27500A] dark:bg-[#27500A]/30 dark:text-[#A8D67E]",
   teal:   "bg-[#E1F5EE] text-[#085041] dark:bg-[#085041]/30 dark:text-[#7BC4AC]",
@@ -133,9 +133,9 @@ const OrgChart = () => {
       // President → CEC (teal)
       curve(presB, nodeCenter("cec", "top"), "#148066", 0.5, 1.4);
       // External VP → ext branch (one line to the branch box)
-      curve(nodeCenter("ext-vp", "bottom"), branchCenter("ext-branch", "top"), "#C9A84C", 0.5);
+      curve(nodeCenter("ext-vp", "bottom"), branchCenter("ext-branch", "top"), "var(--gold-muted)", 0.5);
       // Internal VP → int branch (one line to the branch box)
-      curve(nodeCenter("int-vp", "bottom"), branchCenter("int-branch", "top"), "#C9A84C", 0.5);
+      curve(nodeCenter("int-vp", "bottom"), branchCenter("int-branch", "top"), "var(--gold-muted)", 0.5);
     };
 
     draw();

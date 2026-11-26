@@ -128,7 +128,7 @@ const Join = () => {
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="font-body text-xs uppercase tracking-[0.3em] text-primary font-semibold mb-5"
+            className="font-body text-xs uppercase tracking-[0.3em] text-primary font-semibold page-hero-kicker"
           ><TextField id="Join_4">
             Membership
           </TextField></motion.p>

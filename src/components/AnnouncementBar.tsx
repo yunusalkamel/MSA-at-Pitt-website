@@ -16,7 +16,7 @@ interface AnnouncementData {
 
 const TYPE_STYLES = {
   info:        { bar: "bg-[#14345A] text-white border-b border-white/10", btn: "bg-white/15 hover:bg-white/25 text-white", close: "text-white/50 hover:text-white" },
-  urgent:      { bar: "bg-[#F2AB23] text-[#060B18] border-b border-black/10", btn: "bg-black/10 hover:bg-black/20 text-[#060B18]", close: "text-black/50 hover:text-black" },
+  urgent:      { bar: "bg-[var(--gold)] text-[#060B18] border-b border-black/10", btn: "bg-black/10 hover:bg-black/20 text-[#060B18]", close: "text-black/50 hover:text-black" },
   celebration: { bar: "bg-[#148066] text-white border-b border-white/10", btn: "bg-white/15 hover:bg-white/25 text-white", close: "text-white/50 hover:text-white" },
 };
 

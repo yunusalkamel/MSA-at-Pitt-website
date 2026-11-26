@@ -30,6 +30,14 @@ export const Content = createContext<{ fields: Fields; editing: boolean }>({
   editing: false,
 });
 export const EditorialCopy = createContext(false);
+function editorialText(value: string) {
+  return value
+    .replace(/^\s*—\s*/, "")
+    .replace(/\s*—\s*/g, ", ")
+    .replace(/\bTarawih\b/g, "Taraweeh")
+    .replace(/\bImam Patel\b/g, "Imam Muhammad")
+    .replace(/\bnaseeha\b(?! \(advice\))/g, "naseeha (advice)");
+}
 const Scope = createContext("");
 export function ContentScope({
   id,
@@ -72,7 +80,7 @@ export function TextField({
   const key = useField(id),
     { fields, editing } = useContext(Content);
   const revised = useContext(EditorialCopy);
-  if (revised && typeof children === "string") children = children.replace(/^\s*—\s*/, "").replace(/\s*—\s*/g, ", ");
+  if (revised && typeof children === "string") children = editorialText(children);
   if (typeof children !== "string" && typeof children !== "number")
     return <>{children}</>;
   const field = fields[key] ?? fallbackFieldKeys.map(alias => fields[alias]).find(value => value?.kind === "text");
@@ -94,7 +102,7 @@ export function TextField({
                   : undefined,
               }}
             >
-              {r.text}
+              {revised ? editorialText(r.text) : r.text}
             </span>
           ))
         : children}

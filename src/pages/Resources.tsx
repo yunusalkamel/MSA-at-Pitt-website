@@ -1,3 +1,4 @@
+import { useChaplainDetails } from "@/hooks/useChaplainDetails";
 import { PageHero } from "@/components/PageHero";
 import { LinkField } from "@/editor/content";
 import { TextField, itemIdentity, ContentScope, CardCopies } from "@/editor/content";
@@ -23,7 +24,7 @@ const resources = [
       { label: "Read the Tips", href: "/resources/new-to-pitt", internal: true },
       { label: "Google Doc", href: "https://docs.google.com/document/d/1sWSKZ-PfdgzmSeO_IcZIlhZtkpinHK4esdQSStORKNQ/edit?usp=sharing", internal: false },
     ],
-    gradient: "from-[#F2AB23] to-[#C9A84C]",
+    gradient: "from-[var(--gold)] to-[var(--gold-muted)]",
   },
   {
     icon: Heart, emoji: "💚", title: "Wellness Resources",
@@ -47,7 +48,7 @@ const resources = [
       { label: "General Form", href: "https://docs.google.com/forms/d/e/1FAIpQLSf4Mxrk2dXPCS5v9pu0HIAjrc0D7fEoXaAinYgqZ-Qfi_2oig/viewform?usp=sharing", internal: false },
       { label: "Sisters Form", href: "#sisters-form-placeholder", internal: false, secondary: true },
     ],
-    gradient: "from-[#8A6212] to-[#C9A84C]",
+    gradient: "from-[#8A6212] to-[var(--gold-muted)]",
   },
 ];
 
@@ -75,6 +76,7 @@ function resourceCard(resource: typeof resources[number], index: number) {
 }
 
 const Resources = () => {
+  const { email, officeHours } = useChaplainDetails();
   const mobile=useIsMobile();
   return (
     <Layout>
@@ -117,7 +119,7 @@ const Resources = () => {
             <CardCopies id="resource-prayer"><ResourceTile label="Prayer" title={<TextField id={mobile?"Resources_23":"Resources_26"}>Prayer</TextField>} body={<TextField id={mobile?"Resources_24":"Resources_27"}>Daily times, Jummah and places to pray on campus.</TextField>} photo="/photos/prayer/jummah-ballroom.webp" tone="pine" primary={<Link to="/resources/prayer"><TextField id={mobile?"Resources_25":"Resources_28"}>Open prayer guide</TextField> →</Link>} /></CardCopies>
 
             {/* Chaplain card */}
-            <CardCopies id="resource-chaplain"><ResourceTile label="University Chaplain" title={<TextField id={mobile?"Resources_29":"Resources_33"}>University Chaplain</TextField>} body={<TextField id={mobile?"Resources_30":"Resources_34"}>Office hours, spiritual guidance and a space to talk.</TextField>} summary={<TextField id="Resources_35">Mon 5–6 PM · Fri 3–4 PM</TextField>} photo="/photos/prayer/imam-muhammad-patel.webp" tone="slate" primary={<Link to="/resources/chaplain"><TextField id={mobile?"Resources_31":"Resources_36"}>Meet the chaplain</TextField> →</Link>} extra={<LinkField fieldId="Resources_destination_3" href="mailto:imam@pitt.edu"><TextField id="Resources_32">Email the chaplain</TextField> ↗</LinkField>}/></CardCopies>
+            <CardCopies id="resource-chaplain"><ResourceTile label="University Chaplain" title={<TextField id={mobile?"Resources_29":"Resources_33"}>University Chaplain</TextField>} body={<TextField id={mobile?"Resources_30":"Resources_34"}>Office hours, spiritual guidance and a space to talk.</TextField>} summary={<TextField id="Resources_35">{officeHours}</TextField>} photo="/photos/prayer/imam-muhammad-patel.webp" tone="slate" primary={<Link to="/resources/chaplain"><TextField id={mobile?"Resources_31":"Resources_36"}>Meet the chaplain</TextField> →</Link>} extra={<LinkField fieldId="Resources_destination_3" href={"mailto:" + email}><TextField id="Resources_32">Email the chaplain</TextField> ↗</LinkField>}/></CardCopies>
 
             {/* FAQ card */}
             <CardCopies id="resource-faq"><ResourceTile label="FAQ" title={<TextField id={mobile?"Resources_37":"Resources_40"}>FAQ</TextField>} body={<TextField id={mobile?"Resources_38":"Resources_41"}>Answers about membership, events, prayer and campus life.</TextField>} photo={communityPhoto("hall-friends").src} tone="clay" primary={<Link to="/resources/faq"><TextField id={mobile?"Resources_39":"Resources_42"}>Read FAQ</TextField> →</Link>} /></CardCopies>

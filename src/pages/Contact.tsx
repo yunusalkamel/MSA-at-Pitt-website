@@ -28,9 +28,9 @@ const ImamCard = () => {
   const title = data?.imamTitle || "Spiritual Guidance";
   const bio =
     data?.imamBio ||
-    "For Islamic counseling, naseeha, or personal guidance — our chaplain is available to all students.";
-  const officeHours = data?.imamOfficeHours || "Monday 5–6 PM after his halaqah · Friday 3–4 PM";
-  const email = data?.imamEmail;
+    "For Islamic counseling, naseeha (advice), or personal guidance — our chaplain is available to all students.";
+  const officeHours = data?.imamOfficeHours || LINKS.chaplainOfficeHours;
+  const email = data?.imamEmail?.trim() || LINKS.chaplainEmail;
   const booking = data?.imamBookingUrl;
 
   return (
@@ -106,7 +106,7 @@ const Contact = () => {
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="font-body text-xs uppercase tracking-[0.3em] text-primary font-semibold mb-5"
+            className="font-body text-xs uppercase tracking-[0.3em] text-primary font-semibold page-hero-kicker"
           ><TextField id="Contact_10">
             Get In Touch
           </TextField></motion.p>

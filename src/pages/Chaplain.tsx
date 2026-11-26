@@ -1,3 +1,4 @@
+import { useChaplainDetails } from "@/hooks/useChaplainDetails";
 import { PageHero } from "@/components/PageHero";
 import { Picture, LinkField } from "@/editor/content";
 import { ContentScope, TextField, itemIdentity, CardCopies } from "@/editor/content";
@@ -10,7 +11,9 @@ import SectionDivider from "@/components/SectionDivider";
 import ArabicVerse from "@/components/ArabicVerse";
 import patternImg from "@/assets/geometric-tile.svg";
 
-const Chaplain = () => (
+const Chaplain = () => {
+  const { email, officeHours } = useChaplainDetails();
+  return (
   <Layout>
     {/* ── Hero ─────────────────────────────────────────────────── */}
     <PageHero className="relative text-center overflow-hidden">
@@ -18,7 +21,7 @@ const Chaplain = () => (
       <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: "200px" }} />
       <BridgeBar />
       <div className="relative z-10 max-w-3xl mx-auto">
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xs uppercase tracking-[0.3em] text-primary font-semibold mb-5"><TextField id="Chaplain_2">
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xs uppercase tracking-[0.3em] text-primary font-semibold page-hero-kicker"><TextField id="Chaplain_2">
           Resources
         </TextField></motion.p>
         <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="font-display text-5xl md:text-7xl font-bold text-foreground mb-4"><TextField id="Chaplain_3">
@@ -59,23 +62,23 @@ const Chaplain = () => (
               </div>
               <h3 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-1"><TextField id="Chaplain_10">Imam Muhammad Patel</TextField></h3>
               <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed mb-5"><TextField id="Chaplain_11">
-                Born in Blackburn, England to a Gujarati family, Imam Muhammad Patel memorized the Quran at age 15. He completed his Alim program and has led Tarawih prayers in Rome and Boynton Beach. He specializes in teaching children with learning challenges — bringing patience, warmth, and deep knowledge to every interaction.
+                Born in Blackburn, England to a Gujarati family, Imam Muhammad Patel memorized the Quran at age 15. He completed his Alim program and has led Taraweeh prayers in Rome and Boynton Beach. He specializes in teaching children with learning challenges — bringing patience, warmth, and deep knowledge to every interaction.
               </TextField></p>
               <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed mb-6"><TextField id="Chaplain_12">
-                At MSA at Pitt, Imam Patel assists with Jummah, tabling, Islamic counseling, naseeha, marketing, halaqahs, and leading prayers. He is a resource for any student seeking guidance — whether related to faith, personal struggles, or navigating college life as a Muslim.
+                At MSA at Pitt, Imam Muhammad assists with Jummah, tabling, Islamic counseling, naseeha (advice), marketing, halaqahs, and leading prayers. He is a resource for any student seeking guidance — whether related to faith, personal struggles, or navigating college life as a Muslim.
               </TextField></p>
 
               <div className="flex items-start gap-3 rounded-xl bg-primary/[0.06] border border-primary/15 px-4 py-3 mb-5">
                 <Clock size={15} className="text-primary mt-0.5 flex-shrink-0" />
                 <div>
                   <p className="font-body font-semibold text-foreground text-sm"><TextField id="Chaplain_13">Office Hours</TextField></p>
-                  <p className="font-body text-muted-foreground text-sm mt-0.5"><TextField id="Chaplain_14">Monday 5–6 PM after his halaqah · Friday 3–4 PM</TextField></p>
+                  <p className="font-body text-muted-foreground text-sm mt-0.5"><TextField id="Chaplain_14">{officeHours}</TextField></p>
                 </div>
               </div>
 
               <div className="flex flex-wrap gap-3">
                 <LinkField fieldId="Chaplain_destination_1"
-                  href="mailto:imam@pitt.edu"
+                  href={"mailto:" + email}
                   className="inline-flex items-center gap-2 btn-premium-secondary text-sm px-4 py-2"
                   aria-label="Email Imam Muhammad Patel"
                 >
@@ -100,13 +103,13 @@ const Chaplain = () => (
     <section className="section-padding gradient-section-gold-soft relative overflow-hidden">
       <div className="absolute inset-0 texture-dots opacity-40 pointer-events-none" />
       <div className="max-w-5xl mx-auto relative z-10">
-        <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-6"><TextField id="Chaplain_17">How Imam Patel Can Help</TextField></h2>
+        <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-6"><TextField id="Chaplain_17">How Imam Muhammad Can Help</TextField></h2>
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
           {[
             { emoji: "🤲", title: "Islamic Counseling", desc: "Personal guidance grounded in Islamic values for any life challenge." },
             { emoji: "📖", title: "Naseeha & Halaqahs", desc: "One-on-one advice and leading weekly Islamic study circles." },
             { emoji: "🕌", title: "Jummah & Prayers", desc: "Leading and coordinating Jummah and daily prayer at MSA events." },
-            { emoji: "🌙", title: "Ramadan Programs", desc: "Tarawih leadership, iftar coordination, and Ramadan spiritual support." },
+            { emoji: "🌙", title: "Ramadan Programs", desc: "Taraweeh leadership, iftar coordination, and Ramadan spiritual support." },
             { emoji: "💬", title: "New Muslims", desc: "Patient support for reverts and those exploring Islam for the first time." },
             { emoji: "📚", title: "Quran & Islamic Ed.", desc: "Quran recitation guidance and introductory Islamic education." },
           ].map((item) => (
@@ -143,6 +146,7 @@ const Chaplain = () => (
       </div>
     </section>
   </Layout>
-);
+  );
+};
 
 export default Chaplain;

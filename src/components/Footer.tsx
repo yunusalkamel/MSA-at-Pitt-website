@@ -38,7 +38,7 @@ const Footer = () => {
           {/* Left: logo + name + description */}
           <div className="flex flex-col items-center lg:items-start gap-3">
             <Link to="/" className="hover:opacity-85 transition-opacity">
-              <Picture fieldId="Footer_2" src="/photos/brand/msa-logo.webp" alt="MSA at Pitt" className="h-20 md:h-24 w-auto object-contain" loading="lazy" decoding="async" sizes="96px" />
+              <Picture fieldId="Footer_2" src="/photos/brand/msa-logo-192.webp" srcSet="/photos/brand/msa-logo-192.webp 192w, /photos/brand/msa-logo-288.webp 288w" width={192} height={192} alt="MSA at Pitt" className="h-20 md:h-24 w-auto object-contain" loading="lazy" decoding="async" sizes="96px" />
             </Link>
             <p className="font-display text-2xl md:text-3xl font-bold leading-tight" style={{ color: "rgba(255,255,255,.9)" }}><TextField id="Footer_3">
               MSA at Pitt

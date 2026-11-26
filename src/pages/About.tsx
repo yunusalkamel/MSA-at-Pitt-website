@@ -17,7 +17,7 @@ const communityCards = [
   { icon: HeartHandshake, title: "Support & Resources", desc: "Wellness resources, freshman survival tips, revert resources — we've got your back.", gradient: "from-[#14345A] to-[#11233C]" },
 ];
 const imanCards = [
-  { icon: BookOpen, title: "Faith & Spirituality", desc: "Weekly Jummah, halaqas, Ramadan programming, and collaborations with the Islamic Center of Pittsburgh.", gradient: "from-[#F2AB23] to-[#C9A84C]" },
+  { icon: BookOpen, title: "Faith & Spirituality", desc: "Weekly Jummah, halaqas, Ramadan programming, and collaborations with the Islamic Center of Pittsburgh.", gradient: "from-[var(--gold)] to-[var(--gold-muted)]" },
   { icon: Globe, title: "Service & Da'wah", desc: "Service projects, volunteering, masjid partnerships, and giving back to Pittsburgh.", gradient: "from-[#8A6212] to-[#148066]" },
 ];
 

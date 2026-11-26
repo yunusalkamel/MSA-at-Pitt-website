@@ -154,7 +154,7 @@ const Events = () => {
                   background:
                     lastSyncedAt && Date.now() - lastSyncedAt < 10 * 60 * 1000
                       ? "#148066"
-                      : "#F2AB23",
+                      : "var(--gold)",
                 }}
               />
               {lastSyncedAt ? (

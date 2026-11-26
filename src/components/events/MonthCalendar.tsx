@@ -180,7 +180,7 @@ const MonthView = ({
       <div className="flex items-start justify-between gap-3 mt-4 px-1">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
           {[
-            { label: "Signature", color: "#F2AB23" },
+            { label: "Signature", color: "var(--gold)" },
             { label: "Upcoming",  color: "#148066" },
             { label: "Recurring", color: "#60A5FA" },
           ].map(({ label, color }) => (
@@ -208,7 +208,7 @@ const MOBILE_INDICATOR: "A" | "B" | "C" = "A";
 // Gold = signature, Green = special one-off, Blue = recurring (jumuah / halaqa)
 // Dot/pill colors match the tier system: gold=signature, jannah=upcoming, blue=recurring
 const EVENT_COLORS = {
-  signature: "#F2AB23",
+  signature: "var(--gold)",
   upcoming:  "#148066",
   recurring: "#60A5FA",
 } as const;
@@ -519,7 +519,7 @@ const WeekView = ({
       <div className="flex items-start justify-between gap-3 mt-4 px-1">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
           {[
-            { label: "Signature", color: "#F2AB23" },
+            { label: "Signature", color: "var(--gold)" },
             { label: "Upcoming",  color: "#148066" },
             { label: "Recurring", color: "#60A5FA" },
           ].map(({ label, color }) => (

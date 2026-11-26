@@ -84,10 +84,10 @@
     --ink: #0E0D0A;
     --ink-mid: #32312C;
     --msa-blue: #14345A;
-    --msa-gold: #F2AB23;
+    --msa-gold: var(--gold);
     --gold-pale: #FBF0D0;
     --gold-deep: #8A6212;
-    --aura-gold-hex: #C9A84C;
+    --aura-gold-hex: var(--gold-muted);
     --jannah-hex: #0A5C46;
     --jannah-mid-hex: #148066;
     --jannah-light-hex: #C8E8DF;
@@ -290,19 +290,19 @@
 
   /* ── v2 Color utilities ── */
   .gold-gradient {
-    background: linear-gradient(135deg, #F2AB23, #F7C55A, #D9930A);
+    background: linear-gradient(135deg, var(--gold), #F7C55A, #D9930A);
     background-size: 200% 200%;
   }
   .aura-gold-gradient {
-    background: linear-gradient(135deg, #C9A84C, #D4B86A, #B89A3E);
+    background: linear-gradient(135deg, var(--gold-muted), #D4B86A, #B89A3E);
     background-size: 200% 200%;
   }
   .text-gradient-gold {
-    background: linear-gradient(135deg, #D9930A, #F2AB23, #C98B0A);
+    background: linear-gradient(135deg, #D9930A, var(--gold), #C98B0A);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
   }
   .text-gradient-aura {
-    background: linear-gradient(135deg, #8A6212, #C9A84C, #A07D28);
+    background: linear-gradient(135deg, #8A6212, var(--gold-muted), #A07D28);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
   }
   .text-gradient-emerald {
@@ -405,11 +405,11 @@
   }
   .bridge-bar {
     height: 3px;
-    background: linear-gradient(90deg, transparent, #F2AB23 25%, #148066 75%, transparent);
+    background: linear-gradient(90deg, transparent, var(--gold) 25%, #148066 75%, transparent);
   }
   .gradient-bar {
     height: 3px;
-    background: linear-gradient(90deg, transparent, #F2AB23 25%, #148066 75%, transparent);
+    background: linear-gradient(90deg, transparent, var(--gold) 25%, #148066 75%, transparent);
   }
 
   .glass-glow {
@@ -449,7 +449,7 @@
   /* ── Buttons ── */
   .btn-premium {
     @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-2.5 font-semibold text-primary-foreground;
-    background: linear-gradient(135deg, #F2AB23, #F7C55A, #D9930A);
+    background: linear-gradient(135deg, var(--gold), #F7C55A, #D9930A);
     color: #14345A;
     box-shadow: 0 8px 24px rgba(242,171,35,.28), inset 0 1px 0 rgba(255,255,255,.3);
     transition: transform 200ms ease, box-shadow 250ms ease, filter 250ms ease;
@@ -486,7 +486,7 @@
 
   .btn-aura {
     @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-2.5 font-semibold;
-    background: linear-gradient(135deg, #C9A84C, #D4B86A, #B89A3E); color: #11233C;
+    background: linear-gradient(135deg, var(--gold-muted), #D4B86A, #B89A3E); color: #11233C;
     box-shadow: 0 8px 24px rgba(201,168,76,0.3), inset 0 1px 0 rgba(255,255,255,0.35);
     transition: transform 200ms ease, box-shadow 250ms ease, filter 250ms ease;
     font-family: var(--font-body); letter-spacing: 0.01em;
@@ -594,7 +594,7 @@
   /* Gold CTA */
   .btn-gold {
     @apply btn;
-    background: #F2AB23;
+    background: var(--gold);
     color: #14345A;
     box-shadow: 0 2px 12px rgba(242,171,35,.25), inset 0 1px 0 rgba(255,255,255,.3);
   }
@@ -630,7 +630,7 @@
   /* Aura formal */
   .btn-aura-formal {
     @apply btn;
-    background: #C9A84C;
+    background: var(--gold-muted);
     color: #11233C;
     box-shadow: 0 2px 12px rgba(201,168,76,.2), inset 0 1px 0 rgba(255,255,255,.3);
   }
@@ -653,7 +653,7 @@
 
   /* ── Pull-quote surfaces ─────────────────────────────────────────── */
   .pull-quote-gold {
-    border-left: 3px solid #F2AB23;
+    border-left: 3px solid var(--gold);
     background: #FBF0D0;
     padding: 1rem 1.25rem;
     border-radius: 0 var(--radius) var(--radius) 0;
