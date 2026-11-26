@@ -1,6 +1,7 @@
+import { communityPhoto, communityAlbums } from "@/data/communityPhotos";
 import { nextGathering } from "@/lib/nextGathering";
 import { useDesign } from "@/design/options";
-import { HeroPhotos, Moments, photos } from "@/design/CommunityPhotos";
+import { HeroPhotos, Moments } from "@/design/CommunityPhotos";
 import { WelcomePath,NextEvent } from "@/design/Welcome";
 import { DailyPrayers } from "@/design/DailyPrayers";
 import { LinkField } from "@/editor/content";
@@ -25,11 +26,7 @@ import { useCountUp } from "@/hooks/useCountUp";
 import { useCalendarEvents } from "@/hooks/useCalendarEvents";
 import { useSanityData } from "@/hooks/useSanityData";
 import { QUERIES, urlFor } from "@/lib/sanity";
-import heroImg from "@/assets/hero-gathering-1600.webp";
-import heroMobileImg from "@/assets/hero-gathering-768.webp";
-import communityImg from "@/assets/about-community-1024.webp";
-import communityMobileImg from "@/assets/about-community-640.webp";
-import patternImg from "@/assets/islamic-pattern-360.webp";
+import patternImg from "@/assets/geometric-tile.svg";
 import { mockEvents, getUpcomingWindow } from "@/data/events";
 import { LINKS } from "@/config/links";
 import { getEventTier } from "@/components/events/calendar-utils";
@@ -113,7 +110,7 @@ const Index = () => {
   const d = { ...FALLBACK, ...Object.fromEntries(Object.entries(cms ?? {}).filter(([, v]) => v != null)) };
 
   const galleryCells = useMemo(() => {
-    return (galleryPreview ?? []).slice(0, 6).map((album) => ({
+    const published = (galleryPreview ?? []).slice(0, 6).map((album) => ({
       title: album.title,
       slug: album.slug as string | undefined,
       imageUrl: album.coverImage?.asset?._ref
@@ -121,11 +118,12 @@ const Index = () => {
         : undefined,
       lqip: album.coverImage?.lqip as string | undefined,
     })).filter(c => c.imageUrl);
+    return published.length ? published : communityAlbums.slice(0, 4).map(a => ({ title: a.title, slug: a.slug, imageUrl: a.coverImageUrl, lqip: undefined }));
   }, [galleryPreview]);
 
   const heroSrc = cms?.heroImage?.asset?._ref
     ? urlFor(cms.heroImage).width(1920).height(1080).auto("format").url()
-    : heroImg;
+    : communityPhoto("gala-group").src;
   const animateIntro = !prefersReduced && window.matchMedia("(min-width: 768px)").matches;
   const heroLqip = cms?.heroImage?.lqip as string | undefined;
 
@@ -139,12 +137,11 @@ const Index = () => {
               <div className="relative liquid-glass p-3" style={{ borderRadius: '20px' }}>
                 <ContentScope id="Index_18"><SanityImage
                   source={cms?.communityImage}
-                  fallbackSrc={design.realPhotos?photos[2].src:communityImg}
-                fallbackSrcSet={design.realPhotos?undefined:`${communityMobileImg} 640w, ${communityImg} 1024w`}
+                  fallbackSrc={communityPhoto(design.realPhotos ? "gala-portraits" : "friendsgiving-table").src}
                 sizes="(max-width: 767px) 92vw, 570px"
                   width={1280}
                   height={854}
-                  alt="MSA students on campus"
+                  alt="MSA students gathered together"
                   className="w-full aspect-[4/3] object-cover"
                   style={{ borderRadius: '20px' }}
                 /></ContentScope>
@@ -261,7 +258,7 @@ const Index = () => {
   return (
     <Layout>
       {/* ── Hero ─────────────────────────────────────────────────── */}
-      <section data-framing={photoHero ? design.framing : undefined} data-photo-hero={photoHero || undefined} className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      <section data-wash={photoHero ? design.wash : undefined} data-framing={photoHero ? design.framing : undefined} data-photo-hero={photoHero || undefined} className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {!photoHero && <div className="absolute inset-0">
           {/* Blur-up backdrop — kills the bundled-fallback flash */}
           {heroLqip && (
@@ -278,7 +275,6 @@ const Index = () => {
           )}
           <Picture fieldId="Index_4"
             src={heroSrc}
-            srcSet={heroSrc === heroImg ? `${heroMobileImg} 768w, ${heroImg} 1600w` : undefined}
             sizes="100vw"
             alt="MSA at Pitt community gathering"
             className="w-full h-full object-cover scale-110"
@@ -483,7 +479,7 @@ const Index = () => {
                     const Icon = ICON_MAP[pillar.iconName] ?? Users;
                     return (
                       <CardCopies key={pillar.title} id={"Index_71-" + itemIdentity(pillar, pillar.title)}><motion.div key={pillar.title} variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4 } } }} className="glass-card-hover p-6 md:p-8">
-                        {design.cardPhotos && <Picture fieldId="pillar-photo" src={photos[i%2+(pillars===d.imanPillars?2:0)].src} alt="" className="community-card-photo" loading="lazy" width={460} height={250}/>}
+                        {design.cardPhotos && <Picture fieldId="pillar-photo" src={communityPhoto(pillars === d.imanPillars ? (i === 0 ? "lawn-prayer" : "volunteers") : (i === 0 ? "tea" : "friendsgiving-hall")).src} alt="" className="community-card-photo" loading="lazy" width={460} height={250}/>}
                         <div className="gold-gradient w-11 h-11 rounded-xl flex items-center justify-center mb-5 shadow-sm">
                           <Icon className="text-primary-foreground" size={20} />
                         </div>

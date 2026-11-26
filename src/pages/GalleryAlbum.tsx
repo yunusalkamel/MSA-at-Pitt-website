@@ -1,3 +1,4 @@
+import { communityAlbums } from "@/data/communityPhotos";
 import { useDesign } from "@/design/options";
 import { Picture, ContentScope, TextField, itemIdentity } from "@/editor/content";
 import { useState } from "react";
@@ -21,7 +22,8 @@ interface Photo {
 interface AlbumData {
   title: string;
   slug: string;
-  coverImage: unknown;
+  coverImage?: unknown;
+  coverImageUrl?: string;
   category: string[];
   audience?: string;
   eventDate?: string;
@@ -30,12 +32,18 @@ interface AlbumData {
 
 export default function GalleryAlbumPage() {
   const { slug } = useParams<{ slug: string }>();
-  return <GalleryAlbum key={slug} slug={slug ?? ""} />;
+  const local = communityAlbums.find(a => a.slug === slug);
+  return local ? <GalleryAlbum key={slug} album={local} loading={false}/> : <RemoteAlbum key={slug} slug={slug ?? ""}/>;
 }
 
-const GalleryAlbum = ({ slug }: { slug: string }) => {
+function RemoteAlbum({ slug }: { slug: string }) {
+  const { data, loading } = useSanityData<AlbumData>(QUERIES.galleryAlbumBySlug, { slug });
+  return <GalleryAlbum album={data} loading={loading}/>;
+}
+
+const GalleryAlbum = ({ album, loading }: { album: AlbumData | null; loading: boolean }) => {
   const {recap} = useDesign();
-  const { data: album, loading } = useSanityData<AlbumData>(QUERIES.galleryAlbumBySlug, { slug });
+  const cover = album?.coverImageUrl || (album?.coverImage ? urlFor(album.coverImage).width(1600).height(600).fit("crop").auto("format").url() : undefined);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   usePageMeta({
@@ -60,11 +68,11 @@ const GalleryAlbum = ({ slug }: { slug: string }) => {
     <Layout>
       {/* Hero */}
       <section className="relative pt-28 pb-12 md:pt-36 md:pb-16 overflow-hidden">
-        {album?.coverImage && (
+        {cover && album && (
           <>
             <div className="absolute inset-0">
               <Picture fieldId="GalleryAlbum_1"
-                src={urlFor(album.coverImage).width(1600).height(600).fit("crop").auto("format").url()}
+                src={cover} sizes="100vw"
                 alt={album.title}
                 className="w-full h-full object-cover scale-105"
                 width={1600}
@@ -75,7 +83,7 @@ const GalleryAlbum = ({ slug }: { slug: string }) => {
             <BridgeBar />
           </>
         )}
-        {!album?.coverImage && <BridgeBar />}
+        {!cover && <BridgeBar />}
 
         <div className="relative z-10 max-w-5xl mx-auto px-4">
           <Link
@@ -155,7 +163,7 @@ const GalleryAlbum = ({ slug }: { slug: string }) => {
                   aria-label={`Open photo ${i + 1}${photo.caption ? `: ${photo.caption}` : ""}`}
                 >
                   <Picture fieldId="GalleryAlbum_11"
-                    src={photo.url + "?w=400&h=400&fit=crop&auto=format"}
+                    src={photo.url.startsWith("/") ? photo.url : photo.url + "?w=400&h=400&fit=crop&auto=format"}
                     alt={photo.caption || `Photo ${i + 1}`}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     loading="lazy"

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, Home, Calendar, Users } from "lucide-react";
 import Layout from "@/components/Layout";
-import patternImg from "@/assets/islamic-pattern-360.webp";
+import patternImg from "@/assets/geometric-tile.svg";
 
 const NotFound = () => (
   <Layout>

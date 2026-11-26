@@ -36,6 +36,7 @@ export function ResourceTile({
           src={photo}
           alt=""
           loading="lazy"
+          sizes="(max-width: 767px) 90px, 360px"
           width={500}
           height={360}
         />

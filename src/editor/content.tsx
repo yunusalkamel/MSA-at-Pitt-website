@@ -1,3 +1,4 @@
+import { communityImageSizes } from "@/lib/communityImageSizes";
 import {
   createContext,
   useContext,
@@ -111,20 +112,24 @@ export function LinkField({
 export function Picture({
   fieldId,
   emptyLabel,
+  editorOnlyPlaceholder,
   ...props
-}: ImgHTMLAttributes<HTMLImageElement> & { fieldId: string; emptyLabel?: string }) {
+}: ImgHTMLAttributes<HTMLImageElement> & { fieldId: string; emptyLabel?: string; editorOnlyPlaceholder?: boolean }) {
   const key = useField(fieldId),
     { fields, editing } = useContext(Content),
     value = fields[key];
   const alt=fields[key+"/alt"];
   const overridden = value?.kind === "image";
-  const src = overridden ? value.url : props.src;
+  const originalSrc = overridden ? value.url : props.src;
+  const retiredPicnic = originalSrc?.includes("/fb311b741cf77c989aeffca328c66551045e3372-640x640.webp");
+  const src = retiredPicnic ? "/photos/community/campus-friends.webp" : originalSrc;
+  if (!src && editorOnlyPlaceholder && !editing) return null;
   if (!src && emptyLabel) {
     return <span className="photo-slot-empty" data-edit-image={editing ? key : undefined} role="img" aria-label={emptyLabel}>{emptyLabel}</span>;
   }
   const maxWidth = Number(props.width) || 1920;
-  const srcSet = overridden || !props.srcSet
-    ? src && sanityImageSrcSet(src, maxWidth)
+  const srcSet = retiredPicnic || overridden || !props.srcSet
+    ? src && (communityImageSizes(src) || sanityImageSrcSet(src, maxWidth))
     : props.srcSet;
   return (
     <img

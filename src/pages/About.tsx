@@ -9,11 +9,7 @@ import ArabicVerse from "@/components/ArabicVerse";
 import OrgChart from "@/components/OrgChart";
 import BridgeBar from "@/components/BridgeBar";
 import { usePageMeta } from "@/lib/usePageMeta";
-import communityImg from "@/assets/about-community-1024.webp";
-import communityMobileImg from "@/assets/about-community-640.webp";
-import eventsImg from "@/assets/events-social-1280.webp";
-import eventsMobileImg from "@/assets/events-social-768.webp";
-import patternImg from "@/assets/islamic-pattern-360.webp";
+import patternImg from "@/assets/geometric-tile.svg";
 
 const communityCards = [
   { icon: PartyPopper, title: "Social & Fun", desc: "Eid Socials, TopGolf outings, iftar gatherings of 150+ people, and dedicated brothers' & sisters' events.", gradient: "from-[#0A5C46] to-[#148066]" },
@@ -25,7 +21,7 @@ const imanCards = [
 ];
 
 import { useDesign } from "@/design/options";
-import { photos } from "@/design/CommunityPhotos";
+import { communityPhoto } from "@/data/communityPhotos";
 const About = () => {
   const design = useDesign();
   usePageMeta({
@@ -37,7 +33,7 @@ const About = () => {
       {/* Hero */}
       <section className="relative py-32 md:py-44 overflow-hidden">
         <div className="absolute inset-0">
-          <Picture fieldId="About_1" src={design.realPhotos?photos[0].src:eventsImg} srcSet={design.realPhotos?undefined:`${eventsMobileImg} 768w, ${eventsImg} 1280w`} sizes="100vw" alt="MSA outdoor social" className="w-full h-full object-cover scale-105" loading="eager" width={1280} height={720} />
+          <Picture fieldId="About_1" src={communityPhoto(design.realPhotos ? "river-talk" : "hall-wide").src} sizes="100vw" alt="Students gathered for an MSA program" className="w-full h-full object-cover scale-105" loading="eager" width={1280} height={720} />
           <div className="absolute inset-0 bg-gradient-to-b from-accent/90 via-accent/60 to-accent/90" />
           <div className="absolute inset-0 opacity-[0.05]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: '200px' }} />
           <BridgeBar />
@@ -128,7 +124,7 @@ const About = () => {
             <div className="relative group">
               <div className="absolute -inset-1 bg-gradient-to-br from-primary via-secondary to-primary rounded-3xl opacity-30 group-hover:opacity-45 transition-opacity duration-500 blur-sm" />
               <div className="relative glass-card p-3">
-                <Picture fieldId="About_10" src={design.realPhotos?photos[1].src:communityImg} srcSet={design.realPhotos?undefined:`${communityMobileImg} 640w, ${communityImg} 1024w`} sizes="(max-width: 767px) 92vw, 570px" alt="MSA community" className="rounded-2xl w-full object-cover aspect-[4/3]" loading="lazy" width={1280} height={854} />
+                <Picture fieldId="About_10" src={communityPhoto(design.realPhotos ? "craft-table" : "gala-portraits").src} sizes="(max-width: 767px) 92vw, 570px" alt="MSA community" className="rounded-2xl w-full object-cover aspect-[4/3]" loading="lazy" width={1280} height={854} />
               </div>
             </div>
             <motion.div
@@ -183,7 +179,7 @@ const About = () => {
               <div className="grid sm:grid-cols-2 gap-5">
                 {communityCards.map((item, i) => (
                   <CardCopies key={item.title} id={"About_20-" + itemIdentity(item, item.title)}><GlassCard key={item.title} delay={i * 0.08}>
-                    {design.cardPhotos && <Picture fieldId="focus-photo" src={photos[(i)%photos.length].src} alt="" loading="lazy" width={460} height={250} className="community-card-photo"/>}
+                    {design.cardPhotos && <Picture fieldId="focus-photo" src={communityPhoto(i === 0 ? "flowers" : "craft-group").src} alt="" loading="lazy" width={460} height={250} className="community-card-photo"/>}
                     <div className={`bg-gradient-to-br ${item.gradient} w-14 h-14 rounded-xl flex items-center justify-center mb-4 shadow-lg`}>
                       <item.icon className="text-white" size={24} />
                     </div>
@@ -199,7 +195,7 @@ const About = () => {
               <div className="grid sm:grid-cols-2 gap-5">
                 {imanCards.map((item, i) => (
                   <CardCopies key={item.title} id={"About_24-" + itemIdentity(item, item.title)}><GlassCard key={item.title} delay={0.16 + i * 0.08}>
-                    {design.cardPhotos && <Picture fieldId="focus-photo" src={photos[(i+2)%photos.length].src} alt="" loading="lazy" width={460} height={250} className="community-card-photo"/>}
+                    {design.cardPhotos && <Picture fieldId="focus-photo" src={communityPhoto(i === 0 ? "fajr-group" : "serving").src} alt="" loading="lazy" width={460} height={250} className="community-card-photo"/>}
                     <div className={`bg-gradient-to-br ${item.gradient} w-14 h-14 rounded-xl flex items-center justify-center mb-4 shadow-lg`}>
                       <item.icon className="text-white" size={24} />
                     </div>

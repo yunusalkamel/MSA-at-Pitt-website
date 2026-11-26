@@ -9,7 +9,7 @@ export const switches = {
   notice: "Use a compact live announcement strip",
   cardPhotos: "Add photos to community and focus cards",
   eventActions: "Use descriptive event actions",
-  realPhotos: "Use community photos across the site",
+  realPhotos: "Try alternate story and About photos",
   themed: "Daylight and evening hero photos",
   eventFirst: "Lead with upcoming events",
   nextEvent: "Feature the next scheduled event",
@@ -36,6 +36,7 @@ export const switches = {
 } as const;
 export type Switch = keyof typeof switches;
 export const choices = {
+  wash: ["Soft gold gradient", "Stronger gradient", "Gold panel"],
   framing: ["Full screen", "Split layout"],
   density: ["Responsive", "2 × 2", "4 × 4", "5 × 5"],
   chapters: ["Seamless", "Fine rules", "Soft color bands"],
@@ -55,6 +56,7 @@ const flags = (on: boolean) =>
   >;
 export const current: Options = {
   ...flags(false),
+  wash: "Stronger gradient",
   framing: "Split layout",
   density: "2 × 2",
   chapters: "Seamless",
@@ -72,6 +74,7 @@ export const proposed: Options = {
   footer: false,
   eventFirst: false,
   sampleNotice: false,
+  wash: "Soft gold gradient",
   framing: "Full screen",
   density: "Responsive",
   chapters: "Fine rules",

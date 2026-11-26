@@ -9,7 +9,7 @@ import BridgeBar from "@/components/BridgeBar";
 import SectionDivider from "@/components/SectionDivider";
 import SectionHeading from "@/components/SectionHeading";
 import ArabicVerse from "@/components/ArabicVerse";
-import patternImg from "@/assets/islamic-pattern-360.webp";
+import patternImg from "@/assets/geometric-tile.svg";
 
 declare global { interface Window { Chart: any; } }
 

@@ -80,6 +80,16 @@ const EventCardBase = ({ event, variant = "standard", index = 0, showSignatureBa
   };
 
   if (isFeatured) {
+    const eventPictures: [RegExp, string][] = [
+      [/friendsgiving/i, "friendsgiving-serve"],
+      [/fajr.*breakfast/i, "fajr-bridge"],
+      [/sudan.*iftar/i, "sudan-iftar"],
+      [/bouquet night/i, "flowers"],
+      [/msa gala/i, "gala-portraits"],
+      [/salaam social/i, "henna"],
+    ];
+    const pastEventPhoto = eventPictures.find(([pattern]) => pattern.test(event.title))?.[1];
+    const cover = event.coverImage || (pastEventPhoto ? "/photos/community/" + pastEventPhoto + ".webp" : undefined);
     return (
       <motion.div
         initial={{ opacity: 0, y: 30 }}
@@ -91,7 +101,7 @@ const EventCardBase = ({ event, variant = "standard", index = 0, showSignatureBa
         <div className="absolute -inset-[2px] rounded-2xl bg-gradient-to-br from-primary/40 via-secondary/20 to-primary/30 opacity-60 group-hover:opacity-80 transition-opacity blur-sm" />
 
         <div className="relative glass-card-strong p-0 overflow-hidden rounded-2xl">
-          {eventPhotos && <Picture fieldId={"cover-"+event.id} src={event.coverImage} alt={event.title} emptyLabel={"Photo for "+event.title} loading="lazy" width={960} height={400} className="w-full max-h-64 object-cover"/>}
+          {eventPhotos && <Picture fieldId={"cover-"+event.id} src={cover} editorOnlyPlaceholder alt={event.coverImage ? event.title : "A previous MSA gathering in this event series"} sizes="(max-width: 767px) 92vw, 900px" emptyLabel={"Photo for "+event.title} loading="lazy" width={960} height={400} className="w-full max-h-64 object-cover"/>}
           <div className="flex flex-col lg:flex-row">
             {/* Left rail: gold for Signature, neutral primary for plain "Up Next" featured */}
             <div className={`lg:w-56 shrink-0 flex flex-col items-center justify-center py-8 lg:py-0 gap-1 ${

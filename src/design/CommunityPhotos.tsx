@@ -3,22 +3,11 @@ import { useEffect, useState, useRef, useSyncExternalStore, type CSSProperties }
 import { Picture, TextField } from "@/editor/content";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useDesign } from "./options";
-import courtyard from "@/assets/community/courtyard.webp";
-import flowers from "@/assets/community/flowers.webp";
-import students from "@/assets/community/students.webp";
-import football from "@/assets/community/football.webp";
-import charity from "@/assets/community/charity-week.webp";
+import { communityPhoto, communityAlbums, daylightWall, eveningWall } from "@/data/communityPhotos";
 import { useReducedMotion } from "framer-motion";
 import { Link } from "react-router-dom";
 
-export const photos = [
-  { id: "courtyard", src: courtyard, title: "A day out together" },
-  { id: "flowers", src: flowers, title: "Celebrating our community" },
-  { id: "students", src: students, title: "Friends on campus" },
-  { id: "charity", src: charity, title: "Charity Week at Pitt" },
-  { id: "football", src: football, title: "Between games" },
-];
-type Photo = (typeof photos)[number];
+type Photo = { id: string; src: string; title: string; phoneTile?: string };
 const phone = window.matchMedia("(max-width: 767px)");
 function subscribeToWidth(update: () => void) {
   phone.addEventListener("change", update);
@@ -57,14 +46,11 @@ export function HeroPhotos({ albums = [] }: { albums?: Photo[] }) {
   }, [video]);
   const night = themed && theme === "dark";
   const trials = useHeroTrials(night ? "dark" : "light");
-  const series = trials.length
+  const series: Photo[] = trials.length
     ? trials
-    : [
-        ...(night
-          ? [photos[3], photos[1], photos[4], photos[0], photos[2]]
-          : [photos[0], photos[2], photos[1], photos[4], photos[3]]),
-        ...albums,
-      ];
+    : [...(night ? eveningWall : daylightWall).map(id => ({
+        ...communityPhoto(id), phoneTile: "/photos/community/" + id + "-tile.webp",
+      })), ...albums];
   useEffect(() => {
     if (!playing || !visible) return;
     const timer = window.setInterval(() => {
@@ -110,6 +96,7 @@ export function HeroPhotos({ albums = [] }: { albums?: Photo[] }) {
               <Picture
                 fieldId={`CommunityHero_${night ? "evening" : "day"}_${p.id}`}
                 src={p.src}
+                srcSet={compact && collage && columns === 2 && p.phoneTile ? p.phoneTile + " 432w" : undefined}
                 alt={p.title}
                 sizes={collage ? Math.ceil(100 / columns) + "vw" : "100vw"}
                 width={700}
@@ -204,7 +191,7 @@ export function Moments({
   const { collection } = useDesign();
   const [selected, setSelected] = useState("");
   const [frame, setFrame] = useState(0);
-  const series = albums.filter((a) => a.shots?.some((p) => p.src));
+  const series = [...albums.filter(a => a.shots?.some(p => p.src)), ...communityAlbums].slice(0, 4);
   const album = series.find((a) => a.slug === selected) ?? series[0];
   const shots =
     album?.shots
@@ -213,7 +200,7 @@ export function Moments({
         id: album.slug + "-" + i,
         src: p.src,
         title: p.caption || album.title,
-      })) ?? photos;
+      })) ?? [];
   const index = frame % shots.length;
   const spotlight = collection === "Spotlight";
   return (

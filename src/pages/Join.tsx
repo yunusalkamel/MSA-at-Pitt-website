@@ -1,4 +1,4 @@
-import { LinkField, TextField, ContentScope, itemIdentity, CardCopies } from "@/editor/content";
+import { Picture, LinkField, TextField, ContentScope, itemIdentity, CardCopies } from "@/editor/content";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { Instagram, ExternalLink, ArrowRight, CheckCircle2, Users, Calendar, Heart, MessageCircle, Sparkles } from "lucide-react";
@@ -6,7 +6,7 @@ import Layout from "@/components/Layout";
 import BridgeBar from "@/components/BridgeBar";
 import SectionDivider from "@/components/SectionDivider";
 import ArabicVerse from "@/components/ArabicVerse";
-import patternImg from "@/assets/islamic-pattern-360.webp";
+import patternImg from "@/assets/geometric-tile.svg";
 import { LINKS } from "@/config/links";
 import { usePageMeta } from "@/lib/usePageMeta";
 
@@ -256,7 +256,8 @@ const Join = () => {
       <section className="section-padding gradient-section-gold-soft relative overflow-hidden">
         <div className="absolute inset-0 texture-dots opacity-40 pointer-events-none" />
         <div className="max-w-5xl mx-auto relative z-10">
-          <div className="text-center mb-12">
+          <div className="flex items-center justify-between gap-4 mb-5 md:mb-9">
+            <Picture fieldId="join-community" src="/photos/community/tea.webp" alt="Students playing a game over tea at Dobra Tea" sizes="(max-width: 767px) 96px, 210px" loading="lazy" width={210} height={122} className="order-last w-24 md:w-52 aspect-[1.7] object-cover rounded-lg" />
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}

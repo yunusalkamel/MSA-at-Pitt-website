@@ -15,7 +15,7 @@ import ViewSwitcher from "@/components/events/ViewSwitcher";
 import AgendaView from "@/components/events/AgendaView";
 import SectionHeading from "@/components/SectionHeading";
 import SectionDivider from "@/components/SectionDivider";
-import patternImg from "@/assets/islamic-pattern-360.webp";
+import patternImg from "@/assets/geometric-tile.svg";
 import {
   mockEvents,
   getFeaturedEvent,

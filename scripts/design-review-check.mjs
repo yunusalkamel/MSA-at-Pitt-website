@@ -29,16 +29,15 @@ for (const [name, engine, width] of [
     await bar.waitFor();
     await page.locator("[data-photo-hero] figure").first().waitFor();
     assert.equal(await page.locator("[data-photo-hero] figure").count(), width < 768 ? 4 : 16);
-    if (width < 768) {
-      assert.ok(await page.locator("[data-photo-hero]").evaluate(el => {
-        const tiles = el.querySelector(".photo-arrangement").getBoundingClientRect();
-        const words = el.querySelector(".hero-words").getBoundingClientRect();
-        return tiles.bottom <= words.top + 1 && tiles.height > 200;
-      }));
-    }
+    const wall = page.locator("[data-photo-hero] figure img");
+    assert.equal(new Set(await wall.evaluateAll(images => images.map(img => img.src))).size, await wall.count());
+    assert.equal(await page.locator("[data-framing]").getAttribute("data-wash"), "Soft gold gradient");
     const picture = page.locator("[data-photo-hero] img").first();
     await picture.evaluate((img) => img.decode());
     assert.ok(await picture.evaluate((img) => img.naturalWidth > 0));
+    if (width < 768) {
+      assert.ok(await wall.evaluateAll(images => images.every(img => img.currentSrc.endsWith("-tile.webp"))));
+    }
     if (process.env.REVIEW_SCREENSHOTS)
       await page.screenshot({
         path:
@@ -57,6 +56,10 @@ for (const [name, engine, width] of [
         .locator("[data-framing]")
         .evaluate((el) => el.getBoundingClientRect().height >= innerHeight - 1),
     );
+    for (const wash of ["Stronger gradient", "Gold panel", "Soft gold gradient"]) {
+      await page.getByLabel("Hero gradient").selectOption(wash);
+      assert.equal(await page.locator("[data-framing]").getAttribute("data-wash"), wash);
+    }
     for (const [density, count] of [
       ["4 × 4", 16],
       ["5 × 5", 25],
@@ -161,6 +164,11 @@ for (const [name, engine, width] of [
     await page.goto(base + "/resources");
     const fresh = page.locator(".resource-tile").first();
     await fresh.waitFor();
+    if (width < 768) {
+      assert.ok(await fresh.evaluate(el => el.getBoundingClientRect().bottom < innerHeight));
+      assert.ok(await fresh.evaluate(el => el.getBoundingClientRect().height < 150));
+      if (process.env.REVIEW_SCREENSHOTS) await page.screenshot({path: process.env.REVIEW_SCREENSHOTS + "/phone-resources.png"});
+    }
     assert.equal(await fresh.locator(".tile-detail").count(), 0);
     await fresh.getByRole("button", { name: /Show details/ }).click();
     await fresh.getByRole("link", { name: /Google Doc/ }).waitFor();
@@ -172,6 +180,11 @@ for (const [name, engine, width] of [
     await guide.click();
     await page.locator("main h1").waitFor();
     assert.equal(new URL(page.url()).pathname, "/resources/new-to-pitt");
+    if (width < 768) {
+      await page.getByText("Jump to a topic", {exact:true}).click();
+      await page.getByRole("navigation", {name:"Student guide topics"}).getByRole("link",{name:"Halal Food"}).click();
+      assert.equal(new URL(page.url()).hash, "#halal-food");
+    }
     await page.goto(base + "/gallery");
     await page.locator('[data-collection="Contact sheet"]').waitFor();
     await bar.click();
@@ -185,6 +198,20 @@ for (const [name, engine, width] of [
     const original = await moment.textContent();
     await page.getByRole("button", { name: "Next moment" }).click();
     assert.notEqual(await moment.textContent(), original);
+    if (width < 768) {
+      const filters = page.getByRole("button", { name: /Filter albums/ });
+      await filters.click();
+      await page.locator("#album-filters").getByRole("button", { name: "Spring '26" }).click();
+      assert.equal(await filters.getAttribute("aria-expanded"), "false");
+      await page.locator('a[href="/gallery/pitt-friendsgiving"]').filter({has: page.getByRole("heading", { name: "Friendsgiving", exact:true })}).waitFor({state:"detached"});
+      await page.getByRole("heading", {name:"MSA Gala", exact:true}).waitFor();
+    }
+    await page.getByRole("link", {name: "Open Friendsgiving album"}).click();
+    await page.getByRole("heading", {name:"Friendsgiving", exact:true}).waitFor();
+    assert.equal(await page.getByRole("button", {name:/Open photo/}).count(), 4);
+    await page.getByRole("button",{name:/Open photo 1/}).click();
+    await page.keyboard.press("ArrowRight");
+    await page.keyboard.press("Escape");
     await page.goto(base + "/events");
     await page.getByRole("button", { name: "Design switches" }).waitFor();
     await page

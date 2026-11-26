@@ -2,7 +2,7 @@ import { LinkField } from "@/editor/content";
 import { TextField, itemIdentity, ContentScope, CardCopies } from "@/editor/content";
 import { useDesign } from "@/design/options";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { photos } from "@/design/CommunityPhotos";
+import { communityPhoto } from "@/data/communityPhotos";
 import { ResourceTile } from "@/design/ResourceTile";
 import { useState } from "react";
 import { motion } from "framer-motion";
@@ -13,7 +13,7 @@ import Layout from "@/components/Layout";
 import SectionHeading from "@/components/SectionHeading";
 import SectionDivider from "@/components/SectionDivider";
 import ArabicVerse from "@/components/ArabicVerse";
-import patternImg from "@/assets/islamic-pattern-360.webp";
+import patternImg from "@/assets/geometric-tile.svg";
 
 const resources = [
   {
@@ -64,7 +64,7 @@ const FlipCard = ({ resource, index }: { resource: typeof resources[0]; index: n
     return <ResourceTile label={resource.title}
       title={<TextField id={mobile?"Resources_1":"Resources_8"}>{resource.title}</TextField>}
       body={<TextField id={mobile?"Resources_3":"Resources_13"}>{resource.backDesc}</TextField>}
-      photo={photos[[2,0,1,4][index%4]].src} tone={["pine","clay","plum","slate"][index%4]}
+      photo={communityPhoto((["students", "lakeshore", "river-talk", "craft-detail"] as const)[index % 4]).src} tone={["pine","clay","plum","slate"][index%4]}
       primary={actions[0]} extra={actions.slice(1)}/>;
   }
   return (
@@ -153,6 +153,14 @@ const FlipCard = ({ resource, index }: { resource: typeof resources[0]; index: n
   );
 };
 
+function resourceCard(resource: typeof resources[number], index: number) {
+  return (
+    <CardCopies key={resource.title} id={"Resources_22-" + itemIdentity(resource, resource.title)}>
+      <FlipCard resource={resource} index={index} />
+    </CardCopies>
+  );
+}
+
 const Resources = () => {
   const {cards,details}=useDesign();
   const mobile=useIsMobile();
@@ -160,7 +168,7 @@ const Resources = () => {
   return (
     <Layout>
       {/* Hero */}
-      <section className="relative py-32 md:py-40 text-center px-4 overflow-hidden">
+      <section className="relative pt-24 pb-5 md:py-40 text-center px-4 overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: "200px" }} />
           <div className="absolute inset-0 gradient-mesh-gold" />
@@ -170,34 +178,32 @@ const Resources = () => {
         </div>
 
         <div className="relative z-10">
-          <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.55 }} className="inline-block mb-6">
+          <motion.div initial={false} className="hidden md:inline-block mb-6">
             <span className="text-6xl">🤲</span>
           </motion.div>
-          <motion.h1 initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="font-display text-5xl md:text-7xl font-bold text-foreground mb-4"><TextField id="Resources_18">
+          <motion.h1 initial={false} className="font-display text-5xl md:text-7xl font-bold text-foreground mb-4"><TextField id="Resources_18">
             We've got </TextField><span className="text-gradient-gold inline-block pb-1"><TextField id="Resources_19">you.</TextField></span>
           </motion.h1>
-          <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.32 }} className="font-satoshi text-xl text-muted-foreground max-w-2xl mx-auto"><TextField id="Resources_20">
+          <motion.p initial={false} className="font-satoshi text-base md:text-xl text-muted-foreground max-w-2xl mx-auto"><TextField id="Resources_20">
             From navigating college to navigating your faith — here are resources to support you.
           </TextField></motion.p>
         </div>
       </section>
 
       {/* Resource Cards */}
-      <section className="section-padding relative overflow-hidden">
+      <section className="section-padding max-md:!pt-4 relative overflow-hidden">
         <div className="absolute inset-0 steps-surface pointer-events-none" />
         <div className="absolute inset-0 texture-cross opacity-25 pointer-events-none" />
         <div className="absolute top-1/3 right-0 w-96 h-96 rounded-full bg-primary/[0.06] blur-[110px] pointer-events-none" />
         <div className="absolute bottom-1/4 left-0 w-80 h-80 rounded-full bg-secondary/[0.05] blur-[90px] pointer-events-none" />
 
         <div className="max-w-5xl mx-auto relative z-10">
-          <ContentScope id="Resources_21"><SectionHeading title="Your Resources" label="Everything You Need" /></ContentScope>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {resources.map((r, i) => (
-              <CardCopies key={r.title} id={"Resources_22-" + itemIdentity(r, r.title)}><FlipCard key={r.title} resource={r} index={i} /></CardCopies>
-            ))}
+          <div className="max-md:sr-only"><ContentScope id="Resources_21"><SectionHeading title="Your Resources" label="Everything You Need" /></ContentScope></div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
+            {resourceCard(resources[0], 0)}
 
             {/* Prayer card — combined prayer page */}
-            <CardCopies id="resource-prayer">{tiles?<ResourceTile label="Prayer" title={<TextField id={mobile?"Resources_23":"Resources_26"}>Prayer</TextField>} body={<TextField id={mobile?"Resources_24":"Resources_27"}>Daily times, Jummah and places to pray on campus.</TextField>} photo={photos[0].src} tone="pine" primary={<Link to="/resources/prayer"><TextField id={mobile?"Resources_25":"Resources_28"}>Open prayer guide</TextField> →</Link>} />:<motion.div
+            <CardCopies id="resource-prayer">{tiles?<ResourceTile label="Prayer" title={<TextField id={mobile?"Resources_23":"Resources_26"}>Prayer</TextField>} body={<TextField id={mobile?"Resources_24":"Resources_27"}>Daily times, Jummah and places to pray on campus.</TextField>} photo="/photos/prayer/jummah-ballroom.webp" tone="pine" primary={<Link to="/resources/prayer"><TextField id={mobile?"Resources_25":"Resources_28"}>Open prayer guide</TextField> →</Link>} />:<motion.div
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
@@ -224,7 +230,7 @@ const Resources = () => {
             </motion.div>}</CardCopies>
 
             {/* Chaplain card */}
-            <CardCopies id="resource-chaplain">{tiles?<ResourceTile label="University Chaplain" title={<TextField id={mobile?"Resources_29":"Resources_33"}>University Chaplain</TextField>} body={<TextField id={mobile?"Resources_30":"Resources_34"}>Office hours, spiritual guidance and a space to talk.</TextField>} photo={photos[2].src} tone="slate" primary={<Link to="/resources/chaplain"><TextField id={mobile?"Resources_31":"Resources_36"}>Meet the chaplain</TextField> →</Link>} extra={<LinkField fieldId="Resources_destination_3" href="mailto:imam@pitt.edu">Email the chaplain ↗</LinkField>}/>:<motion.div
+            <CardCopies id="resource-chaplain">{tiles?<ResourceTile label="University Chaplain" title={<TextField id={mobile?"Resources_29":"Resources_33"}>University Chaplain</TextField>} body={<TextField id={mobile?"Resources_30":"Resources_34"}>Office hours, spiritual guidance and a space to talk.</TextField>} photo="/photos/prayer/imam-muhammad-patel.webp" tone="slate" primary={<Link to="/resources/chaplain"><TextField id={mobile?"Resources_31":"Resources_36"}>Meet the chaplain</TextField> →</Link>} extra={<LinkField fieldId="Resources_destination_3" href="mailto:imam@pitt.edu">Email the chaplain ↗</LinkField>}/>:<motion.div
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
@@ -258,7 +264,7 @@ const Resources = () => {
             </motion.div>}</CardCopies>
 
             {/* FAQ card */}
-            <CardCopies id="resource-faq">{tiles?<ResourceTile label="FAQ" title={<TextField id={mobile?"Resources_37":"Resources_40"}>FAQ</TextField>} body={<TextField id={mobile?"Resources_38":"Resources_41"}>Answers about membership, events, prayer and campus life.</TextField>} photo={photos[1].src} tone="clay" primary={<Link to="/resources/faq"><TextField id={mobile?"Resources_39":"Resources_42"}>Read FAQ</TextField> →</Link>} />:<motion.div
+            <CardCopies id="resource-faq">{tiles?<ResourceTile label="FAQ" title={<TextField id={mobile?"Resources_37":"Resources_40"}>FAQ</TextField>} body={<TextField id={mobile?"Resources_38":"Resources_41"}>Answers about membership, events, prayer and campus life.</TextField>} photo={communityPhoto("hall-friends").src} tone="clay" primary={<Link to="/resources/faq"><TextField id={mobile?"Resources_39":"Resources_42"}>Read FAQ</TextField> →</Link>} />:<motion.div
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
@@ -283,6 +289,7 @@ const Resources = () => {
                 </Link>
               </div>
             </motion.div>}</CardCopies>
+            {resources.slice(1).map((resource, i) => resourceCard(resource, i + 1))}
           </div>
 
           {/* Bottom action row — calendar subscriptions + linktree */}

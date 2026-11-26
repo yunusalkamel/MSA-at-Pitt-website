@@ -7,19 +7,14 @@ import { Eye, Calendar } from "lucide-react";
 import Layout from "@/components/Layout";
 import ArabicVerse from "@/components/ArabicVerse";
 import BridgeBar from "@/components/BridgeBar";
-import patternImg from "@/assets/islamic-pattern-360.webp";
+import patternImg from "@/assets/geometric-tile.svg";
 import { useSanityData } from "@/hooks/useSanityData";
 import { QUERIES, urlFor } from "@/lib/sanity";
 
-import kickoffImg from "@/assets/gallery-kickoff-720.webp";
-import iftarImg from "@/assets/gallery-iftar-720.webp";
-import eidImg from "@/assets/gallery-eid-720.webp";
-import topgolfImg from "@/assets/gallery-topgolf-720.webp";
-import halaqaImg from "@/assets/gallery-halaqa-720.webp";
-import sistersImg from "@/assets/gallery-sisters-720.webp";
+import { communityAlbums } from "@/data/communityPhotos";
 
 type SemesterKey = "all" | "spring26" | "fall25" | "spring25" | "fall24";
-type FilterCategory = SemesterKey | "brothers" | "sisters" | "general" | "signature" | "social" | "dawah" | "cec" | "halaqa" | "jummah" | "sports" | "speaker";
+type FilterCategory = SemesterKey | "fall" | "spring" | "brothers" | "sisters" | "general" | "signature" | "social" | "dawah" | "cec" | "halaqa" | "jummah" | "sports" | "speaker";
 
 interface GalleryAlbum {
   title: string;
@@ -33,14 +28,6 @@ interface GalleryAlbum {
   coverImageLqip?: string;
 }
 
-const FALLBACK_ALBUMS: GalleryAlbum[] = [
-  { title: "MSA Fall Kickoff",      photoCount: 120, category: ["fall", "signature", "general"],  audience: "Brothers & Sisters", eventDate: "2025-09-12", coverImageUrl: kickoffImg },
-  { title: "Ramadan Iftar Night",   photoCount: 85,  category: ["spring", "signature", "general"], audience: "Brothers & Sisters", eventDate: "2026-03-08", coverImageUrl: iftarImg },
-  { title: "Eid Social",            photoCount: 64,  category: ["spring", "signature", "general"], audience: "Brothers & Sisters", eventDate: "2026-04-01", coverImageUrl: eidImg },
-  { title: "MSA TopGolf Night",     photoCount: 42,  category: ["spring", "social", "general"],   audience: "Brothers & Sisters", eventDate: "2026-02-15", coverImageUrl: topgolfImg },
-  { title: "Weekly Halaqa",         photoCount: 30,  category: ["fall", "dawah", "general"],       audience: "Brothers & Sisters", eventDate: "2025-10-21", coverImageUrl: halaqaImg },
-  { title: "Sisters' Social Night", photoCount: 38,  category: ["fall", "social", "sisters"],     audience: "Sisters",            eventDate: "2025-10-04", coverImageUrl: sistersImg },
-];
 
 const SEMESTER_KEYS: SemesterKey[] = ["spring26", "fall25", "spring25", "fall24"];
 
@@ -110,6 +97,10 @@ const buildLabel = (album: GalleryAlbum) => {
   return type;
 };
 
+function groupLabel(key: FilterCategory) {
+  return filterGroups.flatMap(group => group.filters).find(filter => filter.key === key)?.label ?? "All";
+}
+
 const AlbumCard = ({ album, index }: { album: GalleryAlbum; index: number }) => {
   const imageUrl = album.coverImageUrl ?? (
     (album.coverImage as { asset?: { _ref?: string } })?.asset?._ref
@@ -124,7 +115,7 @@ const AlbumCard = ({ album, index }: { album: GalleryAlbum; index: number }) => 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.04, duration: 0.25 }}
-      className="group relative rounded-2xl overflow-hidden shadow-xl cursor-pointer aspect-[16/10]"
+      className="group relative rounded-2xl overflow-hidden shadow-xl cursor-pointer aspect-[1.15] md:aspect-[16/10]"
       style={lqip ? { backgroundImage: `url(${lqip})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}
     >
       {imageUrl && (
@@ -133,7 +124,7 @@ const AlbumCard = ({ album, index }: { album: GalleryAlbum; index: number }) => 
           alt={album.title}
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           loading="lazy"
-          sizes="(max-width: 767px) 92vw, 560px"
+          sizes="(max-width: 359px) 92vw, (max-width: 767px) 46vw, 560px"
           decoding="async"
           width={900}
           height={560}
@@ -142,21 +133,22 @@ const AlbumCard = ({ album, index }: { album: GalleryAlbum; index: number }) => 
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
       <div className="absolute inset-0 bg-gradient-to-t from-primary/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-      <div className="absolute bottom-0 left-0 right-0 p-5 md:p-7 z-10">
-        <h3 className="font-display text-xl md:text-2xl font-bold text-white mb-1 drop-shadow-lg leading-tight">
+      <div className="absolute bottom-0 left-0 right-0 p-3 md:p-7 z-10">
+        <h3 className="font-display text-base md:text-2xl font-bold text-white mb-1 drop-shadow-lg leading-tight">
           <TextField id="Gallery_2">{album.title}</TextField>
         </h3>
-        <p className="text-white/80 text-sm mb-4">
-          {album.photoCount ? `${album.photoCount} photos · ` : ""}<TextField id="Gallery_3">{album.audience ?? "Brothers & Sisters"}</TextField>
+        <p className="text-white/85 text-xs md:text-sm md:mb-4">
+          {album.photoCount ? `${album.photoCount} ${album.photoCount === 1 ? "photo" : "photos"}` : ""}
+          {album.audience && <> · <TextField id="Gallery_3">{album.audience}</TextField></>}
         </p>
-        <span className="inline-flex items-center gap-2 gold-gradient text-primary-foreground px-4 py-2 rounded-full text-sm font-semibold shadow-lg group-hover:scale-105 transition-transform duration-300">
+        <span className="hidden md:inline-flex items-center gap-2 gold-gradient text-primary-foreground px-4 py-2 rounded-full text-sm font-semibold shadow-lg group-hover:scale-105 transition-transform duration-300">
           <Eye size={14} />
           {album.slug ? "View Album" : "View Photos"}
         </span>
       </div>
 
       {label && (
-        <div className="absolute top-4 right-4 z-10">
+        <div className="hidden md:block absolute top-4 right-4 z-10">
           <span className="liquid-glass-pill px-3 py-1 text-xs font-semibold text-foreground">
             <TextField id="Gallery_4">{label}</TextField>
           </span>
@@ -184,6 +176,7 @@ const Gallery = () => {
     description: "Iftars, kickoffs, halaqas, late-night socials — a year in the life of MSA at Pitt.",
   });
   const prefersReduced = useReducedMotion();
+  const [showFilters, setShowFilters] = useState(false);
   const [activeFilter, setActiveFilter] = useState<FilterCategory>("all");
 
   const heroRef = useRef<HTMLElement>(null);
@@ -194,8 +187,7 @@ const Gallery = () => {
   const { data: sanityAlbums } = useSanityData<any[]>(QUERIES.galleryAlbums);
 
   const albums: GalleryAlbum[] = useMemo(() => {
-    if (sanityAlbums && sanityAlbums.length > 0) {
-      return sanityAlbums.map((a) => ({
+    const remote = (sanityAlbums ?? []).map((a) => ({
         title: a.title,
         slug: a.slug,
         photoCount: a.photoCount,
@@ -204,21 +196,20 @@ const Gallery = () => {
         eventDate: a.eventDate,
         coverImage: a.coverImage,
       }));
-    }
-    return design.realPhotos||design.moments?[]:FALLBACK_ALBUMS;
-  }, [sanityAlbums,design.realPhotos,design.moments]);
+    return [...remote, ...communityAlbums.filter(a => !remote.some(r => r.slug === a.slug)).map(a => ({ ...a, category: a.category as FilterCategory[] }))];
+  }, [sanityAlbums]);
 
   const filtered = useMemo(() => {
     if (activeFilter === "all") return albums;
     if ((SEMESTER_KEYS as readonly string[]).includes(activeFilter)) {
-      return albums.filter((a) => matchSemester(a.eventDate, activeFilter as SemesterKey));
+      return albums.filter((a) => a.category.includes(activeFilter) || matchSemester(a.eventDate, activeFilter as SemesterKey));
     }
     return albums.filter((a) => a.category.includes(activeFilter));
   }, [albums, activeFilter]);
 
   return (
     <Layout>
-      <section ref={heroRef} className="relative min-h-[50vh] flex flex-col items-center justify-center pt-28 pb-16 md:pt-36 md:pb-20 text-center px-4 overflow-hidden">
+      <section ref={heroRef} className="relative md:min-h-[50vh] flex flex-col items-center justify-center pt-24 pb-8 md:pt-36 md:pb-20 text-center px-4 overflow-hidden">
         <motion.div className="absolute inset-0" style={{ y: bgY }}>
           <div className="absolute inset-0 bg-accent" />
           <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: "200px" }} />
@@ -248,7 +239,11 @@ const Gallery = () => {
       {design.moments && <GalleryRecaps/>}
       {design.recap && <div className="recap-link"><Link to="/events">Come to the next gathering →</Link></div>}
       {(!design.moments || albums.length>0) && <><section className="py-3 liquid-glass-strong sticky top-[68px] md:top-[76px] z-30 border-b border-border/30">
-        <div className="max-w-5xl mx-auto px-4 space-y-2">
+        <div className="max-w-5xl mx-auto px-4">
+          <button type="button" aria-controls="album-filters" aria-expanded={showFilters} className="md:hidden w-full flex items-center justify-between min-h-11 text-sm font-semibold" onClick={() => setShowFilters(v => !v)}>
+            Filter albums <span>{groupLabel(activeFilter)} {showFilters ? "▴" : "▾"}</span>
+          </button>
+          <div id="album-filters" className={`space-y-2 ${showFilters ? "" : "hidden md:block"}`}>
           {filterGroups.map((group) => (
             <ContentScope key={group.label} id={"Gallery_11-" + itemIdentity(group, group.label)}><div key={group.label} className="flex items-center gap-3 min-w-0">
               <span className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground/50 font-bold flex-shrink-0 hidden sm:block w-[52px]"><TextField id="Gallery_12">{group.label}</TextField></span>
@@ -259,7 +254,8 @@ const Gallery = () => {
                     return (
                       <ContentScope key={f.key} id={"Gallery_13-" + itemIdentity(f, f.key)}><button
                         key={f.key}
-                        onClick={() => setActiveFilter(f.key)}
+                        aria-pressed={isActive}
+                        onClick={() => { setActiveFilter(f.key); setShowFilters(false); }}
                         className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-msa-gold/60 ${
                           isActive
                             ? "gold-gradient text-primary-foreground shadow-md"
@@ -274,6 +270,7 @@ const Gallery = () => {
               </div>
             </div></ContentScope>
           ))}
+          </div>
         </div>
       </section>
 
@@ -281,8 +278,8 @@ const Gallery = () => {
         <div className="absolute inset-0 steps-surface" />
         <div className="absolute inset-0 texture-dots opacity-60" />
         <div className="max-w-6xl mx-auto relative z-10 pb-4">
-          <AnimatePresence>
-            <motion.div key={activeFilter} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }} className="grid md:grid-cols-2 gap-6 md:gap-8">
+          <AnimatePresence mode="wait">
+            <motion.div key={activeFilter} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }} className="grid min-[360px]:grid-cols-2 gap-3 md:gap-8">
               {filtered.map((album, i) => (
                 <ContentScope key={album.slug ?? album.title} id={"Gallery_15-" + itemIdentity(album, album.slug ?? album.title)}><AlbumCard key={album.slug ?? album.title} album={album} index={i} /></ContentScope>
               ))}
