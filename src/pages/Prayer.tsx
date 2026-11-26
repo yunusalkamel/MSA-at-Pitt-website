@@ -667,9 +667,10 @@ const Prayer = () => {
             <div className="grid md:grid-cols-2 gap-8 items-start">
               <div>
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center flex-shrink-0">
+                  {design.locationPhotos && <PhotoSlots name="Jummah prayer"/>}
+                  {!design.locationPhotos && <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center flex-shrink-0">
                     <span className="text-lg">🕌</span>
-                  </div>
+                  </div>}
                   <div>
                     <p className="font-body font-bold text-foreground text-base"><TextField id="Prayer_20">Every Friday at 2:00 PM</TextField></p>
                     <p className="font-body text-muted-foreground text-sm"><TextField id="Prayer_21">Typically held in Ohara Ballroom</TextField></p>
@@ -680,7 +681,7 @@ const Prayer = () => {
                     <Clock size={15} className="text-primary mt-0.5 flex-shrink-0" />
                     <div>
                       <p className="font-body font-semibold text-foreground text-sm"><TextField id="Prayer_22">Prayer time: 2:00 PM sharp</TextField></p>
-                      <p className="font-dm-sans text-muted-foreground text-xs mt-0.5 leading-relaxed"><TextField id="Prayer_23">Arrive a few minutes early for khutbah. Location may change — always confirm before heading over.</TextField></p>
+                      <p className="font-dm-sans text-muted-foreground text-xs mt-0.5 leading-relaxed"><TextField id="Prayer_23">Arrive a few minutes early for khutbah. The location can change. Check before heading over.</TextField></p>
                     </div>
                   </div>
                 </div>
@@ -716,7 +717,6 @@ const Prayer = () => {
               </div>
             </div>
           </motion.div>
-          {design.locationPhotos && <PhotoSlots name="Jummah prayer" count={3}/>}
         </div>
       </section>
 
@@ -745,7 +745,8 @@ const Prayer = () => {
                 className="liquid-glass-hover p-6 md:p-7 rounded-2xl"
               >
                 <div className="flex items-start gap-3 mb-3">
-                  <MapPin size={16} className="text-primary mt-1 flex-shrink-0" />
+                  {design.locationPhotos && <PhotoSlots name={space.name}/>}
+                  {!design.locationPhotos && <MapPin size={16} className="text-primary mt-1 flex-shrink-0" />}
                   <div>
                     <h3 className="font-display text-lg font-bold text-foreground"><TextField id="Prayer_31">{space.name}</TextField></h3>
                     <p className="text-muted-foreground text-sm"><TextField id="Prayer_32">{space.detail}</TextField></p>
@@ -758,7 +759,6 @@ const Prayer = () => {
                     </li></ContentScope>
                   ))}
                 </ul>
-                {design.locationPhotos && <PhotoSlots name={space.name} count={i<2?3:1}/>}
               </motion.div></CardCopies>
             ))}
           </div>
@@ -799,7 +799,7 @@ const Prayer = () => {
                   ))}
                 </ul>
                 </div>
-                {design.locationPhotos && <PhotoSlots name={m.name} count={1}/>}
+                {design.locationPhotos && <PhotoSlots name={m.name}/>}
               </motion.div></CardCopies>
             ))}
           </div>

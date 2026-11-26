@@ -44,7 +44,7 @@ export function ContentScope({
     </Scope.Provider>
   );
 }
-function useField(id: string) {
+export function useField(id: string) {
   const scope = useContext(Scope);
   const { pathname } = useLocation();
   const shared = /^(Navbar|Footer|AnnouncementBar)_/.test(id);

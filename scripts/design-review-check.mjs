@@ -28,7 +28,14 @@ for (const [name, engine, width] of [
     const bar = page.getByRole("button", { name: "Design switches" });
     await bar.waitFor();
     await page.locator("[data-photo-hero] figure").first().waitFor();
-    assert.equal(await page.locator("[data-photo-hero] figure").count(), 4);
+    assert.equal(await page.locator("[data-photo-hero] figure").count(), width < 768 ? 4 : 16);
+    if (width < 768) {
+      assert.ok(await page.locator("[data-photo-hero]").evaluate(el => {
+        const tiles = el.querySelector(".photo-arrangement").getBoundingClientRect();
+        const words = el.querySelector(".hero-words").getBoundingClientRect();
+        return tiles.bottom <= words.top + 1 && tiles.height > 200;
+      }));
+    }
     const picture = page.locator("[data-photo-hero] img").first();
     await picture.evaluate((img) => img.decode());
     assert.ok(await picture.evaluate((img) => img.naturalWidth > 0));
@@ -108,7 +115,27 @@ for (const [name, engine, width] of [
     await page.locator(".daily-prayers").waitFor();
     assert.equal(await page.locator(".daily-prayers dd").count(), 6);
     assert.equal(await page.locator("#chartjs-cdn").count(), 0);
-    assert.equal(await page.locator(".location-photos > *").count(), 13);
+    for (const [venue, count] of [
+      ["WPU Reflection Room", 4], ["Jummah prayer", 2],
+      ["Rec Center Reflection Room", 4], ["Benedum Room 403", 1],
+    ]) {
+      const trigger = page.getByRole("button", { name: `View ${venue} photos (${count})` });
+      await trigger.click();
+      const viewer = page.getByRole("dialog", { name: venue + " photos" });
+      const sources = new Set();
+      for (let i = 0; i < count; i++) {
+        const img = viewer.locator("img");
+        await img.evaluate(el => el.decode());
+        sources.add(await img.getAttribute("src"));
+        if (i + 1 < count) await viewer.getByRole("button", { name: "Next location photo" }).click();
+      }
+      assert.equal(sources.size, count);
+      await page.keyboard.press("Escape");
+      assert.equal(await viewer.count(), 0);
+    }
+    const publicHealth = page.locator(".liquid-glass-hover").filter({has: page.getByRole("heading", {name: /Room A721/})});
+    await publicHealth.getByRole("img", {name: "Photo coming soon"}).waitFor();
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
     await page
       .getByLabel("Prayer location", { exact: true })
       .selectOption("west");
@@ -122,6 +149,12 @@ for (const [name, engine, width] of [
       .getByRole("button", { name: /Close the solar almanac/i })
       .click();
     assert.equal(await page.locator("#ctop").count(), 0);
+    await page.goto(base + "/resources/chaplain");
+    const portrait = page.getByAltText("Imam Muhammad Patel", {exact: true});
+    await portrait.scrollIntoViewIfNeeded();
+    await portrait.evaluate(el => el.decode());
+    assert.ok(await portrait.evaluate(el => Math.abs(el.clientWidth / el.clientHeight - el.naturalWidth / el.naturalHeight) < .01));
+    await page.getByText("Monday 5–6 PM after his halaqah · Friday 3–4 PM", {exact: true}).waitFor();
     await page.goto(base + "/about");
     await page.locator(".cec-partners:visible a").first().waitFor();
     assert.equal(await page.locator(".cec-partners:visible a").count(), 5);

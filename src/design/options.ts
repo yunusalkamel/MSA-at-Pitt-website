@@ -37,7 +37,7 @@ export const switches = {
 export type Switch = keyof typeof switches;
 export const choices = {
   framing: ["Full screen", "Split layout"],
-  density: ["2 × 2", "4 × 4", "5 × 5"],
+  density: ["Responsive", "2 × 2", "4 × 4", "5 × 5"],
   chapters: ["Seamless", "Fine rules", "Soft color bands"],
   stats: ["Low float", "In flow"],
   collection: ["Contact sheet", "Filmstrip", "Spotlight"],
@@ -73,7 +73,7 @@ export const proposed: Options = {
   eventFirst: false,
   sampleNotice: false,
   framing: "Full screen",
-  density: "2 × 2",
+  density: "Responsive",
   chapters: "Fine rules",
   stats: "Low float",
   collection: "Contact sheet",

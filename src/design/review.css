@@ -453,20 +453,6 @@
   display: block;
   margin: 16px 0;
 }
-.location-photos {
-  margin-top: 16px;
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.location-photos > * {
-  max-width: 22rem;
-  min-width: 100px;
-  flex: 1;
-  aspect-ratio: 16/9;
-  object-fit: cover;
-  border-radius: 9px;
-}
 .photo-slot-empty {
   display: grid;
   place-items: center;
@@ -658,27 +644,6 @@
 [data-compact-notice] p {
   white-space: normal;
 }
-.location-photos figure {
-  position: relative;
-  overflow: hidden;
-}
-.location-photos figure > img,
-.location-photos figure > .photo-slot-empty {
-  display: grid;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.location-photos figure button {
-  position: absolute;
-  bottom: 6px;
-  right: 6px;
-  background: hsl(var(--background));
-  border: 1px solid hsl(var(--border));
-  border-radius: 1rem;
-  padding: 4px 9px;
-  font-size: 12px;
-}
 @media (prefers-reduced-motion: reduce) {
   .resource-review * {
     animation: none !important;
@@ -723,14 +688,7 @@
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background: linear-gradient(
-    90deg,
-    rgba(250, 246, 234, 0.99) 0%,
-    rgba(250, 246, 234, 0.95) 27%,
-    rgba(250, 246, 234, 0.8) 40%,
-    rgba(250, 246, 234, 0.12) 67%,
-    transparent 85%
-  );
+  background: transparent;
 }
 .dark [data-framing="Full screen"]::before {
   background: linear-gradient(
@@ -746,6 +704,21 @@
   margin: 0;
   max-width: min(46vw, 620px);
 }
+:root:not(.dark) [data-framing="Full screen"] .hero-words::before {
+  content: "";
+  position: absolute;
+  inset: -1.1rem -1.4rem;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: 10px;
+  background: #f4e3bfe8;
+  box-shadow: 0 5px 28px #31271825;
+}
+:root:not(.dark) [data-framing="Full screen"] .hero-words .font-script {
+  background: none;
+  color: #80531a;
+  -webkit-text-fill-color: currentColor;
+}
 [data-framing="Full screen"] .hero-words .font-dm-sans {
   color: hsl(var(--foreground));
 }
@@ -756,7 +729,7 @@
   grid-template-columns: repeat(var(--tiles), minmax(0, 1fr));
   grid-template-rows: repeat(var(--tiles), minmax(0, 1fr));
   gap: 2px;
-  background: #f5f0df;
+  background: #d9c390;
 }
 [data-layout="Collage"].community-media .photo-arrangement figure {
   grid-column: auto;
@@ -878,74 +851,84 @@
   text-decoration: underline;
   text-underline-offset: 4px;
 }
+/* Keep wayfinding photos in the location row at every viewport width. */
 .venue-photos {
-  width: min(100%, 19rem);
-  min-width: 0;
+  position: relative;
+  width: clamp(5rem, 12vw, 8.75rem);
+  aspect-ratio: 1.42;
+  flex: none;
 }
-.venue-photos .location-photos {
-  display: flex;
-  gap: 0;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
-  border-radius: 9px;
-}
-.venue-photos .location-photos figure {
-  margin: 0;
-  flex: 0 0 100%;
-  max-width: none;
-  min-width: 0;
-  aspect-ratio: 2.55;
-  scroll-snap-align: start;
-}
-.photo-pages {
-  display: flex;
-  justify-content: center;
-}
-.photo-pages button {
-  padding: 7px 5px;
+.venue-thumb, .venue-photos > img, .venue-photos .photo-slot-empty {
   display: grid;
-  place-items: center;
-  min-height: 24px;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  border-radius: 7px;
+  overflow: hidden;
 }
-.photo-pages span {
-  width: 6px;
-  height: 6px;
-  background: hsl(var(--muted-foreground));
-  border-radius: 50%;
-  opacity: 0.4;
+.venue-photos .photo-slot-empty {
+  place-content: center;
+  background: linear-gradient(145deg, hsl(var(--muted)), hsl(var(--primary) / .1));
+  text-align: center;
+  font-size: .68rem;
+  line-height: 1.2;
+  padding: 4px;
 }
-.photo-pages [aria-pressed="true"] span {
-  opacity: 1;
-  width: 14px;
-  border-radius: 8px;
+.venue-thumb img, .venue-photos > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.venue-thumb > span, .venue-edit-next {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #13242fde;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font: 600 11px/1.5 system-ui;
 }
 [data-mosque-side] {
   display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(90px, 1fr);
-  gap: 18px;
+  grid-template-columns: minmax(0,1fr) auto;
+  gap: clamp(10px, 2vw, 20px);
+  align-items: start;
+}
+[data-mosque-side="left"] { grid-template-columns: auto minmax(0,1fr); }
+[data-mosque-side="left"] .venue-photos { grid-area: 1 / 1; }
+[data-mosque-side="left"] .mosque-information { grid-column: 2; }
+.venue-viewer {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: min(94vw, 52rem);
+  max-height: 94dvh;
+  border-radius: 12px;
+  overflow: auto;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+.venue-viewer::backdrop { background: #0a1421df; }
+.venue-viewer header, .venue-viewer footer {
+  display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  padding: .4rem .85rem;
 }
-[data-mosque-side="left"] {
-  grid-template-columns: minmax(90px, 1fr) minmax(0, 2fr);
-}
-[data-mosque-side="left"] .venue-photos {
-  grid-row: 1;
-  grid-column: 1;
-}
-[data-mosque-side="left"] .mosque-information {
-  grid-column: 2;
-}
-[data-mosque-side] .venue-photos {
-  width: 100%;
-}
-[data-mosque-side] .location-photos {
-  margin: 0;
-}
-[data-mosque-side] .location-photos figure {
-  aspect-ratio: 1.25;
-}
+.venue-viewer footer { background: inherit; color: inherit; }
+.venue-viewer footer p { font-size: .9rem; line-height: 1.4; }
+.venue-viewer footer small { display: block; color: hsl(var(--muted-foreground)); }
+.venue-viewer footer div { display: flex; }
+.venue-viewer button { display: grid; place-items: center; flex: none; width: 44px; height: 44px; }
+.venue-viewer figure { margin: 0; background: #111923; }
+.venue-viewer img { width: 100%; height: min(68dvh, 40rem); object-fit: contain; }
+
 .mosque-information h3 a {
   text-decoration: underline;
   text-decoration-thickness: 1px;
@@ -1089,16 +1072,6 @@
     max-width: 100%;
     align-self: flex-start;
   }
-  [data-framing="Full screen"]::before {
-    background: linear-gradient(
-      0deg,
-      #f9f5e9 0%,
-      #f9f5e9f5 26%,
-      #f9f5e9df 49%,
-      #f9f5e95c 70%,
-      transparent 86%
-    );
-  }
   .dark [data-framing="Full screen"]::before {
     background: linear-gradient(
       0deg,
@@ -1131,24 +1104,6 @@
   .daily-prayers dl > div {
     padding: 8px 5px;
   }
-  [data-mosque-side],
-  [data-mosque-side="left"] {
-    grid-template-columns: minmax(0, 1fr) 80px;
-    gap: 10px;
-  }
-  [data-mosque-side="left"] {
-    grid-template-columns: 80px minmax(0, 1fr);
-  }
-  [data-mosque-side] .photo-slot-empty {
-    font-size: 10px;
-    padding: 5px 4px 30px;
-  }
-  [data-mosque-side] .location-photos figure {
-    aspect-ratio: 0.84;
-  }
-  .venue-photos .location-photos figure button {
-    font-size: 10px;
-  }
   [data-collection="Contact sheet"] .moment-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -1176,4 +1131,40 @@
 }
 .hero-trials button {
   text-decoration: underline;
+}
+
+/* Give all four phone photos their own visible space above the welcome copy. */
+@media (max-width: 767px) {
+  [data-photo-hero][data-framing="Full screen"]:has([data-layout="Collage"]) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(17rem, 1fr) auto;
+    padding: 0;
+    background: #f5e7c9;
+  }
+  .dark [data-photo-hero][data-framing="Full screen"]:has([data-layout="Collage"]) {
+    background: #101c2b;
+  }
+  [data-framing="Full screen"]:has([data-layout="Collage"])::before,
+  :root:not(.dark) [data-framing="Full screen"]:has([data-layout="Collage"]) .hero-words::before {
+    display: none;
+  }
+  [data-framing="Full screen"] .community-media[data-layout="Collage"] {
+    position: relative;
+    grid-row: 1;
+    z-index: 0;
+  }
+  [data-framing="Full screen"] [data-layout="Collage"] .photo-arrangement {
+    position: absolute;
+    inset: 0;
+  }
+  [data-framing="Full screen"] [data-layout="Collage"] .wall-controls {
+    top: auto;
+    right: .65rem;
+    bottom: .6rem;
+  }
+  [data-framing="Full screen"]:has([data-layout="Collage"]) .hero-words {
+    grid-row: 2;
+    padding: 1.1rem 1.3rem 3.7rem;
+  }
 }

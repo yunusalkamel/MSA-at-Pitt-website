@@ -28,7 +28,7 @@ const ImamCard = () => {
   const bio =
     data?.imamBio ||
     "For Islamic counseling, naseeha, or personal guidance — our chaplain is available to all students.";
-  const officeHours = data?.imamOfficeHours;
+  const officeHours = data?.imamOfficeHours || "Monday 5–6 PM after his halaqah · Friday 3–4 PM";
   const email = data?.imamEmail;
   const booking = data?.imamBookingUrl;
 

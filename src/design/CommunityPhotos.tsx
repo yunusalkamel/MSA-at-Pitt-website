@@ -1,5 +1,5 @@
 import { useHeroTrials } from "./heroTrials";
-import { useEffect, useState, useRef, type CSSProperties } from "react";
+import { useEffect, useState, useRef, useSyncExternalStore, type CSSProperties } from "react";
 import { Picture, TextField } from "@/editor/content";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useDesign } from "./options";
@@ -19,6 +19,11 @@ export const photos = [
   { id: "football", src: football, title: "Between games" },
 ];
 type Photo = (typeof photos)[number];
+const phone = window.matchMedia("(max-width: 767px)");
+function subscribeToWidth(update: () => void) {
+  phone.addEventListener("change", update);
+  return () => phone.removeEventListener("change", update);
+}
 export function HeroPhotos({ albums = [] }: { albums?: Photo[] }) {
   const { hero, themed, texture, density } = useDesign();
   const { theme } = useTheme();
@@ -29,7 +34,8 @@ export function HeroPhotos({ albums = [] }: { albums?: Photo[] }) {
   const [paused, setPaused] = useState(false);
   const [reelPlaying, setReelPlaying] = useState(false);
   const collage = hero === "Collage";
-  const columns = Number(density[0]);
+  const compact = useSyncExternalStore(subscribeToWidth, () => phone.matches);
+  const columns = density === "Responsive" ? (compact ? 2 : 4) : Number(density[0]);
   const playing = collage
     ? !paused && !reduced
     : hero === "Photo reel" && reelPlaying;

@@ -1,92 +1,96 @@
-import { useContext, useRef, useState } from "react";
-import { Picture, Content } from "@/editor/content";
+import { useContext, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { ChevronLeft, ChevronRight, Images, X } from "lucide-react";
+import { Content, Picture, useField } from "@/editor/content";
 
-// Temporary reviewer photos stay in this tab. The existing editor handles published images.
-const trials = new Map<string, string>();
-function TrialPhoto({ name, index }: { name: string; index: number }) {
-  const { editing } = useContext(Content);
-  const key = name + "/" + index;
-  const [src, setSrc] = useState(() => trials.get(key));
-  const file = useRef<HTMLInputElement>(null);
-  const label = name + " · Photo " + (index + 1);
-  return (
-    <figure>
-      <Picture
-        fieldId={"location-photo-" + (index + 1)}
-        src={src}
-        emptyLabel={label}
-        alt={name + " view " + (index + 1)}
-        loading="lazy"
-        width={640}
-        height={400}
-      />
-      {!editing && (
-        <>
-          <button
-            onClick={() => file.current?.click()}
-            aria-label={"Try a photo for " + label}
-          >
-            Try a photo
-          </button>
-          <input
-            type="file"
-            accept="image/*"
-            hidden
-            ref={file}
-            onChange={(e) => {
-              const image = e.target.files?.[0];
-              if (!image || !image.type.startsWith("image/")) return;
-              const old = trials.get(key);
-              if (old) URL.revokeObjectURL(old);
-              const url = URL.createObjectURL(image);
-              trials.set(key, url);
-              setSrc(url);
-            }}
-          />
-        </>
-      )}
-    </figure>
+type Photo = readonly [file: string, description: string];
+const sets: Record<string, readonly Photo[]> = {
+  "WPU Reflection Room": [
+    ["wpu-entrance", "Entrance to the William Pitt Union reflection room"],
+    ["wpu-dividers", "Movable dividers inside the reflection room"],
+    ["wpu-gathering", "Students listening to a talk in the reflection room"],
+    ["wpu-students", "Students seated along the windows"],
+  ],
+  "Jummah prayer": [
+    ["jummah-ballroom", "Students gathered for the Friday khutbah"],
+    ["jummah-community", "Students seated on prayer mats at Jummah"],
+  ],
+  "Rec Center Reflection Room": [
+    ["rec-entrance", "Reflection room entrance and shoe-free sign"],
+    ["rec-room", "Inside the reflection room, facing the shoe shelves"],
+    ["rec-wudu", "Wudu station beside the sink"],
+    ["rec-guidelines", "Posted guidelines for using the reflection room"],
+  ],
+  "Benedum Room 403": [["benedum-room", "Prayer mat inside Benedum Room 403"]],
+};
+
+export function PhotoSlots({ name }: { name: string }) {
+  const photos = sets[name] ?? [];
+  const [index, setIndex] = useState(0);
+  const [open, setOpen] = useState(false);
+  const dialog = useRef<HTMLDialogElement>(null);
+  const touchStart = useRef<number | null>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
+  const { editing, fields } = useContext(Content);
+  const fieldId = "location-photo-" + (index + 1);
+  const key = useField(fieldId);
+  const [file, description] = photos[index] ?? [];
+  const alt = fields[key + "/alt"];
+  const caption = alt?.kind === "alt" ? alt.text : description;
+  const available = !!file || fields[key]?.kind === "image";
+  const placeholder = name.startsWith("School of Public Health") ? "/photos/prayer/room-photo-pending.svg" : undefined;
+  const count = Math.max(1, photos.length);
+  const step = (delta: number) => setIndex(i => (i + delta + count) % count);
+  useEffect(() => {
+    if (open) dialog.current?.showModal();
+  }, [open]);
+
+  const picture = (full: boolean) => (
+    <Picture fieldId={fieldId}
+      src={file ? "/photos/prayer/" + file + (full ? "" : "-thumb") + ".webp" : placeholder}
+      emptyLabel="Photo coming soon" alt={description || (available ? name : "Photo coming soon")} width={full ? 1440 : 340}
+      loading={full ? "eager" : "lazy"} decoding="async" />
   );
-}
-export function PhotoSlots({ name, count }: { name: string; count: number }) {
-  const track = useRef<HTMLDivElement>(null);
-  const [active, setActive] = useState(0);
   return (
     <div className="venue-photos">
-      <div
-        className="location-photos"
-        ref={track}
-        role="region"
-        aria-label={name + " photos"}
-        tabIndex={count > 1 ? 0 : undefined}
-        onScroll={(e) => {
-          const el = e.currentTarget;
-          setActive(Math.round(el.scrollLeft / (el.clientWidth || 1)));
-        }}
-      >
-        {Array.from({ length: count }, (_, i) => (
-          <TrialPhoto key={i} name={name} index={i} />
-        ))}
-      </div>
-      {count > 1 && (
-        <div className="photo-pages">
-          {Array.from({ length: count }, (_, i) => (
-            <button
-              key={i}
-              aria-label={name + " photo " + (i + 1)}
-              aria-pressed={active === i}
-              onClick={() =>
-                track.current?.scrollTo({
-                  left: i * track.current.clientWidth,
-                  behavior: "instant",
-                })
-              }
-            >
-              <span />
-            </button>
-          ))}
-        </div>
+      {editing || !available ? (
+        <>
+          {picture(false)}
+          {editing && count > 1 && <button className="venue-edit-next" onClick={() => step(1)}>Next photo · {index + 1}/{count}</button>}
+        </>
+      ) : (
+        <button className="venue-thumb" ref={trigger} aria-label={`View ${name} photos (${count})`} onClick={() => setOpen(true)}>
+          {picture(false)}
+          <span aria-hidden="true"><Images size={14}/>{count > 1 && count}</span>
+        </button>
       )}
+      {open && createPortal(
+        <dialog ref={dialog} className="venue-viewer" aria-label={name + " photos"}
+          onClose={() => { setOpen(false); trigger.current?.focus({ preventScroll: true }); }}
+          onClick={e => { if (e.target === dialog.current) dialog.current.close(); }}
+          onKeyDown={e => {
+            if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+              e.preventDefault();
+              step(e.key === "ArrowLeft" ? -1 : 1);
+            }
+          }}>
+          <div className="venue-viewer-inner">
+            <header><strong>{name}</strong><button autoFocus aria-label="Close photos" onClick={() => dialog.current?.close()}><X size={20}/></button></header>
+            <figure onTouchStart={e => { touchStart.current = e.touches[0].clientX; }}
+              onTouchEnd={e => {
+                if (touchStart.current === null) return;
+                const dx = e.changedTouches[0].clientX - touchStart.current;
+                if (Math.abs(dx) > 50) step(dx < 0 ? 1 : -1);
+                touchStart.current = null;
+              }}>
+              {picture(true)}
+            </figure>
+            <footer>
+              <p aria-live="polite">{count > 1 && <small>{index + 1} / {count}</small>}{caption}</p>
+              {count > 1 && <div><button aria-label="Previous location photo" onClick={() => step(-1)}><ChevronLeft/></button><button aria-label="Next location photo" onClick={() => step(1)}><ChevronRight/></button></div>}
+            </footer>
+          </div>
+        </dialog>, document.body)}
     </div>
   );
 }

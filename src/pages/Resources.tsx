@@ -250,7 +250,7 @@ const Resources = () => {
                   <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed flex-1"><TextField id="Resources_34">Islamic counseling, naseeha, halaqahs, and support from Imam Muhammad Patel.</TextField></p>
                   <div className="flex items-center gap-2 mt-3">
                     <Clock size={12} className="text-primary" />
-                    <span className="text-xs text-muted-foreground"><TextField id="Resources_35">Tue &amp; Thu 4–6 PM</TextField></span>
+                    <span className="text-xs text-muted-foreground"><TextField id="Resources_35">Mon 5–6 PM · Fri 3–4 PM</TextField></span>
                   </div>
                   <span className="inline-flex items-center gap-2 text-primary text-sm font-semibold mt-2"><TextField id="Resources_36">Learn More </TextField><ArrowRight size={14} /></span>
                 </Link>
