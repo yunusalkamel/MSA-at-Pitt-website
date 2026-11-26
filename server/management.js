@@ -5,6 +5,7 @@ const problems = {
     503,
     "Management database configuration is incomplete for this deployment.",
   ],
+  invalid_owner: [400, "Choose another account that has already signed in with a verified email."],
   identity: [403, "Sign in with a verified email address."],
   administrator_conflict: [
     409,
