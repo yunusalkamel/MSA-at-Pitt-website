@@ -1,3 +1,4 @@
+import { isPublicSiteOrigin } from "@/config/site";
 import { LinkField, ContentScope, Picture, TextField } from "@/editor/content";
 import { Link } from "react-router-dom";
 import { Instagram, Facebook } from "lucide-react";
@@ -141,7 +142,7 @@ const Footer = () => {
 
         <details className="text-center text-sm mb-4"><summary>Privacy and analytics</summary>
           <p>We use aggregate Vercel traffic and speed measurements on public pages. We exclude management and counseling pages. Optional Google Analytics measures page visits and link clicks using a random browser identifier. We do not send form entries or contact details.</p>
-          {import.meta.env.VITE_OPTIONAL_ANALYTICS==="true" && location.hostname==="msaatpitt.vercel.app" && <button onClick={()=>{
+          {import.meta.env.VITE_OPTIONAL_ANALYTICS==="true" && isPublicSiteOrigin(location.origin) && <button onClick={()=>{
             const enabled=localStorage.getItem("msa-analytics")==="yes";
             localStorage.setItem("msa-analytics",enabled?"no":"yes");
             if(enabled){localStorage.removeItem("msa-visitor");sessionStorage.removeItem("msa-visit");sessionStorage.removeItem("msa-last");}

@@ -109,7 +109,7 @@ const Navbar = () => {
             >
               <img src="/photos/brand/msa-logo.webp" width={32} height={32} className="w-8 h-8" alt="" />
               <span className="hidden sm:inline"><span className="text-jannah-mid dark:text-jannah-light"><TextField id="Navbar_1">MSA</TextField></span>{" "}
-              <span className="text-msa-blue dark:text-white/90"><TextField id="Navbar_2">At Pitt</TextField></span></span>
+              <span className="text-msa-blue dark:text-white/90"><TextField id="Navbar_2">at Pitt</TextField></span></span>
             </Link>
 
             {/* Desktop nav */}

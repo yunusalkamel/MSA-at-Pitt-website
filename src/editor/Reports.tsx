@@ -1,3 +1,4 @@
+import { SITE_ORIGIN } from "@/config/site";
 import { useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { request, messageOf } from "./ManagementLogin";
@@ -312,7 +313,7 @@ export default function Reports({ session }: { session: Session }) {
           Speed Insights
         </a>{" "}
         ·{" "}
-        <a href="https://pagespeed.web.dev/analysis?url=https%3A%2F%2Fmsaatpitt.vercel.app">
+        <a href={`https://pagespeed.web.dev/analysis?url=${encodeURIComponent(SITE_ORIGIN)}`}>
           PageSpeed Insights
         </a>{" "}
         ·{" "}

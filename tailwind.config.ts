@@ -18,11 +18,8 @@ export default {
         body: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
         arabic: ['Amiri', 'serif'],
         script: ['Pinyon Script', 'cursive'],
-        burgues: ['Burgues Script', 'cursive'],
         satoshi: ['Satoshi', 'system-ui', 'sans-serif'],
         'dm-sans': ['DM Sans', 'system-ui', 'sans-serif'],
-        barlow: ['Barlow Condensed', 'system-ui', 'sans-serif'],
-        outfit: ['Outfit', 'system-ui', 'sans-serif'],
         mono: ['Space Mono', 'monospace'],
       },
       colors: {

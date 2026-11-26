@@ -1,9 +1,10 @@
 import { TextField } from "@/editor/content";
 import { Link } from "react-router-dom";
-import { Clock, MapPin, ArrowRight } from "lucide-react";
+import { MapPin, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { useSanityData } from "@/hooks/useSanityData";
 import { QUERIES } from "@/lib/sanity";
+import { LINKS } from "@/config/links";
 
 interface ResourcesData {
   jummahTime?: string;
@@ -26,7 +27,7 @@ const TodayJummah = () => {
   if (!isFriday) return null;
 
   const time = data?.jummahTime || "1:00 – 2:00 PM";
-  const location = data?.jummahLocation || "Nordy's Place, Cathedral of Learning";
+  const location = data?.jummahLocation?.trim();
   const note = data?.jummahNotes || "Check our Instagram story this morning for room confirmation.";
 
   return (
@@ -37,7 +38,7 @@ const TodayJummah = () => {
       className="relative max-w-3xl mx-auto px-4"
     >
       <Link
-        to="/prayer-times"
+        to={location ? "/resources/prayer" : LINKS.instagram}
         className="block group rounded-2xl liquid-glass-strong border border-msa-gold/25 hover:border-msa-gold/40 transition-all duration-300 px-5 py-4 md:px-6 md:py-5 shadow-[0_4px_24px_rgba(242,171,35,0.12)] hover:shadow-[0_8px_32px_rgba(242,171,35,0.18)]"
       >
         <div className="flex items-center gap-4">
@@ -59,7 +60,7 @@ const TodayJummah = () => {
             <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
               <span className="flex items-center gap-1.5 truncate">
                 <MapPin size={11} className="text-secondary/70 flex-shrink-0" />
-                <span className="truncate"><TextField id="TodayJummah_4">{location}</TextField></span>
+                <span className="truncate"><TextField id="TodayJummah_4">{location || "Check Instagram for the location"}</TextField></span>
               </span>
             </div>
           </div>

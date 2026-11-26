@@ -27,7 +27,7 @@ import { useCalendarEvents } from "@/hooks/useCalendarEvents";
 import { useSanityData } from "@/hooks/useSanityData";
 import { QUERIES, urlFor } from "@/lib/sanity";
 import patternImg from "@/assets/geometric-tile.svg";
-import { mockEvents, getUpcomingWindow } from "@/data/events";
+import { getUpcomingWindow } from "@/data/events";
 import { LINKS } from "@/config/links";
 import { getEventTier } from "@/components/events/calendar-utils";
 
@@ -105,7 +105,7 @@ const Index = () => {
   const { data: cms } = useSanityData<any>(QUERIES.homePage);
   const { data: galleryPreview } = useSanityData<SanityGalleryAlbum[]>(design.moments || photoHero ? QUERIES.communityRecaps:QUERIES.galleryAlbumsPreview);
   const { events: remoteEvents, loading: eventsLoading, error: eventsError } = useCalendarEvents();
-  const sourceEvents = eventsError ? mockEvents : remoteEvents;
+  const sourceEvents = remoteEvents;
   const upcomingScrollEvents = useMemo(() => getUpcomingWindow(sourceEvents, 15, 3), [sourceEvents]);
 
   // Merge CMS over fallback — only include Sanity values that aren't null/undefined
@@ -184,9 +184,9 @@ const Index = () => {
         <div className="absolute inset-0 texture-dots" />
         <div className="max-w-7xl mx-auto relative z-10">
           <ContentScope id="Index_26"><SectionHeading title="What's coming up" subtitle="Stay connected and never miss a moment." /></ContentScope>
-          {eventsError && (
+          {eventsError && sourceEvents.length === 0 && (
             <div className="mb-4 rounded-xl border border-primary/20 bg-primary/[0.06] px-4 py-3 text-sm text-foreground/80"><TextField id="Index_27">
-              Showing our curated event schedule. Live sync will resume automatically.
+              Events are taking a moment to load. Check </TextField><a href={LINKS.instagram}>@msa.at.pitt</a><TextField id="Index_events_status_suffix"> on Instagram for this week.
             </TextField></div>
           )}
           <div className="md:hidden flex flex-col gap-3">

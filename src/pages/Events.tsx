@@ -17,7 +17,6 @@ import SectionHeading from "@/components/SectionHeading";
 import SectionDivider from "@/components/SectionDivider";
 import patternImg from "@/assets/geometric-tile.svg";
 import {
-  mockEvents,
   getFeaturedEvent,
   getUpcomingWindow,
 } from "@/data/events";
@@ -55,7 +54,7 @@ const Events = () => {
     setView(isMobile && agenda ? "agenda" : "calendar");
   }, [isMobile,agenda]);
 
-  const sourceEvents = error ? mockEvents : remoteEvents;
+  const sourceEvents = remoteEvents;
   const featured = getFeaturedEvent(sourceEvents);
   // Only show the "Signature" treatment if the event is *actually* tagged Signature
   const isSignature = !!featured && featured.tags.includes("Signature");
@@ -133,12 +132,10 @@ const Events = () => {
 
         <div className="max-w-5xl mx-auto relative z-10">
 
-          {error && (
+          {error && sourceEvents.length === 0 && (
             <div className="mb-5 rounded-xl border border-primary/20 bg-primary/[0.06] px-4 py-3 text-sm text-foreground/80"><TextField id="Events_7">
-              Live calendar temporarily unavailable — showing recurring events only.</TextField>{" "}
-              <LinkField fieldId="Events_destination_1" href={LINKS.linktree} target="_blank" rel="noopener noreferrer" className="text-primary font-semibold hover:underline"><TextField id="Events_8">
-                See Linktree for the full schedule →
-              </TextField></LinkField>
+              Events are taking a moment to load. Check </TextField>
+              <LinkField fieldId="Events_destination_1" href={LINKS.instagram} target="_blank" rel="noopener noreferrer" className="text-primary font-semibold hover:underline">@msa.at.pitt</LinkField><TextField id="Events_8"> on Instagram for this week.</TextField>
             </div>
           )}
 

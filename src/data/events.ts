@@ -91,63 +91,6 @@ export const APPLE_CALENDAR_URL = LINKS.appleCalendarSubscribe;
 export const EVENT_SIGNUP_HUB_URL = LINKS.eventSignupHub;
 
 // ── Helpers for dynamic evergreen dates ───────────────────────
-function getNextWeekday(targetDay: number): string {
-  const today = new Date();
-  const day = today.getDay();
-  const diff = (targetDay - day + 7) % 7 || 7;
-  const next = new Date(today);
-  next.setDate(today.getDate() + diff);
-  return next.toISOString().split("T")[0];
-}
-
-// ── Mock / Fallback Data ───────────────────────────────────────
-export const mockEvents: MSAEvent[] = [
-  {
-    id: "evergreen-jummah",
-    title: "Friday Prayer (Jummah)",
-    startDate: getNextWeekday(5), // 5 = Friday
-    timeLabel: "Friday · 1:00 – 2:00 PM",
-    location: "Nordy's Place, Cathedral of Learning",
-    shortBlurb: "Weekly congregational prayer open to all students, faculty, and staff. Check Instagram Stories Friday morning for location confirmation.",
-    // Structured classification
-    audience: "general",
-    categories: ["jumuah"],
-    isSignature: false,
-    tagSource: "rules",
-    confidence: 0.9,
-    // URLs
-    calendarFallbackUrl: GOOGLE_CALENDAR_URL,
-    clickUrl: GOOGLE_CALENDAR_URL, // Jummah → calendar, not linktree
-    // Display
-    tags: ["Jummah", "General"] as EventTag[],
-    // Backward compat
-    ctaMode: "learn-more",
-    addToCalendarUrl: GOOGLE_CALENDAR_URL,
-  },
-  {
-    id: "evergreen-halaqa",
-    title: "Weekly Halaqa",
-    startDate: getNextWeekday(2), // 2 = Tuesday
-    timeLabel: "Tuesday · 7:00 – 8:30 PM",
-    location: "Cathedral of Learning",
-    shortBlurb: "Our weekly circle of knowledge — reflective discussion on Quranic themes and community conversation.",
-    // Structured classification
-    audience: "general",
-    categories: ["halaqa"],
-    isSignature: false,
-    tagSource: "rules",
-    confidence: 0.8,
-    // URLs
-    calendarFallbackUrl: GOOGLE_CALENDAR_URL,
-    clickUrl: LINKS.linktree,
-    // Display
-    tags: ["Halaqa", "General"] as EventTag[],
-    // Backward compat
-    ctaMode: "learn-more",
-    addToCalendarUrl: GOOGLE_CALENDAR_URL,
-  },
-];
-
 // ── Helpers ──────────────────────────────────────────────
 export function getUpcomingEvents(events: MSAEvent[]): MSAEvent[] {
   return events.filter((e) => !e.isPast).sort((a, b) => a.startDate.localeCompare(b.startDate));

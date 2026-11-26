@@ -1,3 +1,4 @@
+import { getSiteOrigin } from "../shared/site-origin.js";
 import { createSign } from "node:crypto";
 import { fail, environment } from "./management.js";
 import { publicPages } from "../shared/traffic.js";
@@ -206,7 +207,7 @@ export async function report({ view, start, end, page }) {
     return cached("crux" + (page ?? ""), 86400000, async () => {
       const rows = [];
       for (const formFactor of ["PHONE", "DESKTOP"]) {
-        const origin = "https://msaatpitt.vercel.app";
+        const origin = getSiteOrigin(process.env.SITE_ORIGIN);
         const res = await fetch(
           "https://chromeuxreport.googleapis.com/v1/records:queryHistoryRecord?key=" +
             encodeURIComponent(process.env.CRUX_API_KEY),

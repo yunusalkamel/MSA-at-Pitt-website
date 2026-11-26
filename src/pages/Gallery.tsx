@@ -13,8 +13,8 @@ import { QUERIES, urlFor } from "@/lib/sanity";
 
 import { communityAlbums } from "@/data/communityPhotos";
 
-type SemesterKey = "all" | "spring26" | "fall25" | "spring25" | "fall24";
-type FilterCategory = SemesterKey | "fall" | "spring" | "brothers" | "sisters" | "general" | "signature" | "social" | "dawah" | "cec" | "halaqa" | "jummah" | "sports" | "speaker";
+type SemesterKey = `spring${number}` | `fall${number}`;
+type FilterCategory = "all" | SemesterKey | "fall" | "spring" | "brothers" | "sisters" | "general" | "signature" | "social" | "dawah" | "cec" | "halaqa" | "jummah" | "sports" | "speaker";
 
 interface GalleryAlbum {
   title: string;
@@ -29,31 +29,21 @@ interface GalleryAlbum {
 }
 
 
-const SEMESTER_KEYS: SemesterKey[] = ["spring26", "fall25", "spring25", "fall24"];
-
-function matchSemester(dateStr: string | undefined, key: SemesterKey): boolean {
-  if (!dateStr) return false;
-  const d = new Date(dateStr + "T12:00:00");
-  const yr = d.getFullYear();
-  const mo = d.getMonth();
-  const season = mo >= 7 ? "fall" : "spring";
-  const yy = String(yr).slice(2);
-  return key === `${season}${yy}`;
+function semesterFor(date: string | undefined) {
+  const match = /^(\d{4})-(0[1-9]|1[0-2])-\d{2}$/.exec(date ?? "");
+  if (!match) return;
+  const [, year, month] = match;
+  const fall = Number(month) >= 8;
+  return {
+    key: `${fall ? "fall" : "spring"}${Number(year)}` as SemesterKey,
+    label: `${fall ? "Fall" : "Spring"} '${year.slice(2)}`,
+    sort: Number(year) * 2 + Number(fall),
+  };
 }
 
 type FilterGroup = { label: string; filters: { key: FilterCategory; label: string }[] };
 
-const filterGroups: FilterGroup[] = [
-  {
-    label: "Semester",
-    filters: [
-      { key: "all",      label: "All" },
-      { key: "spring26", label: "Spring '26" },
-      { key: "fall25",   label: "Fall '25" },
-      { key: "spring25", label: "Spring '25" },
-      { key: "fall24",   label: "Fall '24" },
-    ],
-  },
+const categoryGroups: FilterGroup[] = [
   {
     label: "Audience",
     filters: [
@@ -79,10 +69,7 @@ const filterGroups: FilterGroup[] = [
 
 /** Build "Fall '25 · Signature" — semester/year first, event type secondary. */
 const buildLabel = (album: GalleryAlbum) => {
-  const year = album.eventDate ? new Date(album.eventDate).getFullYear() : null;
-  const semester = album.category.includes("fall") ? "Fall" : album.category.includes("spring") ? "Spring" : null;
-  const shortYear = year ? `'${String(year).slice(2)}` : null;
-  const semLabel = semester && shortYear ? `${semester} ${shortYear}` : null;
+  const semLabel = semesterFor(album.eventDate)?.label;
 
   let type = "";
   if (album.category.includes("signature")) type = "Signature";
@@ -96,10 +83,6 @@ const buildLabel = (album: GalleryAlbum) => {
   if (semLabel) return semLabel;
   return type;
 };
-
-function groupLabel(key: FilterCategory) {
-  return filterGroups.flatMap(group => group.filters).find(filter => filter.key === key)?.label ?? "All";
-}
 
 const AlbumCard = ({ album, index }: { album: GalleryAlbum; index: number }) => {
   const imageUrl = album.coverImageUrl ?? (
@@ -199,12 +182,25 @@ const Gallery = () => {
     return [...remote, ...communityAlbums.filter(a => !remote.some(r => r.slug === a.slug)).map(a => ({ ...a, category: a.category as FilterCategory[] }))];
   }, [sanityAlbums]);
 
+  const semesters = useMemo(() => {
+    const seen = new Map<SemesterKey, NonNullable<ReturnType<typeof semesterFor>>>();
+    for (const album of albums) {
+      const semester = semesterFor(album.eventDate);
+      if (semester) seen.set(semester.key, semester);
+    }
+    return [...seen.values()].sort((a, b) => b.sort - a.sort);
+  }, [albums]);
+  const filterGroups: FilterGroup[] = [
+    { label: "Semester", filters: [{ key: "all", label: "All" }, ...semesters] },
+    ...categoryGroups,
+  ];
+  const activeLabel = filterGroups.flatMap(group => group.filters).find(filter => filter.key === activeFilter)?.label ?? "All";
   const filtered = useMemo(() => {
     if (activeFilter === "all") return albums;
-    if ((SEMESTER_KEYS as readonly string[]).includes(activeFilter)) {
-      return albums.filter((a) => a.category.includes(activeFilter) || matchSemester(a.eventDate, activeFilter as SemesterKey));
+    if (/^(?:fall|spring)\d{4}$/.test(activeFilter)) {
+      return albums.filter(album => semesterFor(album.eventDate)?.key === activeFilter);
     }
-    return albums.filter((a) => a.category.includes(activeFilter));
+    return albums.filter(album => album.category.includes(activeFilter));
   }, [albums, activeFilter]);
 
   return (
@@ -241,7 +237,7 @@ const Gallery = () => {
       {(!design.moments || albums.length>0) && <><section className="py-3 liquid-glass-strong sticky top-[68px] md:top-[76px] z-30 border-b border-border/30">
         <div className="max-w-5xl mx-auto px-4">
           <button type="button" aria-controls="album-filters" aria-expanded={showFilters} className="md:hidden w-full flex items-center justify-between min-h-11 text-sm font-semibold" onClick={() => setShowFilters(v => !v)}>
-            Filter albums <span>{groupLabel(activeFilter)} {showFilters ? "▴" : "▾"}</span>
+            Filter albums <span>{activeLabel} {showFilters ? "▴" : "▾"}</span>
           </button>
           <div id="album-filters" className={`space-y-2 ${showFilters ? "" : "hidden md:block"}`}>
           {filterGroups.map((group) => (

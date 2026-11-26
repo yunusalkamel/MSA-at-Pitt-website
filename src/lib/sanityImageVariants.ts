@@ -1,7 +1,9 @@
+import { SITE_ORIGIN } from "@/config/site";
+
 const widths = [240, 400, 640, 800, 1120, 1440, 1920];
 
 export function sanityImageSrcSet(source: string, maxWidth: number): string | undefined {
-  const url = new URL(source, "https://msaatpitt.vercel.app");
+  const url = new URL(source, SITE_ORIGIN);
   if (url.origin !== "https://cdn.sanity.io" || !url.pathname.startsWith("/images/")) return;
 
   const dimensions = url.pathname.match(/-(\d+)x(\d+)\.[a-z]+$/i);

@@ -1,12 +1,12 @@
 import { TextField } from "@/editor/content";
 import { useState, useEffect, useMemo } from "react";
-import { MapPin, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCalendarEvents } from "@/hooks/useCalendarEvents";
 import { useSanityData } from "@/hooks/useSanityData";
 import { QUERIES } from "@/lib/sanity";
-import { mockEvents } from "@/data/events";
+import { LINKS } from "@/config/links";
 import type { MSAEvent } from "@/data/events";
 import { parseStartMinutes } from "@/components/events/calendar-utils";
 
@@ -38,8 +38,7 @@ const TodayNextEvent = () => {
 
   const next = useMemo(() => {
     const today = todayISOStr();
-    const source: MSAEvent[] = calError ? mockEvents : calEvents;
-    const candidates: MSAEvent[] = source.filter(e => e.startDate === today);
+    const candidates: MSAEvent[] = calEvents.filter(e => e.startDate === today);
 
     // On Fridays, inject Jummah from Sanity if the calendar doesn't already have one
     const isFriday = new Date().getDay() === 5;
@@ -51,14 +50,14 @@ const TodayNextEvent = () => {
           title: "Jummah Prayer",
           startDate: today,
           timeLabel: resources.jummahTime,
-          location: resources.jummahLocation ?? "Nordy's Place, Cathedral of Learning",
+          location: resources.jummahLocation?.trim() || "",
           shortBlurb: "",
           audience: "general",
           categories: ["jumuah"],
           isSignature: false,
           tagSource: "explicit",
           confidence: 1,
-          calendarFallbackUrl: "/prayer-times",
+          calendarFallbackUrl: "/resources/prayer",
         } as MSAEvent);
       }
     }
@@ -67,9 +66,13 @@ const TodayNextEvent = () => {
     return candidates
       .sort((a, b) => parseStartMinutes(a) - parseStartMinutes(b))
       .find(e => parseStartMinutes(e) >= mins - 60);
-  }, [calEvents, calError, resources, mins]);
+  }, [calEvents, resources, mins]);
 
-  if (!next) return null;
+  if (!next) return calError && !calEvents.length ? (
+    <p role="status">Events are taking a moment to load. Check <a href={LINKS.instagram}>@msa.at.pitt</a> on Instagram for this week.</p>
+  ) : null;
+  const confirmOnInstagram = next.id === "__jummah_sanity__" && !next.location;
+  const destination = confirmOnInstagram ? LINKS.instagram : next.calendarFallbackUrl || "/events";
 
   const timeDisplay = next.timeLabel.includes("·")
     ? next.timeLabel.split("·").slice(1).join("·").trim()
@@ -90,7 +93,7 @@ const TodayNextEvent = () => {
         className="mt-5 max-w-xs mx-auto"
       >
         <Link
-          to="/events"
+          to={destination}
           className="block group rounded-2xl liquid-glass border border-white/20 hover:border-msa-gold/40 transition-all duration-300 px-4 py-3 shadow-[0_4px_24px_rgba(0,0,0,0.2)]"
         >
           <div className="flex items-center gap-3">
@@ -110,7 +113,7 @@ const TodayNextEvent = () => {
                 <TextField id="TodayNextEvent_3">{next.title}</TextField>
               </p>
               <p className="font-body text-[11px] text-accent-foreground/55 mt-0.5 truncate">
-                <TextField id="TodayNextEvent_4">{timeDisplay}</TextField>{next.location ? ` · ${next.location}` : ""}
+                <TextField id="TodayNextEvent_4">{timeDisplay}</TextField>{next.location ? ` · ${next.location}` : confirmOnInstagram ? " · Check Instagram for the location" : ""}
               </p>
             </div>
             <ArrowRight
