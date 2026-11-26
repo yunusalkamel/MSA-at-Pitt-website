@@ -1,3 +1,4 @@
+import { PageHero } from "@/components/PageHero";
 import { Picture, LinkField } from "@/editor/content";
 import { TextField, itemIdentity, ContentScope, CardCopies } from "@/editor/content";
 import { motion } from "framer-motion";
@@ -134,7 +135,7 @@ const Bullets = ({ items }: { items: string[] }) => (
 const NewToPitt = () => (
   <Layout>
     {/* Hero */}
-    <section className="relative pt-24 pb-6 md:py-36 text-center px-4 overflow-hidden">
+    <PageHero className="relative text-center overflow-hidden">
       <div className="absolute inset-0 gradient-mesh-gold" />
       <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: "200px" }} />
           
@@ -163,7 +164,7 @@ const NewToPitt = () => (
           </LinkField>
         </motion.div>
       </div>
-    </section>
+    </PageHero>
 
     {/* Content */}
     <section className="section-padding !pt-10 md:!pt-14 relative overflow-hidden">

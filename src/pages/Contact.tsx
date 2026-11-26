@@ -1,3 +1,4 @@
+import { PageHero } from "@/components/PageHero";
 import { LinkField, CardCopies, TextField, ContentScope } from "@/editor/content";
 import { motion } from "framer-motion";
 import { Mail, BookOpen, MessageSquare, ArrowRight, Calendar } from "lucide-react";
@@ -92,7 +93,7 @@ const Contact = () => {
   return (
     <Layout>
       {/* Hero */}
-      <section className="relative py-28 md:py-36 overflow-hidden text-center">
+      <PageHero className="relative overflow-hidden text-center">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0 gradient-mesh-warm" />
           <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: '220px' }} />
@@ -127,7 +128,7 @@ const Contact = () => {
             Whether you have a question, need support, or just want to say salam — we're here.
           </TextField></motion.p>
         </div>
-      </section>
+      </PageHero>
 
       {/* Contact cards */}
       <section className="section-padding warm-surface relative overflow-hidden">

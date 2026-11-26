@@ -1,10 +1,9 @@
+import { PageHero } from "@/components/PageHero";
 import { LinkField } from "@/editor/content";
 import { TextField, itemIdentity, ContentScope, CardCopies } from "@/editor/content";
-import { useDesign } from "@/design/options";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { communityPhoto } from "@/data/communityPhotos";
 import { ResourceTile } from "@/design/ResourceTile";
-import { useState } from "react";
 import { motion } from "framer-motion";
 import { BookOpen, Heart, Moon, MessageSquare, Link as LinkIcon, ArrowRight, Mail, Clock, Calendar } from "lucide-react";
 import { LINKS } from "@/config/links";
@@ -53,104 +52,18 @@ const resources = [
 ];
 
 const FlipCard = ({ resource, index }: { resource: typeof resources[0]; index: number }) => {
-  const [flipped, setFlipped] = useState(false);
-
   const mobile = useIsMobile();
-  const {cards,details} = useDesign();
-  if (cards !== "Current" || details === "Desktop flip") {
-    const actions=resource.ctas.filter(cta=>!cta.href.startsWith("#")).map(cta=><ContentScope key={cta.label} id={(cta.internal?(mobile?"Resources_4-":"Resources_14-"):(mobile?"Resources_6-":"Resources_16-"))+itemIdentity(cta,cta.label)}>
+  const actions=resource.ctas.filter(cta=>!cta.href.startsWith("#")).map(cta=><ContentScope key={cta.label} id={(cta.internal?(mobile?"Resources_4-":"Resources_14-"):(mobile?"Resources_6-":"Resources_16-"))+itemIdentity(cta,cta.label)}>
           {cta.internal?<Link to={cta.href}><TextField id={mobile?"Resources_5":"Resources_15"}>{cta.label}</TextField> →</Link>:<LinkField fieldId={mobile?"Resources_destination_1":"Resources_destination_2"} href={cta.href} target="_blank" rel="noopener noreferrer"><TextField id={mobile?"Resources_7":"Resources_17"}>{cta.label}</TextField> ↗</LinkField>}
         </ContentScope>);
     return <ResourceTile label={resource.title}
       title={<TextField id={mobile?"Resources_1":"Resources_8"}>{resource.title}</TextField>}
+      summary={<TextField id={mobile ? "Resources_2" : "Resources_9"}>{resource.desc}</TextField>}
+      detailTitle={<><span aria-hidden="true"><TextField id="Resources_11">{resource.emoji}</TextField></span> <TextField id="Resources_12">{resource.title}</TextField></>}
+      hint={<TextField id="Resources_10">Hover to learn more →</TextField>}
       body={<TextField id={mobile?"Resources_3":"Resources_13"}>{resource.backDesc}</TextField>}
       photo={communityPhoto((["students", "lakeshore", "river-talk", "craft-detail"] as const)[index % 4]).src} tone={["pine","clay","plum","slate"][index%4]}
       primary={actions[0]} extra={actions.slice(1)}/>;
-  }
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.45, delay: index * 0.08 }}
-    >
-      {/* Mobile: flat */}
-      <div className="md:hidden liquid-glass-hover p-6 flex flex-col rounded-[var(--radius)]">
-        <div className={`bg-gradient-to-br ${resource.gradient} w-12 h-12 rounded-xl flex items-center justify-center mb-3 shadow-lg`}>
-          <resource.icon className="text-white" size={20} />
-        </div>
-        <h3 className="font-display text-lg font-bold text-foreground mb-1.5"><TextField id="Resources_1">{resource.title}</TextField></h3>
-        <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed mb-2"><TextField id="Resources_2">{resource.desc}</TextField></p>
-        <p className="font-dm-sans text-muted-foreground/70 text-xs leading-relaxed mb-4"><TextField id="Resources_3">{resource.backDesc}</TextField></p>
-        <div className="flex flex-wrap gap-2">
-          {resource.ctas.map((cta) =>
-            cta.internal ? (
-              <ContentScope key={cta.label} id={"Resources_4-" + itemIdentity(cta, cta.label)}><Link key={cta.label} to={cta.href} className={`btn-${(cta as any).secondary ? "premium-secondary" : "premium"} text-sm self-start`}>
-                <TextField id="Resources_5">{cta.label}</TextField> <ArrowRight size={14} />
-              </Link></ContentScope>
-            ) : (
-              <ContentScope key={cta.label} id={"Resources_6-" + itemIdentity(cta, cta.label)}><LinkField fieldId="Resources_destination_1" key={cta.label} href={cta.href} target="_blank" rel="noopener noreferrer" className={`btn-${(cta as any).secondary ? "premium-secondary" : "premium"} text-sm self-start`}>
-                <TextField id="Resources_7">{cta.label}</TextField> <ArrowRight size={14} />
-              </LinkField></ContentScope>
-            )
-          )}
-        </div>
-      </div>
-
-      {/* Desktop: flip */}
-      <div
-        className="hidden md:block [perspective:1000px] h-[320px] cursor-pointer"
-        onMouseEnter={() => setFlipped(true)}
-        onMouseLeave={() => setFlipped(false)}
-      >
-        <div
-          className="relative w-full h-full transition-transform duration-700 [transform-style:preserve-3d]"
-          style={{ transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)" }}
-        >
-          <div className="absolute inset-0 [backface-visibility:hidden] liquid-glass-hover p-6 md:p-8 flex flex-col rounded-[var(--radius)]">
-            <div className={`bg-gradient-to-br ${resource.gradient} w-14 h-14 rounded-xl flex items-center justify-center mb-4 shadow-lg`}>
-              <resource.icon className="text-white" size={24} />
-            </div>
-            <h3 className="font-display text-xl font-bold text-foreground mb-2"><TextField id="Resources_8">{resource.title}</TextField></h3>
-            <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed flex-1"><TextField id="Resources_9">{resource.desc}</TextField></p>
-            <p className="font-body text-primary text-xs font-semibold mt-3 opacity-55"><TextField id="Resources_10">Hover to learn more →</TextField></p>
-          </div>
-          <div className={`absolute inset-0 [backface-visibility:hidden] [transform:rotateY(180deg)] rounded-[var(--radius)] bg-gradient-to-br ${resource.gradient} p-6 md:p-8 flex flex-col justify-between shadow-xl`}>
-            <div>
-              <span className="text-3xl mb-3 block"><TextField id="Resources_11">{resource.emoji}</TextField></span>
-              <h3 className="font-display text-xl font-bold text-white mb-3"><TextField id="Resources_12">{resource.title}</TextField></h3>
-              <p className="font-dm-sans text-white/85 text-sm leading-relaxed"><TextField id="Resources_13">{resource.backDesc}</TextField></p>
-            </div>
-            <div className="flex flex-wrap gap-2 mt-4">
-              {resource.ctas.map((cta) =>
-                cta.internal ? (
-                  <ContentScope key={cta.label} id={"Resources_14-" + itemIdentity(cta, cta.label)}><Link
-                    key={cta.label}
-                    to={cta.href}
-                    onClick={(e) => e.stopPropagation()}
-                    className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-white/30 transition-colors"
-                  >
-                    <TextField id="Resources_15">{cta.label}</TextField> <ArrowRight size={14} />
-                  </Link></ContentScope>
-                ) : (
-                  <ContentScope key={cta.label} id={"Resources_16-" + itemIdentity(cta, cta.label)}><LinkField fieldId="Resources_destination_2"
-                    key={cta.label}
-                    href={cta.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-white/30 transition-colors"
-                  >
-                    <TextField id="Resources_17">{cta.label}</TextField> <ArrowRight size={14} />
-                  </LinkField></ContentScope>
-                )
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    </motion.div>
-  );
 };
 
 function resourceCard(resource: typeof resources[number], index: number) {
@@ -162,13 +75,11 @@ function resourceCard(resource: typeof resources[number], index: number) {
 }
 
 const Resources = () => {
-  const {cards,details}=useDesign();
   const mobile=useIsMobile();
-  const tiles=cards!=="Current" || details==="Desktop flip";
   return (
     <Layout>
       {/* Hero */}
-      <section className="relative pt-24 pb-5 md:py-40 text-center px-4 overflow-hidden">
+      <PageHero className="relative text-center overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: "200px" }} />
           <div className="absolute inset-0 gradient-mesh-gold" />
@@ -178,8 +89,8 @@ const Resources = () => {
         </div>
 
         <div className="relative z-10">
-          <motion.div initial={false} className="hidden md:inline-block mb-6">
-            <span className="text-6xl">🤲</span>
+          <motion.div initial={false} className="page-hero-kicker">
+            <span className="text-base">🤲</span>
           </motion.div>
           <motion.h1 initial={false} className="font-display text-5xl md:text-7xl font-bold text-foreground mb-4"><TextField id="Resources_18">
             We've got </TextField><span className="text-gradient-gold inline-block pb-1"><TextField id="Resources_19">you.</TextField></span>
@@ -188,10 +99,10 @@ const Resources = () => {
             From navigating college to navigating your faith — here are resources to support you.
           </TextField></motion.p>
         </div>
-      </section>
+      </PageHero>
 
       {/* Resource Cards */}
-      <section className="section-padding max-md:!pt-4 relative overflow-hidden">
+      <section className="section-padding resource-section relative overflow-hidden">
         <div className="absolute inset-0 steps-surface pointer-events-none" />
         <div className="absolute inset-0 texture-cross opacity-25 pointer-events-none" />
         <div className="absolute top-1/3 right-0 w-96 h-96 rounded-full bg-primary/[0.06] blur-[110px] pointer-events-none" />
@@ -199,96 +110,17 @@ const Resources = () => {
 
         <div className="max-w-5xl mx-auto relative z-10">
           <div className="max-md:sr-only"><ContentScope id="Resources_21"><SectionHeading title="Your Resources" label="Everything You Need" /></ContentScope></div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
+          <div className="resource-grid grid sm:grid-cols-2 lg:grid-cols-3">
             {resourceCard(resources[0], 0)}
 
             {/* Prayer card — combined prayer page */}
-            <CardCopies id="resource-prayer">{tiles?<ResourceTile label="Prayer" title={<TextField id={mobile?"Resources_23":"Resources_26"}>Prayer</TextField>} body={<TextField id={mobile?"Resources_24":"Resources_27"}>Daily times, Jummah and places to pray on campus.</TextField>} photo="/photos/prayer/jummah-ballroom.webp" tone="pine" primary={<Link to="/resources/prayer"><TextField id={mobile?"Resources_25":"Resources_28"}>Open prayer guide</TextField> →</Link>} />:<motion.div
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.45, delay: 0.32 }}
-            >
-              <div className="md:hidden liquid-glass-hover p-6 flex flex-col rounded-[var(--radius)]">
-                <div className="bg-gradient-to-br from-[#0A5C46] to-[#148066] w-12 h-12 rounded-xl flex items-center justify-center mb-3 shadow-lg">
-                  <span className="text-xl">🕌</span>
-                </div>
-                <h3 className="font-display text-lg font-bold text-foreground mb-1.5"><TextField id="Resources_23">Prayer</TextField></h3>
-                <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed mb-4"><TextField id="Resources_24">Prayer times, Jummah info, on-campus spaces, and nearby masajid — all in one place.</TextField></p>
-                <Link to="/resources/prayer" className="btn-premium text-sm self-start"><TextField id="Resources_25">Open Prayer Hub </TextField><ArrowRight size={14} /></Link>
-              </div>
-              <div className="hidden md:block [perspective:1000px] h-[320px] cursor-pointer group">
-                <Link to="/resources/prayer" className="block h-full liquid-glass-hover p-6 md:p-8 flex flex-col rounded-[var(--radius)] hover:-translate-y-1 transition-transform duration-300">
-                  <div className="bg-gradient-to-br from-[#0A5C46] to-[#148066] w-14 h-14 rounded-xl flex items-center justify-center mb-4 shadow-lg">
-                    <span className="text-2xl">🕌</span>
-                  </div>
-                  <h3 className="font-display text-xl font-bold text-foreground mb-2"><TextField id="Resources_26">Prayer</TextField></h3>
-                  <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed flex-1"><TextField id="Resources_27">Prayer times, Jummah, on-campus spaces, and nearby masajid — all in one place.</TextField></p>
-                  <span className="inline-flex items-center gap-2 text-primary text-sm font-semibold mt-3"><TextField id="Resources_28">Open Prayer Hub </TextField><ArrowRight size={14} /></span>
-                </Link>
-              </div>
-            </motion.div>}</CardCopies>
+            <CardCopies id="resource-prayer"><ResourceTile label="Prayer" title={<TextField id={mobile?"Resources_23":"Resources_26"}>Prayer</TextField>} body={<TextField id={mobile?"Resources_24":"Resources_27"}>Daily times, Jummah and places to pray on campus.</TextField>} photo="/photos/prayer/jummah-ballroom.webp" tone="pine" primary={<Link to="/resources/prayer"><TextField id={mobile?"Resources_25":"Resources_28"}>Open prayer guide</TextField> →</Link>} /></CardCopies>
 
             {/* Chaplain card */}
-            <CardCopies id="resource-chaplain">{tiles?<ResourceTile label="University Chaplain" title={<TextField id={mobile?"Resources_29":"Resources_33"}>University Chaplain</TextField>} body={<TextField id={mobile?"Resources_30":"Resources_34"}>Office hours, spiritual guidance and a space to talk.</TextField>} photo="/photos/prayer/imam-muhammad-patel.webp" tone="slate" primary={<Link to="/resources/chaplain"><TextField id={mobile?"Resources_31":"Resources_36"}>Meet the chaplain</TextField> →</Link>} extra={<LinkField fieldId="Resources_destination_3" href="mailto:imam@pitt.edu">Email the chaplain ↗</LinkField>}/>:<motion.div
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.45, delay: 0.4 }}
-            >
-              <div className="md:hidden liquid-glass-hover p-6 flex flex-col rounded-[var(--radius)]">
-                <div className="bg-gradient-to-br from-[#14345A] to-[#11233C] w-12 h-12 rounded-xl flex items-center justify-center mb-3 shadow-lg">
-                  <span className="text-xl">🤲</span>
-                </div>
-                <h3 className="font-display text-lg font-bold text-foreground mb-1.5"><TextField id="Resources_29">University Chaplain</TextField></h3>
-                <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed mb-4"><TextField id="Resources_30">Imam Muhammad Patel — Islamic counseling, halaqahs, Jummah, and guidance for every student.</TextField></p>
-                <div className="flex gap-2 flex-wrap">
-                  <Link to="/resources/chaplain" className="btn-premium text-sm self-start"><TextField id="Resources_31">Meet the Chaplain </TextField><ArrowRight size={14} /></Link>
-                  <LinkField fieldId="Resources_destination_3" href="mailto:imam@pitt.edu" className="btn-premium-secondary text-sm self-start"><Mail size={13} /><TextField id="Resources_32"> Email</TextField></LinkField>
-                </div>
-              </div>
-              <div className="hidden md:block [perspective:1000px] h-[320px] cursor-pointer">
-                <Link to="/resources/chaplain" className="block h-full liquid-glass-hover p-6 md:p-8 flex flex-col rounded-[var(--radius)] hover:-translate-y-1 transition-transform duration-300">
-                  <div className="bg-gradient-to-br from-[#14345A] to-[#11233C] w-14 h-14 rounded-xl flex items-center justify-center mb-4 shadow-lg">
-                    <span className="text-2xl">🤲</span>
-                  </div>
-                  <h3 className="font-display text-xl font-bold text-foreground mb-2"><TextField id="Resources_33">University Chaplain</TextField></h3>
-                  <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed flex-1"><TextField id="Resources_34">Islamic counseling, naseeha, halaqahs, and support from Imam Muhammad Patel.</TextField></p>
-                  <div className="flex items-center gap-2 mt-3">
-                    <Clock size={12} className="text-primary" />
-                    <span className="text-xs text-muted-foreground"><TextField id="Resources_35">Mon 5–6 PM · Fri 3–4 PM</TextField></span>
-                  </div>
-                  <span className="inline-flex items-center gap-2 text-primary text-sm font-semibold mt-2"><TextField id="Resources_36">Learn More </TextField><ArrowRight size={14} /></span>
-                </Link>
-              </div>
-            </motion.div>}</CardCopies>
+            <CardCopies id="resource-chaplain"><ResourceTile label="University Chaplain" title={<TextField id={mobile?"Resources_29":"Resources_33"}>University Chaplain</TextField>} body={<TextField id={mobile?"Resources_30":"Resources_34"}>Office hours, spiritual guidance and a space to talk.</TextField>} summary={<TextField id="Resources_35">Mon 5–6 PM · Fri 3–4 PM</TextField>} photo="/photos/prayer/imam-muhammad-patel.webp" tone="slate" primary={<Link to="/resources/chaplain"><TextField id={mobile?"Resources_31":"Resources_36"}>Meet the chaplain</TextField> →</Link>} extra={<LinkField fieldId="Resources_destination_3" href="mailto:imam@pitt.edu"><TextField id="Resources_32">Email the chaplain</TextField> ↗</LinkField>}/></CardCopies>
 
             {/* FAQ card */}
-            <CardCopies id="resource-faq">{tiles?<ResourceTile label="FAQ" title={<TextField id={mobile?"Resources_37":"Resources_40"}>FAQ</TextField>} body={<TextField id={mobile?"Resources_38":"Resources_41"}>Answers about membership, events, prayer and campus life.</TextField>} photo={communityPhoto("hall-friends").src} tone="clay" primary={<Link to="/resources/faq"><TextField id={mobile?"Resources_39":"Resources_42"}>Read FAQ</TextField> →</Link>} />:<motion.div
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.45, delay: 0.48 }}
-            >
-              <div className="md:hidden liquid-glass-hover p-6 flex flex-col rounded-[var(--radius)]">
-                <div className="bg-gradient-to-br from-[#8A6212] to-[#C9A84C] w-12 h-12 rounded-xl flex items-center justify-center mb-3 shadow-lg">
-                  <span className="text-xl">❓</span>
-                </div>
-                <h3 className="font-display text-lg font-bold text-foreground mb-1.5"><TextField id="Resources_37">FAQ</TextField></h3>
-                <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed mb-4"><TextField id="Resources_38">Answers to the most common questions about joining, events, prayer, halal food, and more.</TextField></p>
-                <Link to="/resources/faq" className="btn-premium text-sm self-start"><TextField id="Resources_39">Read FAQ </TextField><ArrowRight size={14} /></Link>
-              </div>
-              <div className="hidden md:block [perspective:1000px] h-[320px] cursor-pointer">
-                <Link to="/resources/faq" className="block h-full liquid-glass-hover p-6 md:p-8 flex flex-col rounded-[var(--radius)] hover:-translate-y-1 transition-transform duration-300">
-                  <div className="bg-gradient-to-br from-[#8A6212] to-[#C9A84C] w-14 h-14 rounded-xl flex items-center justify-center mb-4 shadow-lg">
-                    <span className="text-2xl">❓</span>
-                  </div>
-                  <h3 className="font-display text-xl font-bold text-foreground mb-2"><TextField id="Resources_40">FAQ</TextField></h3>
-                  <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed flex-1"><TextField id="Resources_41">Answers to the most common questions about joining, events, prayer, halal food, and more.</TextField></p>
-                  <span className="inline-flex items-center gap-2 text-primary text-sm font-semibold mt-3"><TextField id="Resources_42">Read FAQ </TextField><ArrowRight size={14} /></span>
-                </Link>
-              </div>
-            </motion.div>}</CardCopies>
+            <CardCopies id="resource-faq"><ResourceTile label="FAQ" title={<TextField id={mobile?"Resources_37":"Resources_40"}>FAQ</TextField>} body={<TextField id={mobile?"Resources_38":"Resources_41"}>Answers about membership, events, prayer and campus life.</TextField>} photo={communityPhoto("hall-friends").src} tone="clay" primary={<Link to="/resources/faq"><TextField id={mobile?"Resources_39":"Resources_42"}>Read FAQ</TextField> →</Link>} /></CardCopies>
             {resources.slice(1).map((resource, i) => resourceCard(resource, i + 1))}
           </div>
 

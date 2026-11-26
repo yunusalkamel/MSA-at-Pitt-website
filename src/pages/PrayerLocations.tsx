@@ -1,3 +1,4 @@
+import { PageHero } from "@/components/PageHero";
 import { ContentScope, TextField, itemIdentity, CardCopies } from "@/editor/content";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
@@ -67,7 +68,7 @@ const masajid = [
 const PrayerLocations = () => (
   <Layout>
     {/* Hero */}
-    <section className="relative py-28 md:py-36 text-center px-4 overflow-hidden">
+    <PageHero className="relative text-center overflow-hidden">
       <div className="absolute inset-0 gradient-mesh-gold" />
       <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: "200px" }} />
           
@@ -92,7 +93,7 @@ const PrayerLocations = () => (
           </Link>
         </motion.div>
       </div>
-    </section>
+    </PageHero>
 
     {/* On-campus */}
     <section className="section-padding relative overflow-hidden">

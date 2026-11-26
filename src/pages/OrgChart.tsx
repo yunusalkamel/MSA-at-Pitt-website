@@ -1,3 +1,4 @@
+import { PageHero } from "@/components/PageHero";
 import { ContentScope, TextField } from "@/editor/content";
 import { motion } from "framer-motion";
 import Layout from "@/components/Layout";
@@ -26,7 +27,7 @@ const BoardPage = () => {
   return (
     <Layout>
       {/* Hero */}
-      <section className="relative py-28 md:py-36 text-center px-4 overflow-hidden">
+      <PageHero className="relative text-center overflow-hidden">
         <div className="absolute inset-0 gradient-mesh-gold" />
         <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: "200px" }} />
         <BridgeBar />
@@ -41,7 +42,7 @@ const BoardPage = () => {
             The students running the show this year.
           </TextField></motion.p>
         </div>
-      </section>
+      </PageHero>
 
       <section className="py-10 px-4 pb-20">
         <div className="max-w-5xl mx-auto">

@@ -1,5 +1,4 @@
 import { PARTNERS } from "./PartnerLogos";
-import { useDesign } from "@/design/options";
 import { LinkField,Picture,TextField, ContentScope, itemIdentity } from "@/editor/content";
 import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
@@ -62,7 +61,6 @@ function MosquePartners(){
   return <div className="cec-partners">{PARTNERS.filter(p=>p.group==="Mosque").map(p=><LinkField key={p.shortName} fieldId={"partner-"+p.shortName} href={p.href} title={p.name}><Picture fieldId={"partner-logo-"+p.shortName} src={p.src?.replace(/\.[^.]+$/,".webp")} alt="" loading="lazy" width={20} height={20}/>{p.shortName} ↗</LinkField>)}</div>;
 }
 const OrgChart = () => {
-  const {partners}=useDesign();
   const { data } = useSanityData<LeadershipData>(QUERIES.leadership);
   const wrapRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -221,13 +219,7 @@ const OrgChart = () => {
               <p className="font-body text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/60 text-center mb-2.5"><TextField id="OrgChart_18">
                 Mosque Partners
               </TextField></p>
-              {partners?<MosquePartners/>:<div className="flex flex-wrap justify-center gap-1.5">
-                {cecMosques.map((m) => (
-                  <ContentScope key={m} id={"OrgChart_19-" + itemIdentity(m, m)}><span key={m} className="font-body text-[11px] px-2.5 py-1 rounded-full bg-[#E1F5EE] text-[#085041] dark:bg-[#085041]/30 dark:text-[#7BC4AC] font-semibold">
-                    <TextField id="OrgChart_20">{m}</TextField>
-                  </span></ContentScope>
-                ))}
-              </div>}
+              <MosquePartners/>
             </div>
           </div>
         </div>
@@ -253,11 +245,7 @@ const OrgChart = () => {
         <ContentScope id={"board-"+cec.id}><Node spec={cec} large /></ContentScope>
         <div className="rounded-2xl border border-border/40 bg-background/40 p-4 -mt-1">
           <p className="font-body text-[10px] uppercase tracking-[0.18em] text-muted-foreground/60 text-center mb-2.5 font-semibold"><TextField id="OrgChart_37">Mosque Partners</TextField></p>
-          {partners?<MosquePartners/>:<div className="flex flex-wrap justify-center gap-1.5">
-            {cecMosques.map((m) => (
-              <ContentScope key={m} id={"OrgChart_38-" + itemIdentity(m, m)}><span key={m} className="font-body text-[11px] px-2.5 py-1 rounded-full bg-[#E1F5EE] text-[#085041] dark:bg-[#085041]/30 dark:text-[#7BC4AC] font-semibold"><TextField id="OrgChart_39">{m}</TextField></span></ContentScope>
-            ))}
-          </div>}
+          <MosquePartners/>
         </div>
       </div>
     </div>

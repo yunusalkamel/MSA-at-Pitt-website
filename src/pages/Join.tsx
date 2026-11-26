@@ -1,3 +1,4 @@
+import { PageHero } from "@/components/PageHero";
 import { LinkField, TextField, ContentScope, itemIdentity, CardCopies } from "@/editor/content";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
@@ -114,7 +115,7 @@ const Join = () => {
       </AnimatePresence>
 
       {/* Hero */}
-      <section className="relative pt-24 pb-5 md:pt-32 md:pb-12 overflow-x-hidden text-center">
+      <PageHero className="relative overflow-x-hidden text-center">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0 gradient-mesh-gold" />
           <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: '220px' }} />
@@ -171,7 +172,7 @@ const Join = () => {
             </TextField></p>
           </motion.div>
         </div>
-      </section>
+      </PageHero>
 
       {/* Steps — pulled in tight to the hero */}
       <section id="join-options" className="scroll-mt-24 pt-4 pb-20 md:pt-8 md:pb-28 px-4 md:px-8 lg:px-16 xl:px-24 relative overflow-hidden">

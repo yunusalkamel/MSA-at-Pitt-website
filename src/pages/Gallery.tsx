@@ -1,3 +1,4 @@
+import { PageHero } from "@/components/PageHero";
 import { Picture, TextField, ContentScope, itemIdentity } from "@/editor/content";
 import { useRef, useState, useMemo } from "react";
 import { motion, AnimatePresence, useScroll, useTransform, useReducedMotion } from "framer-motion";
@@ -146,14 +147,12 @@ const AlbumCard = ({ album, index }: { album: GalleryAlbum; index: number }) => 
   return inner;
 };
 
-import { useDesign } from "@/design/options";
 import { Moments,type RecapAlbum } from "@/design/CommunityPhotos";
 function GalleryRecaps(){
  const {data}=useSanityData<RecapAlbum[]>(QUERIES.communityRecaps);
  return <Moments galleryLink={false} albums={data??[]}/>;
 }
 const Gallery = () => {
-  const design = useDesign();
   usePageMeta({
     title: "Gallery — MSA at Pitt",
     description: "Iftars, kickoffs, halaqas, late-night socials — a year in the life of MSA at Pitt.",
@@ -205,7 +204,7 @@ const Gallery = () => {
 
   return (
     <Layout>
-      <section ref={heroRef} className="relative md:min-h-[50vh] flex flex-col items-center justify-center pt-24 pb-8 md:pt-36 md:pb-20 text-center px-4 overflow-hidden">
+      <PageHero ref={heroRef} className="relative text-center overflow-hidden">
         <motion.div className="absolute inset-0" style={{ y: bgY }}>
           <div className="absolute inset-0 bg-accent" />
           <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: "200px" }} />
@@ -215,7 +214,7 @@ const Gallery = () => {
           <div className="absolute bottom-1/4 right-1/4 w-56 h-56 rounded-full bg-secondary/8 blur-[80px]" />
         </motion.div>
         <motion.div className="relative z-10 max-w-3xl mx-auto" style={{ opacity: contentOpacity }}>
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="font-body text-xs uppercase tracking-[0.3em] text-primary font-semibold mb-5"><TextField id="Gallery_7">
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="font-body text-xs uppercase tracking-[0.3em] text-primary font-semibold page-hero-kicker"><TextField id="Gallery_7">
             Memories
           </TextField></motion.p>
           <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="font-display text-5xl md:text-7xl font-bold text-accent-foreground mb-4 leading-[1.05] px-2"><TextField id="Gallery_8">
@@ -230,11 +229,11 @@ const Gallery = () => {
             Iftars, kickoffs, halaqas, late-night socials — a year in the life of MSA at Pitt.
           </TextField></motion.p>
         </motion.div>
-      </section>
+      </PageHero>
 
-      {design.moments && <GalleryRecaps/>}
-      {design.recap && <div className="recap-link"><Link to="/events">Come to the next gathering →</Link></div>}
-      {(!design.moments || albums.length>0) && <><section className="py-3 liquid-glass-strong sticky top-[68px] md:top-[76px] z-30 border-b border-border/30">
+      <GalleryRecaps/>
+      <div className="recap-link"><Link to="/events">Come to the next gathering →</Link></div>
+      {albums.length > 0 && <><section className="py-3 liquid-glass-strong sticky nav-sticky z-30 border-b border-border/30">
         <div className="max-w-5xl mx-auto px-4">
           <button type="button" aria-controls="album-filters" aria-expanded={showFilters} className="md:hidden w-full flex items-center justify-between min-h-11 text-sm font-semibold" onClick={() => setShowFilters(v => !v)}>
             Filter albums <span>{activeLabel} {showFilters ? "▴" : "▾"}</span>

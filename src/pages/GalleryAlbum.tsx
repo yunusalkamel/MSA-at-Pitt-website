@@ -1,5 +1,5 @@
+import { PageHero } from "@/components/PageHero";
 import { communityAlbums } from "@/data/communityPhotos";
-import { useDesign } from "@/design/options";
 import { Picture, ContentScope, TextField, itemIdentity } from "@/editor/content";
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
@@ -42,7 +42,6 @@ function RemoteAlbum({ slug }: { slug: string }) {
 }
 
 const GalleryAlbum = ({ album, loading }: { album: AlbumData | null; loading: boolean }) => {
-  const {recap} = useDesign();
   const cover = album?.coverImageUrl || (album?.coverImage ? urlFor(album.coverImage).width(1600).height(600).fit("crop").auto("format").url() : undefined);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
@@ -67,7 +66,7 @@ const GalleryAlbum = ({ album, loading }: { album: AlbumData | null; loading: bo
   return (
     <Layout>
       {/* Hero */}
-      <section className="relative pt-28 pb-12 md:pt-36 md:pb-16 overflow-hidden">
+      <PageHero className="relative overflow-hidden">
         {cover && album && (
           <>
             <div className="absolute inset-0">
@@ -122,7 +121,7 @@ const GalleryAlbum = ({ album, loading }: { album: AlbumData | null; loading: bo
             </>
           )}
         </div>
-      </section>
+      </PageHero>
 
       {/* Photo Grid */}
       <section className="section-padding relative">
@@ -184,7 +183,7 @@ const GalleryAlbum = ({ album, loading }: { album: AlbumData | null; loading: bo
         </div>
       </section>
 
-      {recap && <div className="recap-link"><Link to="/events">Come to the next gathering →</Link></div>}
+      <div className="recap-link"><Link to="/events">Come to the next gathering →</Link></div>
       {/* Lightbox */}
       {lightboxIndex !== null && (
         <ContentScope id={"GalleryAlbum_10-"+itemIdentity(photos[lightboxIndex],lightboxIndex)}><Lightbox

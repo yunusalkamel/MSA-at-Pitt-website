@@ -1,3 +1,4 @@
+import { PageHero } from "@/components/PageHero";
 import { TextField, ContentScope, itemIdentity, CardCopies } from "@/editor/content";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -124,7 +125,7 @@ const FAQ = () => {
   return (
     <Layout>
       {/* Hero */}
-      <section className="relative py-32 md:py-40 overflow-hidden">
+      <PageHero className="relative overflow-hidden">
         <div className="absolute inset-0">
           <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: "200px" }} />
           <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-secondary/5" />
@@ -156,7 +157,7 @@ const FAQ = () => {
             </Link>
           </motion.div>
         </div>
-      </section>
+      </PageHero>
 
       {/* FAQ List */}
       <section className="section-padding relative">

@@ -1,3 +1,4 @@
+import { PageHero } from "@/components/PageHero";
 import { TextField } from "@/editor/content";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -7,7 +8,7 @@ import patternImg from "@/assets/geometric-tile.svg";
 
 const NotFound = () => (
   <Layout>
-    <section className="relative min-h-[75vh] flex items-center justify-center px-4 overflow-hidden">
+    <PageHero className="relative overflow-hidden">
       <div className="absolute inset-0 gradient-mesh-gold" />
       <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: "200px" }} />
       
@@ -38,7 +39,7 @@ const NotFound = () => (
           </div>
         </div>
       </motion.div>
-    </section>
+    </PageHero>
   </Layout>
 );
 

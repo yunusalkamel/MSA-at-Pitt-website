@@ -98,7 +98,7 @@ describe("EventCardBase variants", () => {
       ctaMode: "learn-more",
     });
     expect(container.querySelector('a[href*="linktr.ee"]')).toHaveTextContent(
-      "Learn More",
+      "Open MSA event links",
     );
   });
 });

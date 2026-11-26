@@ -1,3 +1,4 @@
+import { PageHero } from "@/components/PageHero";
 import { Picture, LinkField } from "@/editor/content";
 import { ContentScope, TextField, itemIdentity, CardCopies } from "@/editor/content";
 import { motion } from "framer-motion";
@@ -12,7 +13,7 @@ import patternImg from "@/assets/geometric-tile.svg";
 const Chaplain = () => (
   <Layout>
     {/* ── Hero ─────────────────────────────────────────────────── */}
-    <section className="relative py-28 md:py-36 text-center px-4 overflow-hidden">
+    <PageHero className="relative text-center overflow-hidden">
       <div className="absolute inset-0 gradient-mesh-gold" />
       <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: "200px" }} />
       <BridgeBar />
@@ -32,7 +33,7 @@ const Chaplain = () => (
           </TextField></Link>
         </motion.div>
       </div>
-    </section>
+    </PageHero>
 
     {/* ── Chaplain bio ─────────────────────────────────────────── */}
     <section className="section-padding relative overflow-hidden">

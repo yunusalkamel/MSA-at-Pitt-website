@@ -37,22 +37,16 @@ const RelativeTime = ({ at }: { at: number }) => {
   return <>{`Synced ${formatDistanceToNow(new Date(at), { addSuffix: true })}`}</>;
 };
 
-import { useDesign } from "@/design/options";
 const Events = () => {
-  const {agenda} = useDesign();
   usePageMeta({
     title: "Events — MSA at Pitt",
     description: "Halaqas, iftars, socials, and more. Subscribe once, never miss a moment.",
   });
   const prefersReduced = useReducedMotion();
   const isMobile = useIsMobile();
-  const [view, setView] = useState<View>("calendar");
+  const [view, setView] = useState<View>(() => isMobile ? "agenda" : "calendar");
   const [selectedTags, setSelectedTags] = useState<string[]>(["All"]);
   const { events: remoteEvents, loading, error, lastSyncedAt, refresh } = useCalendarEvents();
-
-  useEffect(() => {
-    setView(isMobile && agenda ? "agenda" : "calendar");
-  }, [isMobile,agenda]);
 
   const sourceEvents = remoteEvents;
   const featured = getFeaturedEvent(sourceEvents);
@@ -126,7 +120,7 @@ const Events = () => {
       <div className="glass-divider-thick" />
 
       {/* Main events section */}
-      <section className="section-padding warm-surface relative overflow-hidden">
+      <section className="section-padding warm-surface relative">
         <div className="absolute inset-0 gradient-mesh-warm" />
         <div className="absolute inset-0 texture-cross opacity-50" />
 
@@ -183,7 +177,7 @@ const Events = () => {
             </TextField></LinkField>
           </div>
 
-          <div className={`flex justify-center mb-6 ${view === "agenda" ? "sticky top-[68px] md:top-[76px] z-30 py-2 backdrop-blur-sm" : ""}`}>
+          <div className={`flex justify-center mb-6 ${view === "agenda" ? "events-switcher sticky z-30 py-2 backdrop-blur-sm" : ""}`}>
             <EventsFilterBar selected={selectedTags} onChange={setSelectedTags} allEvents={sourceEvents} />
           </div>
 

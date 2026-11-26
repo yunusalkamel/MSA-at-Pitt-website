@@ -1,6 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
-import { useDesign } from "@/design/options";
 import { flushSync } from "react-dom";
 type Theme = "light" | "dark";
 
@@ -10,7 +9,6 @@ const ThemeContext = createContext<{
 }>({ theme: "light", toggle: () => {} });
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  const {themeFade} = useDesign();
   const [theme, setTheme] = useState<Theme>(() => {
     const stored = localStorage.getItem("msa-theme") as Theme | null;
     if (stored === "dark" || stored === "light") return stored;
@@ -29,7 +27,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
       toggle: () => {
         const next=theme==="light"?"dark":"light";
         const apply=()=>{document.documentElement.classList.toggle("dark",next==="dark");setTheme(next);};
-        if(themeFade && !window.matchMedia("(prefers-reduced-motion: reduce)").matches && document.startViewTransition){
+        if(!window.matchMedia("(prefers-reduced-motion: reduce)").matches && document.startViewTransition){
           document.startViewTransition(()=>flushSync(apply));
         } else apply();
       },
