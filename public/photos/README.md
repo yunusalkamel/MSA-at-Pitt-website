@@ -6,6 +6,6 @@
 
 Community images have a full WebP and smaller `-320` and `-720` versions. Both collages use responsive images. Phones show eight landscape tiles in two columns and four rows. The earlier `-tile.webp` portrait exports remain available at their existing URLs.
 
-The campus prayer image comes from `_MG_7190.JPG`. The portrait export and responsive crops keep the top and right edges of the photograph.
+The campus prayer image uses the newly supplied outdoor group photo. The portrait export and responsive crops keep the top and right edges of the photograph.
 
 Captions use the album name and its verified month and year when available. Undated albums show their name. The missing dates are tracked in the photo data.

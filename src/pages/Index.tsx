@@ -108,15 +108,6 @@ const Index = () => {
   const phone = useIsMobile();
   const animateIntro = !phone && !prefersReduced;
 
-  const intro = <>
-    <p className="md:hidden"><TextField id="Index_12">Meet Muslim students at Pitt over Friday prayer, a pickup game or a table at iftar. Come to the next gathering.</TextField></p>
-    <div className="hidden md:block">
-      {d.heroBody
-        ? <ContentScope id="Index_11"><PortableTextRenderer value={d.heroBody} /></ContentScope>
-        : <p><TextField id="Index_12">Connecting Muslim students at Pitt through faith, friendship, and service. Everyone is welcome — wherever you're starting from.</TextField></p>}
-    </div>
-  </>;
-
   const storySection = (<section className="section-padding warm-surface relative overflow-hidden">
         <div className="absolute inset-0 gradient-mesh-warm" />
 
@@ -277,8 +268,10 @@ const Index = () => {
           <motion.p initial={animateIntro && { opacity: 0 }} animate={{ opacity: 1 }} className="eyebrow text-msa-gold/65 mb-5">
             <TextField id="Index_10">{d.heroTagline}</TextField>
           </motion.p>
-          <motion.div initial={animateIntro && { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="font-dm-sans text-base md:text-lg text-accent-foreground/60 max-w-xl mx-auto mb-10 leading-[1.75]">
-            {intro}
+          <motion.div initial={animateIntro && { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="hero-intro hidden md:block font-dm-sans text-base md:text-lg text-accent-foreground/60 max-w-xl mx-auto mb-10 leading-[1.75]">
+            {d.heroBody
+              ? <ContentScope id="Index_11"><PortableTextRenderer value={d.heroBody} /></ContentScope>
+              : <p><TextField id="Index_12">Connecting Muslim students at Pitt through faith, friendship, and service. Everyone is welcome — wherever you're starting from.</TextField></p>}
           </motion.div>
           <motion.div initial={animateIntro && { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="hero-actions flex flex-col sm:flex-row justify-center">
             <Link to="/join" className="btn-premium text-base"><TextField id="Index_13">Join the MSA </TextField><ArrowRight size={16} /></Link>

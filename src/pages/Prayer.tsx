@@ -11,6 +11,7 @@ import ArabicVerse from "@/components/ArabicVerse";
 
 import { DailyPrayers } from "@/design/DailyPrayers";
 import { usePrayerSchedule } from "@/hooks/usePrayerSchedule";
+import { useHeroParallax } from "@/hooks/use-hero-parallax";
 import { PageHero } from "@/components/PageHero";
 import { PhotoSlots } from "@/design/PhotoSlots";
 import { campusPrayerPhoto } from "@/data/communityPhotos";
@@ -81,6 +82,7 @@ const Prayer = () => {
   const [west, setWest] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const oaklandSchedule = usePrayerSchedule();
+  const parallax = useHeroParallax(32);
   const chart = expanded && (
     <Suspense fallback={<p role="status">Loading…</p>}>
       <SolarAlmanac west={west} setWest={setWest} />
@@ -88,18 +90,22 @@ const Prayer = () => {
   );
   return (
     <Layout>
-
-
-      <PageHero className="prayer-page-hero text-center">
-        <Picture fieldId="prayer-hero-photo" className="prayer-hero-photo" src={campusPrayerPhoto.src}
-          alt="" width={720} height={480} loading="lazy" decoding="async"
-          sizes="(width < 768px) 100vw, 720px" />
-        <p className="page-hero-kicker text-xs uppercase tracking-[0.3em] text-primary font-semibold"><TextField id="Prayer_2" fallbackFieldKeys={["/resources/prayer-times/PrayerTimes_2"]}>Resources</TextField></p>
-        <h1 className="font-display font-bold text-foreground"><TextField id="Prayer_3" fallbackFieldKeys={["/resources/prayer-times/PrayerTimes_3"]}>Prayer at </TextField><TextField id="Prayer_4" fallbackFieldKeys={["/resources/prayer-times/PrayerTimes_4"]}>Pitt</TextField></h1>
-        <p className="text-muted-foreground text-lg max-w-xl mx-auto"><TextField id="Prayer_5" fallbackFieldKeys={["/resources/prayer-times/PrayerTimes_5"]}>Daily times, campus prayer rooms, and Friday prayer.</TextField></p>
+      <PageHero className="prayer-page-hero">
+        <div className="prayer-hero-layout">
+          <div className="prayer-hero-copy">
+            <p className="page-hero-kicker text-xs uppercase tracking-[0.3em] text-primary font-semibold"><TextField id="Prayer_2" fallbackFieldKeys={["/resources/prayer-times/PrayerTimes_2"]}>Resources</TextField></p>
+            <h1 className="font-display font-bold text-foreground"><TextField id="Prayer_3" fallbackFieldKeys={["/resources/prayer-times/PrayerTimes_3"]}>Prayer at </TextField><TextField id="Prayer_4" fallbackFieldKeys={["/resources/prayer-times/PrayerTimes_4"]}>Pitt</TextField></h1>
+            <p className="text-muted-foreground text-lg max-w-xl mx-auto"><TextField id="Prayer_5" fallbackFieldKeys={["/resources/prayer-times/PrayerTimes_5"]}>Daily times, campus prayer rooms, and Friday prayer.</TextField></p>
+          </div>
+          <motion.figure className="prayer-hero-frame" style={{ y: parallax }}>
+            <Picture fieldId="prayer-hero-photo" className="prayer-hero-photo" src={campusPrayerPhoto.src}
+              alt={campusPrayerPhoto.title} width={720} height={480} decoding="async"
+              sizes="(width < 768px) 90vw, 490px" />
+          </motion.figure>
+        </div>
       </PageHero>
       <section className="prayer-start">
-        <div className="site-container">
+        <div className="site-container prayer-column">
           <Link to="/resources" className="prayer-back"><ArrowLeft size={14}/><TextField id="prayer-resources-back" fallbackFieldKeys={["/resources/prayer-times/PrayerTimes_6"]}>Back to Resources</TextField></Link>
           <DailyPrayers schedule={oaklandSchedule} almanac={{ open: expanded, toggle: () => setExpanded(value => !value), chart }} />
         </div>
@@ -108,9 +114,9 @@ const Prayer = () => {
       <SectionDivider />
 
       {/* ── Jummah Prayer ────────────────────────────────────────── */}
-      <section className="section-padding gradient-section-gold-soft relative overflow-hidden">
+      <section className="section-padding prayer-friday gradient-section-gold-soft relative overflow-hidden">
         <div className="absolute inset-0 texture-dots opacity-50 pointer-events-none" />
-        <div className="max-w-5xl mx-auto relative z-10">
+        <div className="site-container prayer-column relative z-10">
           <ContentScope id="Prayer_19"><SectionHeading title="Jummah Prayer" label="Every Friday" /></ContentScope>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -136,7 +142,7 @@ const Prayer = () => {
                   </LinkField>
                 </div>
               </div>
-              <PhotoSlots name="Jummah prayer" wide/>
+              <PhotoSlots name="Jummah prayer" wide featured={1}/>
             </div>
           </motion.div>
         </div>
@@ -217,7 +223,7 @@ const Prayer = () => {
                 transition={{ duration: 0.4, delay: i * 0.08 }}
                 data-mosque-side={i===0?"left":"right"} className="liquid-glass-hover prayer-card rounded-2xl"
               >
-                <div className="mosque-information"><h3 className="font-display text-lg font-bold text-foreground mb-1"><LinkField fieldId="mosque-website" href={i===0?"https://icp-pgh.org":"https://attawheed.org"}><TextField id="Prayer_37">{m.name}</TextField> ↗</LinkField></h3>
+                <div className="mosque-information"><h3 className="font-display text-lg font-bold text-foreground mb-1"><LinkField fieldId="mosque-website" href={i===0?"https://icp-pgh.org":"https://attawheed.org"}><TextField id="Prayer_37">{m.name}</TextField> <ExternalLink size={13} aria-hidden="true" /></LinkField></h3>
                 <p className="text-sm text-primary font-semibold mb-3"><TextField id="Prayer_38">{m.distance}</TextField></p>
                 <ul className="space-y-1.5">
                   {m.details.map((d, j) => (

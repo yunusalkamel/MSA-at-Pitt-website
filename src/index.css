@@ -941,7 +941,9 @@ html { scroll-behavior: smooth; }
   padding: var(--space-2);
   border-radius: var(--radius);
   color: hsl(var(--foreground));
+  background-color: #f6efe6f5;
 }
+.dark .nav-resources-menu { background-color: #192b3af5; }
 .nav-resources-menu::before {
   content: "";
   position: absolute;
@@ -962,51 +964,96 @@ html { scroll-behavior: smooth; }
 
 .resource-grid { gap: var(--grid-gap); }
 .resource-section { padding-top: 0; }
-.resource-tile {
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(var(--space-8), 23%) 1fr;
-  overflow: hidden;
-  min-width: 0;
-  aspect-ratio: auto;
-  border: 1px solid hsl(var(--border));
-  border-radius: var(--radius);
-  background-color: hsl(var(--card));
-}
-.resource-tile:focus-visible { outline: 2px solid var(--gold-muted); outline-offset: var(--space-1); }
-.resource-tile > img { position: absolute; inset: 0; width: 23%; height: 100%; object-fit: cover; object-position: 50% 38%; }
-.resource-tile > img[src*="imam-muhammad-patel"] { object-position: center 17%; }
 img[src*="/lawn-prayer"] { object-position: right top; }
-.resource-tile > img[src*="/lawn-prayer"] { object-position: right top; }
-.resource-tile .resource-copy {
+.resource-tile {
+  --resource-accent: #16775e;
+  --resource-shade: #0b4c3b;
   position: relative;
-  grid-column: 2;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
   gap: var(--space-2);
   min-width: 0;
   padding: var(--card-padding);
-  background: hsl(var(--card) / .74);
-  backdrop-filter: blur(15px);
+  border-radius: var(--radius);
+  transition: background-color .2s ease, border-color .2s ease;
 }
-.resource-tile h3 { font: 700 1.35rem/1.15 var(--font-display); }
-.resource-tile a { font-size: .83rem; font-weight: 700; text-decoration: underline; text-underline-offset: .2em; }
-.resource-tile .tile-detail { font-size: .82rem; }
-.resource-tile .tile-detail-name, .resource-tile .tile-summary { display: none; }
-.resource-tile .tile-detail a { display: inline-block; margin-top: var(--space-1); }
+.resource-tile[data-tone="slate"] { --resource-accent: #244b74; --resource-shade: #142d4d; }
+.resource-tile[data-tone="clay"] { --resource-accent: #a77829; --resource-shade: #714a1c; }
+.resource-tile[data-tone="plum"] { --resource-accent: #634c6d; --resource-shade: #42344f; }
+.resource-icon {
+  display: grid;
+  place-items: center;
+  width: var(--space-7);
+  aspect-ratio: 1;
+  margin-bottom: var(--space-1);
+  border-radius: var(--space-3);
+  background: linear-gradient(150deg, var(--resource-accent), var(--resource-shade));
+  color: #fff9f0;
+  font-size: 1.35rem;
+  box-shadow: 0 var(--space-1) var(--space-3) #121e3022;
+}
+.resource-title, .tile-detail-name { font: 700 1.35rem/1.15 var(--font-display); }
+.resource-tile .tile-detail, .resource-tile .tile-summary {
+  color: hsl(var(--muted-foreground));
+  font-size: .875rem;
+  line-height: 1.5;
+}
+.resource-tile .tile-detail-name, .resource-hint { display: none; }
+.resource-tile:not([data-details]) .tile-summary { order: 1; font-size: .78rem; }
+.resource-actions {
+  order: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-3);
+  align-items: center;
+  margin-top: auto;
+  padding-top: var(--space-2);
+}
+.resource-extra { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.resource-actions a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--space-6);
+  font-size: .875rem;
+  font-weight: 700;
+  color: hsl(var(--foreground));
+  text-decoration: underline;
+  text-underline-offset: .2em;
+}
+.resource-tile[data-linked] .resource-primary a::after {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius);
+  content: "";
+}
+.resource-tile[data-linked] .resource-extra a { position: relative; }
+.resource-tile[data-linked]:hover { border-color: color-mix(in srgb, var(--gold-muted) 65%, transparent); }
+.resource-tile[data-linked]:focus-within { outline: 2px solid var(--gold-muted); outline-offset: var(--space-1); }
+.resource-edit-photo { width: 100%; max-height: calc(var(--space-10) + var(--space-4)); object-fit: cover; border-radius: var(--space-2); }
 @media (min-width: 768px) {
-  .resource-tile { display: block; height: calc(2 * var(--space-10)); color: #f8f3ea; background-color: #193e39; }
-  .resource-tile > img { width: 100%; }
-  .resource-tile::after { content: ""; position: absolute; inset: 0; background: linear-gradient(transparent, #101c29f0); pointer-events: none; }
-  .resource-tile .resource-copy { justify-content: flex-end; height: 100%; z-index: 1; background: none; backdrop-filter: none; }
-  .resource-tile .tile-detail { display: none; }
-  .resource-tile .tile-summary { display: block; font-size: .85rem; }
-  .resource-tile:is(:hover, :focus-within) .resource-copy { background-color: #10232cee; }
-  .resource-tile:is(:hover, :focus-within) .tile-detail { display: block; }
-  .resource-tile:is(:hover, :focus-within) .tile-summary { display: none; }
-  .resource-tile .tile-description { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 4; }
-  .resource-tile a:focus-visible { outline: 2px solid var(--gold-muted); outline-offset: var(--space-1); }
+  .resource-tile { min-height: calc(var(--space-10) + var(--space-10) + var(--space-8)); }
+  .resource-tile[data-details] .tile-detail { display: none; }
+  .resource-hint {
+    display: block;
+    order: 2;
+    font-size: .8rem;
+    font-weight: 650;
+    color: hsl(var(--muted-foreground));
+  }
+  .resource-tile[data-details]:is(:hover, :focus-within) {
+    background: linear-gradient(150deg, var(--resource-accent), var(--resource-shade));
+  }
+  .resource-tile[data-details]:is(:hover, :focus-within) :is(.resource-icon, .tile-summary, .resource-hint) { display: none; }
+  .resource-tile[data-details]:is(:hover, :focus-within) .resource-title { position: absolute; clip-path: inset(50%); }
+  .resource-tile[data-details]:is(:hover, :focus-within) :is(.tile-detail, .tile-detail-name) { display: block; }
+  .resource-tile[data-details]:is(:hover, :focus-within) :is(.tile-detail, .resource-actions a) { color: #fff9f0; }
+  .resource-tile[data-details] .tile-detail-name { margin-bottom: var(--space-3); }
+  .resource-tile[data-details] .tile-description {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 5;
+  }
 }
 
 .site-container { width: min(100%, var(--container)); margin-inline: auto; }
@@ -1015,7 +1062,7 @@ img[src*="/lawn-prayer"] { object-position: right top; }
   .page-hero h1 { transform: none !important; }
 }
 @media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
-  .resource-tile:is(:hover, :focus-within) .tile-detail { animation: resource-flip .22s ease-out; }
+  .resource-tile[data-details]:is(:hover, :focus-within) .tile-detail { animation: resource-flip .22s ease-out; }
 }
 @keyframes resource-flip {
   from { opacity: 0; transform: perspective(28rem) rotateY(-10deg); }

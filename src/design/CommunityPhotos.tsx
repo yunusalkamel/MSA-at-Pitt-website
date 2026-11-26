@@ -1,7 +1,8 @@
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ChevronRight, Pause, Play } from "lucide-react";
-import { useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
+import { useHeroParallax } from "@/hooks/use-hero-parallax";
 import { Content, Picture, TextField } from "@/editor/content";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -29,6 +30,7 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
   const sources = useRef(fields);
   sources.current = fields;
   const reduced = useReducedMotion();
+  const parallax = useHeroParallax();
   const wall = useRef<HTMLDivElement>(null);
   const last = useRef(-1);
   const busy = useRef(false);
@@ -37,8 +39,12 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
   const start = useMemo(() => {
     const photos = library.filter(id => reserveBridge < 0 || id !== "fajr-bridge").slice(0, columns * rows);
     if (reserveBridge >= 0) photos[reserveBridge] = "fajr-bridge";
+    if (phone) {
+      const belowTopRight = columns + 1;
+      [photos[1], photos[belowTopRight]] = [photos[belowTopRight], photos[1]];
+    }
     return photos.map(photo => ({ photo }));
-  }, [library, columns, rows, reserveBridge]);
+  }, [library, columns, rows, reserveBridge, phone]);
   const [tiles, setTiles] = useState<Tile[]>(start);
   const board = useRef(tiles);
   const [visible, setVisible] = useState(false);
@@ -146,7 +152,7 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
 
   return (
     <div className="community-media">
-      <div className="photo-arrangement" ref={wall} aria-hidden="true">
+      <motion.div className="photo-arrangement" ref={wall} style={{ y: parallax }} aria-hidden="true">
         {tiles.map(({ photo, previous }, index) => {
           const display = source(photo, index);
           return (
@@ -164,7 +170,7 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
             </figure>
           );
         })}
-      </div>
+      </motion.div>
       {!reduced && <div className="wall-controls">
         <button type="button" aria-label={paused ? "Play photos" : "Pause photos"} aria-pressed={paused}
           onClick={() => { epoch.current++; setPaused(!paused); }}>

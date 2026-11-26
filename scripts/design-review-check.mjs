@@ -78,6 +78,7 @@ async function capture(browser, width, height, theme, writeImages) {
     await visit(page, route);
     if (name === "home") {
       await checkWall(page, width < 768 ? 2 : 4);
+      if (width < 768) await page.locator(".hero-intro").waitFor({ state: "hidden" });
       assert.equal(await page.getByRole("button", { name: "Pause photos" }).count(), 0);
       if (width === 390 && theme === "dark" && writeImages) {
         const still = await tileList(page);
@@ -134,6 +135,7 @@ async function interactions(browser) {
   assert.equal(await menu.isVisible(), true);
   assert.equal(await page.locator("html").evaluate(el => el.clientWidth), beforeWidth);
   assert.deepEqual(await style(menu), await style(nav));
+  assert.notEqual(await menu.evaluate(el => getComputedStyle(el).backgroundColor), "rgba(0, 0, 0, 0)");
   assert.deepEqual(await style(stats), await style(nav));
   await page.mouse.move(5, 5);
   await menu.waitFor({ state: "hidden" });
@@ -157,10 +159,12 @@ async function interactions(browser) {
   assert.equal((await card.boundingBox()).height, box.height);
   await page.mouse.move(5, 5);
   await card.locator(".tile-detail").waitFor({ state: "hidden" });
-  await card.focus();
+  await card.getByRole("link", { name: /Read the Tips/ }).focus();
   await card.locator(".tile-detail").waitFor({ state: "visible" });
   assert.equal((await card.boundingBox()).height, box.height);
-  assert.equal(await card.locator(".tile-description").evaluate(el => getComputedStyle(el).webkitLineClamp), "4");
+  assert.equal(await card.locator(".tile-description").evaluate(el => getComputedStyle(el).webkitLineClamp), "5");
+  await page.mouse.click(box.x + 14, box.y + 14);
+  await page.waitForURL("**/resources/new-to-pitt");
 
   await visit(page, "/");
   const homeTimes = await prayerTimes(page);
