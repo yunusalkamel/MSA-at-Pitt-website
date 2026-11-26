@@ -58,6 +58,96 @@ function Value({ field }: { field: Fields[string] | undefined }) {
     </p>
   );
 }
+type VersionDetail = Row & {
+  before: Fields;
+  after: Fields;
+  currentRevision: string | null;
+};
+function VersionChanges({
+  detail,
+  busy = false,
+  onRestoreField,
+}: {
+  detail: VersionDetail;
+  busy?: boolean;
+  onRestoreField?: (key: string) => void;
+}) {
+  return (
+    <>
+      {Array.from(
+        new Set([...Object.keys(detail.before), ...Object.keys(detail.after)]),
+      )
+        .filter(
+          (k) =>
+            detail.action === "snapshot" ||
+            JSON.stringify(detail.before[k]) !==
+              JSON.stringify(detail.after[k]),
+        )
+        .map((k) => (
+          <details key={k}>
+            <summary>{k}</summary>
+            <strong>Before</strong>
+            <Value field={detail.before[k]} />
+            <strong>After</strong>
+            <Value field={detail.after[k]} />
+            {onRestoreField && (
+              <button disabled={busy} onClick={() => onRestoreField?.(k)}>
+                Restore field
+              </button>
+            )}
+          </details>
+        ))}
+    </>
+  );
+}
+
+export function ActivityChanges({
+  session,
+  id,
+}: {
+  session: Session;
+  id: string;
+}) {
+  const [detail, setDetail] = useState<VersionDetail>();
+  const [open, setOpen] = useState(false),
+    [busy, setBusy] = useState(false),
+    [error, setError] = useState("");
+  async function toggle() {
+    if (open) {
+      setOpen(false);
+      return;
+    }
+    setOpen(true);
+    if (detail) return;
+    setBusy(true);
+    setError("");
+    try {
+      setDetail(await request(session, { action: "version", id }));
+    } catch (e) {
+      setError(messageOf(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <div>
+      <button disabled={busy} aria-expanded={open} onClick={toggle}>
+        {busy ? "Loading changes…" : open ? "Hide changes" : "View changes"}
+      </button>
+      {open && detail && (
+        <div>
+          <p>
+            {detail.count} {detail.count === 1 ? "field" : "fields"} ·{" "}
+            {detail.pages.map((p) => (p === "/" ? "Home" : p)).join(", ")}
+          </p>
+          <VersionChanges detail={detail} />
+        </div>
+      )}
+      {open && error && <p role="alert">{error}</p>}
+    </div>
+  );
+}
+
 export default function History({
   session,
   owner = false,
@@ -73,6 +163,7 @@ export default function History({
 }) {
   const [rows, setRows] = useState<Row[]>([]),
     [more, setMore] = useState(false),
+    [loaded, setLoaded] = useState(false),
     [dataset, setDataset] = useState(""),
     [search, setSearch] = useState(""),
     [detail, setDetail] = useState<
@@ -94,6 +185,7 @@ export default function History({
   async function load(offset = 0) {
     const r = await request(session, { action: "history", offset });
     setDataset(r.dataset);
+    setLoaded(true);
     setRows((old) => (offset ? [...old, ...r.rows] : r.rows));
     setMore(r.rows.length === 40);
   }
@@ -130,6 +222,9 @@ export default function History({
     <section className="msa-history" aria-label="Content history">
       <h2>Content history · {dataset}</h2>
       {onClose && <button onClick={onClose}>Close history</button>}
+      <button disabled={busy} onClick={() => run(() => load())}>
+        Refresh history
+      </button>
       <label>
         Search loaded versions by account, date, action or page
         <input value={search} onChange={(e) => setSearch(e.target.value)} />
@@ -195,7 +290,7 @@ export default function History({
             </li>
           ))}
       </ul>
-      {!rows.length && !busy && <p>No recorded versions.</p>}
+      {loaded && !rows.length && !busy && !notice && <p>No recorded versions.</p>}
       {more && (
         <button disabled={busy} onClick={() => run(() => load(rows.length))}>
           Load older versions
@@ -232,33 +327,11 @@ export default function History({
               Restore {p}
             </button>
           ))}
-          {Array.from(
-            new Set([
-              ...Object.keys(detail.before),
-              ...Object.keys(detail.after),
-            ]),
-          )
-            .filter(
-              (k) =>
-                detail.action === "snapshot" ||
-                JSON.stringify(detail.before[k]) !==
-                  JSON.stringify(detail.after[k]),
-            )
-            .map((k) => (
-              <details key={k}>
-                <summary>{k}</summary>
-                <strong>Before</strong>
-                <Value field={detail.before[k]} />
-                <strong>After</strong>
-                <Value field={detail.after[k]} />
-                <button
-                  disabled={busy}
-                  onClick={() => run(() => restore("after", k))}
-                >
-                  Restore field
-                </button>
-              </details>
-            ))}
+          <VersionChanges
+            detail={detail}
+            busy={busy}
+            onRestoreField={(k) => run(() => restore("after", k))}
+          />
         </article>
       )}
       <p role="status">{notice}</p>

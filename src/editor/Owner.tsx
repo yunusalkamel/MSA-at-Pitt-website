@@ -1,5 +1,5 @@
 import Reports from "./Reports";
-import History from "./History";
+import History, {ActivityChanges} from "./History";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
@@ -342,7 +342,10 @@ function Dashboard({ session }: { session: Session }) {
                 {data.activity.map((a) => (
                   <li key={a.id}>
                     <strong>{readable(a.action)}</strong> · {a.actor}
-                    {a.subject && " · " + a.subject}
+                    {a.action==="published" && /^(publish|restore):[a-f0-9-]{36}$/.test(a.subject??"") ? <>
+                      {a.subject!.startsWith("restore:") && " · Version restoration"}
+                      <ActivityChanges session={session} id={a.subject!.split(":")[1]}/>
+                    </> : a.subject && " · " + a.subject}
                     <small>{date(a.occurred_at)}</small>
                   </li>
                 ))}
