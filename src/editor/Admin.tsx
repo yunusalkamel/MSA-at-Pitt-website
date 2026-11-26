@@ -426,7 +426,6 @@ function Editor({
               "/resources/new-to-pitt": "New to Pitt",
               "/resources/prayer": "Prayer",
               "/resources/prayer-locations": "Prayer locations",
-              "/resources/prayer-times": "Prayer times",
               "/resources/chaplain": "Chaplain",
               "/resources/faq": "FAQ",
               "/board": "Board",

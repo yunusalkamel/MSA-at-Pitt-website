@@ -53,6 +53,13 @@ export function useField(id: string) {
     (shared ? "shared" : pathname.replace(/\/$/, "") || "/") + scope + "/" + id
   );
 }
+export function usePlainTextField(id: string, fallback: string, fallbackFieldKeys: string[] = []) {
+  const key = useField(id);
+  const { fields } = useContext(Content);
+  const field = [key, ...fallbackFieldKeys].map(candidate => fields[candidate]).find(value => value?.kind === "text");
+  return field?.kind === "text" ? field.runs.map(run => run.text).join("") : fallback;
+}
+
 export function TextField({
   id,
   children,

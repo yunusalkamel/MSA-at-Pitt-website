@@ -5,18 +5,18 @@ import { motion } from "framer-motion";
 import { ArrowLeft, MapPin, Building2, Landmark, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
 import Layout from "@/components/Layout";
-import BridgeBar from "@/components/BridgeBar";
 import SectionDivider from "@/components/SectionDivider";
 import SectionHeading from "@/components/SectionHeading";
 import ArabicVerse from "@/components/ArabicVerse";
-import patternImg from "@/assets/geometric-tile.svg";
 
 declare global { interface Window { Chart: any; } }
 
 // ─── Solar prayer time calculator ────────────────────────────────────────────
-import { calcDay, fm } from "@/lib/prayerClock";
-import { DailyPrayers,pittsburghDate } from "@/design/DailyPrayers";
-import { useDesign } from "@/design/options";
+import { fm } from "@/lib/prayerClock";
+import { DailyPrayers } from "@/design/DailyPrayers";
+import { usePrayerSchedule } from "@/hooks/usePrayerSchedule";
+import { PageHero } from "@/components/PageHero";
+import { usePlainTextField } from "@/editor/content";
 import { PhotoSlots } from "@/design/PhotoSlots";
 const MN = ['','January','February','March','April','May','June','July','August','September','October','November','December'];
 const MNS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -24,15 +24,12 @@ type DayEntry = { yr: number; mo: number; d: number; lbl: string;
   Fajr: number|null; Sunrise: number|null; Dhuhr: number|null;
   Asr: number|null; Maghrib: number|null; Isha: number|null; };
 
-const ICP_LAT = 40.4490, ICP_LNG = -79.9619;
-const ATT_LAT = 40.4065, ATT_LNG = -80.0839;
-
-function buildDays(lat: number, lng: number): DayEntry[] {
+function buildDays(onDate: ReturnType<typeof usePrayerSchedule>["onDate"]): DayEntry[] {
   const days: DayEntry[] = [];
   for (let y = 2026; y <= 2028; y++)
     for (let m = 1; m <= 12; m++)
       for (let d = 1, dim = new Date(y, m, 0).getDate(); d <= dim; d++)
-        days.push({ yr: y, mo: m, d, lbl: `${MNS[m-1]} ${d}`, ...calcDay(lat, lng, y, m, d) });
+        days.push({ yr: y, mo: m, d, lbl: `${MNS[m-1]} ${d}`, ...onDate(y, m, d) });
   return days;
 }
 
@@ -121,15 +118,20 @@ const masajid = [
 
 // ─── Component ────────────────────────────────────────────────────────────────
 const Prayer = () => {
-  const [todayHtml, setTodayHtml] = useState<string>("loading...");
-  const design = useDesign();
-  const [west,setWest]=useState(false);
-  const [expanded,setExpanded] = useState(false);
-  const showChart = !design.simpleTimes || expanded;
+  const [west, setWest] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const oaklandSchedule = usePrayerSchedule();
+  const { date, onDate } = usePrayerSchedule(west ? "west" : "oakland");
+  const locationLabels = [
+    usePlainTextField("Prayer_6", "ICP", ["/resources/prayer-times/PrayerTimes_8"]),
+    usePlainTextField("Prayer_7", "Oakland", ["/resources/prayer-times/PrayerTimes_9"]),
+    usePlainTextField("Prayer_8", "Attawheed", ["/resources/prayer-times/PrayerTimes_10"]),
+    usePlainTextField("Prayer_9", "Carnegie", ["/resources/prayer-times/PrayerTimes_11"]),
+  ];
   const initRef = useRef(false);
 
   useEffect(() => {
-    if (!showChart || initRef.current) return;
+    if (!expanded || initRef.current) return;
     initRef.current = true;
 
     const lifecycle = new AbortController();
@@ -151,20 +153,15 @@ const Prayer = () => {
         if (el) window.Chart?.getChart?.(el)?.destroy();
       });
     };
-  }, [showChart,west,design.simpleTimes]);
+  }, [expanded, onDate, date.year, date.month, date.day]);
 
   function boot(signal: AbortSignal) {
     const Chart = window.Chart;
     if (!Chart) return;
 
-    let currentLat=design.simpleTimes && west?ATT_LAT:ICP_LAT, currentLng=design.simpleTimes && west?ATT_LNG:ICP_LNG;
-    let allDays = buildDays(currentLat,currentLng);
-    let { RAM: RAM_BLOCKS, BRK: BRK_BLOCKS } = buildZones(allDays);
-    let loadedYears = new Set<number>();
-    let visibleRequest: AbortController | undefined;
-    let fetchTimer: ReturnType<typeof setTimeout>;
-    const {year:CY,month:CM,day:CD}=pittsburghDate(new Date());
-    let TI = allDays.findIndex(x => x.yr === CY && x.mo === CM && x.d === CD);
+    const allDays = buildDays(onDate);
+    const { RAM: RAM_BLOCKS, BRK: BRK_BLOCKS } = buildZones(allDays);
+    const TI = allDays.findIndex(x => x.yr === date.year && x.mo === date.month && x.d === date.day);
     const SPANS: Record<string,number> = { "1mo":35, "6mo":182, "year":365 };
     let curSpan = SPANS["year"];
     let winStart = Math.max(0, TI >= 0 ? TI - 7 : 0);
@@ -172,27 +169,7 @@ const Prayer = () => {
     let aIdx = TI;
     let vis = [true,true,true,true,true,true];
     let dragging = false, dragClientX = 0, dragWinStart = 0, rafId: number|null = null;
-
-    signal.addEventListener("abort", () => {
-      clearTimeout(fetchTimer);
-      visibleRequest?.abort();
-    }, { once: true });
-
-    function renderTodayBar() {
-      if(design.simpleTimes) return;
-      if (TI < 0) { setTodayHtml('<span style="font-size:.7rem;color:rgba(17,35,60,.5)">No data for today</span>'); return; }
-      const T = allDays[TI];
-      const dow = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][new Date(T.yr, T.mo-1, T.d).getDay()];
-      let h = `<span style="font-size:.7rem;font-weight:600;color:#C9A84C;text-transform:uppercase;letter-spacing:.1em;margin-right:.4rem;white-space:nowrap">${dow}, ${MNS[T.mo-1]} ${T.d}</span>`;
-      PC.forEach(p => {
-        h += `<span style="display:flex;align-items:center;gap:.25rem;font-size:.75rem">
-          <span style="opacity:.5;font-size:.68rem;color:${p.c}">${p.n}</span>
-          <span style="font-weight:500">${fm((T as any)[p.k])}</span>
-        </span>`;
-      });
-      setTodayHtml(h);
-    }
-    renderTodayBar();
+    signal.addEventListener("abort", () => { if (rafId != null) cancelAnimationFrame(rafId); }, { once: true });
 
     function clamp() { winStart = Math.max(0, Math.min(allDays.length-1-curSpan, winStart)); }
     function getWin() { clamp(); return { min: winStart-.5, max: winStart+curSpan+.5 }; }
@@ -208,67 +185,13 @@ const Prayer = () => {
       [topCh, botCh].forEach(c => { c.options.scales.x.min = min; c.options.scales.x.max = max; c.update(fast ? "none" : undefined); });
       updateLabel();
       drawMinimap();
-      queueVisibleYears();
     }
-    function refreshCharts() {
-      if (!topCh || !botCh) return;
-      topCh.data.datasets[0].data = allDays.map(x => x.Fajr);
-      topCh.data.datasets[1].data = allDays.map(x => x.Sunrise);
-      botCh.data.datasets[0].data = allDays.map(x => x.Dhuhr);
-      botCh.data.datasets[1].data = allDays.map(x => x.Asr);
-      botCh.data.datasets[2].data = allDays.map(x => x.Maghrib);
-      botCh.data.datasets[3].data = allDays.map(x => x.Isha);
-      topCh.update("none"); botCh.update("none");
-    }
-
-    async function fetchYear(year: number, request: AbortController) {
-      try {
-        const url = `https://api.aladhan.com/v1/calendar/${year}?latitude=${currentLat}&longitude=${currentLng}&method=2&school=0`;
-        const res = await fetch(url, { signal: request.signal });
-        if (!res.ok) return;
-        const j = await res.json();
-        if (j.code !== 200 || request.signal.aborted || !j.data) return;
-        const indices = new Map(allDays
-          .map((day, index) => [`${day.yr}-${day.mo}-${day.d}`, index] as const));
-        for (const entry of Object.values(j.data).flat() as any[]) {
-          const day = +entry.date.gregorian.day;
-          const month = +entry.date.gregorian.month.number;
-          const idx = indices.get(`${year}-${month}-${day}`);
-          if (idx === undefined) continue;
-          const pt = entry.timings;
-          const parseT = (s: string) => { const [h,mi] = s.split(' ')[0].split(':').map(Number); return h*60+mi; };
-          allDays[idx] = { ...allDays[idx], Fajr:parseT(pt.Fajr), Sunrise:parseT(pt.Sunrise), Dhuhr:parseT(pt.Dhuhr), Asr:parseT(pt.Asr), Maghrib:parseT(pt.Maghrib), Isha:parseT(pt.Isha) };
-        }
-        loadedYears.add(year);
-      } catch(_) {}
-    }
-
-    function queueVisibleYears(reset = false) {
-      if(design.simpleTimes)return; // The compact chart and daily summary share the same calculated schedule.
-      clearTimeout(fetchTimer);
-      if (reset) {
-        visibleRequest?.abort();
-        visibleRequest = undefined;
-        loadedYears = new Set();
-      }
-      fetchTimer = setTimeout(async () => {
-        if (visibleRequest || signal.aborted) return;
-        const first = allDays[Math.max(0, Math.floor(winStart))]?.yr;
-        const last = allDays[Math.min(allDays.length - 1, Math.ceil(winStart + curSpan))]?.yr;
-        const years = [2026, 2027, 2028].filter(year => !loadedYears.has(year) &&
-          (year === CY || (first <= year && year <= last)));
-        if (!years.length) return;
-        const request = new AbortController();
-        visibleRequest = request;
-        await Promise.all(years.map(year => fetchYear(year, request)));
-        if (request.signal.aborted) return;
-        visibleRequest = undefined;
-        refreshCharts();
-        renderTodayBar();
-        if (years.every(year => loadedYears.has(year))) queueVisibleYears();
-      }, 250);
-    }
-
+    const styles = getComputedStyle(document.documentElement);
+    const gold = styles.getPropertyValue("--gold-muted").trim();
+    const goldAt = (alpha: number) => {
+      const value = parseInt(gold.slice(1), 16);
+      return `rgba(${(value >> 16) & 255}, ${(value >> 8) & 255}, ${value & 255}, ${alpha})`;
+    };
     const F = "'Plus Jakarta Sans',system-ui,sans-serif";
     const G = "rgba(17,35,60,.065)", TK = "rgba(17,35,60,.38)";
 
@@ -277,9 +200,9 @@ const Prayer = () => {
       const { ctx, chartArea:{top,bottom,left,right}, scales:{x} } = c;
       const px = x.getPixelForValue(TI);
       if (px < left || px > right) return;
-      ctx.save(); ctx.strokeStyle = "rgba(201,168,76,.8)"; ctx.lineWidth = 1.5; ctx.setLineDash([4,3]);
+      ctx.save(); ctx.strokeStyle = goldAt(.8); ctx.lineWidth = 1.5; ctx.setLineDash([4,3]);
       ctx.beginPath(); ctx.moveTo(px,top); ctx.lineTo(px,bottom); ctx.stroke();
-      ctx.setLineDash([]); ctx.fillStyle = "rgba(201,168,76,.95)"; ctx.font = `600 10px ${F}`;
+      ctx.setLineDash([]); ctx.fillStyle = goldAt(.95); ctx.font = `600 10px ${F}`;
       ctx.textAlign = "center"; ctx.fillText("today", px, top-5); ctx.restore();
     }};
 
@@ -449,7 +372,7 @@ const Prayer = () => {
       const wx1=winStart/N*W*dpr, wx2=(winStart+curSpan)/N*W*dpr;
       ctx.fillStyle="rgba(17,35,60,.15)"; ctx.beginPath(); (ctx as any).roundRect(wx1,4*dpr,wx2-wx1,24*dpr,3*dpr); ctx.fill();
       ctx.strokeStyle="rgba(17,35,60,.3)"; ctx.lineWidth=1*dpr; ctx.beginPath(); (ctx as any).roundRect(wx1,4*dpr,wx2-wx1,24*dpr,3*dpr); ctx.stroke();
-      if (TI>=0) { const tx=TI/N*W*dpr; ctx.strokeStyle="rgba(201,168,76,.8)"; ctx.lineWidth=1.5*dpr; ctx.beginPath(); ctx.moveTo(tx,4*dpr); ctx.lineTo(tx,28*dpr); ctx.stroke(); }
+      if (TI>=0) { const tx=TI/N*W*dpr; ctx.strokeStyle=goldAt(.8); ctx.lineWidth=1.5*dpr; ctx.beginPath(); ctx.moveTo(tx,4*dpr); ctx.lineTo(tx,28*dpr); ctx.stroke(); }
       ctx.fillStyle="rgba(17,35,60,.35)"; ctx.font=`${9*dpr}px ${F}`; ctx.textAlign="center"; ctx.textBaseline="bottom";
       [2026,2027,2028].forEach(yr => {
         const idx = allDays.findIndex(d=>d.yr===yr&&d.mo===1&&d.d===1); if(idx<0)return;
@@ -512,24 +435,6 @@ const Prayer = () => {
     const todayBtn = document.getElementById("today-btn");
     if (todayBtn) todayBtn.onclick = () => { winStart=Math.max(0,TI>=0?TI-7:0); applyWin(); };
 
-    document.querySelectorAll<HTMLButtonElement>(".msm").forEach(b => {
-      b.onclick = () => {
-        document.querySelectorAll<HTMLButtonElement>(".msm").forEach(x => x.classList.remove("on"));
-        b.classList.add("on");
-        currentLat = parseFloat(b.dataset.lat!); currentLng = parseFloat(b.dataset.lng!);
-        allDays = buildDays(currentLat, currentLng);
-        ({ RAM: RAM_BLOCKS, BRK: BRK_BLOCKS } = buildZones(allDays));
-        TI = allDays.findIndex(x => x.yr===CY && x.mo===CM && x.d===CD);
-        aIdx = TI;
-        refreshCharts(); renderTodayBar();
-        const sl = document.getElementById("src-link") as HTMLAnchorElement;
-        if (sl) { sl.href=`https://masjidal.com/widget/monthly/v2/?masjid_id=${b.dataset.mid}`; sl.textContent=`Source: ${b.dataset.name} via Masjidal ↗`; }
-        const ct = document.getElementById("card-title");
-        if (ct) ct.textContent = b.dataset.mid==="QKMnW1LB" ? "Islamic Center of Pittsburgh" : "Attawheed Islamic Center";
-        queueVisibleYears(true); drawMinimap();
-      };
-    });
-
     const appDl = document.getElementById("app-dl");
     if (appDl) appDl.onclick = () => {
       const ua = navigator.userAgent.toLowerCase();
@@ -547,53 +452,39 @@ const Prayer = () => {
     applyWin();
   }
 
-  const chart = showChart && <motion.div key={design.simpleTimes?String(west):"original"} initial={{opacity:0,y:16}} animate={{opacity:1,y:0}} transition={{delay:.1}} className={design.simpleTimes ? "prayer-almanac" : "glass-card rounded-2xl p-6"}>
-            <div style={{display:design.simpleTimes?"none":"flex",gap:".5rem",marginBottom:"1.1rem"}}>
-              <button className="msm on" data-mid="QKMnW1LB" data-lat="40.4490" data-lng="-79.9619" data-name="ICP">
-                <span className="msm-dot"></span>
-                <span className="msm-labels"><span className="msm-name"><TextField id="Prayer_6">ICP</TextField></span><span className="msm-loc"><TextField id="Prayer_7">Oakland · Pittsburgh</TextField></span></span>
-              </button>
-              <button className="msm" data-mid="zKz8QzAO" data-lat="40.4065" data-lng="-80.0839" data-name="Attawheed">
-                <span className="msm-dot"></span>
-                <span className="msm-labels"><span className="msm-name"><TextField id="Prayer_8">Attawheed</TextField></span><span className="msm-loc"><TextField id="Prayer_9">Carnegie · Pittsburgh</TextField></span></span>
-              </button>
-            </div>
-
+  const chart = expanded && <motion.div key={`${west}-${date.year}-${date.month}-${date.day}`} initial={{opacity:0,y:16}} animate={{opacity:1,y:0}} className="prayer-almanac">
             <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
               <div>
-                <p className="text-xs uppercase tracking-[0.22em] text-primary font-semibold mb-1"><TextField id="Prayer_10">Prayer Timing Trends</TextField></p>
-                <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground" id="card-title">{design.simpleTimes && west?"Attawheed Islamic Center":"Islamic Center of Pittsburgh"}</h2>
+                <p className="text-xs uppercase tracking-[0.22em] text-primary font-semibold mb-1"><TextField id="Prayer_10" fallbackFieldKeys={["/resources/prayer-times/PrayerTimes_12"]}>Prayer Timing Trends</TextField></p>
+                <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground" id="card-title">{west?"Attawheed Islamic Center":"Islamic Center of Pittsburgh"}</h2>
               </div>
               <div className="flex flex-wrap items-end gap-3">
-                {design.simpleTimes && <div className="prayer-chart-location">
+                <div className="prayer-chart-location">
                   <label htmlFor="almanac-location">Almanac location</label>
                   <select id="almanac-location" value={west ? "west" : "oakland"} onChange={event => setWest(event.target.value === "west")}>
-                    <option value="oakland">ICP · Oakland</option>
-                    <option value="west">Attawheed · Carnegie</option>
+                    <option value="oakland">{locationLabels[0]} · {locationLabels[1]}</option>
+                    <option value="west">{locationLabels[2]} · {locationLabels[3]}</option>
                   </select>
-                </div>}
-              <button id="today-btn" style={{background:"transparent",border:".5px solid #C9A84C",borderRadius:"9px",padding:".28rem .65rem",cursor:"pointer",fontSize:".82rem",color:"#C9A84C",fontWeight:500,fontFamily:"var(--font-body)"}}><TextField id="Prayer_11">↩ Today</TextField></button>
+                </div>
+              <button id="today-btn" style={{background:"transparent",border:".5px solid var(--gold-muted)",borderRadius:"9px",padding:".28rem .65rem",cursor:"pointer",fontSize:".82rem",color:"var(--gold-text)",fontWeight:500,fontFamily:"var(--font-body)"}}><TextField id="Prayer_11" fallbackFieldKeys={["/resources/prayer-times/PrayerTimes_13"]}>↩ Today</TextField></button>
               </div>
             </div>
-
-            {!design.simpleTimes && <div style={{display:"flex",flexWrap:"wrap",alignItems:"center",gap:".3rem .9rem",padding:".55rem .85rem",background:"rgba(201,168,76,.07)",border:".5px solid rgba(201,168,76,.22)",borderRadius:"10px",marginBottom:".7rem",minHeight:"38px",fontFamily:"var(--font-body)"}}
-              dangerouslySetInnerHTML={{__html: todayHtml}} />}
 
             <div id="togs" style={{display:"flex",flexWrap:"wrap",gap:".35rem",marginBottom:".55rem"}}></div>
 
             <div style={{display:"flex",flexWrap:"wrap",gap:".6rem",marginBottom:".65rem",fontFamily:"var(--font-body)",fontSize:".7rem",color:"hsl(var(--muted-foreground))"}}>
-              <span style={{display:"flex",alignItems:"center",gap:"5px"}}><span style={{width:"11px",height:"9px",borderRadius:"2px",background:"rgba(29,158,117,.28)",flexShrink:0,display:"inline-block"}}></span><TextField id="Prayer_12">Ramadan</TextField></span>
-              <span style={{display:"flex",alignItems:"center",gap:"5px"}}><span style={{width:"11px",height:"9px",borderRadius:"2px",background:"rgba(186,117,23,.22)",flexShrink:0,display:"inline-block"}}></span><TextField id="Prayer_13">Pitt breaks</TextField></span>
-              <span style={{display:"flex",alignItems:"center",gap:"5px"}}><span style={{width:"11px",height:"9px",borderRadius:"2px",border:"1.5px dashed #C9A84C",flexShrink:0,display:"inline-block"}}></span><TextField id="Prayer_14">Today</TextField></span>
+              <span style={{display:"flex",alignItems:"center",gap:"5px"}}><span style={{width:"11px",height:"9px",borderRadius:"2px",background:"rgba(29,158,117,.28)",flexShrink:0,display:"inline-block"}}></span><TextField id="Prayer_12" fallbackFieldKeys={["/resources/prayer-times/PrayerTimes_14"]}>Ramadan</TextField></span>
+              <span style={{display:"flex",alignItems:"center",gap:"5px"}}><span style={{width:"11px",height:"9px",borderRadius:"2px",background:"rgba(186,117,23,.22)",flexShrink:0,display:"inline-block"}}></span><TextField id="Prayer_13" fallbackFieldKeys={["/resources/prayer-times/PrayerTimes_15"]}>Pitt breaks</TextField></span>
+              <span style={{display:"flex",alignItems:"center",gap:"5px"}}><span style={{width:"11px",height:"9px",borderRadius:"2px",border:"1.5px dashed var(--gold-muted)",flexShrink:0,display:"inline-block"}}></span><TextField id="Prayer_14" fallbackFieldKeys={["/resources/prayer-times/PrayerTimes_16"]}>Today</TextField></span>
             </div>
 
             <div style={{position:"relative"}} id="cwrap">
               <div id="ctip"></div>
-              <p style={{fontSize:".68rem",fontWeight:500,color:"hsl(var(--muted-foreground))",marginBottom:"3px",opacity:.65,fontFamily:"var(--font-body)"}}><TextField id="Prayer_15">early morning</TextField></p>
+              <p style={{fontSize:".68rem",fontWeight:500,color:"hsl(var(--muted-foreground))",marginBottom:"3px",opacity:.65,fontFamily:"var(--font-body)"}}><TextField id="Prayer_15" fallbackFieldKeys={["/resources/prayer-times/PrayerTimes_17"]}>early morning</TextField></p>
               <div style={{position:"relative",width:"100%",height:"160px"}}><canvas id="ctop" role="img" aria-label="Fajr and Shuruq times"></canvas></div>
               <div style={{display:"flex",alignItems:"center",gap:"8px",margin:"7px 0"}}>
                 <div style={{flex:1,height:"1px",background:"hsl(var(--border))"}}></div>
-                <span style={{fontSize:".65rem",color:"hsl(var(--muted-foreground))",opacity:.55,padding:"0 6px",whiteSpace:"nowrap",fontFamily:"var(--font-body)"}}><TextField id="Prayer_16">afternoon · evening · night</TextField></span>
+                <span style={{fontSize:".65rem",color:"hsl(var(--muted-foreground))",opacity:.55,padding:"0 6px",whiteSpace:"nowrap",fontFamily:"var(--font-body)"}}><TextField id="Prayer_16" fallbackFieldKeys={["/resources/prayer-times/PrayerTimes_18"]}>afternoon · evening · night</TextField></span>
                 <div style={{flex:1,height:"1px",background:"hsl(var(--border))"}}></div>
               </div>
               <div style={{position:"relative",width:"100%",height:"300px"}}><canvas id="cbot" role="img" aria-label="Dhuhr, Asr, Maghrib, Isha times"></canvas></div>
@@ -602,12 +493,13 @@ const Prayer = () => {
             <div className="minimap-wrap"><canvas id="minimap" height="36"></canvas></div>
 
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginTop:".9rem",flexWrap:"wrap",gap:".5rem"}}>
+              <span>Chart uses locally calculated prayer times.</span>
               <span id="range-label" style={{fontSize:".72rem",color:"hsl(var(--muted-foreground))",fontFamily:"var(--font-body)"}}></span>
               <div style={{display:"flex",alignItems:"center",gap:".75rem",flexWrap:"wrap"}}>
-                <button className="app-btn" id="app-dl"><TextField id="Prayer_17">⬇ Download Athan+</TextField></button>
-                <a id="src-link" href={"https://masjidal.com/widget/monthly/v2/?masjid_id="+(design.simpleTimes && west?"zKz8QzAO":"QKMnW1LB")} target="_blank" rel="noopener noreferrer"
-                  style={{fontSize:".7rem",color:"hsl(var(--muted-foreground))",textDecoration:"none",display:"flex",alignItems:"center",gap:"3px",fontFamily:"var(--font-body)",transition:"color .14s"}}><TextField id="Prayer_18">
-                  {design.simpleTimes?"View mosque timetable ↗":"Source: ICP via Masjidal ↗"}
+                <button className="app-btn" id="app-dl"><TextField id="Prayer_17" fallbackFieldKeys={["/resources/prayer-times/PrayerTimes_19"]}>⬇ Download Athan+</TextField></button>
+                <a id="src-link" href={"https://masjidal.com/widget/monthly/v2/?masjid_id="+(west?"zKz8QzAO":"QKMnW1LB")} target="_blank" rel="noopener noreferrer"
+                  style={{fontSize:".7rem",color:"hsl(var(--muted-foreground))",textDecoration:"none",display:"flex",alignItems:"center",gap:"3px",fontFamily:"var(--font-body)",transition:"color .14s"}}><TextField id="Prayer_18" fallbackFieldKeys={["/resources/prayer-times/PrayerTimes_20"]}>
+                  View mosque timetable via Masjidal ↗
                 </TextField></a>
               </div>
             </div>
@@ -620,16 +512,6 @@ const Prayer = () => {
         .pt-tog[data-on="false"]{opacity:.3}
         .pt-tog-sw{width:9px;height:9px;border-radius:2px;flex-shrink:0}
         #ctip{position:absolute;background:hsl(var(--card)/.97);border:.5px solid hsl(var(--border));border-radius:12px;padding:9px 12px;font-size:.75rem;font-family:var(--font-body);pointer-events:none;display:none;z-index:20;min-width:155px;color:hsl(var(--foreground));box-shadow:0 6px 24px rgba(17,35,60,.09)}
-        .msm{display:flex;align-items:center;gap:.55rem;padding:.55rem .9rem;border:.5px solid hsl(var(--border));border-radius:11px;cursor:pointer;background:transparent;font-family:var(--font-body);transition:all .18s;flex:1}
-        .msm:hover{border-color:hsl(var(--foreground)/.28)}
-        .msm.on{background:hsl(var(--accent));border-color:hsl(var(--accent))}
-        .msm-dot{width:8px;height:8px;border-radius:50%;background:hsl(var(--muted-foreground));flex-shrink:0;transition:all .18s}
-        .msm.on .msm-dot{background:#C9A84C}
-        .msm-labels{display:flex;flex-direction:column;gap:.05rem}
-        .msm-name{font-size:.82rem;font-weight:600;color:hsl(var(--foreground));transition:color .18s;line-height:1.2}
-        .msm.on .msm-name{color:white}
-        .msm-loc{font-size:.64rem;color:hsl(var(--muted-foreground));transition:color .18s}
-        .msm.on .msm-loc{color:rgba(255,255,255,.45)}
         .app-btn{background:hsl(var(--accent));color:white;border:none;border-radius:9px;padding:.32rem .75rem;font-size:.72rem;font-weight:500;cursor:pointer;font-family:var(--font-body);transition:background .14s}
         .app-btn:hover{opacity:.85}
         #cwrap{user-select:none;-webkit-user-select:none}
@@ -637,39 +519,17 @@ const Prayer = () => {
         #minimap{width:100%;display:block;border-radius:6px}
       `}</style>
 
-      {design.simpleTimes ? (
-        <section className="prayer-start px-4">
-          <div className="max-w-5xl mx-auto">
-            <Link to="/resources" className="prayer-back"><ArrowLeft size={14}/> Back to Resources</Link>
-            <DailyPrayers page title={<><TextField id="Prayer_3">Prayer at </TextField><TextField id="Prayer_4">Pitt</TextField></>} almanac={{ open: expanded, toggle: () => setExpanded(value => !value), chart }}/>
-          </div>
-        </section>
-      ) : (
-        <>
-      {/* ── Hero ─────────────────────────────────────────────────── */}
-      <section className="relative py-28 md:py-36 text-center px-4 overflow-hidden">
-        <div className="absolute inset-0 gradient-mesh-gold" />
-        <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage:`url(${patternImg})`, backgroundSize:"200px" }} />
-        <BridgeBar />
-        <div className="relative z-10 max-w-3xl mx-auto">
-          <motion.p initial={{opacity:0}} animate={{opacity:1}} className="text-xs uppercase tracking-[0.3em] text-primary font-semibold mb-5"><TextField id="Prayer_2">
-            Resources
-          </TextField></motion.p>
-          <motion.h1 initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} className="font-display text-5xl md:text-7xl font-bold text-foreground mb-4"><TextField id="Prayer_3">
-            Prayer at </TextField><span className="text-gradient-gold inline-block pb-1"><TextField id="Prayer_4">Pitt</TextField></span>
-          </motion.h1>
-          <motion.p initial={{opacity:0,y:14}} animate={{opacity:1,y:0}} transition={{delay:.2}} className="text-muted-foreground text-lg max-w-xl mx-auto leading-relaxed"><TextField id="Prayer_5">
-            Daily times, campus prayer rooms, and Friday prayer.
-          </TextField></motion.p>
+      <PageHero className="text-center">
+        <p className="page-hero-kicker text-xs uppercase tracking-[0.3em] text-primary font-semibold"><TextField id="Prayer_2" fallbackFieldKeys={["/resources/prayer-times/PrayerTimes_2"]}>Resources</TextField></p>
+        <h1 className="font-display font-bold text-foreground"><TextField id="Prayer_3" fallbackFieldKeys={["/resources/prayer-times/PrayerTimes_3"]}>Prayer at </TextField><TextField id="Prayer_4" fallbackFieldKeys={["/resources/prayer-times/PrayerTimes_4"]}>Pitt</TextField></h1>
+        <p className="text-muted-foreground text-lg max-w-xl mx-auto"><TextField id="Prayer_5" fallbackFieldKeys={["/resources/prayer-times/PrayerTimes_5"]}>Daily times, campus prayer rooms, and Friday prayer.</TextField></p>
+      </PageHero>
+      <section className="prayer-start">
+        <div className="site-container">
+          <Link to="/resources" className="prayer-back"><ArrowLeft size={14}/><TextField id="prayer-resources-back" fallbackFieldKeys={["/resources/prayer-times/PrayerTimes_6"]}>Back to Resources</TextField></Link>
+          <DailyPrayers schedule={oaklandSchedule} almanac={{ open: expanded, toggle: () => setExpanded(value => !value), chart }} />
         </div>
       </section>
-
-          <div className="max-w-4xl mx-auto px-4 pb-8">
-            <Link to="/resources" className="prayer-back"><ArrowLeft size={14}/> Back to Resources</Link>
-            {chart}
-          </div>
-        </>
-      )}
 
       <SectionDivider />
 
@@ -683,9 +543,9 @@ const Prayer = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="glass-card-strong rounded-2xl p-4 md:p-6"
+            className="glass-card-strong rounded-2xl prayer-card"
           >
-            <div className={design.locationPhotos ? "prayer-photo-row jummah-photo-row" : undefined}>
+            <div className="prayer-photo-row jummah-photo-row">
               <div className="prayer-venue-copy">
                 <p className="font-body font-bold text-foreground"><TextField id="Prayer_20">Fridays at 2:00 PM</TextField></p>
                 <p className="text-muted-foreground text-sm mt-1"><TextField id="Prayer_21">Usually in the O’Hara Ballroom</TextField></p>
@@ -702,7 +562,7 @@ const Prayer = () => {
                   </LinkField>
                 </div>
               </div>
-              {design.locationPhotos && <PhotoSlots name="Jummah prayer" wide/>}
+              <PhotoSlots name="Jummah prayer" wide/>
             </div>
           </motion.div>
         </div>
@@ -730,12 +590,11 @@ const Prayer = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: i * 0.06 }}
-                className="liquid-glass-hover p-4 md:p-5 rounded-2xl"
+                className="liquid-glass-hover prayer-card rounded-2xl"
               >
-                <div className={design.locationPhotos ? "prayer-photo-row" : undefined}>
+                <div className={i === 3 ? undefined : "prayer-photo-row"}>
                 <div className="prayer-venue-copy">
                 <div className="flex items-start gap-3 mb-2">
-                  {!design.locationPhotos && <MapPin size={16} className="text-primary mt-1 flex-shrink-0" />}
                   <div>
                     <h3 className="font-display text-lg font-bold text-foreground"><TextField id="Prayer_31">{space.name}</TextField></h3>
                     <p className="text-muted-foreground text-sm"><TextField id="Prayer_32">{space.detail}</TextField></p>
@@ -752,7 +611,7 @@ const Prayer = () => {
                   <MapPin size={14}/> William Pitt Union map <ExternalLink size={12}/>
                 </LinkField>}
                 </div>
-                {design.locationPhotos && <PhotoSlots name={space.name} wide/>}
+                <PhotoSlots name={space.name} wide publicHidden={i === 3}/>
                 </div>
               </motion.div></CardCopies>
             ))}
@@ -782,9 +641,9 @@ const Prayer = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: i * 0.08 }}
-                data-mosque-side={design.locationPhotos?(i===0?"left":"right"):undefined} className="liquid-glass-hover p-6 md:p-7 rounded-2xl"
+                data-mosque-side={i===0?"left":"right"} className="liquid-glass-hover prayer-card rounded-2xl"
               >
-                <div className="mosque-information"><h3 className="font-display text-lg font-bold text-foreground mb-1">{design.mosqueLinks?<LinkField fieldId="mosque-website" href={i===0?"https://icp-pgh.org":"https://attawheed.org"}><TextField id="Prayer_37">{m.name}</TextField> ↗</LinkField>:<TextField id="Prayer_37">{m.name}</TextField>}</h3>
+                <div className="mosque-information"><h3 className="font-display text-lg font-bold text-foreground mb-1"><LinkField fieldId="mosque-website" href={i===0?"https://icp-pgh.org":"https://attawheed.org"}><TextField id="Prayer_37">{m.name}</TextField> ↗</LinkField></h3>
                 <p className="text-sm text-primary font-semibold mb-3"><TextField id="Prayer_38">{m.distance}</TextField></p>
                 <ul className="space-y-1.5">
                   {m.details.map((d, j) => (
@@ -794,7 +653,7 @@ const Prayer = () => {
                   ))}
                 </ul>
                 </div>
-                {design.locationPhotos && <PhotoSlots name={m.name}/>}
+                <PhotoSlots name={m.name}/>
               </motion.div></CardCopies>
             ))}
           </div>

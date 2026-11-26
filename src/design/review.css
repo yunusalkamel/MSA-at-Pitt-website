@@ -171,7 +171,7 @@
   margin-top: 8px;
 }
 .daily-prayers {
-  border-block: 1px solid hsl(var(--border));
+  border-block: 1px solid color-mix(in srgb, var(--gold-muted) 55%, transparent);
   padding: 24px 0;
 }
 .daily-prayers h2 {
@@ -302,7 +302,7 @@
 .daily-prayers dl {
   gap: 0;
   align-items: stretch;
-  border-block: 1px solid hsl(var(--border));
+  border-block: 1px solid color-mix(in srgb, var(--gold-muted) 55%, transparent);
   padding-block: 8px;
 }
 .daily-prayers dl > div {
@@ -311,7 +311,7 @@
 }
 .daily-prayers dl [data-next] {
   border-radius: 9px;
-  background: color-mix(in srgb, #61816d 17%, transparent);
+  background: color-mix(in srgb, var(--gold-muted) 18%, transparent);
 }
 .daily-prayers dt {
   font-weight: 650;
@@ -327,6 +327,7 @@
 }
 .daily-prayers dd {
   font-variant-numeric: tabular-nums;
+  color: var(--gold-text);
   margin-top: 5px;
 }
 .chart-disclosure {
@@ -494,7 +495,7 @@
 
 /* Full-bleed photography with the strongest tint immediately behind the copy. */
 
-.prayer-start { padding-block: 6.5rem clamp(1.5rem, 3vw, 2.5rem); }
+.prayer-start { padding: 0 var(--gutter) var(--space-7); }
 .daily-prayers h1 {
   display: flex;
   align-items: center;
@@ -540,7 +541,6 @@
 .prayer-venue-copy { align-self: center; min-width: 0; }
 
 @media (max-width: 767px) {
-  .prayer-start { padding-top: 4.8rem; }
   .prayer-photo-row { grid-template-columns: minmax(0, 1fr) minmax(95px, 33%); }
   .jummah-photo-row { grid-template-columns: minmax(0, 1fr) minmax(105px, 36%); }
   .prayer-venue-copy li { font-size: .77rem; }
@@ -643,3 +643,10 @@
   .home-stats { margin-top: 0; }
   .home-stats > div { padding: var(--space-2); }
 }
+
+.dark .daily-prayers dd { color: var(--gold-muted); }
+.daily-prayers .prayer-heading h2 { display: flex; align-items: center; gap: var(--space-2); }
+.daily-prayers dt { flex-wrap: wrap; }
+.daily-prayers dt small { color: hsl(var(--foreground)); }
+.prayer-card { padding: var(--card-padding); }
+.prayer-nav-time { white-space: nowrap; }
