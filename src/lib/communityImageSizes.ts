@@ -1,4 +1,6 @@
 const nativeWidths: Record<string, number> = {
+  "fajr-bridge": 1024,
+  "riverside-breakfast": 1074,
   "river-talk": 1152,
   "river-speaker": 864,
   "fall-walk": 1158,

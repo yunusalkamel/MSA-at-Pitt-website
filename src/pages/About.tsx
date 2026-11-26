@@ -161,6 +161,13 @@ const About = () => {
         </div>
       </section>
 
+      <div className="mx-auto max-w-6xl px-4 pb-4">
+        <Picture fieldId="community-banner" src="/photos/brand/banner.webp" srcSet="/photos/brand/banner-760.webp 760w, /photos/brand/banner.webp 1774w"
+          sizes="(max-width: 767px) 94vw, min(94vw, 1120px)" width={1774} height={444} loading="lazy"
+          alt="Cultivate community, ignite iman. A collage of MSA at Pitt events."
+          className="w-full h-auto rounded-xl" />
+      </div>
+
       {/* Topic change: Mission → What We Do */}
       <SectionDivider />
 
@@ -195,7 +202,7 @@ const About = () => {
               <div className="grid sm:grid-cols-2 gap-5">
                 {imanCards.map((item, i) => (
                   <CardCopies key={item.title} id={"About_24-" + itemIdentity(item, item.title)}><GlassCard key={item.title} delay={0.16 + i * 0.08}>
-                    {design.cardPhotos && <Picture fieldId="focus-photo" src={communityPhoto(i === 0 ? "fajr-group" : "serving").src} alt="" loading="lazy" width={460} height={250} className="community-card-photo"/>}
+                    {design.cardPhotos && <Picture fieldId="focus-photo" src={communityPhoto(i === 0 ? "halaqa-circle" : "serving").src} alt="" loading="lazy" width={460} height={250} className="community-card-photo"/>}
                     <div className={`bg-gradient-to-br ${item.gradient} w-14 h-14 rounded-xl flex items-center justify-center mb-4 shadow-lg`}>
                       <item.icon className="text-white" size={24} />
                     </div>

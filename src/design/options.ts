@@ -36,6 +36,7 @@ export const switches = {
 } as const;
 export type Switch = keyof typeof switches;
 export const choices = {
+  mobileHero: ["Photo first", "Compact overlay", "Full overlay"],
   wash: ["Soft gold gradient", "Stronger gradient", "Gold panel"],
   framing: ["Full screen", "Split layout"],
   density: ["Responsive", "2 × 2", "4 × 4", "5 × 5"],
@@ -56,6 +57,7 @@ const flags = (on: boolean) =>
   >;
 export const current: Options = {
   ...flags(false),
+  mobileHero: "Full overlay",
   wash: "Stronger gradient",
   framing: "Split layout",
   density: "2 × 2",
@@ -74,6 +76,7 @@ export const proposed: Options = {
   footer: false,
   eventFirst: false,
   sampleNotice: false,
+  mobileHero: "Photo first",
   wash: "Soft gold gradient",
   framing: "Full screen",
   density: "Responsive",

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { Moon } from "lucide-react";
 import { calcDay, fm } from "@/lib/prayerClock";
@@ -72,14 +72,8 @@ export function PrayerLink() {
     </Link>
   );
 }
-export function DailyPrayers({
-  west = false,
-  onLocation,
-}: {
-  west?: boolean;
-  onLocation?: (west: boolean) => void;
-}) {
-  const { now, times, next } = useSchedule(west);
+export function DailyPrayers({ page = false, title = "Prayer at Pitt", almanac }: { page?: boolean; title?: ReactNode; almanac?: { open: boolean; toggle: () => void; chart: ReactNode } }) {
+  const { now, times, next } = useSchedule(false);
   const { lunar } = useDesign();
   return (
     <section className="daily-prayers">
@@ -93,22 +87,10 @@ export function DailyPrayers({
               day: "numeric",
             })}
           </small>
-          <h2>{lunar && <Moon aria-hidden size={24} />} Prayer at Pitt</h2>
+          {page ? <h1>{lunar && <Moon aria-hidden size={24} />} <span>{title}</span></h1>
+            : <h2>{lunar && <Moon aria-hidden size={24} />} Prayer at Pitt</h2>}
         </div>
-        {onLocation ? (
-          <label>
-            Location
-            <select aria-label="Prayer location"
-              value={west ? "west" : "oakland"}
-              onChange={(e) => onLocation(e.target.value === "west")}
-            >
-              <option value="oakland">ICP · Oakland</option>
-              <option value="west">Attawheed · Carnegie</option>
-            </select>
-          </label>
-        ) : (
-          <Link to="/resources/prayer">Campus prayer guide ↗</Link>
-        )}
+        {!page && <Link to="/resources/prayer">Campus prayer guide ↗</Link>}
       </div>
       <dl>
         {Object.entries(times).map(([name, time]) => (
@@ -121,9 +103,15 @@ export function DailyPrayers({
           </div>
         ))}
       </dl>
-      <p>
-        Calculated local times · {west ? "Carnegie" : "Oakland"}, Pittsburgh
-      </p>
+      <div className="daily-prayers-footer">
+        <p>Calculated local times · Oakland, Pittsburgh</p>
+        {page && almanac && <button className="chart-disclosure" type="button"
+          aria-expanded={almanac.open} aria-controls="solar-almanac-content"
+          onClick={almanac.toggle}>
+          <span aria-hidden="true">◐</span> {almanac.open ? "Close solar almanac" : "Open solar almanac"} <span aria-hidden="true">{almanac.open ? "−" : "+"}</span>
+        </button>}
+      </div>
+      {page && almanac && <div id="solar-almanac-content" hidden={!almanac.open}>{almanac.chart}</div>}
     </section>
   );
 }

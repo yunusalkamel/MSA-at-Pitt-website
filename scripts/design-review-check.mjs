@@ -24,6 +24,7 @@ for (const [name, engine, width] of [
     }
     const errors = [];
     page.on("pageerror", (error) => errors.push(error.message));
+    page.setDefaultTimeout(12000);
     await page.goto(base);
     const bar = page.getByRole("button", { name: "Design switches" });
     await bar.waitFor();
@@ -32,6 +33,13 @@ for (const [name, engine, width] of [
     const wall = page.locator("[data-photo-hero] figure img");
     assert.equal(new Set(await wall.evaluateAll(images => images.map(img => img.src))).size, await wall.count());
     assert.equal(await page.locator("[data-framing]").getAttribute("data-wash"), "Soft gold gradient");
+    const tiles = page.locator("[data-hero-tile]");
+    const before = await tiles.evaluateAll(rows => rows.map(el => el.dataset.photo));
+    await page.getByRole("button", {name:"Change collage photos"}).click();
+    const after = await tiles.evaluateAll(rows => rows.map(el => el.dataset.photo));
+    assert.equal(before.filter((id, i) => id !== after[i]).length, 1);
+    assert.equal(new Set(after).size, after.length);
+    if (width < 768) assert.equal(await page.locator(".mobile-welcome-intro").count(),1);
     const picture = page.locator("[data-photo-hero] img").first();
     await picture.evaluate((img) => img.decode());
     assert.ok(await picture.evaluate((img) => img.naturalWidth > 0));
@@ -54,8 +62,20 @@ for (const [name, engine, width] of [
     assert.ok(
       await page
         .locator("[data-framing]")
-        .evaluate((el) => el.getBoundingClientRect().height >= innerHeight - 1),
+        .evaluate((el) => el.getBoundingClientRect().height >= innerHeight * (innerWidth < 768 ? .72 : .99)),
     );
+    for (const option of ["Compact overlay", "Full overlay", "Photo first"]) {
+      await page.getByLabel("Mobile hero").selectOption(option);
+      assert.equal(await page.locator("[data-framing]").getAttribute("data-mobile-hero"), option);
+      if (width < 768) {
+        assert.equal(await page.locator(".mobile-welcome-intro").count(), option === "Full overlay" ? 0 : 1);
+        if (process.env.REVIEW_SCREENSHOTS) {
+          await page.getByRole("button", { name: "Close design controls" }).click();
+          await page.screenshot({path: process.env.REVIEW_SCREENSHOTS + "/" + option.toLowerCase().replace(" ", "-") + ".png"});
+          await bar.click();
+        }
+      }
+    }
     for (const wash of ["Stronger gradient", "Gold panel", "Soft gold gradient"]) {
       await page.getByLabel("Hero gradient").selectOption(wash);
       assert.equal(await page.locator("[data-framing]").getAttribute("data-wash"), wash);
@@ -73,8 +93,8 @@ for (const [name, engine, width] of [
     }
     const upload = page.locator(".hero-trials input");
     await upload.setInputFiles([
-      "src/assets/community/flowers.webp",
-      "src/assets/community/charity-week.webp",
+      "public/photos/community/flowers-320.webp",
+      "public/photos/community/friendsgiving-serve-320.webp",
     ]);
     await page.waitForFunction(() =>
       document
@@ -91,6 +111,10 @@ for (const [name, engine, width] of [
         src,
       daytimePhoto,
     );
+    await page.getByLabel("Collage density").selectOption("Responsive");
+    if (width >= 768) {
+      assert.equal(await tiles.filter({has:page.locator('img[src*="fajr-bridge"]')}).getAttribute("data-hero-tile"), "7");
+    }
     await page.getByRole("button", { name: "Light mode", exact: true }).click();
     await page.getByLabel("Hero layout").selectOption("Single photo");
     assert.equal(await page.locator("[data-photo-hero] figure").count(), 1);
@@ -139,17 +163,33 @@ for (const [name, engine, width] of [
     const publicHealth = page.locator(".liquid-glass-hover").filter({has: page.getByRole("heading", {name: /Room A721/})});
     await publicHealth.getByRole("img", {name: "Photo coming soon"}).waitFor();
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
-    await page
-      .getByLabel("Prayer location", { exact: true })
-      .selectOption("west");
-    await page.getByRole("button", { name: /Open the solar almanac/i }).click();
+    assert.equal(await page.getByRole("heading",{name:"Prayer at Pitt",exact:true}).count(),1);
+    assert.equal(await page.getByRole("link",{name:"Back to Resources"}).count(),1);
+    const openAlmanac = page.getByRole("button", { name: /Open solar almanac/i });
+    assert.ok(await openAlmanac.evaluate(el => {
+      const footer = el.parentElement.getBoundingClientRect();
+      return footer.right - el.getBoundingClientRect().right < 2;
+    }));
+    if (process.env.REVIEW_SCREENSHOTS) {
+      const folder = process.env.REVIEW_SCREENSHOTS;
+      await page.locator(".prayer-start").screenshot({path: folder + "/prayer-" + width + ".png"});
+      await page.locator(".prayer-photo-row").nth(1).screenshot({path: folder + "/venue-" + width + ".png"});
+    }
+    const oaklandTimes = await page.locator(".daily-prayers dd").allTextContents();
+    await openAlmanac.click();
+    await page.getByLabel("Almanac location", {exact:true}).selectOption("west");
+    assert.deepEqual(await page.locator(".daily-prayers dd").allTextContents(), oaklandTimes);
+    assert.match(await page.getByRole("link",{name:/William Pitt Union map/}).getAttribute("href"), /3959/);
+    assert.match(await page.getByRole("link",{name:/Student Center map/}).getAttribute("href"), /4024/);
+    const photo = page.getByRole("button",{name:/View WPU Reflection Room photos/});
+    assert.ok(await photo.evaluate(el => el.getBoundingClientRect().width >= (innerWidth < 768 ? 95 : 200)));
     await page.locator("#ctop").waitFor({ state: "attached" });
     assert.equal(
       await page.locator("#card-title").textContent(),
       "Attawheed Islamic Center",
     );
     await page
-      .getByRole("button", { name: /Close the solar almanac/i })
+      .getByRole("button", { name: /Close solar almanac/i })
       .click();
     assert.equal(await page.locator("#ctop").count(), 0);
     await page.goto(base + "/resources/chaplain");
@@ -164,6 +204,12 @@ for (const [name, engine, width] of [
     await page.goto(base + "/resources");
     const fresh = page.locator(".resource-tile").first();
     await fresh.waitFor();
+    if (width >= 768) {
+      await fresh.hover();
+      await fresh.getByRole("link", {name:/Google Doc/}).waitFor();
+      await page.mouse.move(width - 4, 90);
+      await fresh.getByRole("link",{name:/Google Doc/}).waitFor({state:"hidden"});
+    }
     if (width < 768) {
       assert.ok(await fresh.evaluate(el => el.getBoundingClientRect().bottom < innerHeight));
       assert.ok(await fresh.evaluate(el => el.getBoundingClientRect().height < 150));
@@ -227,6 +273,23 @@ for (const [name, engine, width] of [
       ),
     );
     assert.deepEqual(errors, []);
+    if (name === "Chrome") {
+      await page.emulateMedia({ reducedMotion: "no-preference" });
+      await page.goto(base);
+      await bar.click();
+      await page.locator("summary").filter({ hasText: /^Home$/ }).click();
+      await page.getByLabel("Hero layout").selectOption("Collage");
+      await page.getByRole("button", { name: "Close design controls" }).click();
+      await page.getByRole("button", { name: "Pause photos" }).click();
+      const playingTiles = page.locator("[data-hero-tile]");
+      const beforeReveal = await playingTiles.evaluateAll(rows => rows.map(el => el.dataset.photo));
+      await page.getByRole("button", { name: "Change collage photos" }).click();
+      await page.locator(".wall-previous + img[data-revealed]").waitFor();
+      assert.equal(await page.locator("img.wall-previous").count(), 1);
+      const afterReveal = await playingTiles.evaluateAll(rows => rows.map(el => el.dataset.photo));
+      assert.equal(beforeReveal.filter((id, i) => id !== afterReveal[i]).length, 1);
+      await page.locator("img.wall-previous").waitFor({ state: "detached" });
+    }
     console.log(
       name +
         " passed visual comparison, persistence, photo reel, prayer, mosque directory and guide navigation.",

@@ -14,8 +14,9 @@ export function useHeroTrials(theme: Theme) {
 }
 export function setHeroTrials(theme: Theme, files: File[]) {
   for (const old of sets[theme]) URL.revokeObjectURL(old.src);
-  sets[theme] = files
-    .filter((f) => f.type.startsWith("image/"))
+  const uniqueFiles = new Map(files.filter(file => file.type.startsWith("image/"))
+    .map(file => [`${file.name}:${file.size}:${file.lastModified}`, file]));
+  sets[theme] = [...uniqueFiles.values()]
     .map((file, i) => ({
       id: "trial-" + i,
       src: URL.createObjectURL(file),

@@ -1,4 +1,10 @@
 const captions = {
+  "mural-dinner": "Friends over dinner beside a colorful mural",
+  "halaqa-circle": "Students sitting together in a halaqa circle",
+  "campus-lawn": "Students talking on the lawn at Pitt",
+  "riverside-friends": "Two friends in MSA sweatshirts by the river",
+  "riverside-breakfast": "Students sharing breakfast by the river",
+  "hall-conversation": "A conversation after an MSA program",
   "river-talk": "Students listening beside the river at sunset",
   "rink-friends": "Friends together at the rink",
   "rink-group": "Group photo on the ice",
@@ -55,18 +61,20 @@ export function communityPhoto(id: PhotoId) {
 }
 
 export const daylightWall: PhotoId[] = [
-  "campus-friends", "friendsgiving-serve", "flowers", "craft-table",
+  "campus-lawn", "riverside-friends", "flowers", "friendsgiving-serve",
   "park-day", "hall-group", "tea", "lawn-prayer",
-  "river-talk", "students", "gala-table", "serving",
-  "lawn-friends", "craft-group", "hall-wide", "day-trip",
-  "henna", "fall-walk", "volunteers", "gathering",
+  "river-talk", "students", "hall-conversation", "fajr-group",
+  "lawn-friends", "craft-group", "fall-walk", "day-trip",
+  "henna", "craft-table", "volunteers", "gathering", "riverside-breakfast",
+  "mural-dinner", "gala-portraits", "halaqa-circle", "grill", "hall-wide",
 ];
 export const eveningWall: PhotoId[] = [
-  "fajr-bridge", "gala-portraits", "rink-friends", "friendsgiving-table",
-  "cookout", "sudan-iftar", "friends-dusk", "gala-group",
-  "river-talk", "ballroom", "table-friends", "rink-group",
-  "banquet", "panel", "grill", "dinner-friends",
-  "potluck", "friendsgiving-hall", "lakeshore", "fajr-group",
+  "riverside-friends", "fall-walk", "mural-dinner", "friendsgiving-table",
+  "cookout", "sudan-iftar", "grill", "gala-group",
+  "river-talk", "ballroom", "halaqa-circle", "rink-friends",
+  "banquet", "panel", "flowers", "fajr-group",
+  "potluck", "friendsgiving-hall", "lakeshore", "riverside-breakfast",
+  "campus-lawn", "hall-conversation", "students", "tea", "serving", "henna",
 ];
 
 function album(slug: string, title: string, category: string[], ids: PhotoId[], eventDate?: string) {
@@ -83,12 +91,12 @@ function album(slug: string, title: string, category: string[], ids: PhotoId[], 
 export const communityAlbums = [
   album("pitt-friendsgiving", "Friendsgiving", ["social", "general", "fall25"], ["friendsgiving-serve", "friendsgiving-food", "friendsgiving-hall", "friendsgiving-table"]),
   album("pitt-msa-gala", "MSA Gala", ["signature", "general", "spring26"], ["gala-portraits", "gala-table", "gala-group"], "2026-04-17"),
-  album("pitt-fajr-breakfast", "Fajr and Breakfast", ["dawah", "general", "fall25"], ["fajr-bridge", "fajr-group"], "2025-09-26"),
+  album("pitt-fajr-breakfast", "Fajr and Breakfast", ["dawah", "general", "fall25"], ["fajr-bridge", "fajr-group", "riverside-breakfast"], "2025-09-26"),
   album("pitt-card-making", "Making cards together", ["social", "general", "spring26"], ["craft-table", "craft-friends", "craft-detail", "craft-group", "lettering"], "2026-03-22"),
   album("pitt-sudan-iftar", "Sudan Iftar", ["general", "spring25"], ["sudan-iftar"], "2025-03-26"),
   album("pitt-on-the-ice", "On the ice", ["social", "general", "spring26"], ["rink-group", "rink-friends", "rink-skates"], "2026-01-16"),
-  album("pitt-campus-life", "Around campus", ["general"], ["students", "flowers", "henna", "tea", "fall-walk", "campus-friends", "lawn-prayer", "lawn-friends", "meeting", "gathering"]),
-  album("pitt-community-table", "At the community table", ["general"], ["potluck", "volunteers", "dinner-friends", "table-friends", "serving", "cookout", "grill"]),
-  album("pitt-days-out", "Days out together", ["social", "general"], ["river-talk", "river-speaker", "park-day", "day-trip", "lakeshore", "friends-dusk"]),
-  album("pitt-gatherings", "In the audience", ["general"], ["hall-wide", "lecture", "hall-friends", "hall-group", "ballroom", "banquet", "panel"]),
+  album("pitt-campus-life", "Around campus", ["general"], ["campus-lawn", "students", "flowers", "henna", "tea", "fall-walk", "campus-friends", "lawn-prayer", "lawn-friends", "meeting", "gathering"]),
+  album("pitt-community-table", "At the community table", ["general"], ["mural-dinner", "potluck", "volunteers", "dinner-friends", "table-friends", "serving", "cookout", "grill"]),
+  album("pitt-days-out", "Days out together", ["social", "general"], ["riverside-friends", "river-talk", "river-speaker", "park-day", "day-trip", "lakeshore", "friends-dusk"]),
+  album("pitt-gatherings", "In the audience", ["general"], ["halaqa-circle", "hall-wide", "lecture", "hall-conversation", "hall-friends", "hall-group", "ballroom", "banquet", "panel"]),
 ];

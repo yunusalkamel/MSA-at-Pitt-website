@@ -3,11 +3,11 @@ import { createPortal } from "react-dom";
 import { ChevronLeft, ChevronRight, Images, X } from "lucide-react";
 import { Content, Picture, useField } from "@/editor/content";
 
-type Photo = readonly [file: string, description: string];
+type Photo = readonly [file: string, description: string, originalWidth?: number];
 const sets: Record<string, readonly Photo[]> = {
   "WPU Reflection Room": [
-    ["wpu-entrance", "Entrance to the William Pitt Union reflection room"],
-    ["wpu-dividers", "Movable dividers inside the reflection room"],
+    ["wpu-entrance", "Entrance to the William Pitt Union reflection room", 462],
+    ["wpu-dividers", "Movable dividers inside the reflection room", 720],
     ["wpu-gathering", "Students listening to a talk in the reflection room"],
     ["wpu-students", "Students seated along the windows"],
   ],
@@ -21,10 +21,10 @@ const sets: Record<string, readonly Photo[]> = {
     ["rec-wudu", "Wudu station beside the sink"],
     ["rec-guidelines", "Posted guidelines for using the reflection room"],
   ],
-  "Benedum Room 403": [["benedum-room", "Prayer mat inside Benedum Room 403"]],
+  "Benedum Room 403": [["benedum-room", "Prayer mat inside Benedum Room 403", 443]],
 };
 
-export function PhotoSlots({ name }: { name: string }) {
+export function PhotoSlots({ name, wide = false }: { name: string; wide?: boolean }) {
   const photos = sets[name] ?? [];
   const [index, setIndex] = useState(0);
   const [open, setOpen] = useState(false);
@@ -34,7 +34,7 @@ export function PhotoSlots({ name }: { name: string }) {
   const { editing, fields } = useContext(Content);
   const fieldId = "location-photo-" + (index + 1);
   const key = useField(fieldId);
-  const [file, description] = photos[index] ?? [];
+  const [file, description, originalWidth] = photos[index] ?? [];
   const alt = fields[key + "/alt"];
   const caption = alt?.kind === "alt" ? alt.text : description;
   const available = !!file || fields[key]?.kind === "image";
@@ -45,10 +45,14 @@ export function PhotoSlots({ name }: { name: string }) {
     if (open) dialog.current?.showModal();
   }, [open]);
 
+  const prefix = "/photos/prayer/" + file;
+  const cardSource = originalWidth ? prefix + ".webp" : prefix + "-card.jpg";
   const picture = (full: boolean) => (
     <Picture fieldId={fieldId}
-      src={file ? "/photos/prayer/" + file + (full ? "" : "-thumb") + ".webp" : placeholder}
-      emptyLabel="Photo coming soon" alt={description || (available ? name : "Photo coming soon")} width={full ? 1440 : 340}
+      srcSet={!full && wide && file ? `${prefix}-thumb.webp 340w, ${cardSource} ${originalWidth ?? 720}w` : undefined}
+      sizes={wide && !full ? "(max-width: 767px) 34vw, 380px" : undefined}
+      src={file ? prefix + (full ? "" : "-thumb") + ".webp" : placeholder}
+      emptyLabel="Photo coming soon" alt={description || (available ? name : "Photo coming soon")} width={full ? 1440 : wide ? 720 : 340}
       loading={full ? "eager" : "lazy"} decoding="async" />
   );
   return (
