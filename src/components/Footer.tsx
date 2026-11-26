@@ -1,4 +1,4 @@
-import { ContentScope, Picture, TextField } from "@/editor/content";
+import { LinkField, ContentScope, Picture, TextField } from "@/editor/content";
 import { Link } from "react-router-dom";
 import { Instagram, Facebook } from "lucide-react";
 import KhatamOverlay from "@/components/KhatamOverlay";
@@ -81,19 +81,19 @@ const Footer = () => {
             {/* Connect — right aligned */}
             <div className="flex flex-col gap-2.5 items-end text-right h-full">
               <p className="font-body text-[10px] font-bold uppercase tracking-[0.2em] mb-1" style={{ color: "rgba(242,171,35,.6)" }}><TextField id="Footer_12">Connect</TextField></p>
-              <a href={`mailto:${LINKS.email}`} className="footer-link font-body text-sm"><TextField id="Footer_13">Email</TextField></a>
+              <LinkField fieldId="Footer_email_link" href={`mailto:${LINKS.email}`} className="footer-link font-body text-sm"><TextField id="Footer_13">Email</TextField></LinkField>
               <div className="flex items-center gap-3 mt-1">
-                <a href={LINKS.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="footer-link inline-flex items-center">
+                <LinkField fieldId="Footer_instagram_link" href={LINKS.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="footer-link inline-flex items-center">
                   <Instagram size={17} />
-                </a>
-                <a href={LINKS.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="footer-link inline-flex items-center">
+                </LinkField>
+                <LinkField fieldId="Footer_facebook_link" href={LINKS.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="footer-link inline-flex items-center">
                   <Facebook size={17} />
-                </a>
-                <a href={LINKS.whatsappAnnouncements} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" className="footer-link inline-flex items-center">
+                </LinkField>
+                <LinkField fieldId="Footer_whatsapp_link" href={LINKS.whatsappAnnouncements} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" className="footer-link inline-flex items-center">
                   <WhatsAppIcon size={17} />
-                </a>
+                </LinkField>
               </div>
-              <a href={LINKS.linktree} target="_blank" rel="noopener noreferrer" className="footer-link font-body text-sm"><TextField id="Footer_14">Linktree</TextField></a>
+              <LinkField fieldId="Footer_linktree_link" href={LINKS.linktree} target="_blank" rel="noopener noreferrer" className="footer-link font-body text-sm"><TextField id="Footer_14">Linktree</TextField></LinkField>
               <div className="mt-auto pt-2">
                 <Link to="/contact" className="inline-flex items-center justify-end text-xs font-semibold px-3 py-1.5 rounded-full border border-primary/40 text-primary hover:bg-primary/10 transition-colors duration-200"><TextField id="Footer_15">
                   Contact Us →
@@ -137,6 +137,15 @@ const Footer = () => {
           </p>
         </div>
 
+        <details className="text-center text-sm mb-4"><summary>Privacy and analytics</summary>
+          <p>We use aggregate Vercel traffic and speed measurements on public pages. We exclude management and counseling pages. Optional Google Analytics measures page visits and link clicks using a random browser identifier. We do not send form entries or contact details.</p>
+          {import.meta.env.VITE_OPTIONAL_ANALYTICS==="true" && location.hostname==="msaatpitt.vercel.app" && <button onClick={()=>{
+            const enabled=localStorage.getItem("msa-analytics")==="yes";
+            localStorage.setItem("msa-analytics",enabled?"no":"yes");
+            if(enabled){localStorage.removeItem("msa-visitor");sessionStorage.removeItem("msa-visit");sessionStorage.removeItem("msa-last");}
+            location.reload();
+          }}>{localStorage.getItem("msa-analytics")==="yes"?"Turn off optional analytics":"Allow optional analytics"}</button>}
+        </details>
         {/* ── Copyright ── */}
         <p className="text-center font-body text-xs" style={{ color: "rgba(255,255,255,.22)" }}>
           © <TextField id="Footer_21">{copyrightYears}</TextField><TextField id="Footer_22"> Muslim Student Association at the University of Pittsburgh

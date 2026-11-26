@@ -25,28 +25,39 @@ Start from main at `81307ce` (merged inline editor). Each phase gets an isolated
 
 ## 3. Google authentication
 
-- [ ] Configure Google OAuth and exact permitted callbacks for production and preview.
+- [x] Configure Google OAuth and exact permitted callbacks for production and preview.
 - [x] Implement persistent sessions, verified identity checks, expired/unauthorized states, and sign-out.
 - [ ] Verify OAuth and owner-only authorization in preview with real accounts.
 
+## Editor coverage
+
+- [x] Add inline link destinations to Join, Contact, and shared footer links.
+- [x] Allow removing an individual duplicate card.
+- [x] Expand external link editing, hidden cards, copy ordering, image descriptions, upload resizing, underline, undo and redo.
+- [x] Enable editing of event card titles, locations and external actions while preserving the calendar feed. Gallery image overrides and resource cards retain their existing IDs.
+
 ## 4. Versions, restoration, and backups
 
-- [ ] Add durable publication snapshots, field diffs, author identity, and reconciliation around Sanity revisions.
-- [ ] Add history filtering, before-and-after preview, restoration, and undo.
-- [ ] Add owner export and manual snapshots with explicit dataset labels.
-- [ ] Test conflict handling and partial failures against preview.
+- [x] Add durable publication snapshots, field diffs, author identity, and reconciliation around Sanity revisions.
+- [x] Add history filtering, before-and-after preview, restoration, and undo.
+- [x] Add owner export and manual snapshots with explicit dataset labels.
+- [x] Exercise real isolated preview Sanity transactions, stale revision rejection, restoration and preservation of later versions.
+- [ ] Verify the protected deployment with the real owner and a second administrator.
 
 ## 5. Analytics and performance
 
-- [ ] Add consent-aware GA4 public tracking and owner-only reporting.
-- [ ] Add aggregate traffic, acquisition, and real supported interaction and funnel reports.
-- [ ] Add optional Clarity integration and usability links with recordings disabled by default.
-- [ ] Add analytics controls, privacy disclosures, exports, and a real-user performance view.
-- [ ] Measure analytics overhead and keep reporting code out of public bundles.
+- [x] Add consent-aware GA4 public tracking and owner-only reporting.
+- [x] Add aggregate traffic, acquisition, and real supported interaction and funnel reports.
+- [x] Add optional Clarity integration and usability links with recordings disabled by default.
+- [x] Add analytics controls, privacy disclosures, exports, and a real-user performance view.
+- [x] Measure analytics overhead and keep reporting code out of public bundles.
 
 ## 6. Final verification
 
-- [ ] Run automated authorization, isolation, migration, publishing, analytics, and privacy tests.
-- [ ] Verify public and authenticated flows in Chrome and Safari or iPhone WebKit.
-- [ ] Repeat mobile and desktop performance audits and distinguish simulated metrics from real-user data.
-- [ ] Document external configuration and production rollout. Keep the PR in draft until review and approval.
+- [x] Run automated authorization, isolation, migration, publishing, analytics, and privacy tests.
+- [x] Exercise six public routes in Chrome and iPhone-sized WebKit and the simulated Chrome editor workflow.
+- [ ] Run authenticated browser acceptance through Vercel protection and exercise configured external reports.
+- [x] Repeat mobile and desktop performance audits and distinguish simulated metrics from real-user data.
+- [x] Document external configuration and production rollout. Keep the PR in draft until review and approval.
+
+[Final audit and mobile measurements](final-audit.md) · [External reporting setup and deployment checklist](reporting-setup.md)

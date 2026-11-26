@@ -69,3 +69,10 @@
 [data-edit-image]:hover {
   cursor: pointer;
 }
+
+[data-edit-link]:hover,
+[data-edit-link]:focus-visible {
+  outline: 2px dashed #33836b;
+  outline-offset: 2px;
+}
+.msa-history{background:#fffdfa;color:#19372d;padding:1.25rem;overflow-wrap:anywhere}.msa-history button,.msa-history input{padding:.45rem .65rem;margin:.25rem;border:1px solid #a7b9b0;border-radius:.4rem}.msa-history pre{white-space:pre-wrap}.msa-history label,.msa-history input{display:block}.msa-history h2{font-size:1.5rem}.msa-history:has(+.msa-tools){position:fixed;z-index:2147483001;inset:5% max(3%,calc((100% - 55rem)/2));overflow:auto;box-shadow:0 0 0 100vmax #10241c88}

@@ -4,6 +4,7 @@ import {
   Fragment,
   type ReactNode,
   type ImgHTMLAttributes,
+  type AnchorHTMLAttributes,
 } from "react";
 import { useLocation } from "react-router-dom";
 import { sanityImageSrcSet } from "@/lib/sanityImageVariants";
@@ -12,11 +13,15 @@ export type Run = {
   text: string;
   bold?: boolean;
   italic?: boolean;
+  underline?: boolean;
   size?: "small" | "normal" | "large";
 };
 export type Field =
   | { kind: "text"; runs: Run[] }
   | { kind: "image"; url: string }
+  | { kind: "link"; url: string }
+  | { kind: "alt"; text: string }
+  | { kind: "visibility"; hidden: boolean }
   | { kind: "copies"; ids: string[] };
 export type Fields = Record<string, Field>;
 export const Content = createContext<{ fields: Fields; editing: boolean }>({
@@ -69,6 +74,7 @@ export function TextField({
               style={{
                 whiteSpace: "pre-wrap",
                 fontWeight: r.bold ? "bold" : undefined,
+                textDecoration: r.underline ? "underline" : undefined,
                 fontStyle: r.italic ? "italic" : undefined,
                 fontSize: r.size
                   ? { small: "0.85em", normal: "1em", large: "1.25em" }[r.size]
@@ -82,6 +88,23 @@ export function TextField({
     </span>
   );
 }
+export function LinkField({
+  fieldId,
+  fallback,
+  ...props
+}: AnchorHTMLAttributes<HTMLAnchorElement> & { fieldId: string; fallback?:ReactNode }) {
+  const key = useField(fieldId);
+  const { fields, editing } = useContext(Content);
+  const field = fields[key];
+  if(fallback && !editing && !props.href && field?.kind!=="link") return <>{fallback}</>;
+  return (
+    <a
+      {...props}
+      href={field?.kind === "link" ? field.url : props.href}
+      data-edit-link={editing ? key : undefined}
+    />
+  );
+}
 export function Picture({
   fieldId,
   ...props
@@ -89,6 +112,7 @@ export function Picture({
   const key = useField(fieldId),
     { fields, editing } = useContext(Content),
     value = fields[key];
+  const alt=fields[key+"/alt"];
   const overridden = value?.kind === "image";
   const src = overridden ? value.url : props.src;
   const maxWidth = Number(props.width) || 1920;
@@ -98,6 +122,7 @@ export function Picture({
   return (
     <img
       {...props}
+      alt={alt?.kind==="alt"?alt.text:props.alt}
       src={src}
       srcSet={srcSet || undefined}
       sizes={srcSet ? props.sizes ?? `(max-width: ${maxWidth}px) 100vw, ${maxWidth}px` : undefined}
@@ -118,7 +143,11 @@ export function CardCopies({
     ids = ["original", ...(entry?.kind === "copies" ? entry.ids : [])];
   return (
     <>
-      {ids.map((instance) => (
+      {ids.map((instance) => {
+        const visibility = fields[key + "/visibility/" + instance];
+        const hidden = visibility?.kind === "visibility" && visibility.hidden;
+        if (hidden && !editing) return null;
+        return (
         <Fragment key={instance}>
           <ContentScope id={id + "@" + instance}>
             {editing ? (
@@ -127,14 +156,14 @@ export function CardCopies({
                 data-edit-card={key}
                 data-copy-scope={id + "@" + instance}
               >
-                {children}
+                {hidden ? <button type="button">Hidden card · select to show</button> : children}
               </span>
             ) : (
               children
             )}
           </ContentScope>
         </Fragment>
-      ))}
+      );})}
     </>
   );
 }

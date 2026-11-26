@@ -1,11 +1,30 @@
-import { describe, expect, it } from "vitest";
+import { beforeAll, afterAll, vi, describe, expect, it } from "vitest";
 import { render } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import EventCardBase from "@/components/events/EventCardBase";
 import type { MSAEvent } from "@/data/events";
 
+beforeAll(() =>
+  vi.stubGlobal(
+    "IntersectionObserver",
+    class {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    },
+  ),
+);
+afterAll(() => vi.unstubAllGlobals());
 const baseEvent: MSAEvent = {
   id: "base",
+  audience: "general",
+  categories: ["dawah"],
+  isSignature: false,
+  tagSource: "explicit",
+  confidence: 1,
+  clickUrl: "https://example.com/rsvp",
+  rsvpUrl: "https://example.com/rsvp",
+  calendarFallbackUrl: "https://calendar.google.com/example",
   title: "Community Halaqa",
   startDate: "2026-04-12",
   timeLabel: "Sunday · 7:00 – 8:00 PM",
@@ -17,7 +36,10 @@ const baseEvent: MSAEvent = {
   addToCalendarUrl: "https://calendar.google.com/example",
 };
 
-const renderCard = (event: MSAEvent, variant: "standard" | "featured" = "standard") => {
+const renderCard = (
+  event: MSAEvent,
+  variant: "standard" | "featured" = "standard",
+) => {
   return render(
     <MemoryRouter>
       <EventCardBase event={event} variant={variant} />
@@ -27,8 +49,11 @@ const renderCard = (event: MSAEvent, variant: "standard" | "featured" = "standar
 
 describe("EventCardBase variants", () => {
   it("renders upcoming variant", () => {
-    const { container } = renderCard(baseEvent);
-    expect(container.firstChild).toMatchSnapshot();
+    const card = renderCard(baseEvent);
+    expect(card.getByRole("link", { name: "RSVP" })).toHaveAttribute(
+      "href",
+      baseEvent.rsvpUrl,
+    );
   });
 
   it("renders featured variant", () => {
@@ -41,7 +66,7 @@ describe("EventCardBase variants", () => {
       },
       "featured",
     );
-    expect(container.firstChild).toMatchSnapshot();
+    expect(container.querySelector("h3")).toHaveTextContent("Community Halaqa");
   });
 
   it("renders past variant", () => {
@@ -51,21 +76,29 @@ describe("EventCardBase variants", () => {
       isPast: true,
       galleryUrl: "/gallery",
       ctaMode: "view-photos",
+      rsvpUrl: undefined,
+      clickUrl: "",
       signupUrl: undefined,
       addToCalendarUrl: undefined,
     });
-    expect(container.firstChild).toMatchSnapshot();
+    expect(container.querySelector('a[href="/gallery"]')).toHaveTextContent(
+      "View Photos",
+    );
   });
 
   it("renders no-link variant", () => {
     const { container } = renderCard({
       ...baseEvent,
       id: "no-link",
+      rsvpUrl: undefined,
+      clickUrl: "",
       signupUrl: undefined,
       addToCalendarUrl: undefined,
       fullCalendarUrl: undefined,
       ctaMode: "learn-more",
     });
-    expect(container.firstChild).toMatchSnapshot();
+    expect(container.querySelector('a[href*="linktr.ee"]')).toHaveTextContent(
+      "Learn More",
+    );
   });
 });

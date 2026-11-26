@@ -1,3 +1,4 @@
+import { LinkField } from "@/editor/content";
 import { TextField, itemIdentity, ContentScope, CardCopies } from "@/editor/content";
 import { useState } from "react";
 import { motion } from "framer-motion";
@@ -72,9 +73,9 @@ const FlipCard = ({ resource, index }: { resource: typeof resources[0]; index: n
                 <TextField id="Resources_5">{cta.label}</TextField> <ArrowRight size={14} />
               </Link></ContentScope>
             ) : (
-              <ContentScope key={cta.label} id={"Resources_6-" + itemIdentity(cta, cta.label)}><a key={cta.label} href={cta.href} target="_blank" rel="noopener noreferrer" className={`btn-${(cta as any).secondary ? "premium-secondary" : "premium"} text-sm self-start`}>
+              <ContentScope key={cta.label} id={"Resources_6-" + itemIdentity(cta, cta.label)}><LinkField fieldId="Resources_destination_1" key={cta.label} href={cta.href} target="_blank" rel="noopener noreferrer" className={`btn-${(cta as any).secondary ? "premium-secondary" : "premium"} text-sm self-start`}>
                 <TextField id="Resources_7">{cta.label}</TextField> <ArrowRight size={14} />
-              </a></ContentScope>
+              </LinkField></ContentScope>
             )
           )}
         </div>
@@ -116,7 +117,7 @@ const FlipCard = ({ resource, index }: { resource: typeof resources[0]; index: n
                     <TextField id="Resources_15">{cta.label}</TextField> <ArrowRight size={14} />
                   </Link></ContentScope>
                 ) : (
-                  <ContentScope key={cta.label} id={"Resources_16-" + itemIdentity(cta, cta.label)}><a
+                  <ContentScope key={cta.label} id={"Resources_16-" + itemIdentity(cta, cta.label)}><LinkField fieldId="Resources_destination_2"
                     key={cta.label}
                     href={cta.href}
                     target="_blank"
@@ -125,7 +126,7 @@ const FlipCard = ({ resource, index }: { resource: typeof resources[0]; index: n
                     className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-white/30 transition-colors"
                   >
                     <TextField id="Resources_17">{cta.label}</TextField> <ArrowRight size={14} />
-                  </a></ContentScope>
+                  </LinkField></ContentScope>
                 )
               )}
             </div>
@@ -218,7 +219,7 @@ const Resources = () => {
                 <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed mb-4"><TextField id="Resources_30">Imam Muhammad Patel — Islamic counseling, halaqahs, Jummah, and guidance for every student.</TextField></p>
                 <div className="flex gap-2 flex-wrap">
                   <Link to="/resources/chaplain" className="btn-premium text-sm self-start"><TextField id="Resources_31">Meet the Chaplain </TextField><ArrowRight size={14} /></Link>
-                  <a href="mailto:imam@pitt.edu" className="btn-premium-secondary text-sm self-start"><Mail size={13} /><TextField id="Resources_32"> Email</TextField></a>
+                  <LinkField fieldId="Resources_destination_3" href="mailto:imam@pitt.edu" className="btn-premium-secondary text-sm self-start"><Mail size={13} /><TextField id="Resources_32"> Email</TextField></LinkField>
                 </div>
               </div>
               <div className="hidden md:block [perspective:1000px] h-[320px] cursor-pointer">
@@ -278,15 +279,15 @@ const Resources = () => {
               <p className="font-dm-sans text-muted-foreground text-sm"><TextField id="Resources_44">Subscribe to the events calendar or browse everything on our Linktree.</TextField></p>
             </div>
             <div className="flex flex-col sm:flex-row gap-2.5 flex-shrink-0">
-              <a href={LINKS.googleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="btn-premium text-sm px-4 py-2.5 whitespace-nowrap">
+              <LinkField fieldId="Resources_destination_4" href={LINKS.googleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="btn-premium text-sm px-4 py-2.5 whitespace-nowrap">
                 <Calendar size={14} /><TextField id="Resources_45"> Google Calendar
-              </TextField></a>
-              <a href={LINKS.appleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="btn-premium-secondary text-sm px-4 py-2.5 whitespace-nowrap">
+              </TextField></LinkField>
+              <LinkField fieldId="Resources_destination_5" href={LINKS.appleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="btn-premium-secondary text-sm px-4 py-2.5 whitespace-nowrap">
                 <Calendar size={14} /><TextField id="Resources_46"> Apple Calendar
-              </TextField></a>
-              <a href={LINKS.linktree} target="_blank" rel="noopener noreferrer" className="btn-premium-secondary text-sm px-4 py-2.5 whitespace-nowrap">
+              </TextField></LinkField>
+              <LinkField fieldId="Resources_destination_6" href={LINKS.linktree} target="_blank" rel="noopener noreferrer" className="btn-premium-secondary text-sm px-4 py-2.5 whitespace-nowrap">
                 <LinkIcon size={14} /><TextField id="Resources_47"> Linktree
-              </TextField></a>
+              </TextField></LinkField>
             </div>
           </motion.div>
         </div>

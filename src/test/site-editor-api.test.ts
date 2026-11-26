@@ -15,7 +15,8 @@ vi.mock("@supabase/supabase-js", () => ({
 }));
 vi.mock("@sanity/client", () => ({
   createClient: () => ({
-    create: services.create,
+    getDocument: async()=>null,
+    transaction:()=>({create(){return this;},commit:services.create}),
     assets: { upload: services.upload },
   }),
 }));
@@ -87,4 +88,21 @@ it("protects production from previews and preserves edits on conflict", async ()
   vi.stubEnv("SANITY_EDITOR_DATASET", "preview");
   services.create.mockRejectedValue({ statusCode: 409 });
   expect((await call(body)).statusCode).toBe(409);
+});
+
+it("validates link destinations before writing published content", async () => {
+  services.create.mockResolvedValue([{_id:"website-inline-content", _rev: "b"}]);
+  const publish = (url: string) =>
+    call({
+      action: "publish",
+      revision: null,
+      fields: { cta: { kind: "link", url } },
+    });
+  expect((await publish("javascript:alert(1)")).statusCode).toBe(400);
+  expect((await publish("//other.example")).statusCode).toBe(400);
+  expect(services.create).not.toHaveBeenCalled();
+  expect((await publish("https://example.org/registration")).statusCode).toBe(
+    200,
+  );
+  expect(services.create).toHaveBeenCalledTimes(1);
 });

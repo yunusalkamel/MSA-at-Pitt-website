@@ -16,6 +16,7 @@ export function editText(
     let node: Node = document.createTextNode(run.text);
     for (const tag of [
       run.bold ? "b" : "",
+      run.underline ? "u" : "",
       run.italic ? "i" : "",
       run.size ? "font" : "",
     ]) {
@@ -73,6 +74,7 @@ export function editText(
         style.bold = true;
       if (node.matches("i,em") || node.style.fontStyle === "italic")
         style.italic = true;
+      if (node.matches("u") || node.style.textDecoration.includes("underline")) style.underline = true;
       if (node.tagName === "FONT")
         style.size = ({ "2": "small", "3": "normal", "5": "large" } as const)[
           node.getAttribute("size") as "2"

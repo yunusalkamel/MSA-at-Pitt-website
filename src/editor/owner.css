@@ -106,3 +106,4 @@
   flex: none;
   accent-color: #153d60;
 }
+.msa-owner fieldset{display:flex;gap:.7rem;flex-wrap:wrap;align-items:end;margin:1rem 0}.msa-owner select{display:block;background:white;border:1px solid #8a9aab;border-radius:.35rem;padding:.5rem}.msa-owner td,.msa-owner th{padding:.5rem;text-align:start;border-bottom:1px solid #ddd}

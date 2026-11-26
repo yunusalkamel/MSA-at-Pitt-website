@@ -1,3 +1,4 @@
+import { LinkField } from "@/editor/content";
 import { TextField } from "@/editor/content";
 interface ArabicVerseProps {
   arabic: string;
@@ -57,13 +58,13 @@ const ArabicVerse = ({
 
       {buttonText && (buttonHref || buttonOnClick) && (
         buttonHref ? (
-          <a
+          <LinkField fieldId="ArabicVerse_destination_1"
             href={buttonHref}
             onClick={buttonOnClick}
             className={`inline-flex items-center justify-center rounded-full border border-[#8A6212]/35 bg-[#8A6212]/10 px-5 py-2 text-sm font-semibold text-[#8A6212] transition-all duration-200 hover:bg-[#8A6212] hover:text-black ${buttonClassName}`}
           >
             <TextField id="ArabicVerse_4">{buttonText}</TextField>
-          </a>
+          </LinkField>
         ) : (
           <button
             type="button"

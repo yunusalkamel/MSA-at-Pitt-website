@@ -1,3 +1,4 @@
+import {TextField,LinkField} from "@/editor/content";
 import { motion } from "framer-motion";
 import { ArrowRight, CalendarPlus, Camera, Clock, MapPin, Star } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -60,9 +61,9 @@ const EventCardBase = ({ event, variant = "standard", index = 0, showSignatureBa
 
     if (action.external) {
       return (
-        <a href={action.href} target="_blank" rel="noopener noreferrer" className={classes}>
+        <LinkField data-event-key={event.id} data-analytics-action={action.kind === "signup" ? "rsvp_click" : undefined} fieldId={`event-${event.id}-cta`} href={action.href} target="_blank" rel="noopener noreferrer" className={classes}>
           {actionBody}
-        </a>
+        </LinkField>
       );
     }
 
@@ -115,7 +116,7 @@ const EventCardBase = ({ event, variant = "standard", index = 0, showSignatureBa
                 ))}
               </div>
 
-              <h3 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-3 leading-tight">{event.title}</h3>
+              <h3 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-3 leading-tight"><TextField id={`event-${event.id}-title`}>{event.title}</TextField></h3>
               <p className="text-muted-foreground text-base leading-relaxed mb-6 max-w-2xl">{linkifyText(event.shortBlurb)}</p>
 
               <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground mb-7">
@@ -125,7 +126,7 @@ const EventCardBase = ({ event, variant = "standard", index = 0, showSignatureBa
                 </span>
                 <span className="flex items-center gap-2">
                   <MapPin size={14} className="text-secondary" />
-                  {event.location}
+                  <TextField id={`event-${event.id}-location`}>{event.location}</TextField>
                 </span>
               </div>
 
@@ -192,7 +193,7 @@ const EventCardBase = ({ event, variant = "standard", index = 0, showSignatureBa
               {event.tags.length > 3 && <span className="text-[10px] text-muted-foreground/70 flex items-center">+{event.tags.length - 3}</span>}
             </div>
 
-            <h3 className="font-display text-lg md:text-xl font-bold text-foreground mb-1.5 leading-snug line-clamp-1">{event.title}</h3>
+            <h3 className="font-display text-lg md:text-xl font-bold text-foreground mb-1.5 leading-snug line-clamp-1"><TextField id={`event-${event.id}-title`}>{event.title}</TextField></h3>
             <p className="text-muted-foreground text-sm leading-relaxed mb-3 line-clamp-2">{linkifyText(event.shortBlurb)}</p>
 
             <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground mb-4">
@@ -202,7 +203,7 @@ const EventCardBase = ({ event, variant = "standard", index = 0, showSignatureBa
               </span>
               <span className="flex items-center gap-1.5">
                 <MapPin size={11} className="text-secondary/60" />
-                <span className="truncate max-w-[180px]">{event.location}</span>
+                <span className="truncate max-w-[180px]"><TextField id={`event-${event.id}-location`}>{event.location}</TextField></span>
               </span>
             </div>
 

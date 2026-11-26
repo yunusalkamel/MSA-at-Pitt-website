@@ -1,3 +1,4 @@
+import { LinkField } from "@/editor/content";
 import { TextField, itemIdentity, ContentScope } from "@/editor/content";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
@@ -133,9 +134,9 @@ const Events = () => {
           {error && (
             <div className="mb-5 rounded-xl border border-primary/20 bg-primary/[0.06] px-4 py-3 text-sm text-foreground/80"><TextField id="Events_7">
               Live calendar temporarily unavailable — showing recurring events only.</TextField>{" "}
-              <a href={LINKS.linktree} target="_blank" rel="noopener noreferrer" className="text-primary font-semibold hover:underline"><TextField id="Events_8">
+              <LinkField fieldId="Events_destination_1" href={LINKS.linktree} target="_blank" rel="noopener noreferrer" className="text-primary font-semibold hover:underline"><TextField id="Events_8">
                 See Linktree for the full schedule →
-              </TextField></a>
+              </TextField></LinkField>
             </div>
           )}
 
@@ -173,14 +174,14 @@ const Events = () => {
 
           {/* Mobile calendar subscribe */}
           <div className="md:hidden flex justify-center gap-3 mb-4">
-            <a href={LINKS.googleCalendarSubscribe} target="_blank" rel="noopener noreferrer"
+            <LinkField fieldId="Events_destination_2" href={LINKS.googleCalendarSubscribe} target="_blank" rel="noopener noreferrer"
               className="btn-premium-secondary text-sm px-4 py-2 flex-1 justify-center">
               <Calendar size={13} /><TextField id="Events_9"> Google Calendar
-            </TextField></a>
-            <a href={LINKS.appleCalendarSubscribe} target="_blank" rel="noopener noreferrer"
+            </TextField></LinkField>
+            <LinkField fieldId="Events_destination_3" href={LINKS.appleCalendarSubscribe} target="_blank" rel="noopener noreferrer"
               className="btn-premium-secondary text-sm px-4 py-2 flex-1 justify-center">
               <Calendar size={13} /><TextField id="Events_10"> Apple Calendar
-            </TextField></a>
+            </TextField></LinkField>
           </div>
 
           <div className={`flex justify-center mb-6 ${view === "agenda" ? "sticky top-[68px] md:top-[76px] z-30 py-2 backdrop-blur-sm" : ""}`}>
@@ -204,7 +205,7 @@ const Events = () => {
             <span className="text-sm font-body font-bold text-foreground/75 uppercase tracking-[0.15em]"><TextField id="Events_12">
               Sync to your calendar:
             </TextField></span>
-            <a
+            <LinkField fieldId="Events_destination_4"
               href={LINKS.googleCalendarSubscribe}
               target="_blank"
               rel="noopener noreferrer"
@@ -212,8 +213,8 @@ const Events = () => {
               className="inline-flex items-center gap-2 text-sm font-semibold text-foreground glass-card px-4 py-2 rounded-full border-primary/20 hover:border-primary/50 hover:text-primary transition-all shadow-sm"
             >
               <Calendar size={13} /><TextField id="Events_13"> Google Calendar
-            </TextField></a>
-            <a
+            </TextField></LinkField>
+            <LinkField fieldId="Events_destination_5"
               href={LINKS.appleCalendarSubscribe}
               target="_blank"
               rel="noopener noreferrer"
@@ -221,16 +222,16 @@ const Events = () => {
               className="inline-flex items-center gap-2 text-sm font-semibold text-foreground glass-card px-4 py-2 rounded-full border-primary/20 hover:border-primary/50 hover:text-primary transition-all shadow-sm"
             >
               <Calendar size={13} /><TextField id="Events_14"> Apple Calendar
-            </TextField></a>
+            </TextField></LinkField>
             <div className="ml-auto">
-              <a
+              <LinkField fieldId="Events_destination_6"
                 href={LINKS.eventSignupHub}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-premium text-sm px-5 py-2.5"
               ><TextField id="Events_15">
                 Event Signup Hub </TextField><ArrowRight size={13} />
-              </a>
+              </LinkField>
             </div>
           </div>
         </div>

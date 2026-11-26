@@ -1,3 +1,4 @@
+import { LinkField } from "@/editor/content";
 import { TextField } from "@/editor/content";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -42,14 +43,14 @@ export default function AnnouncementBar() {
           <div className="flex items-center gap-3 flex-1 min-w-0">
             <p className="font-ui text-xs font-semibold leading-snug truncate"><TextField id="AnnouncementBar_1">{data.message}</TextField></p>
             {data.linkLabel && data.linkUrl && (
-              <a
+              <LinkField fieldId="AnnouncementBar_destination_1"
                 href={data.linkUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={`flex-shrink-0 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold transition-colors ${s.btn}`}
               >
                 <TextField id="AnnouncementBar_2">{data.linkLabel}</TextField> <ArrowRight size={10} />
-              </a>
+              </LinkField>
             )}
           </div>
           <button

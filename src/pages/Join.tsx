@@ -1,4 +1,4 @@
-import { TextField, ContentScope, itemIdentity, CardCopies } from "@/editor/content";
+import { LinkField, TextField, ContentScope, itemIdentity, CardCopies } from "@/editor/content";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { Instagram, ExternalLink, ArrowRight, CheckCircle2, Users, Calendar, Heart, MessageCircle, Sparkles } from "lucide-react";
@@ -203,9 +203,9 @@ const Join = () => {
 
                     {"cta" in step && step.cta && (
                       <div className="flex flex-col sm:flex-row items-start gap-3">
-                        <a href={step.href} target="_blank" rel="noopener noreferrer" className="btn-premium">
+                        <LinkField fieldId="join-step-link" href={step.href} target="_blank" rel="noopener noreferrer" className="btn-premium">
                           <TextField id="Join_13">{step.cta}</TextField> <ArrowRight size={15} />
-                        </a>
+                        </LinkField>
                         {!joined && step.num === "01" && (
                           <button
                             type="button"
@@ -225,20 +225,20 @@ const Join = () => {
                     {"links" in step && step.links && (
                       <div className="flex flex-col sm:flex-row gap-3">
                         {step.links.map((c) => (
-                          <ContentScope key={c.label} id={"Join_16-" + itemIdentity(c, c.label)}><a key={c.label} href={c.href} target="_blank" rel="noopener noreferrer" className="btn-premium-secondary text-sm px-5 py-2.5">
+                          <ContentScope key={c.label} id={"Join_16-" + itemIdentity(c, c.label)}><LinkField fieldId="join-community-link" key={c.label} href={c.href} target="_blank" rel="noopener noreferrer" className="btn-premium-secondary text-sm px-5 py-2.5">
                             <TextField id="Join_17">{c.label}</TextField> <ArrowRight size={14} />
-                          </a></ContentScope>
+                          </LinkField></ContentScope>
                         ))}
                       </div>
                     )}
                     {step.socials && (
                       <div className="flex flex-wrap gap-3">
-                        <a href={LINKS.instagram} target="_blank" rel="noopener noreferrer" className="btn-premium-secondary text-sm px-5 py-2.5">
+                        <LinkField fieldId="join-instagram" href={LINKS.instagram} target="_blank" rel="noopener noreferrer" className="btn-premium-secondary text-sm px-5 py-2.5">
                           <Instagram size={15} /><TextField id="Join_18"> Instagram
-                        </TextField></a>
-                        <a href={LINKS.linktree} target="_blank" rel="noopener noreferrer" className="btn-premium-secondary text-sm px-5 py-2.5">
+                        </TextField></LinkField>
+                        <LinkField fieldId="join-linktree" href={LINKS.linktree} target="_blank" rel="noopener noreferrer" className="btn-premium-secondary text-sm px-5 py-2.5">
                           <ExternalLink size={15} /><TextField id="Join_19"> Linktree
-                        </TextField></a>
+                        </TextField></LinkField>
                       </div>
                     )}
                   </div>
@@ -306,14 +306,14 @@ const Join = () => {
                 Once you've registered and joined the WhatsApp, you're officially part of the MSA at Pitt family. We'll see you at the next event — and every one after that, insha'Allah.
               </TextField></p>
             </div>
-            <a
+            <LinkField fieldId="join-register"
               href={LINKS.registrationForm}
               target="_blank"
               rel="noopener noreferrer"
               className="btn-premium flex-shrink-0"
             ><TextField id="Join_27">
               Register Now </TextField><ArrowRight size={15} />
-            </a>
+            </LinkField>
           </motion.div>
         </div>
       </section>

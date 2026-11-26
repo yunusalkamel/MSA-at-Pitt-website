@@ -1,4 +1,4 @@
-import { CardCopies, TextField, ContentScope } from "@/editor/content";
+import { LinkField, CardCopies, TextField, ContentScope } from "@/editor/content";
 import { motion } from "framer-motion";
 import { Mail, BookOpen, MessageSquare, ArrowRight, Calendar } from "lucide-react";
 import Layout from "@/components/Layout";
@@ -60,27 +60,24 @@ const ImamCard = () => {
       </div>
       <div className="flex flex-col gap-2 mt-auto">
         {email && (
-          <a
+          <LinkField fieldId="contact-chaplain-email"
             href={`mailto:${email}`}
             className="btn-premium-secondary text-sm px-5 py-2.5 justify-center"
           >
             <Mail size={14} /><TextField id="Contact_6"> Email </TextField>{name.split(" ")[0]}
-          </a>
+          </LinkField>
         )}
-        {booking ? (
-          <a
-            href={booking}
+          <LinkField fieldId="contact-booking"
+            href={booking || undefined}
+            fallback={<span className="inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 font-body font-semibold text-sm text-muted-foreground bg-muted/60 border border-border/50 cursor-default"><TextField id="Contact_8">
+            Booking link coming soon
+          </TextField></span>}
             target="_blank"
             rel="noopener noreferrer"
             className="btn-premium text-sm px-5 py-2.5 justify-center"
           >
             <Calendar size={14} /><TextField id="Contact_7"> Book a Meeting
-          </TextField></a>
-        ) : (
-          <span className="inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 font-body font-semibold text-sm text-muted-foreground bg-muted/60 border border-border/50 cursor-default"><TextField id="Contact_8">
-            Booking link coming soon
-          </TextField></span>
-        )}
+          </TextField></LinkField>
       </div>
     </motion.div>
   );
@@ -157,13 +154,13 @@ const Contact = () => {
                 </TextField></p>
               </div>
               <div className="flex flex-col gap-2 mt-auto">
-                <a href={`mailto:${LINKS.email}`} className="btn-premium text-sm px-5 py-2.5 justify-center"><TextField id="Contact_16">
+                <LinkField fieldId="Contact_destination_1" href={`mailto:${LINKS.email}`} className="btn-premium text-sm px-5 py-2.5 justify-center"><TextField id="Contact_16">
                   Email us </TextField><ArrowRight size={14} />
-                </a>
-                <a href={LINKS.instagram} target="_blank" rel="noopener noreferrer"
+                </LinkField>
+                <LinkField fieldId="contact-instagram" href={LINKS.instagram} target="_blank" rel="noopener noreferrer"
                   className="btn-premium-secondary text-sm px-5 py-2.5 justify-center"><TextField id="Contact_17">
                   Instagram DM </TextField><ArrowRight size={14} />
-                </a>
+                </LinkField>
               </div>
             </motion.div></CardCopies>
 
@@ -188,17 +185,17 @@ const Contact = () => {
                 </TextField></p>
               </div>
               <div className="mt-auto">
-                <a href={LINKS.anonymousFeedback} target="_blank" rel="noopener noreferrer"
+                <LinkField fieldId="contact-feedback-form" href={LINKS.anonymousFeedback} target="_blank" rel="noopener noreferrer"
                   className="btn-premium text-sm px-5 py-2.5 w-full justify-center"><TextField id="Contact_20">
                   Leave Feedback </TextField><ArrowRight size={14} />
-                </a>
+                </LinkField>
               </div>
             </motion.div></CardCopies>
           </div>
 
           <p className="text-center text-xs text-muted-foreground/60 font-body mt-8"><TextField id="Contact_21">
             For media or partnership inquiries, please email</TextField>{" "}
-            <a href={`mailto:${LINKS.email}`} className="text-primary hover:underline"><TextField id="Contact_22">{LINKS.email}</TextField></a>
+            <LinkField fieldId="Contact_destination_2" href={`mailto:${LINKS.email}`} className="text-primary hover:underline"><TextField id="Contact_22">{LINKS.email}</TextField></LinkField>
           </p>
         </div>
       </section>

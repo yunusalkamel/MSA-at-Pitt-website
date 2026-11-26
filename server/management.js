@@ -71,6 +71,6 @@ export async function management(req) {
         ]),
       );
     if (result.environment !== stage) throw fail(...problems.configuration);
-    return result;
+    return { ...result, actor: data.user.email };
   };
 }
