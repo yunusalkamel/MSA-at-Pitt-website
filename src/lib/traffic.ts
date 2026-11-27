@@ -1,3 +1,4 @@
+import { isPublicSiteOrigin } from "@/config/site";
 import { safePage } from "../../shared/traffic.js";
 let page: string | null = null,
   previous: string | null = null,
@@ -123,6 +124,9 @@ function sendWithKey(event: string, id: string) {
   }).catch(() => {});
 }
 export function trackStory(event: "story_open" | "story_complete", slug: string) {
+  if (!import.meta.env.PROD || import.meta.env.VITE_OPTIONAL_ANALYTICS !== "true" ||
+      !isPublicSiteOrigin(location.origin) || localStorage.getItem("msa-analytics") !== "yes") return;
+  visit(location.pathname);
   sendWithKey(event, slug);
 }
 function scroll() {
