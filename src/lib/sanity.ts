@@ -106,6 +106,10 @@ export const QUERIES = {
     "year": coalesce(string(eventDate), "")
   }`,
 
+  editorGalleryAlbums: `*[_type == "galleryAlbum"] | order(coalesce(order, 9999) asc, eventDate desc) {
+    title, "slug": slug.current, eventDate, category, "cover": coverImage.asset->url,
+    "photos": photos[defined(image.asset)][0...32]{"src": image.asset->url, "alt": coalesce(caption, "")}
+  }`,
   galleryAlbumBySlug: `*[_type == "galleryAlbum" && slug.current == $slug][0] {
     title, "slug": slug.current,
     coverImage { ..., "lqip": asset->metadata.lqip },

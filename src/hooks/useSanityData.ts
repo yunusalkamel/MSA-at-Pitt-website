@@ -53,9 +53,9 @@ function writeCache<T>(query: string, data: T) {
  * Components should treat `data` as the source of truth — fall back to
  * hardcoded defaults only when `data` is null.
  */
-export function useSanityData<T>(query: string, params?: Record<string, unknown>): SanityState<T> {
+export function useSanityData<T>(query: string | null, params?: Record<string, unknown>): SanityState<T> {
   // Build a stable cache key when params are present (e.g. `galleryAlbumBySlug`)
-  const cacheKey = params ? `${query}::${JSON.stringify(params)}` : query;
+  const cacheKey = params ? `${query}::${JSON.stringify(params)}` : query ?? "";
 
   const [state, setState] = useState<SanityState<T>>(() => {
     const cached = readCache<T>(cacheKey);
@@ -68,6 +68,7 @@ export function useSanityData<T>(query: string, params?: Record<string, unknown>
   });
 
   useEffect(() => {
+    if (!query) return;
     let cancelled = false;
 
     fetchSanity<T>(query, params)

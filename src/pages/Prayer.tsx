@@ -84,7 +84,7 @@ const Prayer = () => {
   const [west, setWest] = useState(false);
   const [almanacOpen, setAlmanacOpen] = useState(false);
   return (
-    <Layout>
+    <Layout names={["Page introduction", "Today’s times", "Jummah Prayer", "On-campus prayer spaces", "Local masajid", "Next steps"]}>
       <PageHero className="prayer-page-hero relative overflow-hidden text-center">
         <div className="absolute inset-0 gradient-mesh-gold pointer-events-none" />
         <div className="absolute inset-0 opacity-[0.04] pointer-events-none" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: "200px" }} />

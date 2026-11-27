@@ -1,8 +1,8 @@
 import { fall26Albums } from "@/data/fall26Albums";
 import { GalleryStories } from "@/components/recaps/RecapStories";
 import { PageHero } from "@/components/PageHero";
-import { Picture, TextField, ContentScope, itemIdentity } from "@/editor/content";
-import { useRef, useState, useMemo } from "react";
+import { Content, Picture, TextField, ContentScope, itemIdentity } from "@/editor/content";
+import { useContext, useRef, useState, useMemo } from "react";
 import { motion, AnimatePresence, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { usePageMeta } from "@/lib/usePageMeta";
@@ -14,6 +14,7 @@ import patternImg from "@/assets/geometric-tile.svg";
 import { useSanityData } from "@/hooks/useSanityData";
 import { QUERIES, urlFor } from "@/lib/sanity";
 
+import { findAvailable, getCollection } from "@/editor/visual-model";
 import { communityAlbums } from "@/data/communityPhotos";
 
 type SemesterKey = `spring${number}` | `fall${number}`;
@@ -33,7 +34,7 @@ interface GalleryAlbum {
 
 
 function semesterFor(date: string | undefined) {
-  const match = /^(\d{4})-(0[1-9]|1[0-2])-\d{2}(?:$|T)/.exec(date ?? "");
+  const match = /^(\d{4})-(0[1-9]|1[0-2])(?:-\d{2})?(?:$|T)/.exec(date ?? "");
   if (!match) return;
   const [, year, month] = match;
   const fall = Number(month) >= 8;
@@ -139,9 +140,16 @@ const Gallery = () => {
   const bgY = useTransform(scrollYProgress, [0, 1], prefersReduced ? ["0%", "0%"] : ["0%", "30%"]);
   const contentOpacity = useTransform(scrollYProgress, [0, 0.75], [1, 0]);
 
-  const { data: sanityAlbums } = useSanityData<any[]>(QUERIES.galleryAlbums);
+  const { fields } = useContext(Content);
+  const managed = getCollection(fields, "albums");
+  const { data: sanityAlbums } = useSanityData<any[]>(managed ? null : QUERIES.galleryAlbums);
 
   const albums: GalleryAlbum[] = useMemo(() => {
+    if (managed) return findAvailable(managed).flatMap(album => album.slug ? [{
+      slug: album.slug, title: album.title, eventDate: album.date, audience: album.audience,
+      coverImageUrl: album.image || album.photos?.[0]?.src, photoCount: album.photos?.length,
+      category: (album.category ?? []) as FilterCategory[],
+    }] : []);
     const remote = (sanityAlbums ?? []).map((a) => ({
         title: a.title,
         slug: a.slug,
@@ -152,7 +160,7 @@ const Gallery = () => {
         coverImage: a.coverImage,
       }));
     return [...remote, ...[...communityAlbums, ...fall26Albums].filter(a => !remote.some(r => r.slug === a.slug)).map(a => ({ ...a, category: a.category as FilterCategory[] }))];
-  }, [sanityAlbums]);
+  }, [sanityAlbums, managed]);
 
   const semesters = useMemo(() => {
     const seen = new Map<SemesterKey, NonNullable<ReturnType<typeof semesterFor>>>();

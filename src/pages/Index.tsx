@@ -229,7 +229,7 @@ const Index = () => {
         </div>
       </section>);
   return (
-    <Layout>
+    <Layout names={["Hero", "Stats", "Upcoming Events", "Our story", "Life with MSA", "Calendar subscription", "Prayer at Pitt", "What drives us", "Partners", "New to MSA", "Get involved"]}>
       {/* ── Hero ─────────────────────────────────────────────────── */}
       <section data-photo-hero className="home-hero relative flex items-center justify-center overflow-hidden">
         <motion.div className="hero-words relative z-10 text-center px-4 max-w-4xl mx-auto" initial={animateIntro && { opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>

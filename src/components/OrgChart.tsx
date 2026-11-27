@@ -1,9 +1,11 @@
-import { PARTNERS } from "./PartnerLogos";
-import { LinkField,Picture,TextField, ContentScope, itemIdentity } from "@/editor/content";
-import { useEffect, useRef } from "react";
+import { usePartners } from "./PartnerLogos";
+import { Content,LinkField,Picture,TextField, ContentScope, itemIdentity } from "@/editor/content";
+import { useContext, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useSanityData } from "@/hooks/useSanityData";
 import { QUERIES } from "@/lib/sanity";
+
+import { getCollection, findAvailable } from "@/editor/visual-model";
 
 interface LeadershipData {
   academicYear?: string;
@@ -37,9 +39,9 @@ const headerClasses: Record<NodeColor, string> = {
   red:    "bg-[#FCEBEB] text-[#791F1F] dark:bg-[#791F1F]/30 dark:text-[#E89A9A]",
 };
 
-interface NodeSpec { id: string; role: string; name?: string; color: NodeColor; }
+interface NodeSpec { id: string; role: string; name?: string; color: NodeColor; image?: string; bio?: string; hidden?: boolean; }
 
-const Node = ({ spec, large = false }: { spec: NodeSpec; large?: boolean }) => (
+const Node = ({ spec, large = false }: { spec: NodeSpec; large?: boolean }) => spec.hidden ? null : (
   <div
     data-node-id={spec.id}
     className={`relative rounded-xl border border-border/40 bg-card overflow-hidden transition-shadow duration-200 hover:shadow-md ${
@@ -50,19 +52,22 @@ const Node = ({ spec, large = false }: { spec: NodeSpec; large?: boolean }) => (
       <TextField id="OrgChart_1">{spec.role}</TextField>
     </div>
     <div className="px-3 py-2 min-h-[34px] flex items-center">
+      {spec.image && <Picture fieldId="board-photo" className="w-9 h-9 rounded-full object-cover mr-2" src={spec.image} alt="" loading="lazy" />}
       <p className="font-body text-[12px] text-foreground/80 leading-snug truncate">
         {spec.name ? <TextField id="board-name">{spec.name}</TextField> : <span className="text-muted-foreground/40 italic text-[11px]"><TextField id="OrgChart_2">TBD</TextField></span>}
       </p>
     </div>
+    {spec.bio && <p className="px-3 pb-2 text-xs"><TextField id="board-bio">{spec.bio}</TextField></p>}
   </div>
 );
 
 function MosquePartners({ phone = false }: { phone?: boolean }) {
+  const partners = usePartners();
   return (
     <div className="cec-partners">
-      {PARTNERS.filter(partner => partner.group === "Mosque").map(partner => (
+      {partners.filter(partner => partner.group === "Mosque").map(partner => (
         <LinkField key={partner.shortName} fieldId={"partner-" + partner.shortName} href={partner.href} title={partner.name}>
-          <Picture fieldId={"partner-logo-" + partner.shortName} src={partner.src?.replace(/\.[^.]+$/, ".webp")} alt="" loading="lazy" width={20} height={20} />
+          <Picture fieldId={"partner-logo-" + partner.shortName} src={partner.src?.startsWith("/partners/") ? partner.src.replace(/\.[^.]+$/, ".webp") : partner.src} alt="" loading="lazy" width={20} height={20} />
           <ContentScope id={(phone ? "OrgChart_38-" : "OrgChart_19-") + itemIdentity(partner.shortName, partner.shortName)}>
             <TextField id={phone ? "OrgChart_39" : "OrgChart_20"}>{partner.shortName}</TextField>
           </ContentScope>
@@ -73,24 +78,32 @@ function MosquePartners({ phone = false }: { phone?: boolean }) {
   );
 }
 const OrgChart = () => {
+  const { fields } = useContext(Content);
+  const entries = getCollection(fields, "board");
+  function managed(spec: NodeSpec): NodeSpec {
+    if (!entries) return spec;
+    const entry = entries.find(member => member.id === spec.id);
+    return entry ? {...spec,role:entry.role || spec.role,name:entry.title,bio:entry.body,image:entry.image,hidden:entry.hidden} : {...spec,hidden:true};
+  }
   const { data } = useSanityData<LeadershipData>(QUERIES.leadership);
   const wrapRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
 
-  const president:  NodeSpec = { id: "president",  role: "President",        name: data?.presidentName,         color: "navy"   };
-  const secretary:  NodeSpec = { id: "secretary",  role: "Secretary",         name: data?.secretaryName,         color: "gray"   };
-  const extVP:      NodeSpec = { id: "ext-vp",     role: "External VP",       name: data?.externalVPName,        color: "gold"   };
-  const intVP:      NodeSpec = { id: "int-vp",     role: "Internal VP",       name: data?.internalVPName,        color: "gold"   };
-  const bizMgr:     NodeSpec = { id: "biz-mgr",    role: "Business Manager",  name: data?.businessManagerName,   color: "green"  };
-  const cec:        NodeSpec = { id: "cec",         role: "Community Engagement Council", name: data?.cecChairName, color: "teal" };
-  const advocacy:   NodeSpec = { id: "advocacy",   role: "Advocacy",          name: data?.advocacyChairName,     color: "coral"  };
-  const brosDawah:  NodeSpec = { id: "bros-dawah", role: "Brothers Da'wah",   name: data?.brothersDawahChairName, color: "blue"  };
-  const sisDawah:   NodeSpec = { id: "sis-dawah",  role: "Sisters Da'wah",    name: data?.sistersDawahChairName, color: "pink"   };
+  const president:  NodeSpec = managed({ id: "president",  role: "President",        name: data?.presidentName,         color: "navy"   });
+  const secretary:  NodeSpec = managed({ id: "secretary",  role: "Secretary",         name: data?.secretaryName,         color: "gray"   });
+  const extVP:      NodeSpec = managed({ id: "ext-vp",     role: "External VP",       name: data?.externalVPName,        color: "gold"   });
+  const intVP:      NodeSpec = managed({ id: "int-vp",     role: "Internal VP",       name: data?.internalVPName,        color: "gold"   });
+  const bizMgr:     NodeSpec = managed({ id: "biz-mgr",    role: "Business Manager",  name: data?.businessManagerName,   color: "green"  });
+  const cec:        NodeSpec = managed({ id: "cec",         role: "Community Engagement Council", name: data?.cecChairName, color: "teal" });
+  const advocacy:   NodeSpec = managed({ id: "advocacy",   role: "Advocacy",          name: data?.advocacyChairName,     color: "coral"  });
+  const brosDawah:  NodeSpec = managed({ id: "bros-dawah", role: "Brothers Da'wah",   name: data?.brothersDawahChairName, color: "blue"  });
+  const sisDawah:   NodeSpec = managed({ id: "sis-dawah",  role: "Sisters Da'wah",    name: data?.sistersDawahChairName, color: "pink"   });
   const brosSocial: NodeSpec = { id: "bros-social",role: "Brothers Social",   name: data?.brothersSocialChairName, color: "purple"};
-  const sisSocial:  NodeSpec = { id: "sis-social", role: "Sisters Social",    name: data?.sistersSocialChairName, color: "amber" };
-  const marketing:  NodeSpec = { id: "marketing",  role: "Marketing",         name: data?.marketingChairName,    color: "red"    };
+  const sisSocial:  NodeSpec = managed({ id: "sis-social", role: "Sisters Social",    name: data?.sistersSocialChairName, color: "amber" });
+  const marketing:  NodeSpec = managed({ id: "marketing",  role: "Marketing",         name: data?.marketingChairName,    color: "red"    });
 
 
+  const additional = findAvailable(entries)?.filter(member => !["president","secretary","ext-vp","int-vp","biz-mgr","cec","advocacy","bros-dawah","sis-dawah","bros-social","sis-social","marketing"].includes(member.id)) || [];
   useEffect(() => {
     const wrap = wrapRef.current;
     const svg = svgRef.current;
@@ -155,7 +168,7 @@ const OrgChart = () => {
     window.addEventListener("resize", draw);
     const t = setTimeout(draw, 120);
     return () => { ro.disconnect(); window.removeEventListener("resize", draw); clearTimeout(t); };
-  }, [data]);
+  }, [data, entries]);
 
   return (
     <div className="w-full">
@@ -165,6 +178,11 @@ const OrgChart = () => {
         </p>
       )}
 
+      {!!additional.length && <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-7">
+        {additional.map(member => <ContentScope key={member.id} id={"board-" + member.id}>
+          <Node spec={{id:member.id,role:member.role || "Board member",name:member.title,bio:member.body,image:member.image,color:"navy"}} />
+        </ContentScope>)}
+      </div>}
       {/* ── Desktop ── */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}

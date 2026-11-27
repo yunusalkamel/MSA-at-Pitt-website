@@ -1,27 +1,14 @@
-import { TextField, itemIdentity, ContentScope } from "@/editor/content";
-import { useState, useEffect, useLayoutEffect, useRef } from "react";
+import { TextField, itemIdentity, ContentScope, Content } from "@/editor/content";
+import { useState, useEffect, useLayoutEffect, useRef, useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X, ArrowRight, ChevronDown, Moon, Sun } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "@/contexts/ThemeContext";
+import { mainMenu, resourceMenu } from "@/data/siteMenus";
+import { visualKey } from "@/editor/visual-model";
 import AnnouncementBar from "./AnnouncementBar";
 
 import { PrayerLink } from "@/design/DailyPrayers";
-const navLinks = [
-  { to: "/", label: "Home", exact: true },
-  { to: "/about", label: "About" },
-  { to: "/events", label: "Events" },
-  { to: "/resources/prayer", label: "Prayer" },
-];
-
-const resourcesChildren = [
-  { to: "/resources", label: "All Resources" },
-  { to: "/resources/new-to-pitt", label: "New to Pitt" },
-  { to: "/gallery", label: "Gallery" },
-  { to: "/resources/chaplain", label: "Chaplain" },
-  { to: "/resources/faq", label: "FAQ" },
-];
-
 const prefetchRoute = (path: string) => {
   const map: Record<string, () => Promise<unknown>> = {
     "/": () => import("../pages/Index"),
@@ -40,6 +27,11 @@ const prefetchRoute = (path: string) => {
 };
 
 const Navbar = () => {
+  const menus = useContext(Content).fields[visualKey.menus];
+  const main = menus?.kind === "menus" ? menus.main : undefined;
+  const resources = menus?.kind === "menus" ? menus.resources : undefined;
+  const navLinks = (main ?? mainMenu).map(item => ({ ...item, to:item.url, label:item.title, exact:item.url === "/" }));
+  const resourcesChildren = (resources ?? resourceMenu).map(item => ({ ...item, to:item.url, label:item.title }));
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [resourcesOpen, setResourcesOpen] = useState(false);
@@ -153,8 +145,8 @@ const Navbar = () => {
                   ? location.pathname === link.to
                   : location.pathname.startsWith(link.to);
                 return (
-                  <ContentScope key={link.to} id={"Navbar_3-" + itemIdentity(link, link.to)}><Link
-                    key={link.to}
+                  <ContentScope key={link.id} id={"Navbar_3-" + (mainMenu.find(item => item.id === link.id)?.title ?? link.id)}><Link
+                    key={link.id}
                     to={link.to}
                     onMouseEnter={() => prefetchRoute(link.to)}
                     onFocus={() => prefetchRoute(link.to)}
@@ -211,8 +203,8 @@ const Navbar = () => {
                 ><ChevronDown size={13} aria-hidden="true" /></button>
                 <ul id="resources-submenu" className="glass nav-resources-menu" hidden={!resourcesOpen}>
                   {resourcesChildren.map((child, index) => (
-                    <li key={child.to}>
-                      <ContentScope id={"Navbar_6-" + itemIdentity(child, child.to)}>
+                    <li key={child.id}>
+                      <ContentScope id={"Navbar_6-" + (resourceMenu.find(item => item.id === child.id)?.title ?? child.id)}>
                         <Link ref={index === 0 ? firstResource : undefined} to={child.to}
                           aria-current={location.pathname === child.to ? "page" : undefined}
                           onFocus={() => prefetchRoute(child.to)} onMouseEnter={() => prefetchRoute(child.to)}
@@ -308,8 +300,8 @@ const Navbar = () => {
                 {navLinks.map((link, i) => {
                   const isActive = link.exact ? location.pathname === link.to : location.pathname.startsWith(link.to);
                   return (
-                    <ContentScope key={link.to} id={"Navbar_3-" + itemIdentity(link, link.to)}><motion.div
-                      key={link.to}
+                    <ContentScope key={link.id} id={"Navbar_3-" + (mainMenu.find(item => item.id === link.id)?.title ?? link.id)}><motion.div
+                      key={link.id}
                       initial={{ opacity: 0, y: 14 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.1 + i * 0.06 }}
@@ -362,8 +354,8 @@ const Navbar = () => {
                         className="overflow-hidden flex flex-col items-center gap-3 mt-4"
                       >
                         {resourcesChildren.map((child) => (
-                          <ContentScope key={child.to} id={"Navbar_6-" + itemIdentity(child, child.to)}><Link
-                            key={child.to}
+                          <ContentScope key={child.id} id={"Navbar_6-" + (resourceMenu.find(item => item.id === child.id)?.title ?? child.id)}><Link
+                            key={child.id}
                             to={child.to}
                             aria-current={location.pathname === child.to ? "page" : undefined}
                             className={`text-xl font-display transition-colors text-center ${

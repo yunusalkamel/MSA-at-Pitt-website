@@ -26,12 +26,16 @@ const sets: Record<string, readonly Photo[]> = {
 
 export function PhotoSlots({ name, wide = false, publicHidden = false, featured = 0 }: { name: string; wide?: boolean; publicHidden?: boolean; featured?: number }) {
   const photos = sets[name] ?? [];
-  const [index, setIndex] = useState(featured);
+  const [selected, setIndex] = useState<number>();
   const [open, setOpen] = useState(false);
   const dialog = useRef<HTMLDialogElement>(null);
   const touchStart = useRef<number | null>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const { editing, fields } = useContext(Content);
+  const coverKey = useField("location-featured-photo");
+  const cover = fields[coverKey];
+  const coverIndex = cover?.kind === "selection" && cover.index < photos.length ? cover.index : featured;
+  const index = selected ?? coverIndex;
   const fieldId = "location-photo-" + (index + 1);
   const key = useField(fieldId);
   const [file, description, originalWidth] = photos[index] ?? [];
@@ -39,7 +43,7 @@ export function PhotoSlots({ name, wide = false, publicHidden = false, featured 
   const caption = alt?.kind === "alt" ? alt.text : description;
   const available = !!file || fields[key]?.kind === "image";
   const count = Math.max(1, photos.length);
-  const step = (delta: number) => setIndex(i => (i + delta + count) % count);
+  const step = (delta: number) => setIndex(i => ((i ?? coverIndex) + delta + count) % count);
   useEffect(() => {
     if (open) dialog.current?.showModal();
   }, [open]);
@@ -65,7 +69,8 @@ export function PhotoSlots({ name, wide = false, publicHidden = false, featured 
       loading={full ? "eager" : "lazy"} decoding="async" />
   );
   return (
-    <div className="venue-photos">
+    <div className="venue-photos" data-cover-key={editing ? coverKey : undefined}
+      data-cover-index={editing ? index : undefined} data-cover-current={editing ? coverIndex : undefined}>
       {editing || !available ? (
         <>
           {picture(false)}
@@ -81,7 +86,7 @@ export function PhotoSlots({ name, wide = false, publicHidden = false, featured 
         <dialog ref={dialog} className="venue-viewer" aria-label={name + " photos"}
           onClose={() => {
             setOpen(false);
-            setIndex(featured);
+            setIndex(undefined);
             trigger.current?.focus({ preventScroll: true });
           }}
           onClick={e => { if (e.target === dialog.current) dialog.current.close(); }}

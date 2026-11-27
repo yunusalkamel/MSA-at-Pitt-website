@@ -2,12 +2,13 @@ import { type ReactNode } from "react";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import BackToTop from "./BackToTop";
+import VisualSections from "./VisualSections";
 
 // Note: AnnouncementBar is rendered inside Navbar so it always
 // appears above the floating pill and never behind it.
 
 import { EditorialCopy } from "@/editor/content";
-const Layout = ({ children }: { children: ReactNode }) => {
+const Layout = ({ children, names }: { children: ReactNode; names?: string[] }) => {
   return (
     <EditorialCopy.Provider value><div data-continuous className="site-layout min-h-screen flex flex-col relative">
       <a
@@ -18,7 +19,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
       </a>
 
       <Navbar />
-      <main id="main-content" role="main" className="flex-1 relative z-10">{children}</main>
+      <main id="main-content" role="main" className="flex-1 relative z-10"><VisualSections names={names}>{children}</VisualSections></main>
       <Footer />
       <BackToTop />
     </div></EditorialCopy.Provider>

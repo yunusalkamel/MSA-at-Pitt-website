@@ -95,7 +95,7 @@ const Join = () => {
   };
 
   return (
-    <Layout>
+    <Layout names={["Membership form", "Page introduction", "Ways to join", "Find your people", "What to expect", "Get in touch"]}>
       {/* Post-join welcome banner */}
       <AnimatePresence>
         {showBanner && (

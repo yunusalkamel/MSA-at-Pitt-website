@@ -1143,3 +1143,19 @@ img[src*="/lawn-prayer"] { object-position: center 72%; }
   from { opacity: 0; transform: perspective(28rem) rotateY(-10deg); }
   to { opacity: 1; transform: perspective(28rem) rotateY(0); }
 }
+
+.visual-section-marker { display: contents; }
+:is(.visual-block, .visual-section-style)[data-tone="warm"] { background: hsl(var(--muted) / .65); }
+:is(.visual-block, .visual-section-style)[data-tone="emerald"] { background: hsl(var(--primary) / .12); }
+:is(.visual-block, .visual-section-style)[data-tone="navy"] { background: hsl(var(--foreground) / .07); }
+:is(.visual-block, .visual-section-style)[data-align="center"] { text-align: center; }
+:is(.visual-block, .visual-section-style)[data-align="center"] p { margin-inline: auto; }
+.visual-block[data-spacing="compact"], .visual-section-style[data-spacing="compact"] > section { padding-block: var(--space-7); }
+.visual-block[data-spacing="roomy"], .visual-section-style[data-spacing="roomy"] > section { padding-block: var(--space-10); }
+:is(.visual-block, .visual-section-style)[data-size="large"] h2 { font-size: clamp(2.25rem, 5vw, 4.5rem); }
+.visual-grid { display: grid; gap: var(--space-4); }
+@media (min-width: 768px) {
+  .visual-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  [data-columns="two"] .visual-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  [data-columns="one"] .visual-grid { grid-template-columns: 1fr; }
+}

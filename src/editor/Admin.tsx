@@ -10,7 +10,11 @@ import { useLocation, useNavigate } from "react-router-dom";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { Content, type Fields, type Field } from "./content";
-import { loadContent, type Snapshot } from "./SiteContent";
+import { type Snapshot } from "./SiteContent";
+import VisualPanels, { type EditorPanel } from "./VisualPanels";
+import VisualPreview, { type Device } from "./VisualPreview";
+import MediaLibrary, { uploadMedia } from "./MediaLibrary";
+import { builtInPages, customPages } from "./visual-model";
 import { editText } from "./inlineText";
 import "./admin.css";
 import { validEditorLink } from "../../shared/editor-links.js";
@@ -22,6 +26,17 @@ export default function Admin({ children }: { children: ReactNode }) {
       {(session) => <Editor session={session}>{children}</Editor>}
     </ManagementLogin>
   );
+}
+
+type Delta = Record<string, Field | null>;
+
+function applyDelta(base: Fields, delta: Delta) {
+  const next = {...base};
+  for (const [key,value] of Object.entries(delta)) {
+    if (value === null) delete next[key];
+    else next[key] = value;
+  }
+  return next;
 }
 
 function Editor({
@@ -41,13 +56,18 @@ function Editor({
     [card, setCard] = useState<{ key: string; scope: string } | null>(null);
   const [link, setLink] = useState<{ key: string; url: string } | null>(null);
   const [preview, setPreview] = useState<Fields | null>(null);
-  const [picture, setPicture] = useState<{ key: string; alt: string } | null>(
-    null,
-  );
+  const [picture, setPicture] = useState<{ key: string; alt: string; position?: string; cover?: {key:string; index:number; current:number} } | null>(null);
+  const [panel, setPanel] = useState<EditorPanel>();
+  const [selected, selectSection] = useState("");
+  const [device, setDevice] = useState<Device>();
+  const [picking, setPicking] = useState<string>();
+  const [stale, setStale] = useState<Delta>();
+  const draftVersion = useRef<string | null>(null);
+  const saving = useRef<Promise<void>>(Promise.resolve());
+  const autosaveTimer = useRef<number>();
+  const [persisted, setPersisted] = useState<Fields>();
   const [history, setHistory] = useState(false);
-  const finish = useRef<() => void>(),
-    file = useRef<HTMLInputElement>(null),
-    imageKey = useRef("");
+  const finish = useRef<() => void>();
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const undo = useRef<Fields[]>([]),
@@ -65,11 +85,15 @@ function Editor({
   }
   useEffect(() => {
     let live = true;
-    loadContent()
-      .then((s) => {
+    request(session, { action: "draft_load" })
+      .then((s: Snapshot & {saved?: Delta; stale?: Delta; draftVersion?: string}) => {
         if (live) {
           setBase(s);
-          update(s.fields, false);
+          draftVersion.current = s.draftVersion ?? null;
+          const restored = s.saved ? applyDelta(s.fields, s.saved) : s.fields;
+          update(restored, false);
+          setPersisted(restored);
+          if (s.stale) setStale(s.stale);
         }
       })
       .catch((e) => {
@@ -83,79 +107,56 @@ function Editor({
     setCard(null);
     setLink(null);
     setPicture(null);
+    setPicking(undefined);
+    selectSection("");
   }, [pathname, editing]);
   const dirty = base && fields !== base.fields;
   useEffect(() => {
     const warn = (e: BeforeUnloadEvent) => {
-      if (dirty || active) e.preventDefault();
+      if ((dirty && persisted !== fields) || active) e.preventDefault();
     };
     window.addEventListener("beforeunload", warn);
     return () => window.removeEventListener("beforeunload", warn);
-  }, [dirty, active]);
-  async function upload(key: string, f: File | undefined) {
-    if (!f || !key || busy) return;
-    if (!["image/jpeg", "image/png", "image/webp"].includes(f.type)) {
-      setNotice("Choose a JPG, PNG or WebP image.");
-      return;
-    }
+  }, [dirty, fields, persisted, active]);
+  useEffect(() => {
+    if (!base || busy || stale || persisted === fields) return;
+    autosaveTimer.current = window.setTimeout(() => {
+      saving.current = saving.current.then(async () => {
+        try {
+          const saved = await request(session, {
+            action: "draft_save", fields, revision: base.revision, draftVersion: draftVersion.current,
+          });
+          draftVersion.current = saved.draftVersion ?? null;
+          setPersisted(fields);
+        } catch (error) {
+          setNotice(messageOf(error));
+        }
+      });
+    }, 700);
+    return () => clearTimeout(autosaveTimer.current);
+  }, [fields, base, busy, persisted, stale, session]);
+
+  async function upload(key: string, image: File | undefined) {
+    if (!image || !key || busy) return;
     setBusy(true);
     try {
-      if (f.size > 3 * 1024 * 1024) {
-        if (f.size > 32 * 1024 * 1024)
-          throw Error("Choose an image under 32 MB.");
-        const image = await createImageBitmap(f);
-        try {
-          const scale = Math.min(1, 1920 / Math.max(image.width, image.height));
-          const canvas = document.createElement("canvas");
-          canvas.width = Math.max(1, Math.round(image.width * scale));
-          canvas.height = Math.max(1, Math.round(image.height * scale));
-          const context = canvas.getContext("2d");
-          if (!context) throw Error("Unable to resize this image.");
-          context.drawImage(image, 0, 0, canvas.width, canvas.height);
-          const blob = await new Promise<Blob>((resolve, reject) =>
-            canvas.toBlob(
-              (b) =>
-                b
-                  ? resolve(b)
-                  : reject(Error("Unable to compress this image.")),
-              "image/webp",
-              0.84,
-            ),
-          );
-          if (blob.size > 3 * 1024 * 1024)
-            throw Error(
-              "Choose a smaller image. The optimized upload exceeds 3 MB.",
-            );
-          f = new File([blob], f.name, { type: blob.type });
-        } finally {
-          image.close();
-        }
-      }
-      const data = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(String(reader.result).split(",")[1]);
-        reader.onerror = () => reject(Error("Could not read image."));
-        reader.readAsDataURL(f);
-      });
-      const { url } = await request(session, { action: "image", data });
-      field(key, { kind: "image", url });
+      field(key, {kind:"image", url:await uploadMedia(session, image)});
       setNotice("Image ready to publish.");
-    } catch (e) {
-      setNotice(messageOf(e));
-    } finally {
-      setBusy(false);
-    }
+    } catch (e) { setNotice(messageOf(e)); }
+    finally { setBusy(false); }
   }
   useLayoutEffect(() => {
     if (!editing || !base || busy || history || preview) return;
     function click(e: MouseEvent) {
       const el = e.target instanceof Element ? e.target : null;
-      if (!el || el.closest(".msa-tools")) return;
+      if (!el || el.closest(".msa-tools, .msa-tools-surface, .msa-device-preview")) return;
       if (el.closest("[contenteditable=true]")) {
         if (el.closest("a")) e.preventDefault();
         e.stopPropagation();
         return;
       }
+      const section = el.closest<HTMLElement>("[data-visual-section]");
+      if (section) selectSection(section.dataset.visualSection!);
       const parent = el.closest<HTMLElement>("[data-edit-card]");
       setCard(
         parent
@@ -180,19 +181,18 @@ function Editor({
       e.preventDefault();
       e.stopPropagation();
       finish.current?.();
+      const venue = image?.closest<HTMLElement>("[data-cover-key]");
       setPicture(
         image
           ? {
               key: image.dataset.editImage!,
               alt: image.getAttribute("alt") || "",
+              position: image.dataset.editPosition,
+              cover: venue ? {key:venue.dataset.coverKey, index:Number(venue.dataset.coverIndex), current:Number(venue.dataset.coverCurrent)} : undefined,
             }
           : null,
       );
-      if (image) {
-        imageKey.current = image.dataset.editImage!;
-        file.current?.click();
-        return;
-      }
+      if (image) return;
       if (!text) return;
       const key = text.dataset.editText!,
         prev = draft.current[key],
@@ -263,7 +263,7 @@ function Editor({
     if (response === null) return;
     const url = response.trim();
     if (url && !validEditorLink(url)) {
-      setNotice("Enter a full website URL or a mailto: email link.");
+      setNotice("Enter a site path, website URL, or mailto: email link.");
       return;
     }
     const next = { ...draft.current };
@@ -339,7 +339,9 @@ function Editor({
     if (!base) return;
     setBusy(true);
     const current = draft.current;
+    clearTimeout(autosaveTimer.current);
     try {
+      await saving.current;
       const { revision, warning } = await request(session, {
         action: "publish",
         revision: base.revision,
@@ -348,7 +350,16 @@ function Editor({
       undo.current = [];
       redo.current = [];
       setBase({ revision, fields: current });
-      setNotice(warning || "Published.");
+      setPersisted(current);
+      try {
+        if (draftVersion.current) {
+          const cleared = await request(session, {action:"draft_clear", draftVersion:draftVersion.current});
+          draftVersion.current = cleared.draftVersion ?? null;
+        }
+        setNotice(warning || "Published.");
+      } catch {
+        setNotice("Published. The saved draft could not be cleared.");
+      }
     } catch (e) {
       setNotice(messageOf(e));
     } finally {
@@ -386,6 +397,21 @@ function Editor({
           </button>
         </div>
       )}
+      {device && <VisualPreview fields={fields} path={pathname} device={device} onClose={() => setDevice(undefined)} />}
+      {!preview && panel && !picking && <VisualPanels panel={panel} close={() => setPanel(undefined)} fields={fields}
+        change={(key,value) => {
+          finish.current?.();
+          const next = {...draft.current};
+          if (value) next[key] = value;
+          else delete next[key];
+          update(next);
+        }}
+        changeFields={next => { finish.current?.(); update(next(draft.current)); }}
+        selected={selected} select={selectSection} session={session}/>}
+      {picking && <aside className="msa-editor-panel msa-tools-surface" aria-label="Choose a replacement image">
+        <header><strong>Choose an image</strong><button onClick={() => setPicking(undefined)}>Close</button></header>
+        <MediaLibrary session={session} choose={url => { field(picking,{kind:"image",url}); setPicking(undefined); }}/>
+      </aside>}
       {!preview && (
         <aside
           className="msa-tools"
@@ -399,6 +425,10 @@ function Editor({
               event.preventDefault();
           }}
         >
+          {stale && <div className="msa-draft-recovery"><span>A newer version was published after your last draft.</span>
+            <button disabled={busy} onClick={() => { update(applyDelta(draft.current,stale)); setStale(undefined); }}>Recover my changes</button>
+            <button disabled={busy} onClick={() => { update({...draft.current},false); setStale(undefined); }}>Clear saved draft</button>
+          </div>}
           <button
             disabled={busy || !!dirty || active}
             title="Publish or discard current edits before opening history"
@@ -416,19 +446,8 @@ function Editor({
             }}
           >
             {Object.entries({
-              "/": "Home",
-              "/about": "About",
-              "/events": "Events",
-              "/gallery": "Gallery",
-              "/join": "Join",
-              "/contact": "Contact",
-              "/resources": "Resources",
-              "/resources/new-to-pitt": "New to Pitt",
-              "/resources/prayer": "Prayer",
-              "/resources/prayer-locations": "Prayer locations",
-              "/resources/chaplain": "Chaplain",
-              "/resources/faq": "FAQ",
-              "/board": "Board",
+              ...builtInPages,
+              ...Object.fromEntries(customPages(fields).map(page => [page.path, page.title])),
               ...(pathname.startsWith("/gallery/")
                 ? { [pathname]: "Gallery album" }
                 : {}),
@@ -447,6 +466,16 @@ function Editor({
           >
             {editing ? "Browse pages" : "Edit content"}
           </button>
+          <details className="msa-editor-menu"><summary>Edit site</summary><div>
+            {([["structure","Structure"],["pages","Pages"],["menus","Navigation"],["collections","Collections"],["media","Media"]] as const).map(([id,label]) => (
+              <button key={id} disabled={!base || busy || !editing} type="button"
+                onClick={event => { finish.current?.(); setPanel(panel === id ? undefined : id); event.currentTarget.closest("details").open = false; }}>{label}</button>
+            ))}
+          </div></details>
+          <details className="msa-editor-menu"><summary>Preview</summary><div>
+            {(["desktop","tablet","phone"] as const).map(mode => <button key={mode} disabled={!base || busy}
+              onClick={event => { finish.current?.(); setDevice(mode); event.currentTarget.closest("details").open = false; }}>{mode}</button>)}
+          </div></details>
           {active && (
             <>
               {[
@@ -495,26 +524,31 @@ function Editor({
               {hidden ? "Show card" : "Hide card"}
             </button>
           )}
-          {picture && editing && (
-            <button
-              disabled={busy}
-              onClick={() => {
-                const alt = window.prompt(
-                  "Describe this image for screen readers. Leave blank for decorative images.",
-                  picture.alt,
-                );
-                if (alt === null) return;
-                if (alt.length > 1000) {
-                  setNotice("Use under 1,000 characters.");
-                  return;
-                }
-                field(picture.key + "/alt", { kind: "alt", text: alt });
-                setPicture({ ...picture, alt });
-              }}
-            >
-              Image description
-            </button>
-          )}
+          {picture && editing && <details className="msa-editor-menu" open>
+            <summary>Image settings</summary>
+            <div className="msa-image-toolbar">
+              <button disabled={busy} onClick={() => setPicking(picture.key)}>Replace image</button>
+              {picture.cover && <button disabled={fields[picture.cover.key]?.kind === "selection"
+                ? (fields[picture.cover.key] as {index: number}).index === picture.cover.index
+                : picture.cover.current === picture.cover.index}
+                onClick={() => field(picture.cover.key,{kind:"selection",index:picture.cover.index})}>Use as preview photo</button>}
+              <label>Description<input value={picture.alt} maxLength={1000} onChange={event => {
+                const alt = event.target.value;
+                field(picture.key + "/alt", {kind:"alt",text:alt});
+                setPicture({...picture,alt});
+              }}/></label>
+              {(() => {
+                const saved = fields[picture.key + "/focal"];
+                const [defaultX, defaultY] = picture.position?.match(/[\d.]+(?=%)/g)?.map(Number) ?? [50,50];
+                const crop = saved?.kind === "focal" ? saved : {kind:"focal" as const,x:defaultX,y:defaultY};
+                return <>
+                  <label>Crop across<input type="range" min={0} max={100} value={crop.x} onChange={event => field(picture.key + "/focal",{...crop,x:Number(event.target.value)})}/></label>
+                  <label>Crop down<input type="range" min={0} max={100} value={crop.y} onChange={event => field(picture.key + "/focal",{...crop,y:Number(event.target.value)})}/></label>
+                  {saved && <button onClick={() => { const next = {...draft.current}; delete next[picture.key + "/focal"]; update(next); }}>Reset crop</button>}
+                </>;
+              })()}
+            </div>
+          </details>}
           {editing && position >= 0 && copyIds.length > 1 && (
             <>
               <button
@@ -571,8 +605,8 @@ function Editor({
             disabled={busy}
             onClick={() => {
               if (
-                !dirty ||
-                confirm("Discard unpublished changes and sign out?")
+                !dirty || persisted === fields ||
+                confirm("Sign out before your current edits have been saved?")
               )
                 void supabase.auth.signOut();
             }}
@@ -581,18 +615,8 @@ function Editor({
           </button>
           <span role="status">
             {notice ||
-              (!base ? "Loading…" : dirty ? "Unpublished changes" : "")}
+              (!base ? "Loading…" : dirty ? (persisted === fields ? "Draft saved" : "Saving draft…") : "")}
           </span>
-          <input
-            type="file"
-            hidden
-            ref={file}
-            accept="image/png,image/jpeg,image/webp"
-            onChange={(e) => {
-              void upload(imageKey.current, e.target.files?.[0]);
-              e.target.value = "";
-            }}
-          />
         </aside>
       )}
     </Content.Provider>

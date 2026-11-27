@@ -1,6 +1,8 @@
-import { Picture, TextField, itemIdentity, ContentScope } from "@/editor/content";
+import { Picture, TextField, itemIdentity, ContentScope, Content } from "@/editor/content";
 import { motion, useMotionValue, useAnimationFrame, useInView, useReducedMotion } from "framer-motion";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useContext } from "react";
+
+import { findAvailable, getCollection } from "@/editor/visual-model";
 
 interface Partner {
   name: string;
@@ -9,6 +11,7 @@ interface Partner {
   href: string;
   group: "Mosque" | "Education" | "University" | "MSA Chapter" | "Community";
   hasBackground?: boolean;
+  description?: string;
 }
 
 export const PARTNERS: Partner[] = [
@@ -33,6 +36,18 @@ export const PARTNERS: Partner[] = [
   { name: "Human Development Foundation",          shortName: "HDF",        src: "/partners/hdf.png",        href: "https://hdf.com",            group: "Community" },
 ];
 
+export function usePartners() {
+  const { fields } = useContext(Content);
+  const entries = findAvailable(getCollection(fields, "partners"));
+  if (!entries) return PARTNERS;
+  return entries.filter(entry => entry.url).map(entry => {
+    const prior = PARTNERS.find(item => item.shortName.replace(/[^a-zA-Z0-9]+/g,"-") === entry.id);
+    return { ...prior, name:entry.title, description:entry.body, shortName:prior?.shortName || entry.title,
+      src:entry.image, group:(entry.role || "Community") as Partner["group"], href:entry.url };
+  });
+}
+
+const partnerImage = (src: string) => src?.startsWith("/partners/") ? src.replace(/\.[^.]+$/, ".webp") : src;
 const SCROLL_SPEED = 30; // px per second
 
 const PartnerTile = ({ partner }: { partner: Partner }) => (
@@ -41,7 +56,7 @@ const PartnerTile = ({ partner }: { partner: Partner }) => (
     target="_blank"
     rel="noopener noreferrer"
     className="flex flex-col items-center gap-2 group flex-shrink-0 select-none"
-    title={partner.name}
+    title={partner.description || partner.name}
     draggable={false}
   >
     <div className="flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
@@ -49,7 +64,7 @@ const PartnerTile = ({ partner }: { partner: Partner }) => (
         partner.hasBackground ? (
           <div className="h-11 w-11 md:h-12 md:w-12 rounded-full overflow-hidden flex-shrink-0 opacity-85 group-hover:opacity-100 transition-opacity duration-300">
             <Picture fieldId="PartnerLogos_1"
-              src={partner.src.replace(/\.[^.]+$/, ".webp")}
+              src={partnerImage(partner.src)}
               alt={partner.name}
               className="h-full w-full object-cover"
               loading="lazy"
@@ -61,7 +76,7 @@ const PartnerTile = ({ partner }: { partner: Partner }) => (
           </div>
         ) : (
           <Picture fieldId="PartnerLogos_2"
-            src={partner.src.replace(/\.[^.]+$/, ".webp")}
+            src={partnerImage(partner.src)}
             alt={partner.name}
             className="h-10 md:h-11 w-auto object-contain opacity-80 group-hover:opacity-100 transition-opacity duration-300"
             loading="lazy"
@@ -87,7 +102,8 @@ const PartnerTile = ({ partner }: { partner: Partner }) => (
 );
 
 const PartnerLogos = () => {
-  const loop = [...PARTNERS, ...PARTNERS];
+  const partners = usePartners();
+  const loop = [...partners, ...partners];
   const x = useMotionValue(0);
   const isDragging = useRef(false);
   const didDrag = useRef(false);

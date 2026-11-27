@@ -79,7 +79,7 @@ const Resources = () => {
   const { email, officeHours } = useChaplainDetails();
   const mobile=useIsMobile();
   return (
-    <Layout>
+    <Layout names={["Page introduction", "Resource cards", "Get in touch"]}>
       {/* Hero */}
       <PageHero className="relative text-center overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">

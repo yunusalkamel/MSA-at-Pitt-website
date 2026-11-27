@@ -30,7 +30,7 @@ const About = () => {
     description: "We host the prayer space, organize the iftars, run the halaqas, and put on the events that fill the year. Founded 1997.",
   });
   return (
-    <Layout>
+    <Layout names={["Page introduction", "Our story", "What drives us", "Leadership", "Get involved"]}>
       {/* Hero */}
       <PageHero className="relative overflow-hidden">
         <div className="absolute inset-0">

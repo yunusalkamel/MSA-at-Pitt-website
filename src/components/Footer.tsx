@@ -1,5 +1,8 @@
+import { useContext } from "react";
+import { footerInvolved, footerCampus } from "@/data/siteMenus";
+import { visualKey } from "@/editor/visual-model";
 import { isPublicSiteOrigin } from "@/config/site";
-import { LinkField, ContentScope, Picture, TextField } from "@/editor/content";
+import { LinkField, ContentScope, Picture, TextField, Content } from "@/editor/content";
 import { Link } from "react-router-dom";
 import { Instagram, Facebook } from "lucide-react";
 import KhatamOverlay from "@/components/KhatamOverlay";
@@ -13,6 +16,11 @@ const WhatsAppIcon = ({ size = 20 }: { size?: number }) => (
 );
 
 const Footer = () => {
+  const menus = useContext(Content).fields[visualKey.menus];
+  const links = menus?.kind === "menus" ? menus.footer : undefined;
+  const involved = links?.filter(link => link.group === "involved") ?? footerInvolved;
+  const campus = links?.filter(link => link.group === "campus") ?? footerCampus;
+  const connect = links?.filter(link => link.group === "connect") ?? [];
   const currentYear = new Date().getFullYear();
   const copyrightYears = currentYear > 2025 ? `2025–${currentYear}` : "2025";
 
@@ -55,7 +63,7 @@ const Footer = () => {
             {/* Explore — left aligned */}
             <div className="flex flex-col gap-2.5 items-start">
               <p className="font-body text-[10px] font-bold uppercase tracking-[0.2em] mb-1" style={{ color: "rgba(242,171,35,.6)" }}><TextField id="Footer_6">Get involved</TextField></p>
-              {[{to:"/events",l:"Attend an event"},{to:"/join",l:"Join the MSA"},{to:"/gallery",l:"See our community"},{to:"/about",l:"Meet the board"}].map(({ to, l }) => (
+              {involved.map(({ url: to, title: l }) => (
                 <ContentScope key={to} id={"Footer_7-" + to}><Link key={to} to={to} className="footer-link font-body text-sm"><TextField id="Footer_8">{l}</TextField></Link></ContentScope>
               ))}
             </div>
@@ -63,7 +71,7 @@ const Footer = () => {
             {/* Resources — center aligned */}
             <div className="flex flex-col gap-2.5 items-center text-center">
               <p className="font-body text-[10px] font-bold uppercase tracking-[0.2em] mb-1" style={{ color: "rgba(242,171,35,.6)" }}><TextField id="Footer_9">Campus life</TextField></p>
-              {[{to:"/resources/new-to-pitt",l:"Student guide"},{to:"/resources/prayer",l:"Prayer on campus"},{to:"/resources/chaplain",l:"Meet the chaplain"},{to:"/resources",l:"All resources"}].map(({ to, l }) => (
+              {campus.map(({ url: to, title: l }) => (
                 <ContentScope key={to} id={"Footer_10-" + to}><Link key={to} to={to} className="footer-link font-body text-sm text-center whitespace-nowrap"><TextField id="Footer_11">{l}</TextField></Link></ContentScope>
               ))}
             </div>
@@ -71,6 +79,7 @@ const Footer = () => {
             {/* Connect — right aligned */}
             <div className="flex flex-col gap-2.5 items-end text-right h-full">
               <p className="font-body text-[10px] font-bold uppercase tracking-[0.2em] mb-1" style={{ color: "rgba(242,171,35,.6)" }}><TextField id="Footer_12">Connect</TextField></p>
+              {connect.map(link => <Link key={link.id} to={link.url} className="footer-link font-body text-sm">{link.title}</Link>)}
               <LinkField fieldId="Footer_email_link" href={`mailto:${LINKS.email}`} className="footer-link font-body text-sm"><TextField id="Footer_13">Email</TextField></LinkField>
               <div className="flex items-center gap-3 mt-1">
                 <LinkField fieldId="Footer_instagram_link" href={LINKS.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="footer-link inline-flex items-center">

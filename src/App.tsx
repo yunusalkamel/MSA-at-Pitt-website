@@ -24,7 +24,7 @@ const FAQ = lazy(() => import("./pages/FAQ.tsx"));
 const Prayer = lazy(() => import("./pages/Prayer.tsx"));
 const Chaplain = lazy(() => import("./pages/Chaplain.tsx"));
 const OrgChart = lazy(() => import("./pages/OrgChart.tsx"));
-const NotFound = lazy(() => import("./pages/NotFound.tsx"));
+const VisualPage = lazy(() => import("./pages/VisualPage.tsx"));
 
 const publicProduction = import.meta.env.PROD &&
   !new URLSearchParams(location.search).has("code") && !/(?:access_token|error_description)=/.test(location.hash) &&
@@ -75,7 +75,7 @@ const App = () => (
               <Route path="/resources/faq" element={<FAQ />} />
               <Route path="/prayer-times" element={<Navigate to="/resources/prayer" replace />} />
               <Route path="/board" element={<OrgChart />} />
-              <Route path="*" element={<NotFound />} />
+              <Route path="*" element={<VisualPage />} />
             </Routes>
           </Suspense>
           </SiteContent>

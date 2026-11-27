@@ -1,3 +1,4 @@
+import type { Focal, VisualPage, SiteMenus, VisualCollection } from "./visual-model";
 import { communityImageSizes } from "@/lib/communityImageSizes";
 import {
   createContext,
@@ -23,7 +24,9 @@ export type Field =
   | { kind: "link"; url: string }
   | { kind: "alt"; text: string }
   | { kind: "visibility"; hidden: boolean }
-  | { kind: "copies"; ids: string[] };
+  | { kind: "copies"; ids: string[] }
+  | { kind: "selection"; index: number }
+  | Focal | VisualPage | SiteMenus | VisualCollection;
 export type Fields = Record<string, Field>;
 export const Content = createContext<{ fields: Fields; editing: boolean }>({
   fields: {},
@@ -152,6 +155,8 @@ export function Picture({
   if (!src && emptyLabel) {
     return <span className="photo-slot-empty" data-edit-image={editing ? key : undefined} role="img" aria-label={emptyLabel}>{emptyLabel}</span>;
   }
+  const focal = fields[key + "/focal"];
+  const position = focal?.kind === "focal" ? `${focal.x}% ${focal.y}%` : props.style?.objectPosition;
   const maxWidth = Number(props.width) || 1920;
   const srcSet = retiredPicnic || overridden || !props.srcSet
     ? src && (communityImageSizes(src) || sanityImageSrcSet(src, maxWidth))
@@ -159,11 +164,13 @@ export function Picture({
   return (
     <img
       {...props}
+      style={position ? { ...props.style, objectPosition: position } : props.style}
       alt={alt?.kind==="alt"?alt.text:props.alt}
       src={src}
       srcSet={srcSet || undefined}
       sizes={srcSet ? props.sizes ?? `(max-width: ${maxWidth}px) 100vw, ${maxWidth}px` : undefined}
       data-edit-image={editing && !fixedSource ? key : undefined}
+      data-edit-position={editing && !fixedSource ? position : undefined}
     />
   );
 }

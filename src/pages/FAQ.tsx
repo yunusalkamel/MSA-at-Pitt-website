@@ -134,7 +134,7 @@ const FAQ = () => {
       : FALLBACK_FAQS;
 
   return (
-    <Layout>
+    <Layout names={["Page introduction", "Frequently asked questions", "Find support", "Next steps"]}>
       {/* Hero */}
       <PageHero className="relative overflow-hidden">
         <div className="absolute inset-0">

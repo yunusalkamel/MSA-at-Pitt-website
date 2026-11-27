@@ -46,6 +46,11 @@ function Value({ field }: { field: Fields[string] | undefined }) {
       />
     );
   if (field.kind === "copies") return <p>{field.ids.length} duplicate cards</p>;
+  if (field.kind === "selection") return <p>Selected photo {field.index + 1}</p>;
+  if (field.kind === "focal") return <p>Crop position {field.x}% across, {field.y}% down</p>;
+  if (field.kind === "page") return <p>{field.title} · {field.sections.length} sections · {field.blocks.length} components</p>;
+  if (field.kind === "menus") return <p>Navigation and footer settings</p>;
+  if (field.kind === "collection") return <p>{field.items.length} entries in {field.type}</p>;
   return (
     <p>
       {field.kind === "visibility"

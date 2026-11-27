@@ -1,7 +1,9 @@
-import { versions } from "../server/versions.js";
+import { changes, open, seal, versions } from "../server/versions.js";
 import { validEditorLink } from "../shared/editor-links.js";
 import { createClient } from "@sanity/client";
-import { management, environment } from "../server/management.js";
+import { createHash } from "node:crypto";
+import { visualFields, editorKeys } from "../shared/visual-schema.js";
+import { management, environment, fail } from "../server/management.js";
 
 const documentId = "website-inline-content";
 const maxImage = 3 * 1024 * 1024;
@@ -12,8 +14,15 @@ const validKey = (key) =>
   !["constructor", "__proto__", "prototype"].includes(key);
 const validSize = (size) =>
   [undefined, "small", "normal", "large"].includes(size);
-function validField(value, project, dataset) {
+function validField(value, project, dataset, key) {
   if (!value || typeof value !== "object") return false;
+  if (Object.hasOwn(visualFields, value.kind)) {
+    if (value.kind === "page" && (!key.startsWith(editorKeys.page) ||
+      (value.path ? key !== editorKeys.page + value.id || key.slice(editorKeys.page.length).startsWith("/") : !key.slice(editorKeys.page.length).startsWith("/")))) return false;
+    if (value.kind === "menus" && key !== editorKeys.menus) return false;
+    if (value.kind === "collection" && key !== editorKeys.collection + value.type) return false;
+    return visualFields[value.kind].safeParse(value).success;
+  }
   if (value.kind === "alt") return typeof value.text==="string" && value.text.length<=1000;
   if (value.kind === "visibility") return typeof value.hidden === "boolean";
   if (value.kind === "copies")
@@ -47,6 +56,61 @@ function validField(value, project, dataset) {
     )
   );
 }
+function validFields(fields, project, dataset) {
+  if (!fields || typeof fields !== "object" || Array.isArray(fields) || !Object.entries(fields).every(
+    ([key, value]) => validKey(key) && validField(value, project, dataset, key),
+  )) return false;
+  const paths = Object.values(fields).filter(value => value.kind === "page" && value.path).map(value => value.path);
+  return paths.length === new Set(paths).size &&
+    paths.every(path => !/^\/(?:about|events|gallery|join|contact|resources|board|admin|owner|auth|api|assets|photos|prayer-times)$/.test(path));
+}
+
+function publicFields(fields) {
+  const now = Date.now();
+  const live = entry => (!entry.starts || Date.parse(entry.starts) <= now) &&
+    (!entry.ends || Date.parse(entry.ends) > now);
+  const privatePaths = [];
+  for (const [key, value] of Object.entries(fields)) {
+    if (value.kind === "page" && value.path && (value.visibility !== "published" || !live(value))) {
+      privatePaths.push(value.path + "/");
+      delete fields[key];
+    }
+    if (value.kind === "page") value.blocks = value.blocks.filter(block => live(block));
+    if (value.kind === "collection" && value.type === "announcements")
+      value.items = value.items.filter(item => !item.hidden && live(item));
+  }
+  for (const key of Object.keys(fields)) {
+    if (privatePaths.some(path => key.startsWith(path))) delete fields[key];
+  }
+  return fields;
+}
+
+async function draftAction(client, body, actor) {
+  const id = "msaPrivate.editorDraft." + createHash("sha256").update(actor.toLowerCase()).digest("hex");
+  const [current, draft] = await Promise.all([client.getDocument(documentId), client.getDocument(id)]);
+  const revision = current?._rev ?? null;
+  const fields = JSON.parse(current?.fieldsJson || "{}");
+  if (body.action === "draft_load") {
+    const saved = draft?.payload ? open(draft.payload) : null;
+    return { revision, fields, saved: saved?.revision === revision ? saved.delta : null,
+      stale: saved && saved.revision !== revision ? saved.delta : null, draftVersion: draft?._rev ?? null };
+  }
+  if ((draft?._rev ?? null) !== body.draftVersion)
+    throw fail(409, "The saved draft changed in another tab. Reload before replacing it.");
+  if (body.action !== "draft_save" && body.action !== "draft_clear") throw fail(400, "Invalid draft operation.");
+  if (body.action === "draft_save" && revision !== body.revision)
+    throw fail(409, "A new version was published. Reload to review your draft against it.");
+  const delta = body.action === "draft_save"
+    ? Object.fromEntries(changes(fields, body.fields).map(key => [key, body.fields[key] ?? null]))
+    : null;
+  const payload = delta && Object.keys(delta).length ? seal({ revision, delta }) : null;
+  if (!draft && !payload) return { draftVersion: null };
+  const updated = draft
+    ? await client.patch(id).ifRevisionId(draft._rev).set({ payload }).commit()
+    : await client.create({ _id: id, _type: "msaEditorDraft", payload });
+  return { draftVersion: updated._rev };
+}
+
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
   const project = process.env.SANITY_PROJECT_ID || "rwdbbktc";
@@ -61,7 +125,7 @@ export default async function handler(req, res) {
     if (req.method === "GET") {
       environment();
       const doc = await createClient(config).getDocument(documentId);
-      const fields = JSON.parse(doc?.fieldsJson || "{}");
+      const fields = publicFields(JSON.parse(doc?.fieldsJson || "{}"));
       res.setHeader("Cache-Control", "public, s-maxage=60, stale-while-revalidate=600");
       return res.json({
         revision: doc?._rev || null,
@@ -80,6 +144,10 @@ export default async function handler(req, res) {
         "restore",
         "snapshot",
         "export",
+        "draft_load",
+        "draft_save",
+        "draft_clear",
+        "media",
       ].includes(actionName)
     )
       return res.status(400).end();
@@ -91,6 +159,10 @@ export default async function handler(req, res) {
         restore: "publish",
         snapshot: "owner_session",
         export: "owner_session",
+        draft_load: "session",
+        draft_save: "session",
+        draft_clear: "session",
+        media: "session",
       }[actionName] || actionName,
     );
     if (actionName === "session")
@@ -105,8 +177,23 @@ export default async function handler(req, res) {
       ...config,
       token: process.env.SANITY_EDITOR_TOKEN,
     });
+    if (actionName.startsWith("draft_")) {
+      if (actionName === "draft_save" && (!validFields(req.body.fields, project, dataset) ||
+        Buffer.byteLength(JSON.stringify(req.body.fields)) > 2000000))
+        throw fail(400, "The draft contains invalid fields or exceeds the size limit.");
+      return res.json(await draftAction(client, req.body, access.actor));
+    }
+    if (actionName === "media") {
+      const term = typeof req.body.search === "string" ? req.body.search.trim().slice(0, 100) : "";
+      const start = Math.max(0, Math.min(10000, Math.floor(Number(req.body.offset) || 0)));
+      const assets = await client.fetch(
+        '*[_type=="sanity.imageAsset" && ($term=="" || originalFilename match $match)] | order(_createdAt desc,_id desc) [$start...$end]{_id,url,originalFilename,"width":metadata.dimensions.width,"height":metadata.dimensions.height}',
+        {term, match: term.replace(/[^a-zA-Z0-9._ -]/g, "") + "*", start, end: start + 48},
+      );
+      return res.json({ assets });
+    }
     if (["history", "version", "snapshot", "export"].includes(actionName))
-      return res.json(await versions(client, req.body, access.actor, dataset));
+      return res.json(await versions(client, req.body, access.actor, dataset, access.role));
     if (req.body?.action === "image") {
       const { data } = req.body;
       if (typeof data !== "string" || data.length > (maxImage * 4) / 3 + 4)
@@ -128,6 +215,7 @@ export default async function handler(req, res) {
           .json({ error: "Choose a JPG, PNG or WebP under 3 MB." });
       const asset = await client.assets.upload("image", bytes, {
         contentType: mime,
+        filename: typeof req.body.name === "string" ? req.body.name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 135) : undefined,
       });
       return res.json({ url: asset.url });
     }
@@ -136,15 +224,10 @@ export default async function handler(req, res) {
       action !== "restore" &&
       (action !== "publish" ||
         !(revision === null || typeof revision === "string") ||
-        !fields ||
-        typeof fields !== "object" ||
-        Array.isArray(fields) ||
-        !Object.entries(fields).every(
-          ([key, v]) => validKey(key) && validField(v, project, dataset),
-        ))
+        !validFields(fields, project, dataset))
     )
       return res.status(400).end();
-    const result = await versions(client, req.body, access.actor, dataset);
+    const result = await versions(client, req.body, access.actor, dataset, access.role);
     if (!result.unchanged) {
       try {
         await authorize("published", { revision: action + ":" + result.id });
