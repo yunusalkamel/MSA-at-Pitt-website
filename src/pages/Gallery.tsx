@@ -1,4 +1,5 @@
 import { fall26Albums } from "@/data/fall26Albums";
+import { useDesign } from "@/design/useDesign";
 import { GalleryStories } from "@/components/recaps/RecapStories";
 import { PageHero } from "@/components/PageHero";
 import { Content, Picture, TextField, ContentScope, itemIdentity } from "@/editor/content";
@@ -127,6 +128,7 @@ const AlbumCard = ({ album, index }: { album: GalleryAlbum; index: number }) => 
 };
 
 const Gallery = () => {
+  const design = useDesign();
   usePageMeta({
     title: "Gallery — MSA at Pitt",
     description: "Iftars, kickoffs, halaqas, late-night socials — a year in the life of MSA at Pitt.",
@@ -260,7 +262,7 @@ const Gallery = () => {
         <div className="absolute inset-0 texture-dots opacity-60" />
         <div className="max-w-6xl mx-auto relative z-10 pb-4">
           <AnimatePresence mode="wait">
-            <motion.div key={activeFilter} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }} className="grid min-[360px]:grid-cols-2 gap-3 md:gap-8">
+            <motion.div data-album-layout={design.gallery} key={activeFilter} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }} className="grid min-[360px]:grid-cols-2 gap-3 md:gap-8">
               {filtered.map((album, i) => (
                 <ContentScope key={album.slug ?? album.title} id={"Gallery_15-" + itemIdentity(album, album.slug ?? album.title)}><AlbumCard key={album.slug ?? album.title} album={album} index={i} /></ContentScope>
               ))}

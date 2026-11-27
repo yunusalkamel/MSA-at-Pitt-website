@@ -4,6 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Menu, X, ArrowRight, ChevronDown, Moon, Sun } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useDesign } from "@/design/useDesign";
 import { mainMenu, resourceMenu } from "@/data/siteMenus";
 import { visualKey } from "@/editor/visual-model";
 import AnnouncementBar from "./AnnouncementBar";
@@ -27,6 +28,7 @@ const prefetchRoute = (path: string) => {
 };
 
 const Navbar = () => {
+  const design = useDesign();
   const menus = useContext(Content).fields[visualKey.menus];
   const main = menus?.kind === "menus" ? menus.main : undefined;
   const resources = menus?.kind === "menus" ? menus.resources : undefined;
@@ -112,11 +114,12 @@ const Navbar = () => {
   return (
     <nav
       ref={navRef}
+      data-design-nav={design.navigation}
       className="fixed top-0 left-0 right-0 z-50 flex flex-col pointer-events-none"
       role="navigation"
       aria-label="Main navigation"
     >
-      <AnnouncementBar />
+      {design.announcement !== "hidden" && <AnnouncementBar roomy={design.announcement === "roomy"} />}
 
       {/* Floating pill */}
       <div className="nav-shell">
@@ -138,7 +141,7 @@ const Navbar = () => {
             </Link>
 
             {/* Desktop nav */}
-            <PrayerLink/>
+            {design.prayerNav !== "link" && <PrayerLink/>}
             <div className="hidden md:flex items-center gap-6">
               {navLinks.map((link) => {
                 const isActive = link.exact

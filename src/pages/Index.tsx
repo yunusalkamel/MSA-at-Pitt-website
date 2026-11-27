@@ -1,3 +1,4 @@
+import { useDesign } from "@/design/useDesign";
 import { campusPrayerPhoto, communityPhoto, pillarPhotos } from "@/data/communityPhotos";
 import { nextGathering } from "@/lib/nextGathering";
 import { HeroPhotos, Moments } from "@/design/CommunityPhotos";
@@ -85,6 +86,7 @@ const Index = () => {
     title: "The MSA at Pitt — A Home Away From Home",
     description: "Connecting Muslim students at Pitt through faith, friendship, and service. Everyone is welcome.",
   });
+  const design = useDesign();
   const prefersReduced = useReducedMotion();
   const yearsActive = new Date().getFullYear() - 1997;
   const { data: cms } = useSanityData<any>(QUERIES.homePage);
@@ -231,7 +233,7 @@ const Index = () => {
   return (
     <Layout names={["Hero", "Stats", "Upcoming Events", "Our story", "Life with MSA", "Calendar subscription", "Prayer at Pitt", "What drives us", "Partners", "New to MSA", "Get involved"]}>
       {/* ── Hero ─────────────────────────────────────────────────── */}
-      <section data-photo-hero className="home-hero relative flex items-center justify-center overflow-hidden">
+      <section data-photo-hero data-design-framing={design.framing} data-design-texture={design.texture} className="home-hero relative flex items-center justify-center overflow-hidden">
         <motion.div className="hero-words relative z-10 text-center px-4 max-w-4xl mx-auto" initial={animateIntro && { opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
           <motion.div initial={animateIntro && { opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.45, ease: "easeOut" }} className="mb-8 flex flex-col items-center gap-3">
             <p className="font-arabic text-2xl md:text-3xl text-primary/80 tracking-wide" dir="rtl"><TextField id="Index_6">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</TextField></p>
@@ -274,7 +276,7 @@ const Index = () => {
       </section>
 
       {/* ── Stats — overlaps slightly into the warm section below ── */}
-      <section className="home-stats relative z-20">
+      <section data-design-stats={design.stats} className="home-stats relative z-20">
         <motion.div className="glass rounded-3xl max-w-3xl mx-auto grid grid-cols-3 items-stretch overflow-hidden">
           <ContentScope id="Index_15"><StatItem numericValue={d.statEventsPerSemester} suffix="+" label="Events per Semester" sub="halaqas, socials, speakers & more" bordered /></ContentScope>
           <ContentScope id="Index_16"><StatItem value={String(d.statFoundedYear)} label="Founded at Pitt" sub="community since day one" bordered /></ContentScope>

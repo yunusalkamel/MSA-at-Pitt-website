@@ -19,6 +19,7 @@ export default function SiteContent({ children }: { children: ReactNode }) {
         setFields(event.data.fields);
     };
     window.addEventListener("message", receive);
+    window.parent.postMessage({type:"msa-preview-ready"},location.origin);
     return () => window.removeEventListener("message", receive);
   }, [framed]);
   useEffect(() => {

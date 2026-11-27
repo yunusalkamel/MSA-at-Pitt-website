@@ -22,7 +22,7 @@ const TYPE_STYLES = {
 };
 
 // This is rendered INSIDE the fixed navbar so it never goes behind it
-export default function AnnouncementBar() {
+export default function AnnouncementBar({roomy = false}: {roomy?:boolean}) {
   const { fields, editing } = useContext(Content);
   const managed = getCollection(fields, "announcements");
   const { data: existing } = useSanityData<AnnouncementData>(managed ? null : QUERIES.announcement);
@@ -38,7 +38,7 @@ export default function AnnouncementBar() {
   return (
     <AnimatePresence>
       <motion.div
-        data-compact-notice
+        data-compact-notice={!roomy || undefined}
         key="ann-bar"
         initial={{ height: 0, opacity: 0 }}
         animate={{ height: "auto", opacity: 1 }}

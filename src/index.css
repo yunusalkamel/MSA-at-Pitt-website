@@ -1159,3 +1159,15 @@ img[src*="/lawn-prayer"] { object-position: center 72%; }
   [data-columns="two"] .visual-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   [data-columns="one"] .visual-grid { grid-template-columns: 1fr; }
 }
+
+[data-design-nav="solid"] .nav-pill::before, [data-design-nav="solid"] .glass.nav-resources-menu,
+[data-design-nav="bar"] .nav-pill::before, [data-design-nav="bar"] .glass.nav-resources-menu {
+  background: hsl(var(--background));
+}
+[data-design-nav="bar"] .nav-shell { padding:0; }
+[data-design-nav="bar"] .nav-pill { max-width:none;border-radius:0;padding-inline:var(--gutter); }
+[data-design-transition="seamless"] .section-divider { display:none; }
+[data-design-transition="bands"] .section-divider { min-height:var(--space-6);background:linear-gradient(transparent,hsl(var(--primary) / .12),transparent); }
+[data-album-layout="filmstrip"] { display:flex; gap:var(--space-4); overflow-x:auto; scroll-snap-type:x mandatory; }
+[data-album-layout="filmstrip"] > * { flex:0 0 min(80vw,440px); scroll-snap-align:start; }
+[data-album-layout="spotlight"] { grid-template-columns:1fr; }

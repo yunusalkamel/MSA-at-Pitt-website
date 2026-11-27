@@ -2,6 +2,7 @@ import { Children, Fragment, Suspense, isValidElement, lazy, useContext, type Re
 import { useLocation } from "react-router-dom";
 import { Content, ContentScope } from "@/editor/content";
 import { getVisualPage, isScheduled, type Presentation, type VisualSection } from "@/editor/visual-model";
+import { useDesign } from "@/design/useDesign";
 import SectionDivider from "./SectionDivider";
 
 const VisualBlock = lazy(() => import("./VisualBlock"));
@@ -23,8 +24,10 @@ function sectionName(index: number, name?: string) {
 export default function VisualSections({ children, names = [] }: { children: ReactNode; names?: string[] }) {
   const { fields, editing } = useContext(Content);
   const { pathname } = useLocation();
+  const design = useDesign();
   const page = getVisualPage(fields, pathname);
-  if (!editing && !page) return <>{children}</>;
+  const reorderHome = pathname === "/" && ["events", "story"].includes(design.order);
+  if (!editing && !page && !reorderHome) return <>{children}</>;
 
   const nodes: { id: string; label: string; node: ReactNode; dividers: ReactNode[] }[] = [];
   for (const node of Children.toArray(children)) {
@@ -37,6 +40,10 @@ export default function VisualSections({ children, names = [] }: { children: Rea
     }
   }
   const settings = page?.sections ?? [];
+  if (reorderHome && !settings.length) {
+    const target = nodes.findIndex(node => node.id === (design.order === "events" ? "upcoming-events" : "our-story"));
+    if (target > 0) nodes.splice(design.order === "events" ? 1 : 2, 0, ...nodes.splice(target,1));
+  }
   const ordered: VisualSection[] = [
     ...settings,
     ...nodes.filter(node => !settings.some(section => section.id === node.id)).map(node => ({ id: node.id })),

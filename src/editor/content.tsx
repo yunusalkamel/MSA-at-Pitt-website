@@ -1,3 +1,4 @@
+import type { DesignField } from "@/design/useDesign";
 import type { Focal, VisualPage, SiteMenus, VisualCollection } from "./visual-model";
 import { communityImageSizes } from "@/lib/communityImageSizes";
 import {
@@ -26,7 +27,7 @@ export type Field =
   | { kind: "visibility"; hidden: boolean }
   | { kind: "copies"; ids: string[] }
   | { kind: "selection"; index: number }
-  | Focal | VisualPage | SiteMenus | VisualCollection;
+  | DesignField | Focal | VisualPage | SiteMenus | VisualCollection;
 export type Fields = Record<string, Field>;
 export const Content = createContext<{ fields: Fields; editing: boolean }>({
   fields: {},

@@ -2,7 +2,7 @@ import { changes, open, seal, versions } from "../server/versions.js";
 import { validEditorLink } from "../shared/editor-links.js";
 import { createClient } from "@sanity/client";
 import { createHash } from "node:crypto";
-import { visualFields, editorKeys } from "../shared/visual-schema.js";
+import { visualFields, editorKeys, designProfiles } from "../shared/visual-schema.js";
 import { management, environment, fail } from "../server/management.js";
 
 const documentId = "website-inline-content";
@@ -17,6 +17,7 @@ const validSize = (size) =>
 function validField(value, project, dataset, key) {
   if (!value || typeof value !== "object") return false;
   if (Object.hasOwn(visualFields, value.kind)) {
+    if (value.kind === "design" && key !== editorKeys.design) return false;
     if (value.kind === "page" && (!key.startsWith(editorKeys.page) ||
       (value.path ? key !== editorKeys.page + value.id || key.slice(editorKeys.page.length).startsWith("/") : !key.slice(editorKeys.page.length).startsWith("/")))) return false;
     if (value.kind === "menus" && key !== editorKeys.menus) return false;
@@ -85,6 +86,29 @@ function publicFields(fields) {
   return fields;
 }
 
+async function designAction(client, body, access, dataset) {
+  const id = "msaPrivate.designProfiles";
+  const live = await client.getDocument(documentId);
+  const revision = live?._rev ?? null;
+  const fields = JSON.parse(live?.fieldsJson || "{}");
+  if (body.action === "design_publish") {
+    if (!visualFields.design.safeParse(body.design).success) throw fail(400, "Choose valid design options.");
+    fields[editorKeys.design] = body.design;
+    return versions(client, {action:"publish", revision:body.revision, fields}, access.actor, dataset, access.role);
+  }
+  const doc = await client.getDocument(id);
+  const profileRevision = doc?._rev ?? null;
+  if (body.action === "design_load") {
+    return { revision, profileRevision, fields, profiles:doc?.payload ? open(doc.payload) : [] };
+  }
+  if (!designProfiles.safeParse(body.profiles).success) throw fail(400, "Choose unique valid preset names and options.");
+  if (profileRevision !== body.profileRevision) throw fail(409, "Saved presets changed in another tab. Reload Design.");
+  const payload = seal(body.profiles);
+  const updated = doc ? await client.patch(id).ifRevisionId(profileRevision).set({payload}).commit()
+    : await client.create({_id:id,_type:"msaDesignProfiles",payload});
+  return {profileRevision:updated._rev};
+}
+
 async function draftAction(client, body, actor) {
   const id = "msaPrivate.editorDraft." + createHash("sha256").update(actor.toLowerCase()).digest("hex");
   const [current, draft] = await Promise.all([client.getDocument(documentId), client.getDocument(id)]);
@@ -148,6 +172,9 @@ export default async function handler(req, res) {
         "draft_save",
         "draft_clear",
         "media",
+        "design_load",
+        "design_save",
+        "design_publish",
       ].includes(actionName)
     )
       return res.status(400).end();
@@ -163,6 +190,9 @@ export default async function handler(req, res) {
         draft_save: "session",
         draft_clear: "session",
         media: "session",
+        design_load: "owner_session",
+        design_save: "owner_session",
+        design_publish: "owner_session",
       }[actionName] || actionName,
     );
     if (actionName === "session")
@@ -177,6 +207,16 @@ export default async function handler(req, res) {
       ...config,
       token: process.env.SANITY_EDITOR_TOKEN,
     });
+    if (actionName.startsWith("design_")) {
+      if (access.role !== "owner") throw fail(403, "Only owners can manage site design.");
+      if (actionName === "design_publish") await authorize("publish");
+      const result = await designAction(client, req.body, access, dataset);
+      if (actionName === "design_publish" && !result.unchanged) {
+        try { await authorize("published", {revision:"design:" + result.id}); }
+        catch { result.warning = "Design published. The activity feed could not be updated."; }
+      }
+      return res.json(result);
+    }
     if (actionName.startsWith("draft_")) {
       if (actionName === "draft_save" && (!validFields(req.body.fields, project, dataset) ||
         Buffer.byteLength(JSON.stringify(req.body.fields)) > 2000000))

@@ -4,8 +4,8 @@ Base: main at 3261bf2, including PR #59. Ship through one isolated preview and p
 
 - [x] Capture baseline build and cross-reference recap dates with the MSA calendars.
 - [x] Simplify the Home gallery, add Fall '26 albums, hide classification filters, and fix navigation and Prayer presentation.
-- [ ] Add visual structure, reusable pages and content blocks, private drafts, publishing, and collection editing.
-- [ ] Port PR #55 design controls to the owner dashboard and publish through the existing version store.
+- [x] Add visual structure, reusable pages and content blocks, private drafts, publishing, and collection editing.
+- [x] Port PR #55 design controls to the owner dashboard and publish through the existing version store.
 - [ ] Extend analytics and add consent-aware Clarity, provider controls, and verification.
 - [ ] Audit mobile before and after, verify management authorization, and publish the consolidated preview.
 

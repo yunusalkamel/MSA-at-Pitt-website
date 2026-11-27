@@ -1,3 +1,4 @@
+import { designChoices } from "./design-options.js";
 import { z } from "zod";
 import { validEditorLink } from "./editor-links.js";
 
@@ -41,7 +42,14 @@ const section = z.object({
   presentation: presentation.optional(),
 }).strict();
 
+export const optionsSchema = z.record(z.string()).refine(options => Object.entries(options).every(
+  ([key,value]) => Object.hasOwn(designChoices,key) && Object.hasOwn(designChoices[key].choices,value),
+));
+export const designProfiles = z.array(z.object({
+  name: z.string().trim().min(1).max(70), options: optionsSchema,
+}).strict()).max(20).refine(values => unique(values, "name"));
 export const visualFields = {
+  design: z.object({kind:z.literal("design"),options:optionsSchema}).strict(),
   selection: z.object({kind:z.literal("selection"), index:z.number().int().min(0).max(31)}).strict(),
   focal: z.object({ kind: z.literal("focal"), x: z.number().min(0).max(100), y: z.number().min(0).max(100) }).strict(),
   page: z.object({

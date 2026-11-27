@@ -52,9 +52,9 @@ const ScrollToTop = () => {
 };
 
 const App = () => (
-  <ThemeProvider>
-        <BrowserRouter basename={adminPath ? "/admin" : "/"}>
+  <BrowserRouter basename={adminPath ? "/admin" : "/"}>
           <SiteContent>
+          <ThemeProvider>
           <ScrollToTop />
           <Suspense fallback={<AppLoader />}>
             <Routes>
@@ -78,10 +78,10 @@ const App = () => (
               <Route path="*" element={<VisualPage />} />
             </Routes>
           </Suspense>
+          </ThemeProvider>
           </SiteContent>
           {publicProduction && <><SpeedInsights beforeSend={sanitize}/><Analytics beforeSend={sanitize}/></>}
-        </BrowserRouter>
-  </ThemeProvider>
+  </BrowserRouter>
 );
 
 export default App;
