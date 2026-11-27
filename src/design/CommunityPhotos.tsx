@@ -53,7 +53,7 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
   const sources = useRef(fields);
   sources.current = fields;
   const reduced = useReducedMotion();
-  const parallax = useHeroParallax();
+  const parallax = useHeroParallax(phone ? 120 : 48);
   const wall = useRef<HTMLDivElement>(null);
   const last = useRef(-1);
   const changes = useRef(0);
@@ -164,17 +164,17 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
     if (still || paused || reduced || !visible || !tabVisible) return;
     let timer: number;
     const schedule = () => {
-      const wait = ((changes.current ? 0 : 5000) + (phone ? 1800 + Math.random() * 900 : 1600 + Math.random() * 700)) * (design.rotation === "slow" || fullPhoto ? 2 : 1);
+      const interval = changes.current
+        ? (phone ? 1000 + Math.random() * 500 : 800 + Math.random() * 400)
+        : 250 + Math.random() * 250;
+      const wait = interval * (design.rotation === "slow" || fullPhoto ? 2 : 1);
       timer = window.setTimeout(async () => {
         await advance();
         if (epoch.current === activeEpoch) schedule();
       }, wait);
     };
     const activeEpoch = ++epoch.current;
-    const images = Array.from(wall.current?.querySelectorAll("img") ?? []);
-    void Promise.allSettled(images.map(image => image.decode())).then(() => {
-      if (epoch.current === activeEpoch) schedule();
-    });
+    schedule();
     return () => { epoch.current++; window.clearTimeout(timer); };
   }, [paused, reduced, visible, tabVisible, phone, still, design.rotation, fullPhoto]);
 
