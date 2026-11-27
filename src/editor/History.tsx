@@ -47,6 +47,7 @@ function Value({ field }: { field: Fields[string] | undefined }) {
     );
   if (field.kind === "copies") return <p>{field.ids.length} duplicate cards</p>;
   if (field.kind === "design") return <p>{Object.keys(field.options).length} design options override the production default.</p>;
+  if (field.kind === "order") return <p>{field.ids.length} cards in this order</p>;
   if (field.kind === "selection") return <p>Selected photo {field.index + 1}</p>;
   if (field.kind === "focal") return <p>Crop position {field.x}% across, {field.y}% down</p>;
   if (field.kind === "page") return <p>{field.title} · {field.sections.length} sections · {field.blocks.length} components</p>;

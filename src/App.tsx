@@ -58,9 +58,9 @@ const App = () => (
               <Route path="*" element={<VisualPage />} />
             </Routes>
           </Suspense>
+          <AnalyticsGate/>
           </ThemeProvider>
           </SiteContent>
-          <AnalyticsGate/>
   </BrowserRouter>
 );
 

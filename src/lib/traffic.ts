@@ -5,11 +5,13 @@ let page: string | null = null,
   measured = 0,
   scrolled = false,
   started = false;
+let campaignPath: string | null = null;
+const measuredPath = (path:string) => safePage(path) ?? (path === campaignPath ? path : null);
 function send(event: string, eventKey?: string) {
   if (
     !page ||
     (document.visibilityState !== "visible" && event!=="page_exit" && event!=="reading_time") ||
-    page !== safePage(location.pathname) ||
+    page !== measuredPath(location.pathname) ||
     localStorage.getItem("msa-analytics") !== "yes"
   )
     return;
@@ -139,7 +141,8 @@ function scroll() {
     send("scroll_90");
   }
 }
-export function visit(path: string) {
+export function visit(path: string, campaign = false) {
+  campaignPath = campaign ? path : null;
   if (!started) {
     started = true;
     document.addEventListener("click", click, { capture: true, passive: true });
@@ -150,7 +153,7 @@ export function visit(path: string) {
     window.addEventListener("pagehide",()=>{if(!measured)measured=Date.now();send("page_exit");});
     window.addEventListener("scroll", scroll, { passive: true });
   }
-  const next = safePage(path);
+  const next = measuredPath(path);
   if (next === page) return;
   previous = page;
   page = next;

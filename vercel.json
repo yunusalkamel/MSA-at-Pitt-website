@@ -1,8 +1,68 @@
 {
   "headers": [
-    { "source": "/assets/:asset*", "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }] },
-    { "source": "/admin/:path*", "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }] },
-    { "source": "/owner/:path*", "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }] }
+    {
+      "source": "/assets/:asset*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/photos/:path*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, stale-while-revalidate=604800"
+        }
+      ]
+    },
+    {
+      "source": "/admin/:path*",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/owner/:path*",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    }
   ],
-  "rewrites": [{ "source": "/((?!api/|_vercel).*)", "destination": "/index.html" }]
+  "rewrites": [
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(facebookexternalhit|Facebot|Twitterbot|LinkedInBot|Discordbot|Slackbot-LinkExpanding).*"
+        }
+      ],
+      "destination": "/api/share"
+    },
+    {
+      "source": "/:path((?!api/|admin/|owner/|auth/|photos/|assets/|_vercel/)[a-z0-9-]+(?:/[a-z0-9-]+)*)",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(facebookexternalhit|Facebot|Twitterbot|LinkedInBot|Discordbot|Slackbot-LinkExpanding).*"
+        }
+      ],
+      "destination": "/api/share?path=:path*"
+    },
+    {
+      "source": "/((?!api/|_vercel).*)",
+      "destination": "/index.html"
+    }
+  ]
 }

@@ -107,6 +107,8 @@ export async function versions(client, body, actor, dataset, role = "owner") {
       revision: live?._rev ?? null,
       exportedAt: new Date().toISOString(),
       fields: before,
+      designPresets: await client.getDocument("msaPrivate.designProfiles")
+        .then(doc => doc?.payload ? open(doc.payload) : []),
       documents: await client.fetch(
         '*[_type in $types && !(_id in path("drafts.**")) && !(_id in path("versions.**"))]',
         {

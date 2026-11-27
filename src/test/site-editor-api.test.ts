@@ -3,6 +3,7 @@ import handler from "../../api/site-editor.js";
 
 const services = vi.hoisted(() => ({
   getUser: vi.fn(),
+  getDocument: vi.fn(),
   create: vi.fn(),
   upload: vi.fn(),
   rpc: vi.fn(),
@@ -15,12 +16,12 @@ vi.mock("@supabase/supabase-js", () => ({
 }));
 vi.mock("@sanity/client", () => ({
   createClient: () => ({
-    getDocument: async()=>null,
+    getDocument: services.getDocument,
     transaction:()=>({create(){return this;},commit:services.create}),
     assets: { upload: services.upload },
   }),
 }));
-function call(body: object, token = "test") {
+function call(body: object, token = "test", method = "POST") {
   const res = {
     statusCode: 200,
     setHeader: vi.fn(),
@@ -33,7 +34,7 @@ function call(body: object, token = "test") {
   };
   return handler(
     {
-      method: "POST",
+      method,
       body,
       headers: { authorization: token ? "Bearer " + token : "" },
     },
@@ -41,7 +42,8 @@ function call(body: object, token = "test") {
   ).then(() => res);
 }
 beforeEach(() => {
-  vi.clearAllMocks();
+  vi.resetAllMocks();
+  services.getDocument.mockResolvedValue(null);
   vi.stubEnv("MSA_MANAGEMENT_KEY", "private-test");
   vi.stubEnv("VITE_SUPABASE_URL", "https://test.example");
   vi.stubEnv("VITE_SUPABASE_PUBLISHABLE_KEY", "public-test");
@@ -105,4 +107,43 @@ it("validates link destinations before writing published content", async () => {
     200,
   );
   expect(services.create).toHaveBeenCalledTimes(1);
+});
+
+
+it("keeps drafts, scheduled announcements, and their inline content out of public responses", async () => {
+  services.getDocument.mockResolvedValue({
+    _rev: "current",
+    fieldsJson: JSON.stringify({
+      "shared/visual/page/secret": {kind:"page",id:"secret",title:"Internal draft",path:"/secret",template:"campaign",visibility:"draft",sections:[],blocks:[]},
+      "/secret/title": {kind:"text",runs:[{text:"Private copy"}]},
+      "shared/visual/page/live": {kind:"page",id:"live",title:"Published page",path:"/campaign",template:"campaign",visibility:"published",sections:[],blocks:[]},
+      "shared/visual/collection/announcements": {kind:"collection",type:"announcements",items:[
+        {id:"now",title:"Live announcement"},
+        {id:"future",title:"Scheduled copy",starts:"2099-01-01T12:00:00.000Z"},
+      ]},
+    }),
+  });
+  const response = await call({}, "", "GET");
+  const [snapshot] = response.json.mock.calls[0];
+  expect(Object.keys(snapshot.fields)).toEqual(["shared/visual/page/live","shared/visual/collection/announcements"]);
+  expect(snapshot.fields["shared/visual/collection/announcements"].items.map(item=>item.id)).toEqual(["now"]);
+});
+
+it("requires authentication for drafts and media and owner authority for design publishing", async () => {
+  for (const action of ["draft_load","draft_save","media","design_load"])
+    expect((await call({action}, "")).statusCode).toBe(401);
+  services.rpc.mockResolvedValue({data:{role:"admin",environment:"preview"}});
+  expect((await call({action:"design_publish",design:{kind:"design",options:{}}})).statusCode).toBe(403);
+  expect((await call({action:"publish",revision:null,fields:{
+    "shared/visual/design":{kind:"design",options:{hero:"single"}},
+  }})).statusCode).toBe(403);
+  expect(services.create).not.toHaveBeenCalled();
+});
+
+it("rejects unsupported design choices and malformed crop coordinates", async () => {
+  expect((await call({action:"design_publish",revision:null,design:{kind:"design",options:{hero:"inject-style"}}})).statusCode).toBe(400);
+  expect((await call({action:"publish",revision:null,fields:{
+    "/resources/prayer/photo/focal":{kind:"focal",x:50,y:101},
+  }})).statusCode).toBe(400);
+  expect(services.create).not.toHaveBeenCalled();
 });

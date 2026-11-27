@@ -135,7 +135,7 @@ const Navbar = () => {
               to="/" aria-label="MSA at Pitt home"
               className="flex shrink-0 items-center gap-2 font-body font-extrabold text-sm md:text-lg tracking-wide hover:opacity-80 transition-opacity rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-msa-gold/60 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
             >
-              <img src="/photos/brand/msa-logo.webp" width={32} height={32} className="w-8 h-8" alt="" />
+              <img src="/photos/brand/msa-logo-32.webp" srcSet="/photos/brand/msa-logo-32.webp 1x, /photos/brand/msa-logo-64.webp 2x" width={32} height={32} className="w-8 h-8" alt="" />
               <span className="hidden whitespace-nowrap min-[350px]:inline"><span className="text-jannah-mid dark:text-jannah-light"><TextField id="Navbar_1">MSA</TextField></span>{" "}
               <span className="text-msa-blue dark:text-white/90"><TextField id="Navbar_2">at Pitt</TextField></span></span>
             </Link>

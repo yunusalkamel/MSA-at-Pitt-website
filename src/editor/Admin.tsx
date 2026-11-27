@@ -11,7 +11,7 @@ import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { Content, type Fields, type Field } from "./content";
 import { type Snapshot } from "./SiteContent";
-import VisualPanels, { type EditorPanel } from "./VisualPanels";
+import VisualPanels, { moveItem, OrderButtons, type EditorPanel } from "./VisualPanels";
 import VisualPreview, { type Device } from "./VisualPreview";
 import MediaLibrary, { uploadMedia } from "./MediaLibrary";
 import { builtInPages, customPages } from "./visual-model";
@@ -54,6 +54,9 @@ function Editor({
   const [notice, setNotice] = useState(""),
     [active, setActive] = useState(false),
     [card, setCard] = useState<{ key: string; scope: string } | null>(null);
+  const [orderGroup, setOrderGroup] = useState<string>();
+  const [showCardOrder,setShowCardOrder] = useState(false);
+  const [draggedCard,setDraggedCard] = useState(-1);
   const [link, setLink] = useState<{ key: string; url: string } | null>(null);
   const [preview, setPreview] = useState<Fields | null>(null);
   const [picture, setPicture] = useState<{ key: string; alt: string; position?: string; cover?: {key:string; index:number; current:number} } | null>(null);
@@ -108,6 +111,8 @@ function Editor({
     setLink(null);
     setPicture(null);
     setPicking(undefined);
+    setOrderGroup(undefined);
+    setShowCardOrder(false);
     selectSection("");
   }, [pathname, editing]);
   const dirty = base && fields !== base.fields;
@@ -158,6 +163,8 @@ function Editor({
       const section = el.closest<HTMLElement>("[data-visual-section]");
       if (section) selectSection(section.dataset.visualSection!);
       const parent = el.closest<HTMLElement>("[data-edit-card]");
+      if (parent?.dataset.cardOrderKey !== orderGroup) setShowCardOrder(false);
+      setOrderGroup(parent?.dataset.cardOrderKey);
       setCard(
         parent
           ? { key: parent.dataset.editCard!, scope: parent.dataset.copyScope! }
@@ -229,7 +236,7 @@ function Editor({
       document.removeEventListener("dragover", drop, true);
       document.removeEventListener("drop", drop, true);
     };
-  }, [editing, base, busy, session, history, preview]);
+  }, [editing, base, busy, session, history, preview, orderGroup]);
   function duplicate() {
     if (!card) return;
     finish.current?.();
@@ -366,6 +373,21 @@ function Editor({
       setBusy(false);
     }
   }
+  const cardNodes = showCardOrder && orderGroup
+    ? [...document.querySelectorAll<HTMLElement>("[data-card-order-key]")].filter(node => node.dataset.cardOrderKey === orderGroup)
+    : [];
+  const ordered = fields[orderGroup];
+  if (ordered?.kind === "order") cardNodes.sort((a,b) => {
+    const at = (el: HTMLElement) => {
+      const index = ordered.ids.indexOf(el.dataset.cardOrderId);
+      return index === -1 ? Number.MAX_SAFE_INTEGER : index;
+    };
+    return at(a) - at(b);
+  });
+  const moveCard = (from:number,to:number) => {
+    finish.current?.();
+    field(orderGroup,{kind:"order",ids:moveItem(cardNodes.map(el=>el.dataset.cardOrderId),from,to)});
+  };
   return (
     <Content.Provider
       value={{
@@ -398,7 +420,19 @@ function Editor({
         </div>
       )}
       {device && <VisualPreview fields={fields} path={pathname} device={device} onClose={() => setDevice(undefined)} />}
-      {!preview && panel && !picking && <VisualPanels panel={panel} close={() => setPanel(undefined)} fields={fields}
+      {!preview && editing && showCardOrder && <aside className="msa-editor-panel msa-tools-surface" aria-label="Card order">
+        <header><strong>Card order</strong><button onClick={()=>setShowCardOrder(false)}>Close</button></header>
+        <ol className="msa-structure-list">{cardNodes.map((node,index)=><li key={node.dataset.cardOrderId}
+          onDragOver={event=>{if(draggedCard >= 0) event.preventDefault();}}
+          onDrop={event=>{if(draggedCard<0)return;event.preventDefault();moveCard(draggedCard,index);setDraggedCard(-1);}}>
+          <span className="msa-drag-handle" draggable title="Drag card" onDragStart={event=>{
+            event.dataTransfer.setData("text/plain",node.dataset.cardOrderId);setDraggedCard(index);
+          }} onDragEnd={()=>setDraggedCard(-1)}>⠿</span>
+          <span>{node.dataset.cardOrderLabel}</span>
+          <OrderButtons name={node.dataset.cardOrderLabel} index={index} total={cardNodes.length} move={to=>moveCard(index,to)}/>
+        </li>)}</ol>
+      </aside>}
+      {!preview && panel && !picking && !showCardOrder && <VisualPanels panel={panel} close={() => setPanel(undefined)} fields={fields}
         change={(key,value) => {
           finish.current?.();
           const next = {...draft.current};
@@ -565,6 +599,9 @@ function Editor({
               </button>
             </>
           )}
+          {card && editing && orderGroup && <button type="button" onClick={() => {
+            finish.current?.(); setPanel(undefined);setShowCardOrder(value=>!value);
+          }}>Reorder cards</button>}
           {link && editing && (
             <button disabled={busy} onClick={editLink}>
               Edit link destination

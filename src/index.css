@@ -5,42 +5,42 @@
 /* ── Local font-face declarations ─────────────────────────────────── */
 @font-face {
   font-family: 'Satoshi';
-  src: url('/satoshi/Satoshi-Regular.otf') format('opentype');
+  src: url('/satoshi/Satoshi-Regular.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Satoshi';
-  src: url('/satoshi/Satoshi-Italic.otf') format('opentype');
+  src: url('/satoshi/Satoshi-Italic.woff2') format('woff2');
   font-weight: 400;
   font-style: italic;
   font-display: swap;
 }
 @font-face {
   font-family: 'Satoshi';
-  src: url('/satoshi/Satoshi-Medium.otf') format('opentype');
+  src: url('/satoshi/Satoshi-Medium.woff2') format('woff2');
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Satoshi';
-  src: url('/satoshi/Satoshi-MediumItalic.otf') format('opentype');
+  src: url('/satoshi/Satoshi-MediumItalic.woff2') format('woff2');
   font-weight: 500;
   font-style: italic;
   font-display: swap;
 }
 @font-face {
   font-family: 'Satoshi';
-  src: url('/satoshi/Satoshi-Bold.otf') format('opentype');
+  src: url('/satoshi/Satoshi-Bold.woff2') format('woff2');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Satoshi';
-  src: url('/satoshi/Satoshi-BoldItalic.otf') format('opentype');
+  src: url('/satoshi/Satoshi-BoldItalic.woff2') format('woff2');
   font-weight: 700;
   font-style: italic;
   font-display: swap;

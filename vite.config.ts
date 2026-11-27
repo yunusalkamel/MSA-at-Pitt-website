@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { getSiteOrigin } from "./shared/site-origin.js";
+import { recaps } from "./src/data/recaps";
 import { daylightWall, eveningWall } from "./src/data/communityPhotos";
 import { communityImageSizes } from "./src/lib/communityImageSizes";
 
@@ -40,15 +41,23 @@ export default defineConfig({
           const routes = {
             "/": [asset("Index"), layout],
             "/resources/prayer": [asset("Prayer"), layout],
+            "/gallery": [asset("Gallery"), layout, asset("RecapStories")],
           };
-          const phonePhotos = [daylightWall[0], eveningWall[0]].map((id) => ({
+          const phonePhotos = [daylightWall, eveningWall].map(list=>list.slice(0,4).map((id) => ({
             href: `/photos/community/${id}-320.webp`,
-            srcset: communityImageSizes(`/photos/community/${id}.webp`),
-          }));
+            srcset: communityImageSizes(`/photos/community/${id}.webp`,true),
+          })));
           return [{
             tag: "script",
             injectTo: "head",
             children: `
+              if (location.pathname === "/gallery" && matchMedia("(width < 768px)").matches) {
+                const cover = document.createElement("link");
+                cover.rel = "preload";
+                cover.as = "image";
+                cover.href = ${JSON.stringify(recaps[0].cover.replace("cover.webp", "preview.webp"))};
+                document.head.append(cover);
+              }
               for (const file of (${JSON.stringify(routes)}[location.pathname] || [])) {
                 if (!file) continue;
                 const link = document.createElement("link");
@@ -59,15 +68,16 @@ export default defineConfig({
               }
               if (location.pathname === "/" && matchMedia("(width < 768px)").matches) {
                 const dark = document.documentElement.classList.contains("dark");
-                const photo = ${JSON.stringify(phonePhotos)}[Number(dark)];
-                const link = document.createElement("link");
-                link.rel = "preload";
-                link.as = "image";
-                link.fetchPriority = "high";
-                link.href = photo.href;
-                link.imageSrcset = photo.srcset;
-                link.imageSizes = "50vw";
-                document.head.append(link);
+                for (const photo of ${JSON.stringify(phonePhotos)}[Number(dark)]) {
+                  const link = document.createElement("link");
+                  link.rel = "preload";
+                  link.as = "image";
+                  link.fetchPriority = "high";
+                  link.href = photo.href;
+                  link.imageSrcset = photo.srcset;
+                  link.imageSizes = "50vw";
+                  document.head.append(link);
+                }
               }
             `,
           }];

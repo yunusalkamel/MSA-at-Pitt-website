@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { footerInvolved, footerCampus } from "@/data/siteMenus";
 import { visualKey } from "@/editor/visual-model";
-import { consentGiven, consentKey, productionPublic } from "@/lib/analyticsPolicy";
+import { clarityConsentKey, consentGiven, consentKey, productionPublic } from "@/lib/analyticsPolicy";
 import { LinkField, ContentScope, Picture, TextField, Content } from "@/editor/content";
 import { Link } from "react-router-dom";
 import { Instagram, Facebook } from "lucide-react";
@@ -141,10 +141,15 @@ const Footer = () => {
           {productionPublic && <button onClick={()=>{
             const enabled=consentGiven();
             localStorage.setItem(consentKey,enabled?"no":"yes");
-            if(enabled) window.clarity?.("consentv2",{analytics_Storage:"denied",ad_Storage:"denied"});
             if(enabled){localStorage.removeItem("msa-visitor");sessionStorage.removeItem("msa-visit");sessionStorage.removeItem("msa-last");}
             location.reload();
           }}>{consentGiven()?"Turn off optional analytics":"Allow optional analytics"}</button>}
+          {productionPublic && <button className="ml-3" onClick={()=>{
+            const enabled = consentGiven(clarityConsentKey);
+            localStorage.setItem(clarityConsentKey,enabled?"no":"yes");
+            if(enabled) window.clarity?.("consentv2",{analytics_Storage:"denied",ad_Storage:"denied"});
+            location.reload();
+          }}>{consentGiven(clarityConsentKey)?"Turn off session recordings":"Allow session recordings"}</button>}
         </details>
         {/* ── Copyright ── */}
         <p className="text-center font-body text-xs" style={{ color: "rgba(255,255,255,.22)" }}>

@@ -2,7 +2,7 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import { productionPublic } from "@/lib/analyticsPolicy";
 
 const PublicAnalytics = lazy(() => import("./PublicAnalytics"));
-const defaults = {enabled:false,clarity:false,vercel:true,speed:true};
+const defaults = {enabled:false,clarity:false,vercel:false,speed:false};
 
 export default function AnalyticsGate() {
   const [settings,setSettings] = useState<typeof defaults>();

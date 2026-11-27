@@ -79,9 +79,9 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
     const legacy = slot === 0 ? sources.current["//Index_4"] : undefined;
     const custom = selected?.kind === "image" ? selected : legacy?.kind === "image" ? legacy : undefined;
     if (custom) {
-      return { src: custom.url, srcSet: communityImageSizes(custom.url) || sanityImageSrcSet(custom.url, 720) };
+      return { src: custom.url, srcSet: communityImageSizes(custom.url,phone && !fullPhoto) || sanityImageSrcSet(custom.url,phone && !fullPhoto ? 480 : 720) };
     }
-    const variants = communityImageSizes(photo.src);
+    const variants = communityImageSizes(photo.src,phone && !fullPhoto);
     if (managed) return {src:photo.src,srcSet:variants || sanityImageSrcSet(photo.src,1920)};
     return { src: photo.src.replace(".webp", "-320.webp"), srcSet: variants };
   }
@@ -158,7 +158,7 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
     if (still || paused || reduced || !visible || !tabVisible) return;
     let timer: number;
     const schedule = () => {
-      const wait = (phone ? 1800 + Math.random() * 900 : 1600 + Math.random() * 700) * (design.rotation === "slow" || fullPhoto ? 2 : 1);
+      const wait = ((changes.current ? 0 : 5000) + (phone ? 1800 + Math.random() * 900 : 1600 + Math.random() * 700)) * (design.rotation === "slow" || fullPhoto ? 2 : 1);
       timer = window.setTimeout(async () => {
         await advance();
         if (epoch.current === activeEpoch) schedule();
@@ -191,7 +191,7 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
                 const incoming = !!previous && !outgoing;
                 return <Picture key={id} fieldId={prefix + id} fallbackFieldIds={index === 0 ? ["Index_4"] : undefined}
                   {...source(id, index)} sizes={sizes} alt="" decoding="async" width={720} height={450}
-                  {...(index === 0 && !outgoing ? { fetchpriority: "high" } : {})}
+                  {...(!previous ? {fetchpriority: index < (phone ? 4 : 1) ? "high" : "low"} : {})}
                   style={{ objectPosition: managedPhotos.has(id) ? "50% 38%" : communityPhoto(id as PhotoId).focus }}
                   className={outgoing ? "wall-previous" : incoming ? "wall-incoming" : undefined}
                   onAnimationEnd={incoming ? () => finish(index, previous, false) : undefined}

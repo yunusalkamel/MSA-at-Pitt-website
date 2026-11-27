@@ -1,3 +1,4 @@
+import { CardOrderContext } from "./CardOrder";
 import type { DesignField } from "@/design/useDesign";
 import type { Focal, VisualPage, SiteMenus, VisualCollection } from "./visual-model";
 import { communityImageSizes } from "@/lib/communityImageSizes";
@@ -27,6 +28,7 @@ export type Field =
   | { kind: "visibility"; hidden: boolean }
   | { kind: "copies"; ids: string[] }
   | { kind: "selection"; index: number }
+  | { kind: "order"; ids: string[] }
   | DesignField | Focal | VisualPage | SiteMenus | VisualCollection;
 export type Fields = Record<string, Field>;
 export const Content = createContext<{ fields: Fields; editing: boolean }>({
@@ -184,6 +186,7 @@ export function CardCopies({
 }) {
   const key = useField(id),
     { fields, editing } = useContext(Content);
+  const order = useContext(CardOrderContext);
   const entry = fields[key],
     ids = ["original", ...(entry?.kind === "copies" ? entry.ids : [])];
   return (
@@ -200,6 +203,9 @@ export function CardCopies({
                 style={{ display: "contents" }}
                 data-edit-card={key}
                 data-copy-scope={id + "@" + instance}
+                data-card-order-key={instance === "original" ? order?.key : undefined}
+                data-card-order-id={instance === "original" ? order?.id : undefined}
+                data-card-order-label={instance === "original" ? order?.label : undefined}
               >
                 {hidden ? <button type="button">Hidden card · select to show</button> : children}
               </span>

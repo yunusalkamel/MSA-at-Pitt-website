@@ -76,8 +76,8 @@ function publicFields(fields) {
       privatePaths.push(value.path + "/");
       delete fields[key];
     }
-    if (value.kind === "page") value.blocks = value.blocks.filter(block => live(block));
-    if (value.kind === "collection" && value.type === "announcements")
+    if (value.kind === "page") value.blocks = value.blocks.filter(block => !block.hidden && live(block));
+    if (value.kind === "collection")
       value.items = value.items.filter(item => !item.hidden && live(item));
   }
   for (const key of Object.keys(fields)) {

@@ -1,10 +1,10 @@
-import { clarityId, clarityPage, consentGiven } from "./analyticsPolicy";
+import { clarityId, clarityPage, clarityConsentKey, consentGiven } from "./analyticsPolicy";
 
 type Clarity = ((...args: unknown[]) => void) & { q?: unknown[][] };
 declare global { interface Window { clarity?: Clarity } }
 
 export function startClarity() {
-  if (window.clarity || !clarityPage(location) || !consentGiven() || !/^[a-z0-9]{8,20}$/.test(clarityId)) return;
+  if (window.clarity || !clarityPage(location) || !consentGiven(clarityConsentKey) || !/^[a-z0-9]{8,20}$/.test(clarityId)) return;
   const clarity: Clarity = (...args) => { (clarity.q ??= []).push(args); };
   window.clarity = clarity;
   // Record interactions and document structure, with page text and personal fields masked.

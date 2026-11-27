@@ -1,4 +1,5 @@
 import { getSiteOrigin, isSiteOrigin } from "../shared/site-origin.js";
+import { isCampaign } from "../server/campaigns.js";
 import { analyticsSettings } from "../server/analytics-settings.js";
 import { publicPages, interactions } from "../shared/traffic.js";
 export default async function handler(req, res) {
@@ -25,7 +26,7 @@ export default async function handler(req, res) {
     eventKey,
   } = req.body || {};
   if (
-    ![...publicPages, "/gallery/album"].includes(page) ||
+    typeof page !== "string" || page.length > 97 ||
     !interactions.includes(event) ||
     !/^\d{1,10}\.\d{1,10}$/.test(visitor) ||
     !Number.isSafeInteger(session) ||
@@ -40,6 +41,8 @@ export default async function handler(req, res) {
       !(await analyticsSettings()).enabled
     )
       return res.status(204).end();
+    const builtIn = [...publicPages, "/gallery/album"];
+    if (!builtIn.includes(page) && !(await isCampaign(page))) return res.status(400).end();
     const origin = getSiteOrigin(process.env.SITE_ORIGIN, process.env.VERCEL_PROJECT_PRODUCTION_URL);
     const params = {
       page_location: origin + page,
@@ -49,7 +52,7 @@ export default async function handler(req, res) {
         Math.min(1800000, Number(engagement) || 1),
       ),
     };
-    if (publicPages.includes(previous))
+    if (builtIn.includes(previous) || (previous && await isCampaign(previous)))
       params.page_referrer = origin + previous;
     else if (
       [
