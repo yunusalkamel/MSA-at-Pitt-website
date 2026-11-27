@@ -1,3 +1,4 @@
+import { fall26Albums } from "@/data/fall26Albums";
 import { PageHero } from "@/components/PageHero";
 import { communityAlbums } from "@/data/communityPhotos";
 import { Picture, ContentScope, TextField, itemIdentity } from "@/editor/content";
@@ -32,7 +33,7 @@ interface AlbumData {
 
 export default function GalleryAlbumPage() {
   const { slug } = useParams<{ slug: string }>();
-  const local = communityAlbums.find(a => a.slug === slug);
+  const local = [...communityAlbums, ...fall26Albums].find(a => a.slug === slug);
   return local ? <GalleryAlbum key={slug} album={local} loading={false}/> : <RemoteAlbum key={slug} slug={slug ?? ""}/>;
 }
 

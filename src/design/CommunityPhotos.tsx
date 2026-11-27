@@ -10,7 +10,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { communityImageSizes } from "@/lib/communityImageSizes";
 import { sanityImageSrcSet } from "@/lib/sanityImageVariants";
 import {
-  albumCaption, communityAlbums, communityPhoto, daylightWall, eveningWall, wallCaption, type PhotoId,
+  communityPhoto, daylightWall, eveningWall, wallCaption, type PhotoId,
 } from "@/data/communityPhotos";
 
 type Tile = { photo: PhotoId; previous?: PhotoId };
@@ -200,89 +200,14 @@ export function HeroPhotos() {
   </div>;
 }
 
-export type RecapAlbum = {
-  slug: string;
-  title: string;
-  eventDate?: string;
-  shots?: { src: string; caption?: string }[];
-};
-function recapSrc(src: string, width: number) {
-  if (!src.startsWith("https://cdn.sanity.io/images/")) return src;
-  const url = new URL(src);
-  url.searchParams.set("w", String(width));
-  url.searchParams.set("auto", "format");
-  return url.href;
-}
-export function Moments({
-  galleryLink = true,
-  albums = [],
-}: {
-  galleryLink?: boolean;
-  albums?: RecapAlbum[];
-}) {
-  const [selected, setSelected] = useState("");
-  const series = [...albums.filter(a => a.shots?.some(p => p.src)), ...communityAlbums].slice(0, 4);
-  const album = series.find((a) => a.slug === selected) ?? series[0];
-  const legacyScope = album.slug ? "Index_64-" + album.slug : "Index_66-" + album.title;
-  const legacyField = (id: string) => "//" + encodeURIComponent(legacyScope) + "/" + id;
-  const shots =
-    album?.shots
-      ?.filter((p) => p.src)
-      .map((p, i) => ({
-        id: album.slug + "-" + i,
-        src: p.src,
-        title: albumCaption(album),
-        description: p.caption || album.title,
-      })) ?? [];
+export function Moments() {
   return (
     <section className="moment-section recap-gallery">
       <div className="moment-heading">
-        <div>
-          {galleryLink && <small className="eyebrow"><TextField id="Index_59">Our Gallery</TextField></small>}
-          <h2>{galleryLink ? <TextField id="Index_60">Life with MSA</TextField> : "Life with MSA"}</h2>
-        </div>
-        {galleryLink && <Link to="/gallery"><TextField id="Index_61">Explore the gallery</TextField> →</Link>}
+        <h2><TextField id="Index_60">Life with MSA</TextField></h2>
+        <Link to="/gallery"><TextField id="Index_61">Explore the gallery</TextField> →</Link>
       </div>
-      {galleryLink && <HomeStoryBubbles />}
-      {series.length > 0 && (
-        <div className="recap-selector">
-          {series.map((a) => (
-            <button
-              key={a.slug}
-              aria-pressed={album.slug === a.slug}
-              onClick={() => {
-                setSelected(a.slug);
-              }}
-            >
-              {a.title}
-            </button>
-          ))}
-        </div>
-      )}
-      <div className="moment-grid">
-        {shots.map((p, index) => (
-          <figure key={p.id}>
-            <Picture
-              fieldId={"Moment_" + p.id}
-              fallbackFieldKeys={galleryLink && index === 0 ? [legacyField("Index_62")] : undefined}
-              src={recapSrc(p.src, 480)}
-              alt={p.description}
-              loading="lazy"
-              sizes="(width < 768px) 48vw, 300px"
-              width={480}
-              height={300}
-            />
-            <figcaption>
-              <TextField id={"MomentCaption_" + p.id} fallbackFieldKeys={galleryLink && index === 0 ? [legacyField("Index_63")] : undefined}>{p.title}</TextField>
-            </figcaption>
-          </figure>
-        ))}
-      </div>
-      <div className="recap-controls">
-        {album && (
-          <Link to={"/gallery/" + album.slug}><TextField id={album.slug ? "Index_65" : "Index_67"}>{`Open ${album.title} album →`}</TextField></Link>
-        )}
-      </div>
+      <HomeStoryBubbles />
     </section>
   );
 }

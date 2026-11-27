@@ -968,20 +968,36 @@ html { scroll-behavior: smooth; }
   background: linear-gradient(155deg, #21344d73, #0d182744);
   box-shadow: 0 12px 34px #060d2060, inset 0 1px 0 #ccd9eb39;
 }
-.glass:is(.nav-pill, .nav-resources-menu) {
+.nav-pill::before, .glass.nav-resources-menu {
+  background: linear-gradient(155deg, #fff6df66, #e9dece32);
+  border: 1px solid hsl(var(--border) / .65);
+  box-shadow: 0 12px 34px #15202d18, inset 0 1px 0 #fff6dfaa;
   background-color: #f8f3ea61;
   backdrop-filter: blur(22px) saturate(170%);
   -webkit-backdrop-filter: blur(22px) saturate(170%);
 }
-.dark .glass:is(.nav-pill, .nav-resources-menu) { background-color: #15273763; }
 .home-stats > .glass {
   backdrop-filter: blur(27px) saturate(180%);
   -webkit-backdrop-filter: blur(27px) saturate(180%);
 }
 .nav-shell { display: flex; justify-content: center; padding: var(--space-3) var(--space-4) 0; }
-.nav-pill { max-width: min(var(--container), 64rem); padding-inline: var(--space-3); transition: box-shadow .3s ease, background-color .3s ease; }
-.nav-pill[data-scrolled] { box-shadow: 0 14px 36px #15202d28, inset 0 1px 0 #fff6dfaa; }
-.dark .nav-pill[data-scrolled] { box-shadow: 0 14px 36px #060d2080, inset 0 1px 0 #ccd9eb39; }
+/* Give the dropdown its own backdrop instead of clipping it to the navigation's filter. */
+.nav-pill::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  transition: box-shadow .3s ease, background-color .3s ease;
+}
+.dark .nav-pill::before, .dark .glass.nav-resources-menu {
+  background: linear-gradient(155deg, #21344d73, #0d182744) #15273763;
+  box-shadow: 0 12px 34px #060d2060, inset 0 1px 0 #ccd9eb39;
+}
+.nav-pill { position: relative; z-index: 0; max-width: min(var(--container), 64rem); padding-inline: var(--space-3); transition: box-shadow .3s ease, background-color .3s ease; }
+.nav-pill[data-scrolled]::before { box-shadow: 0 14px 36px #15202d28, inset 0 1px 0 #fff6dfaa; }
+.dark .nav-pill[data-scrolled]::before { box-shadow: 0 14px 36px #060d2080, inset 0 1px 0 #ccd9eb39; }
 .nav-resources { display: flex; position: relative; align-items: center; font-size: .875rem; font-weight: 650; }
 .nav-resources-link { padding-block: var(--space-1); }
 .nav-resources > button { padding: var(--space-2) var(--space-1); }

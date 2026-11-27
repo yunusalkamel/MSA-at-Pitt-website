@@ -1,3 +1,4 @@
+import { fall26Albums } from "@/data/fall26Albums";
 import { GalleryStories } from "@/components/recaps/RecapStories";
 import { PageHero } from "@/components/PageHero";
 import { Picture, TextField, ContentScope, itemIdentity } from "@/editor/content";
@@ -44,30 +45,6 @@ function semesterFor(date: string | undefined) {
 }
 
 type FilterGroup = { label: string; filters: { key: FilterCategory; label: string }[] };
-
-const categoryGroups: FilterGroup[] = [
-  {
-    label: "Audience",
-    filters: [
-      { key: "general",  label: "General" },
-      { key: "brothers", label: "Brothers" },
-      { key: "sisters",  label: "Sisters" },
-    ],
-  },
-  {
-    label: "Type",
-    filters: [
-      { key: "signature", label: "Signature" },
-      { key: "social",    label: "Social" },
-      { key: "dawah",     label: "Da'wah" },
-      { key: "halaqa",    label: "Halaqa" },
-      { key: "jummah",    label: "Jummah" },
-      { key: "sports",    label: "Sports" },
-      { key: "speaker",   label: "Speaker" },
-      { key: "cec",       label: "CEC" },
-    ],
-  },
-];
 
 /** Build "Fall '25 · Signature" — semester/year first, event type secondary. */
 const buildLabel = (album: GalleryAlbum) => {
@@ -174,7 +151,7 @@ const Gallery = () => {
         eventDate: a.eventDate,
         coverImage: a.coverImage,
       }));
-    return [...remote, ...communityAlbums.filter(a => !remote.some(r => r.slug === a.slug)).map(a => ({ ...a, category: a.category as FilterCategory[] }))];
+    return [...remote, ...[...communityAlbums, ...fall26Albums].filter(a => !remote.some(r => r.slug === a.slug)).map(a => ({ ...a, category: a.category as FilterCategory[] }))];
   }, [sanityAlbums]);
 
   const semesters = useMemo(() => {
@@ -187,7 +164,6 @@ const Gallery = () => {
   }, [albums]);
   const filterGroups: FilterGroup[] = [
     { label: "Semester", filters: [{ key: "all", label: "All" }, ...semesters] },
-    ...categoryGroups,
   ];
   const activeLabel = filterGroups.flatMap(group => group.filters).find(filter => filter.key === activeFilter)?.label ?? "All";
   const filtered = useMemo(() => {

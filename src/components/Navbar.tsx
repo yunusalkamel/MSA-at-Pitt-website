@@ -132,7 +132,7 @@ const Navbar = () => {
           initial={{ y: -16, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="glass nav-pill pointer-events-auto w-full rounded-2xl"
+          className="nav-pill pointer-events-auto w-full rounded-2xl"
           data-scrolled={scrolled || undefined}
         >
           <div className="flex items-center justify-between h-14 md:h-16">

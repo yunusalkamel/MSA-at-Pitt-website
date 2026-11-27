@@ -80,14 +80,6 @@ const StatItem = ({ value, numericValue, suffix, label, sub, bordered }: {
   );
 };
 
-interface SanityGalleryAlbum {
-  title: string;
-  slug: string;
-  coverImage?: { asset?: { _ref?: string }; lqip?: string };
-  shots?: {src:string;caption?:string}[];
-  eventDate?: string;
-}
-
 const Index = () => {
   usePageMeta({
     title: "The MSA at Pitt — A Home Away From Home",
@@ -96,7 +88,6 @@ const Index = () => {
   const prefersReduced = useReducedMotion();
   const yearsActive = new Date().getFullYear() - 1997;
   const { data: cms } = useSanityData<any>(QUERIES.homePage);
-  const { data: galleryPreview } = useSanityData<SanityGalleryAlbum[]>(QUERIES.communityRecaps);
   const { events: remoteEvents, loading: eventsLoading, error: eventsError } = useCalendarEvents();
   const sourceEvents = remoteEvents;
   const featuredOnPhone = nextGathering(remoteEvents);
@@ -294,7 +285,7 @@ const Index = () => {
       {eventsSection}
       <SectionDivider />
       {storySection}
-      <Moments albums={galleryPreview ?? []} />
+      <Moments />
 
       <SectionDivider />
 
