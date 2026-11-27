@@ -46,7 +46,7 @@ async function visit(page, path) {
   assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), path + " overflows");
 }
 const titleTop = page => page.locator("main .page-hero h1").evaluate(el => el.getBoundingClientRect().top);
-const prayerTimes = page => page.locator(".daily-prayers dd").allTextContents();
+const prayerTimes = page => page.locator(".prayer-time-value").allTextContents();
 const tileList = page => page.locator("[data-hero-tile]").evaluateAll(tiles => tiles.map(tile => tile.dataset.photo));
 const checkDistinct = tiles => assert.equal(new Set(tiles).size, tiles.length);
 const pill = page => page.locator(".next-prayer-link");
@@ -100,7 +100,8 @@ async function capture(browser, width, height, theme, writeImages) {
     }
     if (name === "prayer") {
       assert.equal(await page.locator(".page-hero h1").innerText(), "Prayer at Pitt");
-      await page.locator("#ctop").waitFor();
+      assert.equal(await page.getByRole("button", { name: "Open solar almanac" }).isVisible(), true);
+      assert.equal(await page.locator("#ctop").count(), 0);
       assert.equal((await prayerTimes(page)).length, 6);
       assert.equal(await page.locator("img[src*='room-photo-pending']").count(), 0);
     }
@@ -133,7 +134,7 @@ async function interactions(browser) {
   assert.equal(await page.locator("html").evaluate(el => el.clientWidth), beforeWidth);
   assert.deepEqual(await style(menu), await style(nav));
   assert.notEqual(await menu.evaluate(el => getComputedStyle(el).backgroundColor), "rgba(0, 0, 0, 0)");
-  assert.deepEqual(await style(stats), await style(nav));
+  assert.notEqual((await style(stats))[1], (await style(nav))[1]);
   await page.mouse.move(5, 5);
   await menu.waitFor({ state: "hidden" });
   await resources.focus();
@@ -170,6 +171,7 @@ async function interactions(browser) {
   await page.waitForURL("**/resources/prayer");
   assert.deepEqual(await prayerTimes(page), homeTimes);
   assert.equal(await pill(page).getAttribute("aria-label"), nextPrayer);
+  await page.getByRole("button", { name: "Open solar almanac" }).click();
   await page.waitForFunction(() => window.Chart?.getChart(document.getElementById("ctop")));
   const chartToday = await page.evaluate(() => {
     const a = window.Chart.getChart("ctop"), b = window.Chart.getChart("cbot");

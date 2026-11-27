@@ -115,8 +115,9 @@ const Section = ({ icon: Icon, title, children, photo, delay = 0 }: {
         <Icon className="text-primary-foreground" size={18} />
       </div>
       <h3 className="font-display text-xl md:text-2xl font-bold text-foreground"><TextField id="NewToPitt_1">{title}</TextField></h3>
-      {photo && <Picture fieldId="guide-photo" src={photo} alt="" width={160} height={92} sizes="(max-width: 767px) 76px, 160px" loading="lazy" className="ml-auto flex-none w-[76px] md:w-40 aspect-[1.75] rounded-md object-cover" />}
     </div>
+    {photo && <Picture fieldId="guide-photo" src={photo} alt="" width={720} height={405}
+      sizes="(width < 768px) 90vw, 830px" loading="lazy" decoding="async" className="pitt-guide-photo" />}
     {children}
   </motion.div>
 );
@@ -148,7 +149,7 @@ const NewToPitt = () => (
           New to </TextField><span className="text-gradient-gold inline-block pb-1"><TextField id="NewToPitt_7">Pitt?</TextField></span>
         </motion.h1>
         <motion.p initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-muted-foreground text-lg max-w-xl mx-auto leading-relaxed"><TextField id="NewToPitt_8">
-          Tips from MSA students who were sitting exactly where you are not too long ago. Take what's useful and don't hesitate to reach out.
+          Tips from MSA students who were sitting exactly where you are not too long ago. Take what's useful and <strong>don't hesitate to reach out.</strong>
         </TextField></motion.p>
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }} className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3 flex-wrap">
           <Link to="/resources" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">

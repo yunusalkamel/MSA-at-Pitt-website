@@ -141,7 +141,7 @@ const About = () => {
                 MSA at Pitt is one of the University of Pittsburgh's largest and most active student organizations. We host everything from weekly halaqas and Friday Jummah to TopGolf outings, Eid celebrations, and iftars that fill entire halls.
               </TextField></p>
               <p className="font-dm-sans text-muted-foreground text-lg leading-relaxed mb-4"><TextField id="About_14">
-                Our events draw hundreds of students each semester — and we mean it when we say everyone is welcome.
+                Our events draw hundreds of students each semester — and we mean it when we say <strong>everyone is welcome.</strong>
               </TextField></p>
               <div className="relative group mt-6">
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-secondary rounded-[var(--radius)] opacity-20 group-hover:opacity-35 transition-opacity duration-500 blur-sm" />

@@ -1,5 +1,5 @@
 import { PageHero } from "@/components/PageHero";
-import { LinkField, TextField, ContentScope, itemIdentity, CardCopies } from "@/editor/content";
+import { LinkField, Picture, TextField, ContentScope, itemIdentity, CardCopies } from "@/editor/content";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useState, useEffect } from "react";
@@ -10,6 +10,7 @@ import SectionDivider from "@/components/SectionDivider";
 import ArabicVerse from "@/components/ArabicVerse";
 import patternImg from "@/assets/geometric-tile.svg";
 import { LINKS } from "@/config/links";
+import { communityPhoto, type PhotoId } from "@/data/communityPhotos";
 import { usePageMeta } from "@/lib/usePageMeta";
 
 const steps = [
@@ -48,21 +49,25 @@ const whatHappensNext = [
   {
     icon: Calendar,
     title: "You'll get event invites",
+    photo: "gala-group" as PhotoId,
     desc: "Iftars, Eid socials, TopGolf, game nights — you'll hear about everything first.",
   },
   {
     icon: Users,
     title: "A community that shows up",
+    photo: "campus-friends" as PhotoId,
     desc: "Someone always knows your name. MSA is where strangers become lifelong friends.",
   },
   {
     icon: Heart,
     title: "Support when you need it",
+    photo: "halaqa-circle" as PhotoId,
     desc: "Academic stress, homesickness, questions about faith — we've been there. We've got you.",
   },
   {
     icon: MessageCircle,
     title: "A voice in the community",
+    photo: "volunteers" as PhotoId,
     desc: "Suggest events, join committees, share ideas. MSA is shaped by its members.",
   },
 ];
@@ -138,9 +143,9 @@ const Join = () => {
             transition={{ delay: 0.15 }}
             className="font-display text-5xl md:text-7xl font-bold text-foreground mb-6 leading-tight px-2"
           ><TextField id="Join_5">
-            Come as you are.
-            </TextField><br />
-            <span className="inline-block text-gradient-gold italic pb-2"><TextField id="Join_6">Stay as long as you like.</TextField></span>
+            Wherever you start,
+            </TextField> <br />
+            <span className="join-hero-line inline-block text-gradient-gold italic"><TextField id="Join_6">you belong here.</TextField></span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 16 }}
@@ -282,13 +287,17 @@ const Join = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: i * 0.08 }}
-                className="glass-card-strong rounded-2xl p-5 flex flex-col gap-3"
+                className="join-community-card rounded-2xl flex flex-col gap-3"
               >
-                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <item.icon size={18} className="text-primary" />
+                <Picture fieldId="join-community-photo" src={communityPhoto(item.photo).src} alt=""
+                  width={460} height={280} loading="lazy" decoding="async"
+                  sizes="(width < 640px) 90vw, (width < 1024px) 45vw, 280px"
+                  style={{ objectPosition: communityPhoto(item.photo).focus }} />
+                <div className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center flex-shrink-0">
+                  <item.icon size={18} />
                 </div>
                 <div>
-                  <p className="font-body font-bold text-foreground text-sm mb-1"><TextField id="Join_23">{item.title}</TextField></p>
+                  <p className="font-body font-bold text-sm mb-1"><TextField id="Join_23">{item.title}</TextField></p>
                   <p className="font-dm-sans text-muted-foreground text-xs leading-relaxed"><TextField id="Join_24">{item.desc}</TextField></p>
                 </div>
               </motion.div></CardCopies>

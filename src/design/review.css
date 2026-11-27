@@ -152,9 +152,20 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-3);
 }
+.welcome-path article {
+  padding: var(--card-padding);
+  border: 1px solid color-mix(in srgb, var(--gold-muted) 34%, hsl(var(--border)));
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--gold-muted) 10%, hsl(var(--card)));
+}
+.welcome-path article + article {
+  background: color-mix(in srgb, hsl(var(--secondary)) 13%, hsl(var(--card)));
+}
 .welcome-path a {
   display: block;
-  padding-block-end: var(--space-4);
+  width: fit-content;
+  margin-top: var(--space-2);
+  color: hsl(var(--primary));
 }
 @media (width < 768px) {
   .welcome-path > div { grid-template-columns: 1fr; }
@@ -273,17 +284,13 @@
 }
 .daily-prayers dt { font-size: .8rem; font-weight: 700; }
 .prayer-countdown {
-  display: table;
-  max-width: 100%;
+  display: block;
   margin-top: var(--space-1);
-  padding: var(--space-1);
-  border-radius: var(--space-1);
-  background: var(--gold-muted);
-  color: #1e201c;
-  font-size: clamp(.7rem, 1.85cqw, .86rem);
-  font-weight: 800;
-  line-height: 1.1;
-  text-transform: uppercase;
+  color: var(--prayer-gold);
+  font-size: .7rem;
+  font-weight: 650;
+  line-height: 1.25;
+  letter-spacing: .02em;
 }
 .daily-prayers dd {
   margin-top: var(--space-1);
@@ -294,13 +301,36 @@
   font-variant-numeric: tabular-nums;
   overflow-wrap: anywhere;
 }
-.daily-prayers dd span { font-size: .67em; margin-inline-start: .09em; }
+.prayer-meridiem { font-size: .67em; margin-inline-start: .09em; }
 .daily-prayers-footer p {
-  margin: var(--space-2) 0 0;
+  margin: 0;
   color: hsl(var(--muted-foreground));
   font-size: .8rem;
 }
-.prayer-chart-card { margin-top: var(--space-5); }
+.daily-prayers-footer, .prayer-time-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-3);
+}
+.daily-prayers-footer { justify-content: space-between; padding-top: var(--space-2); }
+.prayer-time-actions :is(a, .chart-disclosure) {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 40px;
+  margin: 0;
+  padding: var(--space-1) var(--space-2);
+  color: hsl(var(--foreground));
+  background: hsl(var(--muted) / .55);
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--space-2);
+  font-size: .82rem;
+  font-weight: 650;
+  text-decoration: none;
+}
+.prayer-time-actions :is(a, button):hover { border-color: var(--gold-muted); }
+.prayer-chart-card { margin-top: var(--space-4); padding-top: var(--space-5); border-top: 1px solid hsl(var(--border)); }
 /* Keep wayfinding photos in the location row at every viewport width. */
 .venue-photos {
   position: relative;
@@ -467,13 +497,35 @@
 .jummah-photo-row { grid-template-columns: minmax(0, 1fr) minmax(116px, 42%); }
 .prayer-photo-row > .venue-photos { width: 100%; min-height: 66px; aspect-ratio: auto; }
 .prayer-photo-row > .venue-photos > :is(.venue-thumb, img, .photo-slot-empty) { position: absolute; inset: 0; }
-.prayer-photo-row .venue-thumb img { object-position: center 56%; }
+.prayer-photo-row:not(.jummah-photo-row) { align-items: center; }
+.prayer-photo-row:not(.jummah-photo-row) > .venue-photos { aspect-ratio: 4 / 3; min-height: 0; }
+.prayer-photo-row .venue-photo-image { object-fit: cover; }
+.jummah-time { color: hsl(var(--foreground)); font-weight: 750; font-size: 1.08rem; }
+.jummah-place { color: hsl(var(--foreground)); font-weight: 650; font-size: .92rem; }
+.jummah-socials { display: flex; flex-wrap: wrap; gap: var(--space-1); margin-top: var(--space-2); }
+.jummah-socials a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 40px;
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid color-mix(in srgb, var(--gold-muted) 45%, hsl(var(--border)));
+  border-radius: var(--space-2);
+  background: hsl(var(--card) / .65);
+  font-size: .75rem;
+  font-weight: 700;
+}
+.jummah-socials a:first-child svg { color: #a65070; }
+.jummah-socials a:nth-child(2) svg { color: #27825f; }
+.jummah-socials a:hover { border-color: var(--gold-muted); }
 .prayer-venue-copy { align-self: center; min-width: 0; }
 
 @media (max-width: 767px) {
   .prayer-photo-row { grid-template-columns: minmax(0, 1fr) minmax(95px, 33%); }
   .jummah-photo-row { grid-template-columns: minmax(0, 1fr) minmax(105px, 36%); }
   .prayer-venue-copy li { font-size: .77rem; }
+  .prayer-photo-row:not(.jummah-photo-row) { grid-template-columns: minmax(0, 1fr); }
+  .prayer-photo-row:not(.jummah-photo-row) > .venue-photos { aspect-ratio: 16 / 10; }
 }
 
 .home-hero {
