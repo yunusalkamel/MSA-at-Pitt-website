@@ -1,3 +1,4 @@
+import CardOrder from "@/editor/CardOrder";
 import { useChaplainDetails } from "@/hooks/useChaplainDetails";
 import { PageHero } from "@/components/PageHero";
 import { LinkField } from "@/editor/content";
@@ -79,7 +80,7 @@ const Resources = () => {
   const { email, officeHours } = useChaplainDetails();
   const mobile=useIsMobile();
   return (
-    <Layout>
+    <Layout names={["Page introduction", "Resource cards", "Get in touch"]}>
       {/* Hero */}
       <PageHero className="relative text-center overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
@@ -113,17 +114,13 @@ const Resources = () => {
         <div className="max-w-5xl mx-auto relative z-10">
           <div className="max-md:sr-only"><ContentScope id="Resources_21"><SectionHeading title="Your Resources" label="Everything You Need" /></ContentScope></div>
           <div className="resource-grid grid sm:grid-cols-2 lg:grid-cols-3">
-            {resourceCard(resources[0], 0)}
-
-            {/* Prayer card — combined prayer page */}
-            <CardCopies id="resource-prayer"><ResourceTile label="Prayer" hasOwnPage title={<TextField id={mobile?"Resources_23":"Resources_26"}>Prayer</TextField>} body={<TextField id={mobile?"Resources_24":"Resources_27"}>Daily times, Jummah and places to pray on campus.</TextField>} photo="/photos/prayer/jummah-ballroom.webp" tone="pine" primary={<Link to="/resources/prayer"><TextField id={mobile?"Resources_25":"Resources_28"}>Open prayer guide</TextField> →</Link>} /></CardCopies>
-
-            {/* Chaplain card */}
-            <CardCopies id="resource-chaplain"><ResourceTile label="University Chaplain" hasOwnPage title={<TextField id={mobile?"Resources_29":"Resources_33"}>University Chaplain</TextField>} body={<TextField id={mobile?"Resources_30":"Resources_34"}>Office hours, spiritual guidance and a space to talk.</TextField>} summary={<TextField id="Resources_35">{officeHours}</TextField>} photo="/photos/prayer/imam-muhammad-patel.webp" tone="slate" primary={<Link to="/resources/chaplain"><TextField id={mobile?"Resources_31":"Resources_36"}>Meet the chaplain</TextField> →</Link>} extra={<LinkField fieldId="Resources_destination_3" href={"mailto:" + email}><TextField id="Resources_32">Email the chaplain</TextField> ↗</LinkField>}/></CardCopies>
-
-            {/* FAQ card */}
-            <CardCopies id="resource-faq"><ResourceTile label="FAQ" hasOwnPage title={<TextField id={mobile?"Resources_37":"Resources_40"}>FAQ</TextField>} body={<TextField id={mobile?"Resources_38":"Resources_41"}>Answers about membership, events, prayer and campus life.</TextField>} photo={communityPhoto("hall-friends").src} tone="clay" primary={<Link to="/resources/faq"><TextField id={mobile?"Resources_39":"Resources_42"}>Read FAQ</TextField> →</Link>} /></CardCopies>
-            {resources.slice(1).map((resource, i) => resourceCard(resource, i + 1))}
+            <CardOrder id="resources" items={[
+              {title:resources[0].title, card:resourceCard(resources[0], 0)},
+              {title:"Prayer", card:<CardCopies id="resource-prayer"><ResourceTile label="Prayer" hasOwnPage title={<TextField id={mobile?"Resources_23":"Resources_26"}>Prayer</TextField>} body={<TextField id={mobile?"Resources_24":"Resources_27"}>Daily times, Jummah and places to pray on campus.</TextField>} photo="/photos/prayer/jummah-ballroom.webp" tone="pine" primary={<Link to="/resources/prayer"><TextField id={mobile?"Resources_25":"Resources_28"}>Open prayer guide</TextField> →</Link>} /></CardCopies>},
+              {title:"University Chaplain", card:<CardCopies id="resource-chaplain"><ResourceTile label="University Chaplain" hasOwnPage title={<TextField id={mobile?"Resources_29":"Resources_33"}>University Chaplain</TextField>} body={<TextField id={mobile?"Resources_30":"Resources_34"}>Office hours, spiritual guidance and a space to talk.</TextField>} summary={<TextField id="Resources_35">{officeHours}</TextField>} photo="/photos/prayer/imam-muhammad-patel.webp" tone="slate" primary={<Link to="/resources/chaplain"><TextField id={mobile?"Resources_31":"Resources_36"}>Meet the chaplain</TextField> →</Link>} extra={<LinkField fieldId="Resources_destination_3" href={"mailto:" + email}><TextField id="Resources_32">Email the chaplain</TextField> ↗</LinkField>}/></CardCopies>},
+              {title:"FAQ", card:<CardCopies id="resource-faq"><ResourceTile label="FAQ" hasOwnPage title={<TextField id={mobile?"Resources_37":"Resources_40"}>FAQ</TextField>} body={<TextField id={mobile?"Resources_38":"Resources_41"}>Answers about membership, events, prayer and campus life.</TextField>} photo={communityPhoto("hall-friends").src} tone="clay" primary={<Link to="/resources/faq"><TextField id={mobile?"Resources_39":"Resources_42"}>Read FAQ</TextField> →</Link>} /></CardCopies>},
+              ...resources.slice(1).map((resource,index)=>({title:resource.title,card:resourceCard(resource,index+1)})),
+            ]} identity={item=>item.title} label={item=>item.title}>{item=>item.card}</CardOrder>
           </div>
 
           {/* Bottom action row — calendar subscriptions + linktree */}

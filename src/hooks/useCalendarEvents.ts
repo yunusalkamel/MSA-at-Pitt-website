@@ -33,6 +33,12 @@ function writeCache(events: MSAEvent[]) {
   }
 }
 
+let pending: ReturnType<typeof fetchEventsFromCalendar> | null = null;
+function fetchShared() {
+  if (!pending) pending = fetchEventsFromCalendar().finally(() => { pending = null; });
+  return pending;
+}
+
 export function useCalendarEvents() {
   const [events, setEvents] = useState<MSAEvent[]>(() => readCache()?.events ?? []);
   const [loading, setLoading] = useState(true);
@@ -45,7 +51,7 @@ export function useCalendarEvents() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetchEventsFromCalendar();
+      const response = await fetchShared();
       setEvents(response);
       const now = Date.now();
       setLastSyncedAt(now);

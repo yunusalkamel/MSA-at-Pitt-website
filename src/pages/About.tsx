@@ -1,3 +1,4 @@
+import CardOrder from "@/editor/CardOrder";
 import { useContext } from "react";
 import { PageHero } from "@/components/PageHero";
 import { Content, Picture, ContentScope, TextField, itemIdentity, CardCopies } from "@/editor/content";
@@ -30,7 +31,7 @@ const About = () => {
     description: "We host the prayer space, organize the iftars, run the halaqas, and put on the events that fill the year. Founded 1997.",
   });
   return (
-    <Layout>
+    <Layout names={["Page introduction", "Our story", "What drives us", "Leadership", "Get involved"]}>
       {/* Hero */}
       <PageHero className="relative overflow-hidden">
         <div className="absolute inset-0">
@@ -178,32 +179,28 @@ const About = () => {
             <div>
               <p className="font-display italic text-gradient-gold inline-block pb-1 text-xl mb-6 tracking-wide"><TextField id="About_19">Cultivate Community.</TextField></p>
               <div className="grid sm:grid-cols-2 gap-5">
-                {communityCards.map((item, i) => (
-                  <CardCopies key={item.title} id={"About_20-" + itemIdentity(item, item.title)}><GlassCard key={item.title} delay={i * 0.08}>
+                <CardOrder id="about-community" items={communityCards} identity={item=>item.title} label={item=>item.title}>{(item,i) => (<CardCopies key={item.title} id={"About_20-" + itemIdentity(item, item.title)}><GlassCard key={item.title} delay={i * 0.08}>
                     <Picture fieldId="focus-photo" src={communityPhoto(pillarPhotos.community[i]).src} alt="" loading="lazy" width={460} height={250} className="community-card-photo"/>
                     <div className={`bg-gradient-to-br ${item.gradient} w-14 h-14 rounded-xl flex items-center justify-center mb-4 shadow-lg`}>
                       <item.icon className="text-white" size={24} />
                     </div>
                     <h3 className="font-display text-xl font-bold text-foreground mb-2"><TextField id="About_21">{item.title}</TextField></h3>
                     <p className="font-satoshi text-muted-foreground text-sm leading-relaxed"><TextField id="About_22">{item.desc}</TextField></p>
-                  </GlassCard></CardCopies>
-                ))}
+                  </GlassCard></CardCopies>)}</CardOrder>
               </div>
             </div>
             {/* Right — Ignite Iman */}
             <div>
               <p className="font-display italic text-gradient-aura inline-block pb-1 text-xl mb-6 tracking-wide"><TextField id="About_23">Ignite Iman.</TextField></p>
               <div className="grid sm:grid-cols-2 gap-5">
-                {imanCards.map((item, i) => (
-                  <CardCopies key={item.title} id={"About_24-" + itemIdentity(item, item.title)}><GlassCard key={item.title} delay={0.16 + i * 0.08}>
+                <CardOrder id="about-iman" items={imanCards} identity={item=>item.title} label={item=>item.title}>{(item,i) => (<CardCopies key={item.title} id={"About_24-" + itemIdentity(item, item.title)}><GlassCard key={item.title} delay={0.16 + i * 0.08}>
                     <Picture fieldId="focus-photo" src={communityPhoto(pillarPhotos.iman[i]).src} alt="" loading="lazy" width={460} height={250} className="community-card-photo"/>
                     <div className={`bg-gradient-to-br ${item.gradient} w-14 h-14 rounded-xl flex items-center justify-center mb-4 shadow-lg`}>
                       <item.icon className="text-white" size={24} />
                     </div>
                     <h3 className="font-display text-xl font-bold text-foreground mb-2"><TextField id="About_25">{item.title}</TextField></h3>
                     <p className="font-satoshi text-muted-foreground text-sm leading-relaxed"><TextField id="About_26">{item.desc}</TextField></p>
-                  </GlassCard></CardCopies>
-                ))}
+                  </GlassCard></CardCopies>)}</CardOrder>
               </div>
             </div>
           </div>

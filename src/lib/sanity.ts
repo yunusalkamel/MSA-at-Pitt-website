@@ -106,20 +106,10 @@ export const QUERIES = {
     "year": coalesce(string(eventDate), "")
   }`,
 
-  /** A trimmed set of recent gallery albums for the homepage preview. */
-  galleryAlbumsPreview: `*[_type == "galleryAlbum"] | order(coalesce(order, 9999) asc, eventDate desc) [0...3] {
-    title, "slug": slug.current,
-    coverImage { ..., "lqip": asset->metadata.lqip },
-    eventDate
+  editorGalleryAlbums: `*[_type == "galleryAlbum"] | order(coalesce(order, 9999) asc, eventDate desc) {
+    title, "slug": slug.current, eventDate, category, "cover": coverImage.asset->url,
+    "photos": photos[defined(image.asset)][0...32]{"src": image.asset->url, "alt": coalesce(caption, "")}
   }`,
-
-  communityRecaps: `*[_type == "galleryAlbum"] | order(coalesce(order, 9999) asc, eventDate desc) [0...3] {
-    title, eventDate, "slug": slug.current,
-    coverImage { ..., "lqip": asset->metadata.lqip },
-    "shots": photos[defined(image.asset)][0...12]{"src": image.asset->url, caption},
-    eventDate
-  }`,
-
   galleryAlbumBySlug: `*[_type == "galleryAlbum" && slug.current == $slug][0] {
     title, "slug": slug.current,
     coverImage { ..., "lqip": asset->metadata.lqip },

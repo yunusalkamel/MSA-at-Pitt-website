@@ -1,3 +1,4 @@
+import CardOrder from "@/editor/CardOrder";
 import { PageHero } from "@/components/PageHero";
 import { LinkField, Picture, TextField, ContentScope, itemIdentity, CardCopies } from "@/editor/content";
 import { Link } from "react-router-dom";
@@ -95,7 +96,7 @@ const Join = () => {
   };
 
   return (
-    <Layout>
+    <Layout names={["Membership form", "Page introduction", "Ways to join", "Find your people", "What to expect", "Get in touch"]}>
       {/* Post-join welcome banner */}
       <AnimatePresence>
         {showBanner && (
@@ -188,8 +189,7 @@ const Join = () => {
 
         <div className="max-w-2xl mx-auto relative z-10">
           <div className="space-y-0">
-            {steps.map((step, i) => (
-              <CardCopies key={step.num} id={"Join_9-" + itemIdentity(step, step.num)}><motion.div
+            <CardOrder id="join-steps" items={steps} identity={item=>item.num} label={item=>item.headline}>{(step,i) => (<CardCopies key={step.num} id={"Join_9-" + itemIdentity(step, step.num)}><motion.div
                 key={step.num}
                 initial={prefersReduced ? false : { opacity: 0, y: 18 }}
                 whileInView={prefersReduced ? undefined : { opacity: 1, y: 0 }}
@@ -254,8 +254,7 @@ const Join = () => {
                     )}
                   </div>
                 </div>
-              </motion.div></CardCopies>
-            ))}
+              </motion.div></CardCopies>)}</CardOrder>
           </div>
         </div>
       </section>
@@ -280,8 +279,7 @@ const Join = () => {
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {whatHappensNext.map((item, i) => (
-              <CardCopies key={item.title} id={"Join_22-" + itemIdentity(item, item.title)}><motion.div
+            <CardOrder id="join-next" items={whatHappensNext} identity={item=>item.title} label={item=>item.title}>{(item,i) => (<CardCopies key={item.title} id={"Join_22-" + itemIdentity(item, item.title)}><motion.div
                 key={item.title}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -300,8 +298,7 @@ const Join = () => {
                   <p className="font-body font-bold text-sm mb-1"><TextField id="Join_23">{item.title}</TextField></p>
                   <p className="font-dm-sans text-muted-foreground text-xs leading-relaxed"><TextField id="Join_24">{item.desc}</TextField></p>
                 </div>
-              </motion.div></CardCopies>
-            ))}
+              </motion.div></CardCopies>)}</CardOrder>
           </div>
 
           {/* Confirmation CTA */}

@@ -1,5 +1,6 @@
 import { useContext, useId, useState, type ReactNode } from "react";
 import { Info, X } from "lucide-react";
+import { useDesign } from "./useDesign";
 import { Content, Picture } from "@/editor/content";
 
 type Props = {
@@ -17,13 +18,15 @@ type Props = {
 };
 
 export function ResourceTile({ title, label, photo, tone, primary, body, extra, summary, detailTitle, hint, hasOwnPage }: Props) {
+  const design = useDesign();
   const detailsId = useId();
   const { editing } = useContext(Content);
   const [expanded, setExpanded] = useState(false);
   const [hovered, setHovered] = useState(false);
-  const showDetails = expanded || hovered;
+  const always = design.resourceDetails === "visible";
+  const showDetails = always || expanded || hovered;
   return (
-    <article className="resource-tile" data-tone={tone} data-back={showDetails || undefined}
+    <article className="resource-tile" data-design-card={design.resource} data-design-details={design.resourceDetails} data-tone={tone} data-back={showDetails || undefined}
       data-linked={hasOwnPage && !editing || undefined} aria-label={label}
       onPointerEnter={event => { if (event.pointerType === "mouse") setHovered(true); }}
       onPointerLeave={() => setHovered(false)}
@@ -48,11 +51,11 @@ export function ResourceTile({ title, label, photo, tone, primary, body, extra, 
           {extra && <div className="resource-extra">{extra}</div>}
         </div>
       </div>
-      <button type="button" className="tile-info" aria-controls={detailsId} aria-expanded={showDetails}
+      {!always && <button type="button" className="tile-info" aria-controls={detailsId} aria-expanded={showDetails}
         aria-label={(showDetails ? "Hide details for " : "Show details for ") + label}
         onClick={() => { setHovered(false); setExpanded(!showDetails); }}>
         {showDetails ? <X size={15} aria-hidden="true"/> : <Info size={16} aria-hidden="true"/>}
-      </button>
+      </button>}
     </article>
   );
 }

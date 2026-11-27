@@ -1,7 +1,9 @@
+import { findAvailable, getCollection } from "@/editor/visual-model";
+import { fall26Albums } from "@/data/fall26Albums";
 import { PageHero } from "@/components/PageHero";
 import { communityAlbums } from "@/data/communityPhotos";
-import { Picture, ContentScope, TextField, itemIdentity } from "@/editor/content";
-import { useState } from "react";
+import { Content, Picture, ContentScope, TextField, itemIdentity } from "@/editor/content";
+import { useContext, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Images } from "lucide-react";
@@ -32,7 +34,15 @@ interface AlbumData {
 
 export default function GalleryAlbumPage() {
   const { slug } = useParams<{ slug: string }>();
-  const local = communityAlbums.find(a => a.slug === slug);
+  const { fields } = useContext(Content);
+  const managed = getCollection(fields, "albums");
+  if (managed) {
+    const entry = findAvailable(managed).find(item => item.slug === slug);
+    const album: AlbumData | null = entry && {...entry,slug:entry.slug,category:entry.category ?? [],
+      eventDate:entry.date,coverImageUrl:entry.image ?? entry.photos?.[0]?.src,photos:(entry.photos ?? []).map(photo=>({url:photo.src,caption:photo.alt}))};
+    return <GalleryAlbum key={slug} album={album} loading={false}/>;
+  }
+  const local = [...communityAlbums, ...fall26Albums].find(a => a.slug === slug);
   return local ? <GalleryAlbum key={slug} album={local} loading={false}/> : <RemoteAlbum key={slug} slug={slug ?? ""}/>;
 }
 
@@ -60,7 +70,7 @@ const GalleryAlbum = ({ album, loading }: { album: AlbumData | null; loading: bo
 
   const formatDate = (d?: string) => {
     if (!d) return null;
-    return new Date(d + "T12:00:00").toLocaleDateString("en-US", { month: "long", year: "numeric" });
+    return new Date((d.length === 7 ? d + "-01" : d) + "T12:00:00").toLocaleDateString("en-US", { month: "long", year: "numeric" });
   };
 
   return (

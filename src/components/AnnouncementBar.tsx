@@ -1,6 +1,7 @@
 import { LinkField } from "@/editor/content";
-import { TextField } from "@/editor/content";
-import { useState } from "react";
+import { getCollection, findAvailable } from "@/editor/visual-model";
+import { Content, TextField } from "@/editor/content";
+import { useContext, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ArrowRight } from "lucide-react";
 import { useSanityData } from "@/hooks/useSanityData";
@@ -21,18 +22,23 @@ const TYPE_STYLES = {
 };
 
 // This is rendered INSIDE the fixed navbar so it never goes behind it
-export default function AnnouncementBar() {
-  const { data } = useSanityData<AnnouncementData>(QUERIES.announcement);
+export default function AnnouncementBar({roomy = false}: {roomy?:boolean}) {
+  const { fields, editing } = useContext(Content);
+  const managed = getCollection(fields, "announcements");
+  const { data: existing } = useSanityData<AnnouncementData>(managed ? null : QUERIES.announcement);
+  const announcement = findAvailable(managed)?.[0];
+  const data = managed ? announcement && {isActive:true, message:announcement.title, type:announcement.tone,
+    linkLabel:announcement.linkLabel, linkUrl:announcement.url} : existing;
   const [dismissed, setDismissed] = useState(false);
 
-  if (!data?.isActive || !data.message || dismissed) return null;
+  if (!data?.isActive || !data.message || (dismissed && !editing)) return null;
 
   const s = TYPE_STYLES[data.type ?? "info"];
 
   return (
     <AnimatePresence>
       <motion.div
-        data-compact-notice
+        data-compact-notice={!roomy || undefined}
         key="ann-bar"
         initial={{ height: 0, opacity: 0 }}
         animate={{ height: "auto", opacity: 1 }}

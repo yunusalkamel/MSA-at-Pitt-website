@@ -1,3 +1,4 @@
+import CardOrder from "@/editor/CardOrder";
 import { useChaplainDetails } from "@/hooks/useChaplainDetails";
 import { PageHero } from "@/components/PageHero";
 import { TextField, ContentScope, itemIdentity, CardCopies } from "@/editor/content";
@@ -134,7 +135,7 @@ const FAQ = () => {
       : FALLBACK_FAQS;
 
   return (
-    <Layout>
+    <Layout names={["Page introduction", "Frequently asked questions", "Find support", "Next steps"]}>
       {/* Hero */}
       <PageHero className="relative overflow-hidden">
         <div className="absolute inset-0">
@@ -176,9 +177,7 @@ const FAQ = () => {
         <div className="absolute inset-0 steps-surface" />
         <div className="max-w-3xl mx-auto relative z-10">
           <div className="flex flex-col gap-3">
-            {faqs.map((item, i) => (
-              <CardCopies key={i} id={"FAQ_18-" + itemIdentity(item, i)}><FAQItem key={i} item={item} index={i} /></CardCopies>
-            ))}
+            <CardOrder id="faq" items={faqs} identity={(item,index)=>itemIdentity(item,index)} label={item=>item.q}>{(item,i) => (<CardCopies key={i} id={"FAQ_18-" + itemIdentity(item, i)}><FAQItem key={i} item={item} index={i} /></CardCopies>)}</CardOrder>
           </div>
         </div>
       </section>

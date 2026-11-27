@@ -30,7 +30,7 @@ const keyBytes = () =>
   createHash("sha256")
     .update("msa-editor-history/v1/" + process.env.MSA_MANAGEMENT_KEY)
     .digest();
-function seal(value) {
+export function seal(value) {
   const iv = randomBytes(12);
   const cipher = createCipheriv("aes-256-gcm", keyBytes(), iv);
   const body = Buffer.concat([
@@ -39,7 +39,7 @@ function seal(value) {
   ]);
   return Buffer.concat([iv, cipher.getAuthTag(), body]).toString("base64");
 }
-function open(value) {
+export function open(value) {
   const bytes = Buffer.from(value, "base64");
   const cipher = createDecipheriv(
     "aes-256-gcm",
@@ -74,7 +74,7 @@ async function version(client, id) {
     after: open(after.payload),
   };
 }
-export async function versions(client, body, actor, dataset) {
+export async function versions(client, body, actor, dataset, role = "owner") {
   const { action } = body;
   if (action === "history") {
     const offset = Number(body.offset || 0);
@@ -107,6 +107,8 @@ export async function versions(client, body, actor, dataset) {
       revision: live?._rev ?? null,
       exportedAt: new Date().toISOString(),
       fields: before,
+      designPresets: await client.getDocument("msaPrivate.designProfiles")
+        .then(doc => doc?.payload ? open(doc.payload) : []),
       documents: await client.fetch(
         '*[_type in $types && !(_id in path("drafts.**")) && !(_id in path("versions.**"))]',
         {
@@ -146,6 +148,12 @@ export async function versions(client, body, actor, dataset) {
     } else after = fields;
   }
   if (snapshot) after = before;
+  if (role !== "owner" && changes(before, after).includes("shared/visual/design")) {
+    if (action !== "restore") throw fail(403, "Only an owner can publish design settings.");
+    after = { ...after };
+    if (before["shared/visual/design"]) after["shared/visual/design"] = before["shared/visual/design"];
+    else delete after["shared/visual/design"];
+  }
   const keys = changes(before, after);
   if (!snapshot && !keys.length)
     return { revision: live?._rev ?? null, unchanged: true };

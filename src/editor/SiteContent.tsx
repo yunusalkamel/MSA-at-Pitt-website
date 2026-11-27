@@ -10,13 +10,25 @@ export async function loadContent(): Promise<Snapshot> {
 }
 export default function SiteContent({ children }: { children: ReactNode }) {
   const [fields, setFields] = useState<Fields>({});
+  const framed = adminPath && window.parent !== window &&
+    document.referrer.startsWith(location.origin + "/");
+  useEffect(() => {
+    if (!framed) return;
+    const receive = (event: MessageEvent) => {
+      if (event.source === window.parent && event.origin === location.origin && event.data?.type === "msa-visual-preview")
+        setFields(event.data.fields);
+    };
+    window.addEventListener("message", receive);
+    window.parent.postMessage({type:"msa-preview-ready"},location.origin);
+    return () => window.removeEventListener("message", receive);
+  }, [framed]);
   useEffect(() => {
     if (!adminPath && !/^\/owner(?:\/|$)/.test(window.location.pathname))
       loadContent()
         .then((result) => setFields(result.fields))
         .catch(() => {});
   }, []);
-  if (adminPath)
+  if (adminPath && !framed)
     return (
       <Suspense fallback={null}>
         <Admin>{children}</Admin>

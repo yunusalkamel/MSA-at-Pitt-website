@@ -1,3 +1,6 @@
+import { clarityId } from "@/lib/analyticsPolicy";
+import { recaps } from "@/data/recaps";
+import { getCollection } from "./visual-model";
 import { SITE_ORIGIN } from "@/config/site";
 import { useState } from "react";
 import type { Session } from "@supabase/supabase-js";
@@ -5,17 +8,23 @@ import { request, messageOf } from "./ManagementLogin";
 import { publicPages } from "../../shared/traffic.js";
 const views = [
   "Overview",
+  "Realtime",
   "Trend",
   "Pages",
   "Landing",
   "Exit pages",
+  "Journeys",
   "Acquisition",
   "Campaigns",
   "Page sources",
   "Interactions",
+  "Story performance",
+  "Gallery engagement",
   "Event interest",
   "Event RSVP",
   "Join WhatsApp",
+  "Gallery to recap",
+  "Visit to donation",
   "Resource usage",
   "Devices",
   "Browsers",
@@ -45,7 +54,8 @@ export default function Reports({ session }: { session: Session }) {
     }>(),
     [notice, setNotice] = useState(""),
     [busy, setBusy] = useState(false),
-    [enabled, setEnabled] = useState<boolean>();
+    [providerSettings, setProviderSettings] = useState<Record<string,boolean>>(),
+    [verified, setVerified] = useState<Record<string,string>>();
   const api = (payload: object) => request(session, payload, "/api/reports");
   async function run(task: () => Promise<void>) {
     setBusy(true);
@@ -98,7 +108,7 @@ export default function Reports({ session }: { session: Session }) {
             ))}
           </select>
         </label>
-        {view === "Slowest pages" ? (
+        {view === "Realtime" ? <p>Current activity over the last 30 minutes</p> : view === "Slowest pages" ? (
           <p>Latest available mobile p75, ranked by LCP</p>
         ) : view === "Clarity usability" ? (
           <p>Previous 72 hours · Microsoft Clarity</p>
@@ -200,6 +210,18 @@ export default function Reports({ session }: { session: Session }) {
                 } catch {
                   /* Archived events retain their stable reporting ID. */
                 }
+              }
+              if (view === "Story performance") {
+                try {
+                  const snapshot = await fetch("/api/site-editor").then(response=>response.json());
+                  const managed = getCollection(snapshot.fields, "stories");
+                  const list = managed ?? recaps;
+                  const labels = new Map(await Promise.all(list.map(async item => {
+                    const digest = await crypto.subtle.digest("SHA-256",new TextEncoder().encode(item.slug));
+                    return [Array.from(new Uint8Array(digest).slice(0,8),value=>value.toString(16).padStart(2,"0")).join(""),item.title] as const;
+                  })));
+                  result.rows = result.rows.map(([id,...cells]:string[]) => [labels.get(id) ?? id,...cells]);
+                } catch { /* Archived stories retain their stable report key. */ }
               }
               setData(result);
             })
@@ -317,40 +339,25 @@ export default function Reports({ session }: { session: Session }) {
           PageSpeed Insights
         </a>{" "}
         ·{" "}
-        <a
-          href={
-            /^[a-z0-9]+$/i.test(import.meta.env.VITE_CLARITY_PROJECT_ID || "")
-              ? "https://clarity.microsoft.com/projects/view/" +
-                import.meta.env.VITE_CLARITY_PROJECT_ID +
-                "/heatmaps"
-              : "https://clarity.microsoft.com/projects"
-          }
-        >
-          Clarity heatmaps
-        </a>
+        <a href={`https://clarity.microsoft.com/projects/view/${clarityId}/heatmaps`}>Clarity heatmaps</a> ·{" "}
+        <a href={`https://clarity.microsoft.com/projects/view/${clarityId}/recordings`}>Clarity recordings</a>
       </p>
-      <button
-        disabled={busy}
-        onClick={() =>
-          run(async () => {
-            setEnabled(
-              (
-                await api(
-                  enabled === undefined
-                    ? { action: "settings" }
-                    : { action: "settings", enabled: !enabled },
-                )
-              ).enabled,
-            );
-          })
-        }
-      >
-        {enabled === undefined
-          ? "Check optional analytics setting"
-          : enabled
-            ? "Pause GA4 collection"
-            : "Enable GA4 collection"}
-      </button>
+      <details><summary>Analytics providers</summary>
+        <div className="msa-panel-actions">
+          <button disabled={busy} onClick={() => run(async () => setProviderSettings(await api({action:"settings"})))}>Load collection settings</button>
+          <button disabled={busy} onClick={() => run(async () => setVerified(await api({action:"verify"})))}>Verify connections</button>
+        </div>
+        {providerSettings && <ul>{([
+          ["ga4","enabled","Google Analytics 4"],["clarity","clarity","Microsoft Clarity"],
+          ["vercel","vercel","Vercel Web Analytics"],["speed","speed","Vercel Speed Insights"],
+        ] as const).map(([provider,key,label]) => <li key={provider}>
+          <span>{label} · {providerSettings[key] ? "On" : "Off"} </span>
+          <button disabled={busy} onClick={() => run(async () => setProviderSettings(await api({action:"settings",provider,enabled:!providerSettings[key]})))}>
+            {providerSettings[key] ? "Pause" : "Enable"} {label}
+          </button>
+        </li>)}</ul>}
+        {verified && <dl>{Object.entries(verified).map(([name,status]) => <div key={name}><dt><strong>{name}</strong></dt><dd>{status}</dd></div>)}</dl>}
+      </details>
       <p role="status">{busy ? "Loading…" : notice}</p>
     </section>
   );

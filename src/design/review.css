@@ -49,11 +49,6 @@
   font-weight: 650;
   background: linear-gradient(transparent, #091913cb);
 }
-.chart-disclosure {
-  border: 1px solid hsl(var(--border));
-  padding: var(--space-2) var(--space-3);
-  border-radius: 10px;
-}
 .next-prayer-link {
   font-size: 11px;
   white-space: nowrap;
@@ -314,7 +309,7 @@
   gap: var(--space-2) var(--space-3);
 }
 .daily-prayers-footer { justify-content: space-between; padding-top: var(--space-2); }
-.prayer-time-actions :is(a, .chart-disclosure) {
+.prayer-time-actions a {
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
@@ -329,7 +324,18 @@
   font-weight: 650;
   text-decoration: none;
 }
-.prayer-time-actions :is(a, button):hover { border-color: var(--gold-muted); }
+.prayer-time-actions a:hover { border-color: var(--gold-muted); }
+.chart-disclosure {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: hsl(var(--muted-foreground));
+  font: 600 .78rem/1.35 var(--font-mono);
+  text-decoration: underline;
+  text-underline-offset: .25em;
+}
+.chart-disclosure:hover { color: hsl(var(--foreground)); }
 .prayer-chart-card { margin-top: var(--space-4); padding-top: var(--space-5); border-top: 1px solid hsl(var(--border)); }
 /* Keep wayfinding photos in the location row at every viewport width. */
 .venue-photos {
@@ -494,11 +500,12 @@
   align-items: stretch;
   gap: clamp(var(--space-3), 2.2vw, var(--space-5));
 }
-.jummah-photo-row { grid-template-columns: minmax(0, 1fr) minmax(116px, 42%); }
+.jummah-photo-row { grid-template-columns: minmax(0, 1fr) minmax(116px, 42%); align-items: center; }
 .prayer-photo-row > .venue-photos { width: 100%; min-height: 66px; aspect-ratio: auto; }
 .prayer-photo-row > .venue-photos > :is(.venue-thumb, img, .photo-slot-empty) { position: absolute; inset: 0; }
 .prayer-photo-row:not(.jummah-photo-row) { align-items: center; }
-.prayer-photo-row:not(.jummah-photo-row) > .venue-photos { aspect-ratio: 4 / 3; min-height: 0; }
+.prayer-photo-row > .venue-photos { aspect-ratio: 4 / 3; min-height: 0; }
+.jummah-photo-row > .venue-photos { aspect-ratio: 16 / 9; }
 .prayer-photo-row .venue-photo-image { object-fit: cover; }
 .jummah-time { color: hsl(var(--foreground)); font-weight: 750; font-size: 1.08rem; }
 .jummah-place { color: hsl(var(--foreground)); font-weight: 650; font-size: .92rem; }
@@ -521,11 +528,9 @@
 .prayer-venue-copy { align-self: center; min-width: 0; }
 
 @media (max-width: 767px) {
-  .prayer-photo-row { grid-template-columns: minmax(0, 1fr) minmax(95px, 33%); }
-  .jummah-photo-row { grid-template-columns: minmax(0, 1fr) minmax(105px, 36%); }
   .prayer-venue-copy li { font-size: .77rem; }
-  .prayer-photo-row:not(.jummah-photo-row) { grid-template-columns: minmax(0, 1fr); }
-  .prayer-photo-row:not(.jummah-photo-row) > .venue-photos { aspect-ratio: 16 / 10; }
+  .prayer-photo-row { grid-template-columns: minmax(0, 1fr); }
+  .prayer-photo-row > .venue-photos { aspect-ratio: 16 / 10; }
 }
 
 .home-hero {
@@ -663,3 +668,48 @@
   content-visibility: auto;
   contain-intrinsic-block-size: auto 35rem;
 }
+
+.home-stats[data-design-stats="flow"] { margin-block:var(--space-5);transform:none; }
+.home-stats[data-design-stats="hidden"], [data-design-highlights="quiet"] :is(.home-stats,.welcome-path) {display:none}
+@media(min-width:768px) {
+  .home-hero[data-design-framing="split"] { min-height:max(660px,83svh); align-items:center; padding-top:var(--nav-offset); }
+  .home-hero[data-design-framing="split"] .wall-region { left:48%; }
+  .home-hero[data-design-framing="split"]::before { background:linear-gradient(90deg,hsl(var(--background)) 42%,transparent 67%); }
+}
+.home-hero[data-design-texture="plain"] .photo-arrangement::after {display:none}
+.home-hero[data-design-texture="halftone"] .photo-arrangement::after {
+  background:radial-gradient(circle,#201b18 1px,transparent 1px);
+  background-size:6px 6px;opacity:.25;
+}
+.resource-tile[data-design-card="flat"] { background:hsl(var(--card));color:hsl(var(--foreground)); }
+.resource-tile[data-design-card="flat"] > img,.resource-tile[data-design-card="flat"]::after {display:none}
+.resource-tile[data-design-card="flat"] :is(h3,.resource-primary,.resource-extra,.tile-description,.tile-detail-name) {color:hsl(var(--foreground))}
+.resource-tile[data-design-card="tint"]::after {background:linear-gradient(transparent,#142118dd)}
+.resource-tile[data-design-card="frost"] > img {filter:blur(2px) saturate(.75)}
+.resource-tile[data-design-details="visible"] .tile-detail {display:block;opacity:1;visibility:visible}
+
+/* Small, staggered glints over the photo wall. */
+.hero-sparkles { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.hero-sparkles span {
+  position: absolute; width: 9px; height: 9px; color: var(--gold-muted);
+  opacity: 0; animation: hero-glint 4.8s ease-in-out infinite;
+}
+.hero-sparkles span::before, .hero-sparkles span::after {
+  content: ""; position: absolute; inset: 0;
+  background: currentColor; border-radius: 50%;
+  transform: scaleX(.16);
+}
+.hero-sparkles span::after { transform: scaleY(.16); }
+.hero-sparkles span:nth-child(1) { top: 18%; left: 62%; }
+.hero-sparkles span:nth-child(2) { top: 36%; left: 88%; animation-delay: -1.6s; }
+.hero-sparkles span:nth-child(3) { top: 62%; left: 76%; animation-delay: -3.2s; }
+@keyframes hero-glint {
+  0%, 26%, 100% { opacity: 0; transform: scale(.5); }
+  12% { opacity: .75; transform: scale(1); }
+}
+@media (max-width:767px) {
+  .hero-sparkles span:nth-child(1) { top: 12%; left: 21%; }
+  .hero-sparkles span:nth-child(2) { top: 25%; left: 79%; }
+  .hero-sparkles span:nth-child(3) { top: 37%; left: 45%; }
+}
+@media (prefers-reduced-motion:reduce) { .hero-sparkles { display: none; } }

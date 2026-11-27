@@ -6,6 +6,7 @@ export function validEditorLink(value) {
   )
     return false;
   if (/^mailto:[^@?]+@[^@?]+$/i.test(value)) return true;
+  if (/^\/(?!\/)[A-Za-z0-9/_-]*(?:[?#][A-Za-z0-9_?&=%./-]+)?$/.test(value)) return true;
   if (!/^https?:\/\//i.test(value)) return false;
   try {
     const url = new URL(value);

@@ -1,5 +1,8 @@
-import { isPublicSiteOrigin } from "@/config/site";
-import { LinkField, ContentScope, Picture, TextField } from "@/editor/content";
+import { useContext } from "react";
+import { footerInvolved, footerCampus } from "@/data/siteMenus";
+import { visualKey } from "@/editor/visual-model";
+import { clarityConsentKey, consentGiven, consentKey, productionPublic } from "@/lib/analyticsPolicy";
+import { LinkField, ContentScope, Picture, TextField, Content } from "@/editor/content";
 import { Link } from "react-router-dom";
 import { Instagram, Facebook } from "lucide-react";
 import KhatamOverlay from "@/components/KhatamOverlay";
@@ -13,6 +16,11 @@ const WhatsAppIcon = ({ size = 20 }: { size?: number }) => (
 );
 
 const Footer = () => {
+  const menus = useContext(Content).fields[visualKey.menus];
+  const links = menus?.kind === "menus" ? menus.footer : undefined;
+  const involved = links?.filter(link => link.group === "involved") ?? footerInvolved;
+  const campus = links?.filter(link => link.group === "campus") ?? footerCampus;
+  const connect = links?.filter(link => link.group === "connect") ?? [];
   const currentYear = new Date().getFullYear();
   const copyrightYears = currentYear > 2025 ? `2025–${currentYear}` : "2025";
 
@@ -55,7 +63,7 @@ const Footer = () => {
             {/* Explore — left aligned */}
             <div className="flex flex-col gap-2.5 items-start">
               <p className="font-body text-[10px] font-bold uppercase tracking-[0.2em] mb-1" style={{ color: "rgba(242,171,35,.6)" }}><TextField id="Footer_6">Get involved</TextField></p>
-              {[{to:"/events",l:"Attend an event"},{to:"/join",l:"Join the MSA"},{to:"/gallery",l:"See our community"},{to:"/about",l:"Meet the board"}].map(({ to, l }) => (
+              {involved.map(({ url: to, title: l }) => (
                 <ContentScope key={to} id={"Footer_7-" + to}><Link key={to} to={to} className="footer-link font-body text-sm"><TextField id="Footer_8">{l}</TextField></Link></ContentScope>
               ))}
             </div>
@@ -63,7 +71,7 @@ const Footer = () => {
             {/* Resources — center aligned */}
             <div className="flex flex-col gap-2.5 items-center text-center">
               <p className="font-body text-[10px] font-bold uppercase tracking-[0.2em] mb-1" style={{ color: "rgba(242,171,35,.6)" }}><TextField id="Footer_9">Campus life</TextField></p>
-              {[{to:"/resources/new-to-pitt",l:"Student guide"},{to:"/resources/prayer",l:"Prayer on campus"},{to:"/resources/chaplain",l:"Meet the chaplain"},{to:"/resources",l:"All resources"}].map(({ to, l }) => (
+              {campus.map(({ url: to, title: l }) => (
                 <ContentScope key={to} id={"Footer_10-" + to}><Link key={to} to={to} className="footer-link font-body text-sm text-center whitespace-nowrap"><TextField id="Footer_11">{l}</TextField></Link></ContentScope>
               ))}
             </div>
@@ -71,6 +79,7 @@ const Footer = () => {
             {/* Connect — right aligned */}
             <div className="flex flex-col gap-2.5 items-end text-right h-full">
               <p className="font-body text-[10px] font-bold uppercase tracking-[0.2em] mb-1" style={{ color: "rgba(242,171,35,.6)" }}><TextField id="Footer_12">Connect</TextField></p>
+              {connect.map(link => <Link key={link.id} to={link.url} className="footer-link font-body text-sm">{link.title}</Link>)}
               <LinkField fieldId="Footer_email_link" href={`mailto:${LINKS.email}`} className="footer-link font-body text-sm"><TextField id="Footer_13">Email</TextField></LinkField>
               <div className="flex items-center gap-3 mt-1">
                 <LinkField fieldId="Footer_instagram_link" href={LINKS.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="footer-link inline-flex items-center">
@@ -128,13 +137,19 @@ const Footer = () => {
         </div>
 
         <details className="text-center text-sm mb-4"><summary>Privacy and analytics</summary>
-          <p>We use aggregate Vercel traffic and speed measurements on public pages. We exclude management and counseling pages. Optional Google Analytics measures page visits and link clicks using a random browser identifier. We do not send form entries or contact details.</p>
-          {import.meta.env.VITE_OPTIONAL_ANALYTICS==="true" && isPublicSiteOrigin(location.origin) && <button onClick={()=>{
-            const enabled=localStorage.getItem("msa-analytics")==="yes";
-            localStorage.setItem("msa-analytics",enabled?"no":"yes");
+          <p>We use aggregate Vercel traffic and speed measurements on public pages. We exclude management and counseling pages. With permission, Google Analytics measures visits and interactions and Microsoft Clarity records how people use public pages. Clarity masks the page text and inputs.</p>
+          {productionPublic && <button onClick={()=>{
+            const enabled=consentGiven();
+            localStorage.setItem(consentKey,enabled?"no":"yes");
             if(enabled){localStorage.removeItem("msa-visitor");sessionStorage.removeItem("msa-visit");sessionStorage.removeItem("msa-last");}
             location.reload();
-          }}>{localStorage.getItem("msa-analytics")==="yes"?"Turn off optional analytics":"Allow optional analytics"}</button>}
+          }}>{consentGiven()?"Turn off optional analytics":"Allow optional analytics"}</button>}
+          {productionPublic && <button className="ml-3" onClick={()=>{
+            const enabled = consentGiven(clarityConsentKey);
+            localStorage.setItem(clarityConsentKey,enabled?"no":"yes");
+            if(enabled) window.clarity?.("consentv2",{analytics_Storage:"denied",ad_Storage:"denied"});
+            location.reload();
+          }}>{consentGiven(clarityConsentKey)?"Turn off session recordings":"Allow session recordings"}</button>}
         </details>
         {/* ── Copyright ── */}
         <p className="text-center font-body text-xs" style={{ color: "rgba(255,255,255,.22)" }}>

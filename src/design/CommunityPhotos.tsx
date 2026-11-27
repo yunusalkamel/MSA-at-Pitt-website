@@ -5,15 +5,18 @@ import { ChevronRight, Pause, Play } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { useHeroParallax } from "@/hooks/use-hero-parallax";
 import { Content, Picture, TextField } from "@/editor/content";
+import { getCollection, findAvailable } from "@/editor/visual-model";
+import { useDesign } from "./useDesign";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { communityImageSizes } from "@/lib/communityImageSizes";
 import { sanityImageSrcSet } from "@/lib/sanityImageVariants";
 import {
-  albumCaption, communityAlbums, communityPhoto, daylightWall, eveningWall, wallCaption, type PhotoId,
+  communityPhoto, daylightWall, eveningWall, wallCaption, type PhotoId,
 } from "@/data/communityPhotos";
 
-type Tile = { photo: PhotoId; previous?: PhotoId };
+type WallPhoto = PhotoId | `managed-${string}`;
+type Tile = { photo: WallPhoto; previous?: WallPhoto };
 
 function intersects(a: DOMRect, b: DOMRect) {
   return a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
@@ -23,11 +26,30 @@ function apart(a: number, b: number, columns: number) {
 }
 
 function Wall({ phone, night }: { phone: boolean; night: boolean }) {
-  const columns = phone ? 2 : 4;
-  const rows = 4;
-  const reserveBridge = !phone && night ? 7 : -1;
-  const library = night ? eveningWall : daylightWall;
+  const design = useDesign();
+  const fullPhoto = design.hero === "single" || design.hero === "reel";
+  const still = design.hero === "single" || design.rotation === "still";
+  const density = design.density === "dense" ? 5 : design.density === "sparse" ? 2 : 4;
+  const columns = fullPhoto ? 1 : phone ? 2 : density;
+  const rows = fullPhoto ? 1 : phone ? 4 : density;
   const { fields } = useContext(Content);
+  const collection = getCollection(fields,"hero");
+  const managedPhotos = useMemo(() => {
+    const photos = findAvailable(collection)?.filter(item => item.image && [night ? "night" : "day","both"].includes(item.role || "day")) ?? [];
+    const seen = new Set<string>();
+    return new Map<WallPhoto, {src:string; title:string}>(photos.flatMap(photo => {
+      if (seen.has(photo.image)) return [];
+      seen.add(photo.image);
+      return [[`managed-${photo.id}`,{src:photo.image,title:photo.title}]];
+    }));
+  },[collection,night]);
+  const library = useMemo(() => {
+    const fallback = (night ? eveningWall : daylightWall) as readonly PhotoId[];
+    const urls = new Set([...managedPhotos.values()].map(photo=>photo.src));
+    if (managedPhotos.size >= columns * rows) return [...managedPhotos.keys()];
+    return [...managedPhotos.keys(),...fallback.filter(id=>!urls.has(communityPhoto(id).src))];
+  },[managedPhotos,night,columns,rows]);
+  const reserveBridge = !fullPhoto && !phone && night && density === 4 && !managedPhotos.size ? 7 : -1;
   const sources = useRef(fields);
   sources.current = fields;
   const reduced = useReducedMotion();
@@ -41,30 +63,33 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
   const start = useMemo(() => {
     const photos = library.filter(id => reserveBridge < 0 || id !== "fajr-bridge").slice(0, columns * rows);
     if (reserveBridge >= 0) photos[reserveBridge] = "fajr-bridge";
-    if (phone) {
+    if (phone && !fullPhoto && !managedPhotos.size) {
       const belowTopRight = columns + 1;
       [photos[1], photos[belowTopRight]] = [photos[belowTopRight], photos[1]];
     }
     return photos.map(photo => ({ photo }));
-  }, [library, columns, rows, reserveBridge, phone]);
+  }, [library, columns, rows, reserveBridge, phone, fullPhoto, managedPhotos]);
   const [tiles, setTiles] = useState<Tile[]>(start);
   const lastChanged = useRef<number[]>(start.map((_, index) => phone && index < columns * 2 ? -1 : 0));
   const board = useRef(tiles);
   const [visible, setVisible] = useState(false);
   const [tabVisible, setTabVisible] = useState(() => !document.hidden);
   const [paused, setPaused] = useState(false);
-  const sizes = phone ? "50vw" : "25vw";
+  const sizes = `${Math.ceil(100 / columns)}vw`;
   const fieldsReady = useRef(false);
 
-  function source(id: PhotoId, slot = -1) {
-    const photo = communityPhoto(id);
+  function source(id: WallPhoto, slot = -1) {
+    const managed = managedPhotos.get(id);
+    const photo = managed ?? communityPhoto(id as PhotoId);
     const selected = sources.current["//" + prefix + id];
     const legacy = slot === 0 ? sources.current["//Index_4"] : undefined;
     const custom = selected?.kind === "image" ? selected : legacy?.kind === "image" ? legacy : undefined;
     if (custom) {
-      return { src: custom.url, srcSet: communityImageSizes(custom.url) || sanityImageSrcSet(custom.url, 720) };
+      return { src: custom.url, srcSet: communityImageSizes(custom.url,phone && !fullPhoto) || sanityImageSrcSet(custom.url,phone && !fullPhoto ? 480 : 720) };
     }
-    return { src: photo.src.replace(".webp", "-320.webp"), srcSet: communityImageSizes(photo.src) };
+    const variants = communityImageSizes(photo.src,phone && !fullPhoto);
+    if (managed) return {src:photo.src,srcSet:variants || sanityImageSrcSet(photo.src,1920)};
+    return { src: photo.src.replace(".webp", "-320.webp"), srcSet: variants };
   }
 
   useEffect(() => {
@@ -97,7 +122,7 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
   }, [fields, library]);
 
   async function advance() {
-    if (reduced || busy.current || !wall.current || document.hidden ||
+    if (still || reduced || busy.current || !wall.current || document.hidden ||
         board.current.filter(tile => tile.previous).length >= 2) return;
     const hero = wall.current.closest("[data-photo-hero]");
     if (!hero) return;
@@ -105,10 +130,10 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
       .map(element => element.getBoundingClientRect());
     const indices = Array.from(wall.current.querySelectorAll("figure")).flatMap((element, index) => {
       const reserved = !!board.current[index].previous || index === reserveBridge || (index === 0 && sources.current["//Index_4"]?.kind === "image");
-      return reserved || protectedBoxes.some(box => intersects(box, element.getBoundingClientRect())) ? [] : [index];
+      return reserved || (!fullPhoto && protectedBoxes.some(box => intersects(box, element.getBoundingClientRect()))) ? [] : [index];
     });
-    const movable = indices.filter(index => index !== last.current);
-    const eligible = phone ? movable : movable.filter(index =>
+    const movable = indices.filter(index => fullPhoto || index !== last.current);
+    const eligible = phone || fullPhoto ? movable : movable.filter(index =>
       last.current < 0 || apart(index, last.current, columns));
     if (!eligible.length) return;
     const oldest = Math.min(...eligible.map(index => lastChanged.current[index]));
@@ -136,10 +161,10 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
   }
 
   useEffect(() => {
-    if (paused || reduced || !visible || !tabVisible) return;
+    if (still || paused || reduced || !visible || !tabVisible) return;
     let timer: number;
     const schedule = () => {
-      const wait = phone ? 1800 + Math.random() * 900 : 1600 + Math.random() * 700;
+      const wait = ((changes.current ? 0 : 5000) + (phone ? 1800 + Math.random() * 900 : 1600 + Math.random() * 700)) * (design.rotation === "slow" || fullPhoto ? 2 : 1);
       timer = window.setTimeout(async () => {
         await advance();
         if (epoch.current === activeEpoch) schedule();
@@ -151,9 +176,9 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
       if (epoch.current === activeEpoch) schedule();
     });
     return () => { epoch.current++; window.clearTimeout(timer); };
-  }, [paused, reduced, visible, tabVisible, phone]);
+  }, [paused, reduced, visible, tabVisible, phone, still, design.rotation, fullPhoto]);
 
-  const finish = (index: number, previous: PhotoId, restore: boolean) => {
+  const finish = (index: number, previous: WallPhoto, restore: boolean) => {
     if (board.current[index].previous !== previous) return;
     board.current = board.current.map((tile, i) => i === index ? { photo: restore ? previous : tile.photo } : tile);
     setTiles(board.current);
@@ -161,7 +186,9 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
 
   return (
     <div className="community-media">
-      <motion.div className="photo-arrangement" ref={wall} style={{ y: parallax }} aria-hidden="true">
+      <motion.div className="photo-arrangement" ref={wall} style={{ y: parallax,
+        ...(columns !== (phone ? 2 : 4) || rows !== 4 ? {gridTemplateColumns:`repeat(${columns}, minmax(0,1fr))`,gridTemplateRows:`repeat(${rows}, minmax(0,1fr))`} : {})
+      }} aria-hidden="true">
         {tiles.map(({ photo, previous }, index) => {
           return (
             <figure key={index} data-hero-tile={index} data-photo={photo}>
@@ -170,18 +197,18 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
                 const incoming = !!previous && !outgoing;
                 return <Picture key={id} fieldId={prefix + id} fallbackFieldIds={index === 0 ? ["Index_4"] : undefined}
                   {...source(id, index)} sizes={sizes} alt="" decoding="async" width={720} height={450}
-                  {...(index === 0 && !outgoing ? { fetchpriority: "high" } : {})}
-                  style={{ objectPosition: communityPhoto(id).focus }}
+                  {...(!previous ? {fetchpriority: index < (phone ? 4 : 1) ? "high" : "low"} : {})}
+                  style={{ objectPosition: managedPhotos.has(id) ? "50% 38%" : communityPhoto(id as PhotoId).focus }}
                   className={outgoing ? "wall-previous" : incoming ? "wall-incoming" : undefined}
                   onAnimationEnd={incoming ? () => finish(index, previous, false) : undefined}
                   onError={incoming ? () => finish(index, previous, true) : undefined} />;
               })}
-              <figcaption className="sr-only"><TextField id={`CommunityCaption_${photo}`}>{wallCaption(photo)}</TextField></figcaption>
+              <figcaption className="sr-only"><TextField id={`CommunityCaption_${photo}`}>{managedPhotos.get(photo)?.title ?? wallCaption(photo as PhotoId)}</TextField></figcaption>
             </figure>
           );
         })}
       </motion.div>
-      {!reduced && <div className="wall-controls">
+      {!reduced && !still && <div className="wall-controls">
         <button type="button" aria-label={paused ? "Play photos" : "Pause photos"} aria-pressed={paused}
           onClick={() => { epoch.current++; setPaused(!paused); }}>
           {paused ? <Play size={16} /> : <Pause size={16} />}
@@ -195,94 +222,23 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
 export function HeroPhotos() {
   const { theme } = useTheme();
   const phone = useIsMobile();
+  const design = useDesign();
+  const { fields } = useContext(Content);
+  const managed = getCollection(fields,"hero");
+  const night = design.photography === "night" || (design.photography !== "day" && theme === "dark");
   return <div className="wall-region" role="group" aria-label="Photos from MSA at Pitt gatherings">
-    <Wall key={theme + String(phone)} phone={phone} night={theme === "dark"} />
+    <Wall key={[phone,night,design.hero,design.density,managed?.map(item=>[item.id,item.image,item.role,item.hidden].join(",")).join(";")].join("|")} phone={phone} night={night} />
   </div>;
 }
 
-export type RecapAlbum = {
-  slug: string;
-  title: string;
-  eventDate?: string;
-  shots?: { src: string; caption?: string }[];
-};
-function recapSrc(src: string, width: number) {
-  if (!src.startsWith("https://cdn.sanity.io/images/")) return src;
-  const url = new URL(src);
-  url.searchParams.set("w", String(width));
-  url.searchParams.set("auto", "format");
-  return url.href;
-}
-export function Moments({
-  galleryLink = true,
-  albums = [],
-}: {
-  galleryLink?: boolean;
-  albums?: RecapAlbum[];
-}) {
-  const [selected, setSelected] = useState("");
-  const series = [...albums.filter(a => a.shots?.some(p => p.src)), ...communityAlbums].slice(0, 4);
-  const album = series.find((a) => a.slug === selected) ?? series[0];
-  const legacyScope = album.slug ? "Index_64-" + album.slug : "Index_66-" + album.title;
-  const legacyField = (id: string) => "//" + encodeURIComponent(legacyScope) + "/" + id;
-  const shots =
-    album?.shots
-      ?.filter((p) => p.src)
-      .map((p, i) => ({
-        id: album.slug + "-" + i,
-        src: p.src,
-        title: albumCaption(album),
-        description: p.caption || album.title,
-      })) ?? [];
+export function Moments() {
   return (
     <section className="moment-section recap-gallery">
       <div className="moment-heading">
-        <div>
-          {galleryLink && <small className="eyebrow"><TextField id="Index_59">Our Gallery</TextField></small>}
-          <h2>{galleryLink ? <TextField id="Index_60">Life with MSA</TextField> : "Life with MSA"}</h2>
-        </div>
-        {galleryLink && <Link to="/gallery"><TextField id="Index_61">Explore the gallery</TextField> →</Link>}
+        <h2><TextField id="Index_60">Life with MSA</TextField></h2>
+        <Link to="/gallery"><TextField id="Index_61">Explore the gallery</TextField> →</Link>
       </div>
-      {galleryLink && <HomeStoryBubbles />}
-      {series.length > 0 && (
-        <div className="recap-selector">
-          {series.map((a) => (
-            <button
-              key={a.slug}
-              aria-pressed={album.slug === a.slug}
-              onClick={() => {
-                setSelected(a.slug);
-              }}
-            >
-              {a.title}
-            </button>
-          ))}
-        </div>
-      )}
-      <div className="moment-grid">
-        {shots.map((p, index) => (
-          <figure key={p.id}>
-            <Picture
-              fieldId={"Moment_" + p.id}
-              fallbackFieldKeys={galleryLink && index === 0 ? [legacyField("Index_62")] : undefined}
-              src={recapSrc(p.src, 480)}
-              alt={p.description}
-              loading="lazy"
-              sizes="(width < 768px) 48vw, 300px"
-              width={480}
-              height={300}
-            />
-            <figcaption>
-              <TextField id={"MomentCaption_" + p.id} fallbackFieldKeys={galleryLink && index === 0 ? [legacyField("Index_63")] : undefined}>{p.title}</TextField>
-            </figcaption>
-          </figure>
-        ))}
-      </div>
-      <div className="recap-controls">
-        {album && (
-          <Link to={"/gallery/" + album.slug}><TextField id={album.slug ? "Index_65" : "Index_67"}>{`Open ${album.title} album →`}</TextField></Link>
-        )}
-      </div>
+      <HomeStoryBubbles />
     </section>
   );
 }

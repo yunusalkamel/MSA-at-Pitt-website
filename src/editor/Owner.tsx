@@ -1,3 +1,4 @@
+import OwnerDesign from "./OwnerDesign";
 import Reports from "./Reports";
 import History, {ActivityChanges} from "./History";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -146,6 +147,7 @@ function Dashboard({ session }: { session: Session }) {
           "Administrators",
           "Website controls",
           "Activity",
+          "Design",
           "Analytics",
           "System health",
         ].map((label) => (
@@ -366,7 +368,7 @@ function Dashboard({ session }: { session: Session }) {
               </button>
             )}
           </section>
-          <Reports session={session}/><History session={session} owner/>
+          <OwnerDesign session={session}/><Reports session={session}/><History session={session} owner/>
           <section id="System-health">
             <h2>System health</h2>
             <p>Content dataset · {data.environment}</p>

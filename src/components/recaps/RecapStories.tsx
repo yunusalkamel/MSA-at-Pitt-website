@@ -1,9 +1,12 @@
-import { lazy, Suspense, useCallback, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useContext, useRef, useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { recapDate, recaps, type Recap } from "@/data/recaps";
 import { useCalendarEvents } from "@/hooks/useCalendarEvents";
 import { nextGathering } from "@/lib/nextGathering";
+import { Content } from "@/editor/content";
+import { findAvailable, getCollection } from "@/editor/visual-model";
+import { sanityImageSrcSet } from "@/lib/sanityImageVariants";
 import "./recaps.css";
 
 const RecapViewer = lazy(() => import("./RecapViewer"));
@@ -24,18 +27,18 @@ function savedRecaps() {
   }
 }
 
-function useRecapViewer(visible: Recap[]) {
+function useRecapViewer(visible: Recap[], stories: Recap[]) {
   const location = useLocation();
   const navigate = useNavigate();
   const opener = useRef<HTMLElement>(null);
   const [seen, setSeen] = useState(savedRecaps);
   const params = new URLSearchParams(location.search);
-  const story = recaps.find(item => item.slug === params.get("story"));
+  const story = stories.find(item => item.slug === params.get("story"));
   const requested = Number(params.get("slide") ?? "1");
   const slide = story && Number.isInteger(requested)
     ? Math.min(Math.max(requested - 1, 0), story.slides.length - 1)
     : 0;
-  const list = visible.some(item => story?.slug === item.slug) ? visible : recaps;
+  const list = visible.some(item => story?.slug === item.slug) ? visible : stories;
 
   function show(item?: Recap, index = 0) {
     if (item) {
@@ -79,11 +82,10 @@ function useRecapViewer(visible: Recap[]) {
   };
 }
 
-function Bubbles({ stories, seen, onOpen, more = false }: {
+function Bubbles({ stories, seen, onOpen }: {
   stories: Recap[];
   seen: Set<string>;
   onOpen: (story: Recap, trigger: HTMLElement) => void;
-  more?: boolean;
 }) {
   return (
     <div className="recap-bubble-rail">
@@ -92,24 +94,34 @@ function Bubbles({ stories, seen, onOpen, more = false }: {
           <button key={item.slug} type="button" className="recap-bubble" data-seen={seen.has(item.slug) || undefined}
             aria-label={`${item.title}, ${recapDate(item.date)}${seen.has(item.slug) ? ", viewed" : ""}`}
             onClick={event => onOpen(item, event.currentTarget)}>
-            <span className="recap-ring"><img src={item.cover} width={320} height={320} alt="" loading="lazy" decoding="async" /></span>
+            <span className="recap-ring"><img src={item.cover.replace(/^\/photos\/recaps\/(.+)\/cover\.webp$/, "/photos/recaps/$1/bubble.webp")} srcSet={sanityImageSrcSet(item.cover,176) || undefined} sizes="88px" width={320} height={320} alt="" loading="lazy" decoding="async" /></span>
             <span className="recap-bubble-title">{item.title}</span>
             <span className="recap-bubble-date">{recapDate(item.date, true)}</span>
           </button>
         ))}
-        {more && <Link className="recap-bubble recap-more" to="/gallery">
-          <span className="recap-ring"><span><ArrowRight size={21} aria-hidden="true" /></span></span>
-          <span className="recap-bubble-title">See all</span>
-        </Link>}
       </div>
     </div>
   );
 }
 
-const latest = recaps.slice(0, 6);
+function useStories() {
+  const { fields } = useContext(Content);
+  const managed = findAvailable(getCollection(fields, "stories"));
+  if (!managed) return { stories: recaps, featured: recaps.slice(0, 6) };
+  const configured = managed.flatMap(item => {
+    if (!item.slug || !item.photos?.length) return [];
+    const cover = item.image || item.photos[0].src;
+    const story: Recap = {slug:item.slug,title:item.title,date:item.date,cover,audience:item.audience ?? "everyone",
+      stat:item.body,slides:item.photos.map(photo => ({...photo,aspect:photo.aspect ?? .8}))};
+    return [{story, home: item.home}];
+  });
+  return {stories: configured.map(item=>item.story), featured:configured.filter(item=>item.home).map(item=>item.story).slice(0,6)};
+}
+
 export function HomeStoryBubbles() {
-  const story = useRecapViewer(latest);
-  return <><Bubbles stories={latest} seen={story.seen} onOpen={story.open} more />{story.viewer}</>;
+  const { stories, featured: latest } = useStories();
+  const story = useRecapViewer(latest, stories);
+  return <><Bubbles stories={latest} seen={story.seen} onOpen={story.open} />{story.viewer}</>;
 }
 
 function groupBySemester(stories: Recap[]) {
@@ -139,14 +151,16 @@ function NextRecapEvent() {
 }
 
 export function GalleryStories() {
-  const [filter, setFilter] = useState<Filter>("all");
-  const visible = filter === "all" ? recaps : recaps.filter(item => item.audience === filter);
-  const story = useRecapViewer(visible);
+  const [selected, setFilter] = useState<Filter>("all");
+  const { stories } = useStories();
+  const filter = selected === "all" || stories.filter(item => item.audience === selected).length >= 2 ? selected : "all";
+  const visible = filter === "all" ? stories : stories.filter(item => item.audience === filter);
+  const story = useRecapViewer(visible, stories);
   return (
     <section className="gallery-stories site-container" aria-label="Event recaps">
       <div className="recap-filters" role="group" aria-label="Filter recaps">
         {filters.map(({ value, label }) => {
-          const count = value === "all" ? recaps.length : recaps.filter(item => item.audience === value).length;
+          const count = value === "all" ? stories.length : stories.filter(item => item.audience === value).length;
           if (value !== "all" && count < 2) return null;
           return <button key={value} type="button" aria-pressed={filter === value}
             onClick={() => setFilter(value)}>{label} <span>{count}</span></button>;
@@ -155,13 +169,14 @@ export function GalleryStories() {
       <Bubbles stories={visible} seen={story.seen} onOpen={story.open} />
       <div className="recap-timeline">
         {filter === "all" && <NextRecapEvent />}
-        {[...groupBySemester(visible)].map(([semester, items]) => (
+        {[...groupBySemester(visible)].map(([semester, items], groupIndex) => (
           <section key={semester} className="recap-semester" aria-label={semester}>
             <header><h2>{semester}</h2><span>{items.length} {items.length === 1 ? "recap" : "recaps"}</span></header>
             <div className="recap-cards">
-              {items.map(item => (
+              {items.map((item,index) => (
                 <button key={item.slug} type="button" className="recap-card" onClick={event => story.open(item, event.currentTarget)}>
-                  <img src={item.cover.replace("cover.webp", "thumb.webp")} width={420} height={525} alt="" loading="lazy" decoding="async" />
+                  <img src={item.cover.startsWith("/photos/recaps/") ? item.cover.replace("cover.webp", "preview.webp") : item.cover} srcSet={sanityImageSrcSet(item.cover,640) || undefined} sizes="(max-width:767px) 85vw, 320px" width={420} height={525} alt="" loading={groupIndex === 0 && index === 0 ? "eager" : "lazy"} decoding="async"
+                    {...(groupIndex === 0 && index === 0 ? {fetchpriority:"high"} : {})} />
                   <span className="recap-card-body">
                     <span className="recap-card-date">{recapDate(item.date)}
                       {item.audience !== "everyone" && <span className="recap-audience">{item.audience}</span>}

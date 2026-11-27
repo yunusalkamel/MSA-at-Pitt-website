@@ -5,42 +5,42 @@
 /* ── Local font-face declarations ─────────────────────────────────── */
 @font-face {
   font-family: 'Satoshi';
-  src: url('/satoshi/Satoshi-Regular.otf') format('opentype');
+  src: url('/satoshi/Satoshi-Regular.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Satoshi';
-  src: url('/satoshi/Satoshi-Italic.otf') format('opentype');
+  src: url('/satoshi/Satoshi-Italic.woff2') format('woff2');
   font-weight: 400;
   font-style: italic;
   font-display: swap;
 }
 @font-face {
   font-family: 'Satoshi';
-  src: url('/satoshi/Satoshi-Medium.otf') format('opentype');
+  src: url('/satoshi/Satoshi-Medium.woff2') format('woff2');
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Satoshi';
-  src: url('/satoshi/Satoshi-MediumItalic.otf') format('opentype');
+  src: url('/satoshi/Satoshi-MediumItalic.woff2') format('woff2');
   font-weight: 500;
   font-style: italic;
   font-display: swap;
 }
 @font-face {
   font-family: 'Satoshi';
-  src: url('/satoshi/Satoshi-Bold.otf') format('opentype');
+  src: url('/satoshi/Satoshi-Bold.woff2') format('woff2');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Satoshi';
-  src: url('/satoshi/Satoshi-BoldItalic.otf') format('opentype');
+  src: url('/satoshi/Satoshi-BoldItalic.woff2') format('woff2');
   font-weight: 700;
   font-style: italic;
   font-display: swap;
@@ -968,20 +968,36 @@ html { scroll-behavior: smooth; }
   background: linear-gradient(155deg, #21344d73, #0d182744);
   box-shadow: 0 12px 34px #060d2060, inset 0 1px 0 #ccd9eb39;
 }
-.glass:is(.nav-pill, .nav-resources-menu) {
+.nav-pill::before, .glass.nav-resources-menu {
+  background: linear-gradient(155deg, #fff6df66, #e9dece32);
+  border: 1px solid hsl(var(--border) / .65);
+  box-shadow: 0 12px 34px #15202d18, inset 0 1px 0 #fff6dfaa;
   background-color: #f8f3ea61;
   backdrop-filter: blur(22px) saturate(170%);
   -webkit-backdrop-filter: blur(22px) saturate(170%);
 }
-.dark .glass:is(.nav-pill, .nav-resources-menu) { background-color: #15273763; }
 .home-stats > .glass {
   backdrop-filter: blur(27px) saturate(180%);
   -webkit-backdrop-filter: blur(27px) saturate(180%);
 }
 .nav-shell { display: flex; justify-content: center; padding: var(--space-3) var(--space-4) 0; }
-.nav-pill { max-width: min(var(--container), 64rem); padding-inline: var(--space-3); transition: box-shadow .3s ease, background-color .3s ease; }
-.nav-pill[data-scrolled] { box-shadow: 0 14px 36px #15202d28, inset 0 1px 0 #fff6dfaa; }
-.dark .nav-pill[data-scrolled] { box-shadow: 0 14px 36px #060d2080, inset 0 1px 0 #ccd9eb39; }
+/* Give the dropdown its own backdrop instead of clipping it to the navigation's filter. */
+.nav-pill::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  transition: box-shadow .3s ease, background-color .3s ease;
+}
+.dark .nav-pill::before, .dark .glass.nav-resources-menu {
+  background: linear-gradient(155deg, #21344d73, #0d182744) #15273763;
+  box-shadow: 0 12px 34px #060d2060, inset 0 1px 0 #ccd9eb39;
+}
+.nav-pill { position: relative; z-index: 0; max-width: min(var(--container), 64rem); padding-inline: var(--space-3); transition: box-shadow .3s ease, background-color .3s ease; }
+.nav-pill[data-scrolled]::before { box-shadow: 0 14px 36px #15202d28, inset 0 1px 0 #fff6dfaa; }
+.dark .nav-pill[data-scrolled]::before { box-shadow: 0 14px 36px #060d2080, inset 0 1px 0 #ccd9eb39; }
 .nav-resources { display: flex; position: relative; align-items: center; font-size: .875rem; font-weight: 650; }
 .nav-resources-link { padding-block: var(--space-1); }
 .nav-resources > button { padding: var(--space-2) var(--space-1); }
@@ -1121,9 +1137,37 @@ img[src*="/lawn-prayer"] { object-position: center 72%; }
   .page-hero h1 { transform: none !important; }
 }
 @media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
-  .resource-tile[data-back] .tile-detail { animation: resource-flip .22s ease-out; }
+  .resource-tile[data-back] .tile-detail { animation: resource-flip .12s ease-out; }
 }
 @keyframes resource-flip {
   from { opacity: 0; transform: perspective(28rem) rotateY(-10deg); }
   to { opacity: 1; transform: perspective(28rem) rotateY(0); }
 }
+
+.visual-section-marker { display: contents; }
+:is(.visual-block, .visual-section-style)[data-tone="warm"] { background: hsl(var(--muted) / .65); }
+:is(.visual-block, .visual-section-style)[data-tone="emerald"] { background: hsl(var(--primary) / .12); }
+:is(.visual-block, .visual-section-style)[data-tone="navy"] { background: hsl(var(--foreground) / .07); }
+:is(.visual-block, .visual-section-style)[data-align="center"] { text-align: center; }
+:is(.visual-block, .visual-section-style)[data-align="center"] p { margin-inline: auto; }
+.visual-block[data-spacing="compact"], .visual-section-style[data-spacing="compact"] > section { padding-block: var(--space-7); }
+.visual-block[data-spacing="roomy"], .visual-section-style[data-spacing="roomy"] > section { padding-block: var(--space-10); }
+:is(.visual-block, .visual-section-style)[data-size="large"] h2 { font-size: clamp(2.25rem, 5vw, 4.5rem); }
+.visual-grid { display: grid; gap: var(--space-4); }
+@media (min-width: 768px) {
+  .visual-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  [data-columns="two"] .visual-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  [data-columns="one"] .visual-grid { grid-template-columns: 1fr; }
+}
+
+[data-design-nav="solid"] .nav-pill::before, [data-design-nav="solid"] .glass.nav-resources-menu,
+[data-design-nav="bar"] .nav-pill::before, [data-design-nav="bar"] .glass.nav-resources-menu {
+  background: hsl(var(--background));
+}
+[data-design-nav="bar"] .nav-shell { padding:0; }
+[data-design-nav="bar"] .nav-pill { max-width:none;border-radius:0;padding-inline:var(--gutter); }
+[data-design-transition="seamless"] .section-divider { display:none; }
+[data-design-transition="bands"] .section-divider { min-height:var(--space-6);background:linear-gradient(transparent,hsl(var(--primary) / .12),transparent); }
+[data-album-layout="filmstrip"] { display:flex; gap:var(--space-4); overflow-x:auto; scroll-snap-type:x mandatory; }
+[data-album-layout="filmstrip"] > * { flex:0 0 min(80vw,440px); scroll-snap-align:start; }
+[data-album-layout="spotlight"] { grid-template-columns:1fr; }
