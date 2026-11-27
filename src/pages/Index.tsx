@@ -273,6 +273,9 @@ const Index = () => {
         </motion.div>
 
         <HeroPhotos/>
+        {!prefersReduced && <div className="hero-sparkles" aria-hidden="true">
+          <span /><span /><span />
+        </div>}
       </section>
 
       {/* ── Stats — overlaps slightly into the warm section below ── */}

@@ -1137,7 +1137,7 @@ img[src*="/lawn-prayer"] { object-position: center 72%; }
   .page-hero h1 { transform: none !important; }
 }
 @media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
-  .resource-tile[data-back] .tile-detail { animation: resource-flip .22s ease-out; }
+  .resource-tile[data-back] .tile-detail { animation: resource-flip .12s ease-out; }
 }
 @keyframes resource-flip {
   from { opacity: 0; transform: perspective(28rem) rotateY(-10deg); }

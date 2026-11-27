@@ -687,3 +687,29 @@
 .resource-tile[data-design-card="tint"]::after {background:linear-gradient(transparent,#142118dd)}
 .resource-tile[data-design-card="frost"] > img {filter:blur(2px) saturate(.75)}
 .resource-tile[data-design-details="visible"] .tile-detail {display:block;opacity:1;visibility:visible}
+
+/* Small, staggered glints over the photo wall. */
+.hero-sparkles { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.hero-sparkles span {
+  position: absolute; width: 9px; height: 9px; color: var(--gold-muted);
+  opacity: 0; animation: hero-glint 4.8s ease-in-out infinite;
+}
+.hero-sparkles span::before, .hero-sparkles span::after {
+  content: ""; position: absolute; inset: 0;
+  background: currentColor; border-radius: 50%;
+  transform: scaleX(.16);
+}
+.hero-sparkles span::after { transform: scaleY(.16); }
+.hero-sparkles span:nth-child(1) { top: 18%; left: 62%; }
+.hero-sparkles span:nth-child(2) { top: 36%; left: 88%; animation-delay: -1.6s; }
+.hero-sparkles span:nth-child(3) { top: 62%; left: 76%; animation-delay: -3.2s; }
+@keyframes hero-glint {
+  0%, 26%, 100% { opacity: 0; transform: scale(.5); }
+  12% { opacity: .75; transform: scale(1); }
+}
+@media (max-width:767px) {
+  .hero-sparkles span:nth-child(1) { top: 12%; left: 21%; }
+  .hero-sparkles span:nth-child(2) { top: 25%; left: 79%; }
+  .hero-sparkles span:nth-child(3) { top: 37%; left: 45%; }
+}
+@media (prefers-reduced-motion:reduce) { .hero-sparkles { display: none; } }
