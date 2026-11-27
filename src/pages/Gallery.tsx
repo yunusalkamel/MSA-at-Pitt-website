@@ -1,3 +1,4 @@
+import { GalleryStories } from "@/components/recaps/RecapStories";
 import { PageHero } from "@/components/PageHero";
 import { Picture, TextField, ContentScope, itemIdentity } from "@/editor/content";
 import { useRef, useState, useMemo } from "react";
@@ -147,11 +148,6 @@ const AlbumCard = ({ album, index }: { album: GalleryAlbum; index: number }) => 
   return inner;
 };
 
-import { Moments,type RecapAlbum } from "@/design/CommunityPhotos";
-function GalleryRecaps(){
- const {data}=useSanityData<RecapAlbum[]>(QUERIES.communityRecaps);
- return <Moments galleryLink={false} albums={data??[]}/>;
-}
 const Gallery = () => {
   usePageMeta({
     title: "Gallery — MSA at Pitt",
@@ -235,9 +231,11 @@ const Gallery = () => {
         </motion.div>
       </PageHero>
 
-      <GalleryRecaps/>
+      <GalleryStories />
       <div className="recap-link"><Link to="/events">Come to the next gathering →</Link></div>
-      {albums.length > 0 && <><section className="py-3 liquid-glass-strong sticky nav-sticky z-30 border-b border-border/30">
+      {albums.length > 0 && <>
+      <h2 className="gallery-albums-heading">Photo albums</h2>
+      <section className="py-3 liquid-glass-strong sticky nav-sticky z-30 border-b border-border/30">
         <div className="max-w-5xl mx-auto px-4">
           <button type="button" aria-controls="album-filters" aria-expanded={showFilters} className="md:hidden w-full flex items-center justify-between min-h-11 text-sm font-semibold" onClick={() => setShowFilters(v => !v)}>
             Filter albums <span>{activeLabel} {showFilters ? "▴" : "▾"}</span>

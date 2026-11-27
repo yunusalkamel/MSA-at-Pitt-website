@@ -26,6 +26,8 @@ export const interactions = [
   "calendar_click",
   "outbound_click",
   "scroll_90",
+  "story_open",
+  "story_complete",
 ];
 export function safePage(path) {
   if (/^\/gallery\/[^/]+\/?$/.test(path)) return "/gallery/album";

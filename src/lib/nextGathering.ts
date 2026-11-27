@@ -28,7 +28,7 @@ function priority(event: MSAEvent) {
   if (has("sports")) return 4;
   return 5;
 }
-export function nextGathering(events: MSAEvent[], now = new Date()) {
+export function nextGathering(events: MSAEvent[], now = new Date(), order: "featured" | "chronological" = "featured") {
   const p = Object.fromEntries(
     easternClock.formatToParts(now).map((x) => [x.type, x.value]),
   );
@@ -49,7 +49,7 @@ export function nextGathering(events: MSAEvent[], now = new Date()) {
     const inWindowA = a.startDate <= cutoff,
       inWindowB = b.startDate <= cutoff;
     if (inWindowA !== inWindowB) return inWindowA ? -1 : 1;
-    const rank = inWindowA ? priority(a) - priority(b) : 0;
+    const rank = inWindowA && order === "featured" ? priority(a) - priority(b) : 0;
     return (
       rank ||
       a.startDate.localeCompare(b.startDate) ||
