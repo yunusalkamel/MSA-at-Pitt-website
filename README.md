@@ -2,7 +2,7 @@
 
 The official website of the Muslim Student Association at the University of Pittsburgh.
 
-**Live site**: [msaatpitt.org](https://msaatpitt.org)
+**Live site**: [msaatpitt.vercel.app](https://msaatpitt.vercel.app)
 
 ---
 

@@ -207,7 +207,7 @@ export async function report({ view, start, end, page }) {
     return cached("crux" + (page ?? ""), 86400000, async () => {
       const rows = [];
       for (const formFactor of ["PHONE", "DESKTOP"]) {
-        const origin = getSiteOrigin(process.env.SITE_ORIGIN);
+        const origin = getSiteOrigin(process.env.SITE_ORIGIN, process.env.VERCEL_PROJECT_PRODUCTION_URL);
         const res = await fetch(
           "https://chromeuxreport.googleapis.com/v1/records:queryHistoryRecord?key=" +
             encodeURIComponent(process.env.CRUX_API_KEY),
