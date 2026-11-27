@@ -36,13 +36,19 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
   const collection = getCollection(fields,"hero");
   const managedPhotos = useMemo(() => {
     const photos = findAvailable(collection)?.filter(item => item.image && [night ? "night" : "day","both"].includes(item.role || "day")) ?? [];
-    return new Map<WallPhoto, {src:string; title:string}>(photos.map(photo => [`managed-${photo.id}`,{src:photo.image,title:photo.title}]));
+    const seen = new Set<string>();
+    return new Map<WallPhoto, {src:string; title:string}>(photos.flatMap(photo => {
+      if (seen.has(photo.image)) return [];
+      seen.add(photo.image);
+      return [[`managed-${photo.id}`,{src:photo.image,title:photo.title}]];
+    }));
   },[collection,night]);
   const library = useMemo(() => {
     const fallback = (night ? eveningWall : daylightWall) as readonly PhotoId[];
     const urls = new Set([...managedPhotos.values()].map(photo=>photo.src));
+    if (managedPhotos.size >= columns * rows) return [...managedPhotos.keys()];
     return [...managedPhotos.keys(),...fallback.filter(id=>!urls.has(communityPhoto(id).src))];
-  },[managedPhotos,night]);
+  },[managedPhotos,night,columns,rows]);
   const reserveBridge = !fullPhoto && !phone && night && density === 4 && !managedPhotos.size ? 7 : -1;
   const sources = useRef(fields);
   sources.current = fields;

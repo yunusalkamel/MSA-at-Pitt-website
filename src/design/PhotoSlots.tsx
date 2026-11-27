@@ -51,7 +51,7 @@ export function PhotoSlots({ name, wide = false, publicHidden = false, featured 
   if (!editing && (publicHidden || !available)) return null;
 
   const prefix = "/photos/prayer/" + file;
-  const cardSource = originalWidth ? prefix + ".webp" : prefix + "-card.jpg";
+  const cardSource = originalWidth ? prefix + ".webp" : prefix + "-540.webp";
   const positions: Record<string, string> = {
     "jummah-ballroom": "50% 100%",
     "jummah-community": "50% 100%",
@@ -62,7 +62,7 @@ export function PhotoSlots({ name, wide = false, publicHidden = false, featured 
   const picture = (full: boolean) => (
     <Picture fieldId={fieldId} className={full ? undefined : "venue-photo-image"}
       style={full ? undefined : { objectPosition: positions[file] ?? "center" }}
-      srcSet={!full && wide && file ? `${prefix}-thumb.webp 340w, ${cardSource} ${originalWidth ?? 720}w` : undefined}
+      srcSet={!full && wide && file ? `${prefix}-thumb.webp 340w, ${cardSource} ${originalWidth ?? 540}w` : undefined}
       sizes={wide && !full ? "(max-width: 767px) 82vw, 380px" : undefined}
       src={file ? prefix + (full ? "" : "-thumb") + ".webp" : undefined}
       emptyLabel="Photo coming soon" alt={description || (available ? name : "Photo coming soon")} width={full ? 1440 : wide ? 720 : 340}

@@ -6,7 +6,8 @@ const slug = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(96);
 const identifier = z.string().regex(/^[a-zA-Z0-9_.:-]+$/).max(128);
 const title = z.string().trim().min(1).max(160);
 const text = z.string().max(6000);
-const date = z.string().regex(/^\d{4}-\d{2}(?:-\d{2})?$/);
+const date = z.string().regex(/^\d{4}-(?:0[1-9]|1[0-2])(?:-\d{2})?$/)
+  .refine(value => value.length === 7 || (Number.isFinite(Date.parse(value)) && new Date(value).toISOString().startsWith(value)));
 const instant = z.string().datetime({ offset: true });
 const link = z.string().refine(value => validEditorLink(value) || /^(?:\/|#[a-z0-9-]+$|\/(?!\/)[a-zA-Z0-9/_-]+(?:[?#][a-zA-Z0-9_?&=%./-]+)?)$/.test(value));
 const asset = z.string().max(1000).regex(/^(?:\/(?:photos|partners)\/[a-zA-Z0-9_./-]+|https:\/\/cdn\.sanity\.io\/images\/[a-zA-Z0-9_/-]+\.[a-z]+)$/).refine(value => !value.includes(".."));
