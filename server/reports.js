@@ -1,6 +1,7 @@
 import { getSiteOrigin } from "../shared/site-origin.js";
 import { createSign } from "node:crypto";
 import { fail, environment } from "./management.js";
+import { clarityProject } from "./analytics-settings.js";
 import { publicPages } from "../shared/traffic.js";
 const audience = [
   "totalUsers",
@@ -25,6 +26,9 @@ const reports = {
     ["screenPageViews", "totalUsers", "userEngagementDuration"],
   ],
   Landing: [["landingPage"], ["sessions", "engagementRate"]],
+  Journeys: [["pageReferrer","pagePath"], ["screenPageViews","totalUsers"]],
+  "Story performance": [["customEvent:msa_event","eventName"], ["eventCount","totalUsers"]],
+  "Gallery engagement": [["eventName","pagePath"], ["eventCount","totalUsers"]],
   Acquisition: [
     ["sessionSourceMedium"],
     ["sessions", "engagedSessions", "totalUsers"],
@@ -108,9 +112,56 @@ function validDate(s) {
     new Date(s).toISOString().startsWith(s)
   );
 }
+export async function connections() {
+  const env = environment();
+  return cached(env + "-connections",300000,async () => {
+    const origin = getSiteOrigin(process.env.SITE_ORIGIN, process.env.VERCEL_PROJECT_PRODUCTION_URL);
+    const check = async (url, method = "GET") => {
+      if (!url) return "Configuration needed";
+      const result = await fetch(url,{method,signal:AbortSignal.timeout(4000)}).catch(()=>null);
+      return result?.ok && (result.headers.get("content-type") || "").includes("javascript")
+        ? "Script served" : "Script could not be verified";
+    };
+    const result = await Promise.allSettled([
+      check(origin && origin + "/_vercel/insights/script.js"),
+      check(origin && origin + "/_vercel/speed-insights/script.js"),
+      report({view:"Realtime"}),
+      report({view:"Performance"}),
+      check(/^[a-z0-9]{8,20}$/.test(clarityProject) ? "https://www.clarity.ms/tag/" + clarityProject : ""),
+      report({view:"Clarity usability"}),
+    ]);
+    return {
+      "Vercel Web Analytics":result[0].value ?? "Unavailable",
+      "Vercel Speed Insights":result[1].value ?? "Unavailable",
+      "GA4 Data API":result[2].status === "fulfilled" ? "Connected" : result[2].reason.message,
+      "Chrome UX Report":result[3].status === "fulfilled"
+        ? result[3].value.rows.length ? "Connected" : "Connected · no eligible samples"
+        : result[3].reason.message,
+      "Clarity recorder":result[4].value ?? "Unavailable",
+      "Clarity Data Export":result[5].status === "fulfilled" ? "Connected" : result[5].reason.message,
+    };
+  });
+}
+
 export async function report({ view, start, end, page }) {
   const env = environment(),
     id = process.env.GA4_PROPERTY_ID;
+  if (view === "Realtime") {
+    if (!/^\d+$/.test(id || "")) throw fail(503, "Configure GA4_PROPERTY_ID and reporting credentials.");
+    return cached(env + "-" + id + "-realtime",30000,async () => {
+      const response = await fetch("https://analyticsdata.googleapis.com/v1beta/properties/" + id + ":runRealtimeReport", {
+        method:"POST",
+        headers:{Authorization:"Bearer " + (await googleToken()),"Content-Type":"application/json"},
+        body:JSON.stringify({dimensions:[{name:"deviceCategory"}],
+          metrics:[{name:"activeUsers"},{name:"screenPageViews"},{name:"eventCount"}]}),
+        signal:AbortSignal.timeout(6500),
+      });
+      if (!response.ok) throw fail(503,"GA4 real-time reporting could not be authorized.");
+      const result = await response.json();
+      return {headers:["Device","Active users","Views","Events"],
+        rows:(result.rows ?? []).map(row=>[...row.dimensionValues,...row.metricValues].map(value=>value.value))};
+    });
+  }
   if (view === "Clarity usability") {
     if (!process.env.CLARITY_EXPORT_TOKEN)
       throw fail(
@@ -269,6 +320,8 @@ export async function report({ view, start, end, page }) {
     "Event RSVP": ["/events", "rsvp_click"],
     "Join WhatsApp": ["/join", "whatsapp_click"],
     "Resource usage": ["/resources", "resource_click"],
+    "Gallery to recap": ["/gallery", "story_open"],
+    "Visit to donation": ["/", "donation_link_click"],
   };
   const funnel = Object.hasOwn(funnels, view);
   if (
@@ -367,16 +420,26 @@ export async function report({ view, start, end, page }) {
         },
         body: JSON.stringify({
           dateRanges,
-          ...(view === "Exit pages"
-            ? {
-                dimensionFilter: {
-                  filter: {
-                    fieldName: "eventName",
-                    stringFilter: { matchType: "EXACT", value: "page_exit" },
-                  },
-                },
-              }
-            : {}),
+          ...(() => {
+            const exact = (fieldName,value) => ({filter:{fieldName,stringFilter:{matchType:"EXACT",value}}});
+            const inList = (fieldName,values) => ({filter:{fieldName,inListFilter:{values}}});
+            if (view === "Exit pages") return {dimensionFilter:exact("eventName","page_exit")};
+            if (view === "Story performance") return {dimensionFilter:inList("eventName",["story_open","story_complete"])};
+            if (view === "Gallery engagement") return {dimensionFilter:{
+              andGroup:{expressions:[
+                inList("pagePath",["/","/gallery","/gallery/album"]),
+                inList("eventName",["navigation_click","story_open","story_complete","scroll_90"]),
+              ]},
+            }};
+            if (view === "Journeys") {
+              const origin = getSiteOrigin(process.env.SITE_ORIGIN,process.env.VERCEL_PROJECT_PRODUCTION_URL);
+              return {dimensionFilter:{andGroup:{expressions:[
+                exact("eventName","page_view"),inList("pageReferrer",[...publicPages,"/gallery/album"].map(path=>origin+path)),
+                inList("pagePath",[...publicPages,"/gallery/album"]),
+              ]}}};
+            }
+            return {};
+          })(),
           dimensions: dimensions.map((name) => ({ name })),
           metrics: metrics.map((name) => ({ name })),
           limit: 1000,
@@ -401,6 +464,26 @@ export async function report({ view, start, end, page }) {
         (cell) => cell.value,
       ),
     );
+    if (view === "Story performance") {
+      const eventIndex = headers.indexOf("eventName");
+      const idIndex = headers.indexOf("customEvent:msa_event");
+      const rangeIndex = headers.indexOf("dateRange");
+      const countIndex = headers.indexOf("eventCount");
+      const stories = new Map();
+      for (const row of rows) {
+        if (!/^[a-f0-9]{16}$/.test(row[idIndex])) continue;
+        const key = row[idIndex] + ":" + (row[rangeIndex] ?? "Selected");
+        const summary = stories.get(key) ?? {id:row[idIndex],range:row[rangeIndex] ?? "Selected",opens:0,completions:0};
+        if (row[eventIndex] === "story_open") summary.opens += Number(row[countIndex]);
+        if (row[eventIndex] === "story_complete") summary.completions += Number(row[countIndex]);
+        stories.set(key,summary);
+      }
+      return {headers:["Story","Period","Opens","Completions","Completions ÷ opens"],
+        rows:[...stories.values()].sort((a,b)=>b.opens-a.opens).map(value=>[
+          value.id,value.range,String(value.opens),String(value.completions),
+          value.opens ? (100*value.completions/value.opens).toFixed(1) + "%" : "—",
+        ])};
+    }
     if (view === "Overview") {
       const index = headers.indexOf("dateRange"),
         current = rows.find((row) => index < 0 || row[index] === "Selected"),
