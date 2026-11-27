@@ -974,6 +974,10 @@ html { scroll-behavior: smooth; }
   -webkit-backdrop-filter: blur(22px) saturate(170%);
 }
 .dark .glass:is(.nav-pill, .nav-resources-menu) { background-color: #15273763; }
+.home-stats > .glass {
+  backdrop-filter: blur(27px) saturate(180%);
+  -webkit-backdrop-filter: blur(27px) saturate(180%);
+}
 .nav-shell { display: flex; justify-content: center; padding: var(--space-3) var(--space-4) 0; }
 .nav-pill { max-width: min(var(--container), 64rem); padding-inline: var(--space-3); transition: box-shadow .3s ease, background-color .3s ease; }
 .nav-pill[data-scrolled] { box-shadow: 0 14px 36px #15202d28, inset 0 1px 0 #fff6dfaa; }

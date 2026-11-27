@@ -150,6 +150,17 @@ export default function RecapViewer({ stories, story, slide, opener, onShow, onO
       onCancel={event => { event.preventDefault(); onClose(); }}
       onClick={event => { if (event.target === dialog.current) onClose(); }}
       onKeyDown={event => {
+        if (event.key === "Tab") {
+          const buttons = [...event.currentTarget.querySelectorAll<HTMLButtonElement>("button:not([disabled])")]
+            .filter(button => button.getClientRects().length > 0);
+          const first = buttons[0];
+          const last = buttons.at(-1);
+          const active = document.activeElement;
+          if (event.shiftKey ? active === first : active === last) {
+            event.preventDefault();
+            (event.shiftKey ? last : first)?.focus();
+          }
+        }
         if (event.key === "ArrowLeft") { event.preventDefault(); previous(); }
         if (event.key === "ArrowRight") { event.preventDefault(); next(); }
         if (event.code === "Space" && !reduced) { event.preventDefault(); setPaused(value => !value); }
