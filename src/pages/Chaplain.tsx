@@ -111,7 +111,7 @@ const Chaplain = () => {
             { emoji: "🕌", title: "Jummah & Prayers", desc: "Leading and coordinating Jummah and daily prayer at MSA events." },
             { emoji: "🌙", title: "Ramadan Programs", desc: "Taraweeh leadership, iftar coordination, and Ramadan spiritual support." },
             { emoji: "💬", title: "New Muslims", desc: "Patient support for reverts and those exploring Islam for the first time." },
-            { emoji: "📚", title: "Quran & Islamic Ed.", desc: "Quran recitation guidance and introductory Islamic education." },
+            { emoji: "📚", title: "Quran & Islamic Education", desc: "Quran recitation guidance and introductory and in-depth Islamic education." },
           ].map((item) => (
             <CardCopies key={item.title} id={"Chaplain_18-" + itemIdentity(item, item.title)}><motion.div
               key={item.title}

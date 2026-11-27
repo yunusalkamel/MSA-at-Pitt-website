@@ -1,3 +1,4 @@
+import { isPublicSiteOrigin } from "@/config/site";
 import { safePage } from "../../shared/traffic.js";
 let page: string | null = null,
   previous: string | null = null,
@@ -112,18 +113,21 @@ function click(e: MouseEvent) {
                 ? "resource_click"
                 : "outbound_click");
   const id = anchor.dataset.eventKey;
-  if (id) {
-    void crypto.subtle
-      .digest("SHA-256", new TextEncoder().encode(id))
-      .then((hash) =>
-        send(
-          kind,
-          Array.from(new Uint8Array(hash).slice(0, 8), (n) =>
-            n.toString(16).padStart(2, "0"),
-          ).join(""),
-        ),
-      );
-  } else send(kind);
+  if (id) sendWithKey(kind, id);
+  else send(kind);
+}
+function sendWithKey(event: string, id: string) {
+  if (!globalThis.crypto?.subtle) return send(event);
+  void crypto.subtle.digest("SHA-256", new TextEncoder().encode(id)).then(hash => {
+    const key = Array.from(new Uint8Array(hash).slice(0, 8), n => n.toString(16).padStart(2, "0")).join("");
+    send(event, key);
+  }).catch(() => {});
+}
+export function trackStory(event: "story_open" | "story_complete", slug: string) {
+  if (!import.meta.env.PROD || import.meta.env.VITE_OPTIONAL_ANALYTICS !== "true" ||
+      !isPublicSiteOrigin(location.origin) || localStorage.getItem("msa-analytics") !== "yes") return;
+  visit(location.pathname);
+  sendWithKey(event, slug);
 }
 function scroll() {
   if (

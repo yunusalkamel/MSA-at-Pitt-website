@@ -38,12 +38,13 @@ const EventChip = ({
 
   return (
     <button
+      type="button"
       onClick={onClick}
       title={`${event.title} · ${getTimeOnly(event.timeLabel)}${event.location ? ` · ${event.location}` : ""}`}
-      className={`w-full rounded-md px-2 py-1.5 text-left overflow-hidden cursor-pointer
+      className={`w-full min-w-0 rounded-md px-1.5 sm:px-2 py-1.5 text-left overflow-hidden cursor-pointer
         ${chipStyle} hover:opacity-85 transition-opacity duration-150 ${compact ? "min-h-[36px]" : "min-h-[46px]"}`}
     >
-      <div className={`font-semibold leading-tight truncate ${compact ? "text-[10px]" : "text-[11px]"}`}>
+      <div className={`font-semibold leading-tight ${compact ? "truncate text-[10px]" : "line-clamp-2 [overflow-wrap:anywhere] text-[11px]"}`}>
         {event.title}
       </div>
       <div className="flex items-center gap-1 mt-0.5 opacity-80">
@@ -52,9 +53,9 @@ const EventChip = ({
         <ExternalLink size={8} className="shrink-0 opacity-50 ml-auto" />
       </div>
       {!compact && event.location && (
-        <div className="hidden md:flex items-center gap-0.5 mt-[1px] opacity-70">
-          <MapPin size={6} className="shrink-0" />
-          <span className="text-[9px] truncate">{event.location}</span>
+        <div className="flex items-start gap-1 mt-0.5 opacity-75">
+          <MapPin size={8} className="mt-0.5 shrink-0" />
+          <span className="text-[9px] line-clamp-2 [overflow-wrap:anywhere]">{event.location}</span>
         </div>
       )}
     </button>
@@ -467,7 +468,7 @@ const WeekView = ({
                 <EventChip
                   key={`${ev.id}-${idx}`}
                   event={ev}
-                  compact
+                  compact={dayEvents.length >= 3}
                   onClick={(e) => handleEventClick(ev, e)}
                 />
               ))}

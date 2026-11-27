@@ -8,6 +8,7 @@ export const LINKS = {
   googleCalendarSubscribe: "https://calendar.google.com/calendar/embed?src=2use05cacfd5hu3q2p49q9dvmc%40group.calendar.google.com&ctz=America%2FNew_York",
   appleCalendarSubscribe: "https://experience.pitt.edu/msa/apple-calendar/",
   eventSignupHub: "https://linktr.ee/msa.at.pitt",
+  athanPlus: "https://mymasjidal.com/pages/athanplus",
   chaplainEmail: "imammuhammad@icp-pgh.org",
   chaplainOfficeHours: "Monday 5–6 PM after his halaqah · Friday 3–4 PM",
   email: "msa.at.pitt@gmail.com",

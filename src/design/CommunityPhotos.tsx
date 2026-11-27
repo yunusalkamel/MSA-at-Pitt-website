@@ -1,3 +1,4 @@
+import { HomeStoryBubbles } from "@/components/recaps/RecapStories";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ChevronRight, Pause, Play } from "lucide-react";
@@ -242,6 +243,7 @@ export function Moments({
         </div>
         {galleryLink && <Link to="/gallery"><TextField id="Index_61">Explore the gallery</TextField> →</Link>}
       </div>
+      {galleryLink && <HomeStoryBubbles />}
       {series.length > 0 && (
         <div className="recap-selector">
           {series.map((a) => (

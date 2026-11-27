@@ -305,7 +305,7 @@ const Index = () => {
           <div className="liquid-glass-strong rounded-3xl p-6 md:p-10 text-center ring-1 ring-jannah-mid/20 shadow-[0_4px_40px_rgba(20,128,102,0.12)]">
             <p className="eyebrow text-jannah-mid dark:text-msa-gold/70 mb-3"><TextField id="Index_53">Never miss an event</TextField></p>
             <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground leading-tight mb-3"><TextField id="Index_54">
-              Subscribe once. </TextField><span className="text-gradient-gold italic"><TextField id="Index_55">Stay in sync forever.</TextField></span>
+              Subscribe once to </TextField><span className="text-gradient-gold italic"><TextField id="Index_55">stay in sync.</TextField></span>
             </h2>
             <p className="font-dm-sans text-muted-foreground text-base leading-relaxed max-w-2xl mx-auto mb-7"><TextField id="Index_56">
               Every halaqah, Jummah, social, and iftar — synced straight to your calendar automatically.
@@ -326,7 +326,7 @@ const Index = () => {
 
       <div className="home-prayer">
         <figure>
-          <Picture fieldId="campus-prayer-photo" src={campusPrayerPhoto.src}
+          <Picture fieldId="campus-prayer-photo" fixedSource src={campusPrayerPhoto.src}
             alt={campusPrayerPhoto.title} width={720} height={480} loading="lazy" decoding="async"
             sizes="(width < 768px) 90vw, 400px" />
         </figure>

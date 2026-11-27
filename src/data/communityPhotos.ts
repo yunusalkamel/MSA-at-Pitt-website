@@ -63,7 +63,7 @@ export const fullCommunityLibrary = Object.keys(captions) as PhotoId[];
 
 const focus: Partial<Record<PhotoId, string>> = {
   "campus-lawn": "50% 18%",
-  "lawn-prayer": "right top",
+  "lawn-prayer": "center 72%",
   "river-talk": "70% 38%",
   "fajr-bridge": "57% 39%",
   "fajr-group": "48% 69%",

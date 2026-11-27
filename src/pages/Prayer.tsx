@@ -2,7 +2,7 @@ import { LinkField } from "@/editor/content";
 import { ContentScope, TextField, itemIdentity, CardCopies } from "@/editor/content";
 import { lazy, Suspense, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, MapPin, Building2, Landmark, ExternalLink } from "lucide-react";
+import { ArrowLeft, MapPin, Building2, Landmark, ExternalLink, Instagram } from "lucide-react";
 import { Link } from "react-router-dom";
 import Layout from "@/components/Layout";
 import SectionDivider from "@/components/SectionDivider";
@@ -13,16 +13,18 @@ import { DailyPrayers } from "@/design/DailyPrayers";
 import { PageHero } from "@/components/PageHero";
 import { PhotoSlots } from "@/design/PhotoSlots";
 import BridgeBar from "@/components/BridgeBar";
+import { LINKS } from "@/config/links";
 import patternImg from "@/assets/geometric-tile.svg";
 
 const SolarAlmanac = lazy(() => import("@/design/SolarAlmanac"));
 
 // ─── Location data ────────────────────────────────────────────────────────────
-const oharaMap = "https://www.google.com/maps/search/?api=1&query=O%27Hara+Student+Center%2C+4024+O%27Hara+Street%2C+Pittsburgh";
+const oharaMap = "https://www.google.com/maps/dir/?api=1&destination=O%27Hara+Student+Center%2C+4024+O%27Hara+Street%2C+Pittsburgh";
 const wpuMap = "https://www.google.com/maps/search/?api=1&query=William+Pitt+Union%2C+3959+Fifth+Avenue%2C+Pittsburgh";
 const onCampus = [
   {
     name: "WPU Reflection Room",
+    featuredPhoto: 2,
     detail: "3rd floor of the William Pitt Union",
     features: [
       "Prayer mats and prayer attire (thobes, abayas, hijabs) provided.",
@@ -33,6 +35,7 @@ const onCampus = [
   },
   {
     name: "Rec Center Reflection Room",
+    featuredPhoto: 1,
     detail: "8th floor, past the bathrooms and behind the double doors",
     features: [
       "Sometimes locked — you may need to ask staff to unlock it.",
@@ -79,6 +82,7 @@ const masajid = [
 // ─── Component ────────────────────────────────────────────────────────────────
 const Prayer = () => {
   const [west, setWest] = useState(false);
+  const [almanacOpen, setAlmanacOpen] = useState(false);
   return (
     <Layout>
       <PageHero className="prayer-page-hero relative overflow-hidden text-center">
@@ -94,12 +98,13 @@ const Prayer = () => {
       <section className="prayer-start">
         <div className="site-container prayer-column">
           <Link to="/resources" className="prayer-back"><ArrowLeft size={14}/><TextField id="prayer-resources-back" fallbackFieldKeys={["/resources/prayer-times/PrayerTimes_6"]}>Back to Resources</TextField></Link>
-          <DailyPrayers page />
-          <div id="solar-almanac-content" className="prayer-chart-card prayer-surface">
-            <Suspense fallback={<p role="status">Loading prayer chart…</p>}>
+          <DailyPrayers almanac={{
+            open: almanacOpen,
+            toggle: () => setAlmanacOpen(open => !open),
+            chart: almanacOpen && <Suspense fallback={<p role="status">Loading prayer chart…</p>}>
               <SolarAlmanac west={west} setWest={setWest} />
-            </Suspense>
-          </div>
+            </Suspense>,
+          }} />
         </div>
       </section>
 
@@ -119,18 +124,21 @@ const Prayer = () => {
           >
             <div className="prayer-photo-row jummah-photo-row">
               <div className="prayer-venue-copy">
-                <p className="font-body font-bold text-foreground"><TextField id="Prayer_20">Fridays at 2:00 PM</TextField></p>
-                <p className="text-muted-foreground text-sm mt-1"><TextField id="Prayer_21">Usually in the O’Hara Ballroom</TextField></p>
+                <p className="jummah-time"><TextField id="Prayer_20">Every Friday at 2:00 PM</TextField></p>
+                <p className="jummah-place"><TextField id="Prayer_21">Usually in the O’Hara Ballroom</TextField></p>
                 <LinkField fieldId="jummah-map" href={oharaMap} target="_blank" rel="noopener noreferrer" className="prayer-map">
-                  <MapPin size={14}/> O’Hara Student Center map <ExternalLink size={12}/>
+                  <MapPin size={14}/> Directions <ExternalLink size={12}/>
                 </LinkField>
                 <p className="text-muted-foreground text-sm mt-2"><TextField id="Prayer_23">Arrive a few minutes early for the khutbah. Check this week’s location before heading over.</TextField></p>
-                <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2">
-                  <LinkField fieldId="Prayer_destination_1" href="https://instagram.com/msa.at.pitt" target="_blank" rel="noopener noreferrer" className="prayer-map">
-                    <TextField id="Prayer_25">Instagram Stories</TextField> <ExternalLink size={12}/>
+                <div className="jummah-socials">
+                  <LinkField fieldId="Prayer_destination_1" href={LINKS.instagram} target="_blank" rel="noopener noreferrer">
+                    <Instagram aria-hidden="true" size={15} /> <TextField id="Prayer_25">Instagram Stories</TextField>
                   </LinkField>
-                  <LinkField fieldId="Prayer_destination_2" href="https://chat.whatsapp.com/GuWsLzCvRggF9Ua6tWrkJL" target="_blank" rel="noopener noreferrer" className="prayer-map">
-                    <TextField id="Prayer_27">WhatsApp Announcements</TextField> <ExternalLink size={12}/>
+                  <LinkField fieldId="Prayer_destination_2" href={LINKS.whatsappAnnouncements} target="_blank" rel="noopener noreferrer">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" width="15" height="15" fill="currentColor">
+                      <path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.4A8.2 8.2 0 1 1 12 20.2ZM9 7c-.5 0-1.2.7-1.2 1.8 0 1.7 1.6 3.7 3.2 4.9 1.4 1 3.2 1.6 4.2 1.3.9-.3 1.5-1.3 1.5-1.8 0-.2-.2-.3-.4-.4l-1.8-.8c-.3-.1-.5 0-.6.1l-.7.9c-.2.2-.4.2-.7.1a6.2 6.2 0 0 1-3-2.6c-.1-.2 0-.4.1-.5.2-.2.5-.6.5-.8.1-.2 0-.4 0-.6l-.8-1.6C9.2 7 9.1 7 9 7Z" />
+                    </svg>
+                    <TextField id="Prayer_27">WhatsApp Announcements</TextField>
                   </LinkField>
                 </div>
               </div>
@@ -183,7 +191,7 @@ const Prayer = () => {
                   <MapPin size={14}/> William Pitt Union map <ExternalLink size={12}/>
                 </LinkField>}
                 </div>
-                <PhotoSlots name={space.name} wide publicHidden={i === 3}/>
+                <PhotoSlots name={space.name} wide publicHidden={i === 3} featured={space.featuredPhoto} />
                 </div>
               </motion.div></CardCopies>
             ))}

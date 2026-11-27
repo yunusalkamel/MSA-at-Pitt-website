@@ -24,9 +24,9 @@ const sets: Record<string, readonly Photo[]> = {
   "Benedum Room 403": [["benedum-room", "Prayer mat inside Benedum Room 403", 443]],
 };
 
-export function PhotoSlots({ name, wide = false, publicHidden = false }: { name: string; wide?: boolean; publicHidden?: boolean }) {
+export function PhotoSlots({ name, wide = false, publicHidden = false, featured = 0 }: { name: string; wide?: boolean; publicHidden?: boolean; featured?: number }) {
   const photos = sets[name] ?? [];
-  const [index, setIndex] = useState(0);
+  const [index, setIndex] = useState(featured);
   const [open, setOpen] = useState(false);
   const dialog = useRef<HTMLDialogElement>(null);
   const touchStart = useRef<number | null>(null);
@@ -48,8 +48,16 @@ export function PhotoSlots({ name, wide = false, publicHidden = false }: { name:
 
   const prefix = "/photos/prayer/" + file;
   const cardSource = originalWidth ? prefix + ".webp" : prefix + "-card.jpg";
+  const positions: Record<string, string> = {
+    "jummah-ballroom": "50% 62%",
+    "jummah-community": "50% 66%",
+    "wpu-gathering": "50% 58%",
+    "rec-room": "50% 60%",
+    "benedum-room": "50% 76%",
+  };
   const picture = (full: boolean) => (
-    <Picture fieldId={fieldId}
+    <Picture fieldId={fieldId} className={full ? undefined : "venue-photo-image"}
+      style={full ? undefined : { objectPosition: positions[file] ?? "center" }}
       srcSet={!full && wide && file ? `${prefix}-thumb.webp 340w, ${cardSource} ${originalWidth ?? 720}w` : undefined}
       sizes={wide && !full ? "(max-width: 767px) 34vw, 380px" : undefined}
       src={file ? prefix + (full ? "" : "-thumb") + ".webp" : undefined}
@@ -73,6 +81,7 @@ export function PhotoSlots({ name, wide = false, publicHidden = false }: { name:
         <dialog ref={dialog} className="venue-viewer" aria-label={name + " photos"}
           onClose={() => {
             setOpen(false);
+            setIndex(featured);
             trigger.current?.focus({ preventScroll: true });
           }}
           onClick={e => { if (e.target === dialog.current) dialog.current.close(); }}
