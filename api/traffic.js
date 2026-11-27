@@ -40,7 +40,7 @@ export default async function handler(req, res) {
       !(await analyticsSettings()).enabled
     )
       return res.status(204).end();
-    const origin = getSiteOrigin(process.env.SITE_ORIGIN);
+    const origin = getSiteOrigin(process.env.SITE_ORIGIN, process.env.VERCEL_PROJECT_PRODUCTION_URL);
     const params = {
       page_location: origin + page,
       session_id: session,

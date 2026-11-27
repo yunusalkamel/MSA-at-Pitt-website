@@ -1,4 +1,5 @@
 import { afterEach, expect, it, vi } from "vitest";
+import { getSiteOrigin } from "../../shared/site-origin.js";
 import { safePage } from "../../shared/traffic.js";
 import handler from "../../api/traffic.js";
 import reports from "../../api/reports.js";
@@ -51,4 +52,9 @@ it("requires a verified session before reading reporting settings or private rep
     await reports({ method: "POST", headers: {}, body }, response);
     expect(response.code).toBe(401);
   }
+});
+
+it("uses the production deployment hostname when no site origin is configured", () => {
+  expect(getSiteOrigin(undefined, "msaatpitt.vercel.app")).toBe("https://msaatpitt.vercel.app");
+  expect(getSiteOrigin("https://msaatpitt.org", "msaatpitt.vercel.app")).toBe("https://msaatpitt.org");
 });

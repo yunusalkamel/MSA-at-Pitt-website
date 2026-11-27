@@ -5,7 +5,7 @@ import { getSiteOrigin } from "./shared/site-origin.js";
 import { daylightWall, eveningWall } from "./src/data/communityPhotos";
 import { communityImageSizes } from "./src/lib/communityImageSizes";
 
-const siteOrigin = getSiteOrigin(process.env.SITE_ORIGIN);
+const siteOrigin = getSiteOrigin(process.env.SITE_ORIGIN, process.env.VERCEL_PROJECT_PRODUCTION_URL);
 
 export default defineConfig({
   define: {
