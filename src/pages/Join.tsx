@@ -330,30 +330,6 @@ const Join = () => {
         </div>
       </section>
 
-      {/* Topic change: What's next → Personal message */}
-      <SectionDivider />
-
-      {/* President's note */}
-      <section className="section-padding relative overflow-hidden">
-        <div className="absolute inset-0 opacity-[0.025] pointer-events-none" style={{ backgroundImage: `url(${patternImg})`, backgroundSize: '200px' }} />
-
-        <div className="max-w-2xl mx-auto text-center relative z-10">
-          <div className="glass-card-strong glass-glow p-8 md:p-12">
-            <div className="w-12 h-px gold-gradient mx-auto mb-6" />
-            <motion.blockquote
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="font-display text-xl md:text-2xl text-foreground italic leading-relaxed mb-5"
-            ><TextField id="Join_28">
-              "We're so glad you're here. Whether you've been Muslim your whole life or you're still figuring things out — MSA is your community. Come as you are."
-            </TextField></motion.blockquote>
-            <div className="w-12 h-px gold-gradient mx-auto mb-4" />
-            <p className="font-body text-muted-foreground text-sm font-semibold tracking-wide uppercase"><TextField id="Join_29">MSA at Pitt President</TextField></p>
-          </div>
-        </div>
-      </section>
-
       {/* Closing — Hadith on benefit to others, fits Join page */}
       <section className="section-padding-sm gradient-section-emerald-soft">
         <div className="max-w-2xl mx-auto">

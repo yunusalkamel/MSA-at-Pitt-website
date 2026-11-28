@@ -35,6 +35,15 @@
           "value": "noindex, nofollow"
         }
       ]
+    },
+    {
+      "source": "/photos/recaps/banquet-for-gaza/:path*",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex"
+        }
+      ]
     }
   ],
   "rewrites": [
@@ -63,6 +72,13 @@
     {
       "source": "/((?!api/|_vercel).*)",
       "destination": "/index.html"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/resources/prayer-locations",
+      "destination": "/resources/prayer",
+      "permanent": true
     }
   ]
 }

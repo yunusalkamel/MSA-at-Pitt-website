@@ -85,7 +85,7 @@ export const builtInPages: Record<string, string> = {
   "/": "Home", "/about": "About", "/events": "Events", "/gallery": "Gallery",
   "/join": "Join", "/contact": "Contact", "/resources": "Resources",
   "/resources/new-to-pitt": "New to Pitt", "/resources/prayer": "Prayer",
-  "/resources/prayer-locations": "Prayer locations", "/resources/chaplain": "Chaplain",
+  "/resources/chaplain": "Chaplain",
   "/resources/faq": "FAQ", "/board": "Board",
 };
 

@@ -58,7 +58,7 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
   const sources = useRef(fields);
   sources.current = fields;
   const reduced = useReducedMotion();
-  const parallax = useHeroParallax(phone ? 120 : 48);
+  const parallax = useHeroParallax(phone ? 120 : 64);
   const wall = useRef<HTMLDivElement>(null);
   const ready = useHeroReady(wall, [phone, night, fullPhoto].join("|"), phone && !fullPhoto ? 4 : undefined);
   useEffect(() => { if (ready) heroRevealed = true; }, [ready]);

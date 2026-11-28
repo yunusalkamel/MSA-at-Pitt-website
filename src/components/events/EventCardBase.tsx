@@ -2,9 +2,10 @@ import {Picture,TextField,LinkField} from "@/editor/content";
 import { motion } from "framer-motion";
 import { ArrowRight, CalendarPlus, Camera, Clock, MapPin, Star } from "lucide-react";
 import { Link } from "react-router-dom";
+import { LINKS } from "@/config/links";
 import type { MSAEvent } from "@/data/events";
 import { linkifyText } from "@/lib/linkify";
-import { resolveEventAction } from "./resolveEventAction";
+import { resolveEventAction, attendanceInfo } from "./resolveEventAction";
 import { getEventTier, getTagChipClass } from "./calendar-utils";
 
 const AiSparkle = () => (
@@ -37,6 +38,8 @@ const EventCardBase = ({ event, variant = "standard", index = 0, showSignatureBa
   const isFeatured = variant === "featured";
   const tier = getEventTier(event);
   const action = resolveEventAction(event);
+  const attendance = attendanceInfo(event);
+  const detailsUrl = `/events?event=${encodeURIComponent(event.id)}`;
 
   const actionLabel = action.kind === "learn-more"
     ? action.href === event.googleCalendarUrl ? "View event in calendar" : action.href === event.calendarFallbackUrl ? "Open MSA calendar" : action.href?.includes("linktr.ee/") ? "Open MSA event links" : "View event details"
@@ -64,7 +67,7 @@ const EventCardBase = ({ event, variant = "standard", index = 0, showSignatureBa
 
     if (action.external) {
       return (
-        <LinkField data-event-key={event.id} data-analytics-action={action.kind === "signup" ? "rsvp_click" : undefined} fieldId={`event-${event.id}-cta`} href={action.href} target="_blank" rel="noopener noreferrer" className={classes}>
+        <LinkField fixedDestination={action.kind === "signup"} data-event-key={event.id} data-analytics-action={action.kind === "signup" ? "rsvp_click" : undefined} fieldId={`event-${event.id}-cta`} href={action.href} target="_blank" rel="noopener noreferrer" className={classes}>
           {actionBody}
         </LinkField>
       );
@@ -130,7 +133,7 @@ const EventCardBase = ({ event, variant = "standard", index = 0, showSignatureBa
                 ))}
               </div>
 
-              <h3 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-3 leading-tight"><TextField id={`event-${event.id}-title`}>{event.title}</TextField></h3>
+              <h3 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-3 leading-tight"><Link to={detailsUrl}><TextField id={`event-${event.id}-title`}>{event.title}</TextField></Link></h3>
               <p className="text-muted-foreground text-base leading-relaxed mb-6 max-w-2xl">{linkifyText(event.shortBlurb)}</p>
 
               <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground mb-7">
@@ -146,6 +149,9 @@ const EventCardBase = ({ event, variant = "standard", index = 0, showSignatureBa
 
               <div className="flex flex-wrap gap-3">
                 {renderAction()}
+              {action.kind === "signup" && <Link to={detailsUrl} className="inline-flex items-center text-sm underline underline-offset-4">Details →</Link>}
+              {attendance === "open" && <span className="inline-flex items-center text-xs text-muted-foreground">No RSVP needed</span>}
+              {attendance === "pending" && <a href={LINKS.linktree} target="_blank" rel="noopener noreferrer" className="inline-flex items-center text-xs underline underline-offset-4">Linktree ↗</a>}
                 {event.addToCalendarUrl && (
                   <a
                     href={event.addToCalendarUrl}
@@ -207,7 +213,7 @@ const EventCardBase = ({ event, variant = "standard", index = 0, showSignatureBa
               {event.tags.length > 3 && <span className="text-[10px] text-muted-foreground/70 flex items-center">+{event.tags.length - 3}</span>}
             </div>
 
-            <h3 className="font-display text-lg md:text-xl font-bold text-foreground mb-1.5 leading-snug line-clamp-1"><TextField id={`event-${event.id}-title`}>{event.title}</TextField></h3>
+            <h3 className="font-display text-lg md:text-xl font-bold text-foreground mb-1.5 leading-snug line-clamp-1"><Link to={detailsUrl}><TextField id={`event-${event.id}-title`}>{event.title}</TextField></Link></h3>
             <p className="text-muted-foreground text-sm leading-relaxed mb-3 line-clamp-2">{linkifyText(event.shortBlurb)}</p>
 
             <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground mb-4">
@@ -223,6 +229,9 @@ const EventCardBase = ({ event, variant = "standard", index = 0, showSignatureBa
 
             <div className="flex flex-wrap gap-2">
               {renderAction()}
+              {action.kind === "signup" && <Link to={detailsUrl} className="inline-flex items-center text-sm underline underline-offset-4">Details →</Link>}
+              {attendance === "open" && <span className="inline-flex items-center text-xs text-muted-foreground">No RSVP needed</span>}
+              {attendance === "pending" && <a href={LINKS.linktree} target="_blank" rel="noopener noreferrer" className="inline-flex items-center text-xs underline underline-offset-4">Linktree ↗</a>}
               {!isPast && event.addToCalendarUrl && (
                 <a
                   href={event.addToCalendarUrl}

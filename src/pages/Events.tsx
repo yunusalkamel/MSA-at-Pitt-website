@@ -181,7 +181,7 @@ const Events = () => {
               className="btn-premium-secondary text-sm px-4 py-2 flex-1 justify-center">
               <Calendar size={13} /><TextField id="Events_9"> Google Calendar
             </TextField></LinkField>
-            <LinkField fieldId="Events_destination_3" href={LINKS.appleCalendarSubscribe} target="_blank" rel="noopener noreferrer"
+            <LinkField fieldId="Events_destination_3" fixedDestination href={LINKS.appleCalendarSubscribe} target="_blank" rel="noopener noreferrer"
               className="btn-premium-secondary text-sm px-4 py-2 flex-1 justify-center">
               <Calendar size={13} /><TextField id="Events_10"> Apple Calendar
             </TextField></LinkField>
@@ -218,7 +218,7 @@ const Events = () => {
               <Calendar size={13} /><TextField id="Events_13"> Google Calendar
             </TextField></LinkField>
             <LinkField fieldId="Events_destination_5"
-              href={LINKS.appleCalendarSubscribe}
+              fixedDestination href={LINKS.appleCalendarSubscribe}
               target="_blank"
               rel="noopener noreferrer"
               title="Subscribes directly to your Apple Calendar"

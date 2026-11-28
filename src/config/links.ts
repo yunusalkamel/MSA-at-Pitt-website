@@ -6,7 +6,7 @@ export const LINKS = {
   registrationForm: "https://forms.gle/qVYQb5F4eu3y3DTZ7",
   anonymousFeedback: "https://docs.google.com/forms/d/e/1FAIpQLSf4Mxrk2dXPCS5v9pu0HIAjrc0D7fEoXaAinYgqZ-Qfi_2oig/viewform?usp=sharing",
   googleCalendarSubscribe: "https://calendar.google.com/calendar/embed?src=2use05cacfd5hu3q2p49q9dvmc%40group.calendar.google.com&ctz=America%2FNew_York",
-  appleCalendarSubscribe: "https://experience.pitt.edu/msa/apple-calendar/",
+  appleCalendarSubscribe: "webcal://calendar.google.com/calendar/ical/2use05cacfd5hu3q2p49q9dvmc%40group.calendar.google.com/public/basic.ics",
   eventSignupHub: "https://linktr.ee/msa.at.pitt",
   athanPlus: "https://mymasjidal.com/pages/athanplus",
   chaplainEmail: "imammuhammad@icp-pgh.org",

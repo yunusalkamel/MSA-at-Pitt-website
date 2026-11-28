@@ -1,3 +1,5 @@
+import { usePageMeta } from "@/lib/usePageMeta";
+import { SITE_NAME } from "../../shared/brand.js";
 import CardOrder from "@/editor/CardOrder";
 import { useChaplainDetails } from "@/hooks/useChaplainDetails";
 import { PageHero } from "@/components/PageHero";
@@ -119,6 +121,7 @@ const FAQItem = ({ item, index }: { item: FAQItem; index: number }) => {
 };
 
 const FAQ = () => {
+  usePageMeta({title: `Frequently asked questions | ${SITE_NAME}`});
   const { data: sanityFAQs } = useSanityData<{ question: string; answer: string }[]>(
     QUERIES.faqItems
   );

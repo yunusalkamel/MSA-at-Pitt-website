@@ -1,8 +1,8 @@
+import { SITE_NAME } from "../shared/brand.js";
 import { createClient } from "@sanity/client";
 import { environment } from "../server/management.js";
 import { getSiteOrigin } from "../shared/site-origin.js";
 
-const siteDescription = "Connecting Muslim students at Pitt through faith, friendship, and service. Everyone is welcome.";
 const escape = value => String(value).replace(/[&<>"']/g, char => ({
   "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;",
 }[char]));
@@ -27,8 +27,8 @@ export default async function handler(req, res) {
     if (custom && (custom.visibility !== "published" || (custom.starts && Date.parse(custom.starts) > now) ||
       (custom.ends && Date.parse(custom.ends) <= now))) return res.status(404).end();
     const page = custom ?? fields["shared/visual/page/" + path];
-    const title = page?.seoTitle || (custom ? custom.title + " | MSA at Pitt" : "MSA at Pitt — A Home Away From Home");
-    const description = page?.description || siteDescription;
+    const title = SITE_NAME;
+    const description = SITE_NAME;
     const image = new URL(page?.share || "/photos/brand/social-card.jpg",origin).href;
     const url = origin + path;
     res.setHeader("Content-Type","text/html; charset=utf-8");
@@ -40,7 +40,7 @@ export default async function handler(req, res) {
 ${meta("description",description,"name")}
 <link rel="canonical" href="${escape(url)}">
 ${[
-  ["og:type","website"],["og:site_name","MSA at Pitt"],["og:url",url],["og:title",title],
+  ["og:type","website"],["og:site_name",SITE_NAME],["og:url",url],["og:title",title],
   ["og:description",description],["og:image",image],
 ].map(([key,value])=>meta(key,value)).join("\n")}
 ${[

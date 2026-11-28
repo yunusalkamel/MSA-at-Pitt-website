@@ -75,17 +75,10 @@ export const QUERIES = {
     commuter_parking, commuter_microwaves, sportsTips
   }`,
 
-  prayerLocationsPage: `*[_type == "prayerLocationsPage" && _id == "prayer-locations-page"][0] {
-    heroHeadline, heroSubheadline,
-    onCampusSpaces[] { name, detail, features },
-    masajid[] { name, distance, details, mapsUrl }
-  }`,
-
   joinPage: `*[_type == "joinPage" && _id == "join-page"][0] {
     heroHeadline, heroSubheadline,
     steps[] { num, headline, copy, ctaText, href },
     whatHappensNext[] { iconName, title, description },
-    presidentQuote
   }`,
 
   faqItems: `*[_type == "faqItem"] | order(order asc) { question, answer }`,

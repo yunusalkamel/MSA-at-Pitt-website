@@ -1,3 +1,4 @@
+import { SITE_NAME } from "../../shared/brand.js";
 import { useContext, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { Content } from "@/editor/content";
@@ -35,14 +36,16 @@ export function usePageMeta({ title: fallbackTitle, description: fallbackDescrip
 
     if (description) {
       setMeta("description", description);
-      setMeta("og:description", description, "property");
-      setMeta("twitter:description", description);
+      setMeta("og:description", SITE_NAME, "property");
+      setMeta("twitter:description", SITE_NAME);
     }
     if (share) {
       setMeta("og:image", share, "property");
       setMeta("twitter:image", share);
     }
-    setMeta("og:title", title, "property");
-    setMeta("twitter:title", title);
+    setMeta("og:title", SITE_NAME, "property");
+    setMeta("og:site_name", SITE_NAME, "property");
+    setMeta("twitter:title", SITE_NAME);
+    return () => { document.title = SITE_NAME; };
   }, [title, description, share]);
 }

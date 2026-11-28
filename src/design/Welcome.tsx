@@ -1,3 +1,4 @@
+import { resolveEventAction, attendanceInfo } from "@/components/events/resolveEventAction";
 import { Link } from "react-router-dom";
 import { LinkField, TextField } from "@/editor/content";
 import { LINKS } from "@/config/links";
@@ -35,7 +36,9 @@ export function WelcomePath() {
 }
 export function NextEvent({ event }: { event?: MSAEvent }) {
   if (!event) return null;
-  const signup = event.rsvpUrl || event.signupUrl;
+  const action = resolveEventAction(event);
+  const signup = action.kind === "signup" ? action.href : undefined;
+  const attendance = attendanceInfo(event);
   return (
     <section className="upcoming-invite md:hidden">
       <div>
@@ -53,19 +56,24 @@ export function NextEvent({ event }: { event?: MSAEvent }) {
             .filter(Boolean)
             .join(" · ")}
         </p>
+        {attendance === "open" && <p className="text-xs text-muted-foreground">No RSVP needed</p>}
+        {attendance === "pending" && <a href={LINKS.linktree} target="_blank" rel="noopener noreferrer" className="text-xs underline">Linktree ↗</a>}
       </div>
       {signup ? (
         <LinkField
           fieldId={"next-rsvp-" + event.id}
           data-event-key={event.id}
           data-analytics-action="rsvp_click"
-          href={signup}
+          fixedDestination href={signup}
+          target={action.external ? "_blank" : undefined}
+          rel={action.external ? "noopener noreferrer" : undefined}
         >
           RSVP {signup.startsWith("/") ? "→" : "↗"}
         </LinkField>
       ) : (
-        <Link to={"/events?event=" + encodeURIComponent(event.id)}>Event details →</Link>
+        <Link to={"/events?event=" + encodeURIComponent(event.id)}>Details →</Link>
       )}
+      {signup && <Link to={"/events?event=" + encodeURIComponent(event.id)}>Details →</Link>}
     </section>
   );
 }

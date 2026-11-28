@@ -1,3 +1,4 @@
+import { extractRegistrationUrl } from "../../../supabase/functions/google-calendar-events/parse-description";
 import type { MSAEvent } from "@/data/events";
 
 export type EventActionKind = "signup" | "gallery" | "learn-more" | "details" | "subscribe";
@@ -36,7 +37,7 @@ export function resolveEventAction(event: MSAEvent): EventAction {
   }
 
   // An actual registration link takes priority for every event category.
-  const rsvpUrl = normalizeUrl(event.rsvpUrl);
+  const rsvpUrl = normalizeUrl(event.description ? extractRegistrationUrl(event.description) : event.rsvpUrl);
   if (rsvpUrl) {
     return {
       kind: "signup",
@@ -48,8 +49,19 @@ export function resolveEventAction(event: MSAEvent): EventAction {
 
   return {
     kind: "details",
-    label: "View details",
+    label: "Details",
     href: `/events?event=${encodeURIComponent(event.id)}`,
     external: false,
   };
+}
+
+/** Only declare open attendance for the requested weekly programs or explicit calendar wording. */
+export function attendanceInfo(event: MSAEvent): "open" | "pending" | undefined {
+  if (event.isPast || resolveEventAction(event).kind === "signup") return;
+  const text = (event.description || event.shortBlurb || "").replace(/<[^>]+>/g," ");
+  const required = /(?:rsvp|registration|sign.?up)\s+(?:is\s+)?required|must\s+(?:register|rsvp)|registration\s+(?:link\s+)?(?:pending|coming soon)|link\s+(?:pending|coming soon)/i.test(text);
+  const open = /no\s+(?:rsvp|registration|sign.?up)\s+(?:needed|required|necessary)|(?:rsvp|registration)\s+(?:is\s+)?not\s+required/i.test(text);
+  if (open) return "open";
+  if (required) return "pending";
+  if (event.categories.includes("halaqa") || /\b(?:halaq[ah]+|basketball|soccer)\b/i.test(event.title)) return "open";
 }
