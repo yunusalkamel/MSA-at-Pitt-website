@@ -1,6 +1,7 @@
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { ArrowRight, CalendarPlus, Camera, Clock, ExternalLink, MapPin, X, CalendarCheck } from "lucide-react";
 import type { MSAEvent } from "@/data/events";
+import { linkifyText } from "@/lib/linkify";
 import { resolveEventAction } from "./resolveEventAction";
 import { getEventTier, getTagChipClass } from "./calendar-utils";
 
@@ -23,13 +24,13 @@ const EventDetailSheet = ({ event, onClose }: Props) => {
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`;
 
   const action = resolveEventAction(event);
-  const actionUrl = action.href;
+  const actionUrl = action.kind === "details" ? undefined : action.href;
   const actionLabel = action.label;
   const isGallery = action.kind === "gallery";
   const isSubscribe = action.kind === "subscribe";
   const showCalendar = !event.isPast && action.kind !== "subscribe" && !!event.addToCalendarUrl;
 
-  const cleanBlurb = event.shortBlurb?.replace(/#\w+/g, "").trim();
+  const cleanBlurb = (event.description || event.shortBlurb)?.replace(/#\w+/g, "").trim();
 
   return (
     <DialogPrimitive.Root open={!!event} onOpenChange={(open) => { if (!open) onClose(); }}>
@@ -79,9 +80,9 @@ const EventDetailSheet = ({ event, onClose }: Props) => {
             </div>
 
             {/* Title */}
-            <h2 className="font-display text-2xl font-bold text-foreground mb-4 leading-tight pr-4">
+            <DialogPrimitive.Title asChild><h2 className="font-display text-2xl font-bold text-foreground mb-4 leading-tight pr-4">
               {event.title}
-            </h2>
+            </h2></DialogPrimitive.Title>
 
             {/* Time + Location */}
             <div className="space-y-2.5 mb-4">
@@ -104,7 +105,7 @@ const EventDetailSheet = ({ event, onClose }: Props) => {
             {/* Description */}
             {cleanBlurb && (
               <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed mb-5">
-                {cleanBlurb}
+                {linkifyText(cleanBlurb)}
               </p>
             )}
 
@@ -113,24 +114,24 @@ const EventDetailSheet = ({ event, onClose }: Props) => {
               {actionUrl ? (
                 <a
                   href={actionUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  target={action.external ? "_blank" : undefined}
+                  rel={action.external ? "noopener noreferrer" : undefined}
                   className="btn-premium flex-1 justify-center"
                 >
                   {isGallery ? <Camera size={13} /> : isSubscribe ? <CalendarCheck size={13} /> : null}
                   {actionLabel}
                   {!isGallery && !isSubscribe ? <ArrowRight size={13} /> : null}
                 </a>
-              ) : (
+              ) : action.kind !== "details" ? (
                 <span className="btn-premium flex-1 justify-center opacity-50 cursor-default">
                   {actionLabel} <ExternalLink size={13} />
                 </span>
-              )}
+              ) : null}
               {showCalendar && (
                 <a
                   href={event.addToCalendarUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  target={action.external ? "_blank" : undefined}
+                  rel={action.external ? "noopener noreferrer" : undefined}
                   className="btn-premium-secondary flex-1 justify-center text-sm"
                 >
                   <CalendarPlus size={14} /> Add to Calendar

@@ -22,7 +22,6 @@ const RSVP_LINE_PREFIXES = [
   "register:",
   "sign up:",
   "signup:",
-  "link:",
 ];
 
 // Hashtag → audience mapping (lowercase, no leading #)
@@ -59,7 +58,8 @@ function stripTrailingPunctuation(url: string): string {
   return url.replace(/[),.:;]+$/, "");
 }
 
-function extractRsvpUrl(text: string): string | undefined {
+function extractRsvpUrl(raw: string): string | undefined {
+  const text = raw.replace(/<br\s*\/?\s*>|<\/p>/gi, "\n").replace(/<a\b[^>]*href=["'](https?:\/\/[^"']+)["'][^>]*>(.*?)<\/a>/gi, "$2 $1").replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&");
   const lines = text.split(/\n/);
 
   // 1. Check for a line that starts with a recognized RSVP keyword prefix
@@ -82,6 +82,7 @@ function extractRsvpUrl(text: string): string | undefined {
     const start = Math.max(0, match.index - 30);
     const end = Math.min(text.length, match.index + match[0].length + 30);
     const context = text.slice(start, end).toLowerCase();
+    if (/no\s+(?:rsvp|registration|sign.?up)\s+(?:needed|required)|(?:rsvp|registration)\s+(?:is\s+)?not\s+required/i.test(context)) continue;
     if (
       context.includes("rsvp") ||
       context.includes("register") ||
