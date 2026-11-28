@@ -500,6 +500,19 @@ function Editor({
           >
             {editing ? "Browse pages" : "Edit content"}
           </button>
+          <button type="button" disabled={busy} onClick={async () => {
+            finish.current?.();
+            setBusy(true);
+            try {
+              const result = await request(session, {}, "/api/calendar");
+              if (result.synced) {
+                localStorage.removeItem("msa-calendar-events-v1");
+                window.dispatchEvent(new Event("msa-calendar-refreshed"));
+                setNotice(`Calendar refreshed · ${result.count} events.`);
+              } else setNotice(result.message || "The last saved calendar is available.");
+            } catch(error) {setNotice(messageOf(error));}
+            finally {setBusy(false);}
+          }}>Refresh events now</button>
           <details className="msa-editor-menu"><summary>Edit site</summary><div>
             {([["structure","Structure"],["pages","Pages"],["menus","Navigation"],["collections","Collections"],["media","Media"]] as const).map(([id,label]) => (
               <button key={id} disabled={!base || busy || !editing} type="button"

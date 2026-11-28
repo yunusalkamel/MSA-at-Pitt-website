@@ -77,12 +77,15 @@ export function useCalendarEvents() {
         await load();
       })();
     }
+    const refresh = () => void load();
+    window.addEventListener("msa-calendar-refreshed",refresh);
     const interval = setInterval(() => {
       if (document.visibilityState === "visible") void load();
     }, CACHE_MAX_AGE_MS);
     return () => {
       cancelled = true;
       clearInterval(interval);
+      window.removeEventListener("msa-calendar-refreshed",refresh);
     };
   }, [load]);
 

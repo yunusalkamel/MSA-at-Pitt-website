@@ -6,7 +6,7 @@ type AudienceTag = "brothers" | "sisters" | "joint" | "general";
 type EventCategory =
   | "jumuah" | "dawah" | "sports" | "social" | "halaqa"
   | "signature" | "ramadan" | "career" | "service"
-  | "meeting" | "fundraiser" | "other";
+  | "meeting" | "fundraiser" | "cec" | "other";
 
 export type CachedClassification = {
   audience: AudienceTag;
