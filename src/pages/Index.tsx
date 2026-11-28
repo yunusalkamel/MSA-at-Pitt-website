@@ -7,7 +7,8 @@ import { WelcomePath,NextEvent } from "@/design/Welcome";
 import { DailyPrayers } from "@/design/DailyPrayers";
 import { LinkField } from "@/editor/content";
 import { TextField, Picture, ContentScope, itemIdentity, CardCopies } from "@/editor/content";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { resolveEventAction } from "@/components/events/resolveEventAction";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Heart, Users, Moon, HandHeart, Calendar, Instagram, type LucideIcon } from "lucide-react";
 import { useMemo } from "react";
@@ -83,6 +84,7 @@ const StatItem = ({ value, numericValue, suffix, label, sub, bordered }: {
 };
 
 const Index = () => {
+  const navigate = useNavigate();
   usePageMeta({
     title: SITE_NAME,
     description: "Connecting Muslim students at Pitt through faith, friendship, and service. Everyone is welcome.",
@@ -197,6 +199,7 @@ const Index = () => {
                     </div>
                   ) : upcomingScrollEvents.map((event) => {
                     const { month, day } = formatEventMonthDay(event.startDate);
+                    const action = resolveEventAction(event);
                     return (
                       <ContentScope key={event.id} id={"Index_40-" + itemIdentity(event, event.id)}><div key={event.id} className="w-72 flex-shrink-0 glass-card p-6 flex flex-col">
                         <div className="flex items-start gap-4 mb-4">
@@ -211,7 +214,8 @@ const Index = () => {
                         </div>
                         <p className="font-satoshi text-muted-foreground text-sm mb-1.5">📍 <TextField id="Index_45">{event.location}</TextField></p>
                         <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed mb-5 flex-1"><TextField id="Index_46">{event.shortBlurb}</TextField></p>
-                        <LinkField fieldId="Index_destination_3" href={event.rsvpUrl || LINKS.eventSignupHub} target="_blank" rel="noopener noreferrer" className="btn-premium text-sm px-5 py-2 self-start"><TextField id="Index_47">RSVP </TextField><ArrowRight size={13} /></LinkField>
+                        <LinkField fieldId="Index_destination_3" fixedDestination href={action.href} target={action.external ? "_blank" : undefined} rel={action.external ? "noopener noreferrer" : undefined}
+                          onClick={click=>{if (!click.defaultPrevented && !action.external && action.href && !click.metaKey && !click.ctrlKey && !click.shiftKey && !click.altKey) {click.preventDefault();navigate(action.href);}}} className="btn-premium text-sm px-5 py-2 self-start"><TextField id="Index_47">{action.label} </TextField><ArrowRight size={13} /></LinkField>
                       </div></ContentScope>
                     );
                   })}
