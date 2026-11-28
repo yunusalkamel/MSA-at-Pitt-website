@@ -78,6 +78,7 @@ export async function getCachedTagsBatch(
 
   try {
     const response = await fetch(tableUrl, {
+      signal: AbortSignal.timeout(8000),
       headers: makeHeaders(config.serviceKey),
     });
 
@@ -133,6 +134,7 @@ export async function setCachedTags(
 
   try {
     const response = await fetch(tableUrl, {
+      signal: AbortSignal.timeout(8000),
       method: "POST",
       headers: {
         ...makeHeaders(config.serviceKey),

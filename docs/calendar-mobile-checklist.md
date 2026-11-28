@@ -8,14 +8,18 @@
 - [x] Verify SQL authorization, concurrency and stale preservation with rolled-back transaction.
 - [x] Add authenticated production-only Admin refresh control.
 - [x] Meaningful event actions and safe preservation of calendar description links.
-- [ ] Align initial hero loading with image readiness, preserve prompt photo changes.
-- [ ] Optimize mobile image/font delivery and scroll work; verify Chrome and WebKit.
-- [ ] Before/after Lighthouse with analytics enabled and disabled (home/prayer).
-- [ ] Final tests, types, build and security checks.
-- [ ] Consolidated unmerged PR and preview.
+- [x] Align initial hero loading with image readiness, preserve prompt photo changes.
+- [x] Optimize mobile image/font delivery and scroll work. Chrome responsive checks passed; local WebKit checks encountered upstream Sanity CORS restrictions.
+- [ ] Mobile 90+ target remains unconfirmed. Extra benchmark passes stopped at the user’s request. Local home baseline was 63; iterative builds measured 63–78, so no 90+ claim is made. Clarity and Vercel scripts were exercised with tracking submissions intercepted.
+- [x] Final validation: 41 app tests, 4 Edge Function tests, TypeScript and production build passed; no high/critical dependency findings.
+- [x] Consolidated unmerged draft PR #62 and Vercel review preview.
 
 Google Calendar API key is not currently installed. Public ICS scheduled sync succeeded;
 if Google blocks it again the saved snapshot remains available. For the more reliable API,
 enable Google Calendar API, restrict a key to that API, and install it as the Supabase
 GOOGLE_CALENDAR_API_KEY secret. This server key must not use browser-referrer restrictions.
 No frontend key is needed and calendar events remain in the existing shared Google calendar.
+
+Success scheduling is aligned to quarter-hour cron ticks to avoid runtime drift.
+SQL checks verified 15/30/60/120-minute retries, stale payload preservation and private access.
+There are two existing moderate dependency advisories; no high or critical findings.

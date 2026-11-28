@@ -11,6 +11,7 @@ export async function applyAiClassification(
   candidates: ClassifiedBlock[],
 ): Promise<void> {
   if (candidates.length === 0) return;
+  const deadline = Date.now() + 45000;
   console.log(`[ai] ${candidates.length} events need classification`);
 
   // Build cache lookup entries using the ICS UID and LAST-MODIFIED fields
@@ -56,7 +57,7 @@ export async function applyAiClassification(
     }
 
     // No cache — skip if over cap or rate limit already hit this invocation
-    if (geminiCallsMade >= MAX_GEMINI_CALLS_PER_INVOCATION || rateLimitHit) {
+    if (geminiCallsMade >= MAX_GEMINI_CALLS_PER_INVOCATION || rateLimitHit || Date.now() + 15000 >= deadline) {
       item.classification = { ...item.classification, tagSource: "uncategorized" };
       item.needsAI = false;
       continue;

@@ -552,6 +552,8 @@
 .dark .home-hero::before { background: linear-gradient(90deg, #0c1927f5, #0c1927dd 26%, #0c19279e 43%, transparent 69%); }
 .wall-region { z-index: -2; pointer-events: none; }
 .photo-arrangement {
+  will-change: transform;
+  backface-visibility: hidden;
   display: grid;
   grid-template: repeat(var(--wall-rows), minmax(0, 1fr)) / repeat(var(--wall-columns), minmax(0, 1fr));
   gap: var(--space-1);

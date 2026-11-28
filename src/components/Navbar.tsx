@@ -9,6 +9,7 @@ import { mainMenu, resourceMenu } from "@/data/siteMenus";
 import { visualKey } from "@/editor/visual-model";
 import AnnouncementBar from "./AnnouncementBar";
 
+import { useIsMobile } from "@/hooks/use-mobile";
 import { PrayerLink } from "@/design/DailyPrayers";
 const prefetchRoute = (path: string) => {
   const map: Record<string, () => Promise<unknown>> = {
@@ -29,6 +30,7 @@ const prefetchRoute = (path: string) => {
 
 const Navbar = () => {
   const design = useDesign();
+  const phone = useIsMobile();
   const menus = useContext(Content).fields[visualKey.menus];
   const main = menus?.kind === "menus" ? menus.main : undefined;
   const resources = menus?.kind === "menus" ? menus.resources : undefined;
@@ -124,7 +126,7 @@ const Navbar = () => {
       {/* Floating pill */}
       <div className="nav-shell">
         <motion.div
-          initial={{ y: -16, opacity: 0 }}
+          initial={phone ? false : { y: -16, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
           className="nav-pill pointer-events-auto w-full rounded-2xl"

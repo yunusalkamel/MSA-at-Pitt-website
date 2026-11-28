@@ -111,12 +111,23 @@ const PartnerLogos = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const visible = useInView(containerRef);
   const reducedMotion = useReducedMotion();
+  const halfWidthRef = useRef(0);
+  const dragStartClientY = useRef(0);
   const dragStartClientX = useRef(0);
+  useEffect(() => {
+    if (!innerRef.current) return;
+    const measure = () => { halfWidthRef.current = (innerRef.current?.scrollWidth || 0) / 2; };
+    const observer = new ResizeObserver(measure);
+    observer.observe(innerRef.current);
+    measure();
+    return () => observer.disconnect();
+  }, [partners.length]);
   const dragStartMotionX = useRef(0);
 
   useAnimationFrame((_, delta) => {
     if (!visible || reducedMotion || isDragging.current || !innerRef.current) return;
-    const halfWidth = innerRef.current.scrollWidth / 2;
+    const halfWidth = halfWidthRef.current;
+    if (!halfWidth) return;
     let next = x.get() - (delta * SCROLL_SPEED) / 1000;
     if (next <= -halfWidth) next += halfWidth;
     x.set(next);
@@ -136,7 +147,8 @@ const PartnerLogos = () => {
     if (e.pointerType === "touch" || !isDragging.current || !innerRef.current) return;
     const delta = e.clientX - dragStartClientX.current;
     if (Math.abs(delta) > 6) didDrag.current = true;
-    const halfWidth = innerRef.current.scrollWidth / 2;
+    const halfWidth = halfWidthRef.current;
+    if (!halfWidth) return;
     let next = dragStartMotionX.current + delta;
     while (next < -halfWidth) next += halfWidth;
     while (next > 0) next -= halfWidth;
@@ -154,17 +166,25 @@ const PartnerLogos = () => {
       isDragging.current = true;
       didDrag.current = false;
       dragStartClientX.current = e.touches[0].clientX;
+      dragStartClientY.current = e.touches[0].clientY;
       dragStartMotionX.current = x.get();
     };
 
     const onTouchMove = (e: TouchEvent) => {
       if (!isDragging.current || !innerRef.current) return;
       const delta = e.touches[0].clientX - dragStartClientX.current;
+      const vertical = e.touches[0].clientY - dragStartClientY.current;
+      if (!didDrag.current && Math.abs(vertical) > 6 && Math.abs(vertical) >= Math.abs(delta)) {
+        isDragging.current = false;
+        return;
+      }
+      if (!didDrag.current && (Math.abs(delta) <= 6 || Math.abs(delta) <= Math.abs(vertical) * 1.2)) return;
       if (Math.abs(delta) > 6) {
         didDrag.current = true;
-        e.preventDefault(); // prevent page scroll while dragging carousel
+        if (e.cancelable) e.preventDefault(); // Only claim an intentional horizontal swipe.
       }
-      const halfWidth = innerRef.current.scrollWidth / 2;
+      const halfWidth = halfWidthRef.current;
+    if (!halfWidth) return;
       let next = dragStartMotionX.current + delta;
       while (next < -halfWidth) next += halfWidth;
       while (next > 0) next -= halfWidth;
@@ -176,10 +196,12 @@ const PartnerLogos = () => {
     el.addEventListener("touchstart", onTouchStart, { passive: true });
     el.addEventListener("touchmove", onTouchMove, { passive: false });
     el.addEventListener("touchend", onTouchEnd, { passive: true });
+    el.addEventListener("touchcancel", onTouchEnd, { passive: true });
     return () => {
       el.removeEventListener("touchstart", onTouchStart);
       el.removeEventListener("touchmove", onTouchMove);
       el.removeEventListener("touchend", onTouchEnd);
+      el.removeEventListener("touchcancel", onTouchEnd);
     };
   }, [x]);
 

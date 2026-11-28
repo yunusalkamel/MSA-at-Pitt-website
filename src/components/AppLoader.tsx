@@ -1,7 +1,7 @@
 /** AppLoader — shown while the JS bundle loads (Suspense fallback). */
 const AppLoader = () => (
   <div
-    className="fixed inset-0 flex flex-col items-center justify-center gap-3 z-50"
+    className="app-loader fixed inset-0 flex flex-col items-center justify-center gap-3 z-50"
     style={{ background: "linear-gradient(160deg, #060B18 0%, #0D1528 55%, #101E38 100%)" }}
   >
     {/* Gold progress bar at the very top */}

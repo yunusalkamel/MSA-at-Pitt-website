@@ -1,4 +1,5 @@
-import { handleCalendar } from "./index.ts";
+import { handleSync } from "../sync-calendar/handler.ts";
+import { handleCalendar } from "./handler.ts";
 import { apiEventBlock, classifyCalendarText, normalizeBlocks } from "./google-calendar-service.ts";
 function assert(value: unknown, message: string) { if (!value) throw Error(message); }
 Deno.test("visitor endpoint reads only saved payload, retaining events after source failure", async () => {
@@ -32,4 +33,12 @@ Deno.test("Google API timestamps and all-day events retain calendar semantics", 
   assert(allDay?.DTSTART === "20261128","Lost all-day date");
   const events=normalizeBlocks(classifyCalendarText("BEGIN:VCALENDAR\nBEGIN:VEVENT\nUID:real\nDTSTART:20261128T190000Z\nSUMMARY:Community Halaqa\nEND:VEVENT\nEND:VCALENDAR"));
   assert(events.length===1 && events[0].title === "Community Halaqa","ICS fallback failed");
+});
+
+Deno.test("private sync rejects unauthenticated requests before accessing storage or Google", async()=> {
+  Deno.env.delete("CALENDAR_SYNC_SECRET");
+  const original=globalThis.fetch;let calls=0;
+  globalThis.fetch=(()=>{calls++;throw Error("Unexpected upstream access");}) as typeof fetch;
+  try {const response=await handleSync(new Request("https://example.org",{method:"POST"}));assert(response.status===403 && calls===0,"Unauthorized sync reached a service");}
+  finally {globalThis.fetch=original;}
 });
