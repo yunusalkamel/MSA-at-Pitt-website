@@ -14,7 +14,7 @@ export default function VisualPage() {
   const page = getVisualPage(fields, pathname);
   const admin = /^\/admin(?:\/|$)/.test(window.location.pathname);
   const visible = page?.path && (admin || (page.visibility === "published" && isScheduled(page)));
-  usePageMeta({ title: visible ? `${page.title} | ${SITE_NAME}` : `Page not found | ${SITE_NAME}` });
+  usePageMeta({ title: visible ? `${page.title} | ${SITE_NAME}` : `Page not found | ${SITE_NAME}`, noindex: !visible });
   if (!visible) return <NotFound />;
   return <Layout names={["Page introduction"]}>
     <PageHero className={page.template === "campaign" ? "gradient-section-gold-soft text-center" : page.template === "landing" ? "gradient-section-emerald-soft text-center" : ""}>

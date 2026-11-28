@@ -4,12 +4,13 @@ import { expect, it } from "vitest";
 import { usePageMeta } from "@/lib/usePageMeta";
 import { Content, LinkField } from "@/editor/content";
 import { LINKS } from "@/config/links";
+import { SEO_PAGES } from "../../shared/seo.js";
 import { SITE_NAME } from "../../shared/brand.js";
 function Page({title}:{title:string}) { usePageMeta({title}); return null; }
 it("sets the current page title but keeps shared-link branding exact",()=> {
- const first=render(<MemoryRouter><Page title="Events"/></MemoryRouter>);first.unmount();
- const second=render(<MemoryRouter><Page title={`Prayer at Pitt | ${SITE_NAME}`}/></MemoryRouter>);
- expect(document.title).toBe(`Prayer at Pitt | ${SITE_NAME}`);
+ const first=render(<MemoryRouter initialEntries={["/events"]}><Page title="Events"/></MemoryRouter>);first.unmount();
+ const second=render(<MemoryRouter initialEntries={["/resources/prayer"]}><Page title={`Prayer at Pitt | ${SITE_NAME}`}/></MemoryRouter>);
+ expect(document.title).toBe(SEO_PAGES["/resources/prayer"].title);
  expect(document.querySelector('meta[property="og:title"]')).toHaveAttribute("content",SITE_NAME);
  expect(document.querySelector('meta[name="twitter:title"]')).toHaveAttribute("content",SITE_NAME);
  second.unmount();expect(document.title).toBe(SITE_NAME);

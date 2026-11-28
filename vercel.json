@@ -48,6 +48,10 @@
   ],
   "rewrites": [
     {
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap"
+    },
+    {
       "source": "/",
       "has": [
         {
@@ -70,13 +74,82 @@
       "destination": "/api/share?path=:path*"
     },
     {
-      "source": "/((?!api/|_vercel).*)",
+      "source": "/",
       "destination": "/index.html"
+    },
+    {
+      "source": "/about",
+      "destination": "/about.html"
+    },
+    {
+      "source": "/events",
+      "destination": "/events.html"
+    },
+    {
+      "source": "/resources",
+      "destination": "/resources.html"
+    },
+    {
+      "source": "/resources/prayer",
+      "destination": "/resources/prayer.html"
+    },
+    {
+      "source": "/resources/new-to-pitt",
+      "destination": "/resources/new-to-pitt.html"
+    },
+    {
+      "source": "/resources/chaplain",
+      "destination": "/resources/chaplain.html"
+    },
+    {
+      "source": "/resources/faq",
+      "destination": "/resources/faq.html"
+    },
+    {
+      "source": "/join",
+      "destination": "/join.html"
+    },
+    {
+      "source": "/contact",
+      "destination": "/contact.html"
+    },
+    {
+      "source": "/gallery",
+      "destination": "/gallery.html"
+    },
+    {
+      "source": "/board",
+      "destination": "/board.html"
+    },
+    {
+      "source": "/((?!api/|_vercel).*)",
+      "destination": "/spa.html"
     }
   ],
   "redirects": [
     {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "msaatpitt\\.vercel\\.app"
+        }
+      ],
+      "destination": "https://msaatpitt.org/:path*",
+      "permanent": true
+    },
+    {
       "source": "/resources/prayer-locations",
+      "destination": "/resources/prayer",
+      "permanent": true
+    },
+    {
+      "source": "/resources/prayer-times",
+      "destination": "/resources/prayer",
+      "permanent": true
+    },
+    {
+      "source": "/prayer-times",
       "destination": "/resources/prayer",
       "permanent": true
     }
