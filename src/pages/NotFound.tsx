@@ -9,7 +9,7 @@ import Layout from "@/components/Layout";
 import patternImg from "@/assets/geometric-tile.svg";
 
 const NotFound = () => {
-  usePageMeta({title: `Page not found | ${SITE_NAME}`});
+  usePageMeta({title: `Page not found | ${SITE_NAME}`, noindex:true});
   return (
   <Layout>
     <PageHero className="relative overflow-hidden">
