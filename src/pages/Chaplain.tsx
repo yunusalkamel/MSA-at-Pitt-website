@@ -1,3 +1,5 @@
+import { usePageMeta } from "@/lib/usePageMeta";
+import { SITE_NAME } from "../../shared/brand.js";
 import { useChaplainDetails } from "@/hooks/useChaplainDetails";
 import { PageHero } from "@/components/PageHero";
 import { Picture, LinkField } from "@/editor/content";
@@ -12,6 +14,7 @@ import ArabicVerse from "@/components/ArabicVerse";
 import patternImg from "@/assets/geometric-tile.svg";
 
 const Chaplain = () => {
+  usePageMeta({title: `University Chaplain | ${SITE_NAME}`});
   const { email, officeHours } = useChaplainDetails();
   return (
   <Layout>
@@ -65,7 +68,7 @@ const Chaplain = () => {
                 Born in Blackburn, England to a Gujarati family, Imam Muhammad Patel memorized the Quran at age 15. He completed his Alim program and has led Taraweeh prayers in Rome and Boynton Beach. He specializes in teaching children with learning challenges — bringing patience, warmth, and deep knowledge to every interaction.
               </TextField></p>
               <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed mb-6"><TextField id="Chaplain_12">
-                At MSA at Pitt, Imam Muhammad assists with Jummah, tabling, Islamic counseling, naseeha (advice), marketing, halaqahs, and leading prayers. He is a resource for any student seeking guidance — whether related to faith, personal struggles, or navigating college life as a Muslim.
+                At MSA at Pitt, Imam Muhammad assists with Jummah, tabling, Islamic counseling, naseeha (advice), halaqahs, and leading prayers. He is a resource for any student seeking guidance — whether related to faith, personal struggles, or navigating college life as a Muslim.
               </TextField></p>
 
               <div className="flex items-start gap-3 rounded-xl bg-primary/[0.06] border border-primary/15 px-4 py-3 mb-5">

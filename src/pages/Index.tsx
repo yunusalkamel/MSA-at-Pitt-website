@@ -1,3 +1,4 @@
+import { SITE_NAME } from "../../shared/brand.js";
 import { useDesign } from "@/design/useDesign";
 import { campusPrayerPhoto, communityPhoto, pillarPhotos } from "@/data/communityPhotos";
 import { nextGathering } from "@/lib/nextGathering";
@@ -83,7 +84,7 @@ const StatItem = ({ value, numericValue, suffix, label, sub, bordered }: {
 
 const Index = () => {
   usePageMeta({
-    title: "The MSA at Pitt — A Home Away From Home",
+    title: SITE_NAME,
     description: "Connecting Muslim students at Pitt through faith, friendship, and service. Everyone is welcome.",
   });
   const design = useDesign();
@@ -177,7 +178,7 @@ const Index = () => {
             <Link to="/events" className="btn-premium w-full justify-center mt-1"><TextField id="Index_34">View all events </TextField><ArrowRight size={14} /></Link>
             <div className="flex justify-center gap-5 mt-1">
               <LinkField fieldId="Index_destination_1" href={LINKS.googleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"><Calendar size={11} /><TextField id="Index_35"> Google Calendar</TextField></LinkField>
-              <LinkField fieldId="Index_destination_2" href={LINKS.appleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"><Calendar size={11} /><TextField id="Index_36"> Apple Calendar</TextField></LinkField>
+              <LinkField fieldId="Index_destination_2" fixedDestination href={LINKS.appleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"><Calendar size={11} /><TextField id="Index_36"> Apple Calendar</TextField></LinkField>
             </div>
           </div>
           <div className="hidden md:flex gap-4 items-stretch">
@@ -224,7 +225,7 @@ const Index = () => {
               <div className="flex gap-3">
                 <LinkField fieldId="Index_destination_4" href={LINKS.googleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"><Calendar size={11} /><TextField id="Index_51"> Google</TextField></LinkField>
                 <span className="text-border">·</span>
-                <LinkField fieldId="Index_destination_5" href={LINKS.appleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"><Calendar size={11} /><TextField id="Index_52"> Apple</TextField></LinkField>
+                <LinkField fieldId="Index_destination_5" fixedDestination href={LINKS.appleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"><Calendar size={11} /><TextField id="Index_52"> Apple</TextField></LinkField>
               </div>
             </div>
           </div>
@@ -310,7 +311,7 @@ const Index = () => {
               <LinkField fieldId="Index_destination_6" href={LINKS.googleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="btn-premium text-sm md:text-base px-7 py-3.5 w-full sm:w-auto justify-center">
                 <Calendar size={15} /><TextField id="Index_57"> Add to Google Calendar
               </TextField></LinkField>
-              <LinkField fieldId="Index_destination_7" href={LINKS.appleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="btn-premium-secondary text-sm md:text-base px-7 py-3.5 w-full sm:w-auto justify-center">
+              <LinkField fieldId="Index_destination_7" fixedDestination href={LINKS.appleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="btn-premium-secondary text-sm md:text-base px-7 py-3.5 w-full sm:w-auto justify-center">
                 <Calendar size={15} /><TextField id="Index_58"> Add to Apple Calendar
               </TextField></LinkField>
             </div>

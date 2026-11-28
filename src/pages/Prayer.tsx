@@ -1,3 +1,5 @@
+import { usePageMeta } from "@/lib/usePageMeta";
+import { SITE_NAME } from "../../shared/brand.js";
 import { LinkField } from "@/editor/content";
 import { ContentScope, TextField, itemIdentity, CardCopies } from "@/editor/content";
 import { lazy, Suspense, useState } from "react";
@@ -62,9 +64,9 @@ const masajid = [
     name: "Islamic Center of Pittsburgh (ICP)",
     distance: "~10 minute walk from campus",
     details: [
-      "Two Jumu'ah services every Friday (~30 min each):",
-      "Arabic Khutba at 12:15 PM",
-      "English Jumu'ah at 1:15 PM",
+      "Jumu'ah services every Friday (~30 min each):",
+      "Arabic Khutba at 12:15 PM (when available)",
+      "English Jumu'ah at 1:15 PM and 2:15 PM (repeat)",
       "See the Jummah section above for Friday prayer on campus.",
     ],
   },
@@ -81,6 +83,7 @@ const masajid = [
 
 // ─── Component ────────────────────────────────────────────────────────────────
 const Prayer = () => {
+  usePageMeta({title: `Prayer at Pitt | ${SITE_NAME}`});
   const [west, setWest] = useState(false);
   const [almanacOpen, setAlmanacOpen] = useState(false);
   return (

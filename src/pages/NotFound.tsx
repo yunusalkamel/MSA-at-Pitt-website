@@ -1,3 +1,5 @@
+import { usePageMeta } from "@/lib/usePageMeta";
+import { SITE_NAME } from "../../shared/brand.js";
 import { PageHero } from "@/components/PageHero";
 import { TextField } from "@/editor/content";
 import { Link } from "react-router-dom";
@@ -6,7 +8,9 @@ import { ArrowRight, Home, Calendar, Users } from "lucide-react";
 import Layout from "@/components/Layout";
 import patternImg from "@/assets/geometric-tile.svg";
 
-const NotFound = () => (
+const NotFound = () => {
+  usePageMeta({title: `Page not found | ${SITE_NAME}`});
+  return (
   <Layout>
     <PageHero className="relative overflow-hidden">
       <div className="absolute inset-0 gradient-mesh-gold" />
@@ -41,6 +45,7 @@ const NotFound = () => (
       </motion.div>
     </PageHero>
   </Layout>
-);
+  );
+};
 
 export default NotFound;

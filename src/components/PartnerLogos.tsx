@@ -28,12 +28,12 @@ export const PARTNERS: Partner[] = [
   // University
   { name: "University of Pittsburgh",              shortName: "Pitt",       src: "/partners/pitt.png",       href: "https://pitt.edu",           group: "University" },
   // MSA Chapters
-  { name: "CMU MSA",                               shortName: "CMU MSA",    src: "/partners/cmu-msa.jpg",    href: "https://cmu.edu",            group: "MSA Chapter", hasBackground: true },
+  { name: "CMU MSA",                               shortName: "CMU MSA",    src: "/partners/cmu-msa.jpg",    href: "https://cmumsa.org",            group: "MSA Chapter", hasBackground: true },
   { name: "Duquesne MSA",                          shortName: "Duq MSA",    src: "/partners/duq-msa.jpg",    href: "https://duq.edu",            group: "MSA Chapter", hasBackground: true },
   { name: "AMMSA",                                 shortName: "AMMSA",      src: "/partners/ammsa.png",      href: "https://ammsa.org",          group: "MSA Chapter" },
   // Community orgs
   { name: "Sudanese American Professional Assoc.", shortName: "SAPA",       src: "/partners/sapa.png",       href: "https://sapa-usa.org",       group: "Community",   hasBackground: true },
-  { name: "Human Development Foundation",          shortName: "HDF",        src: "/partners/hdf.png",        href: "https://hdf.com",            group: "Community" },
+  { name: "Human Development Foundation",          shortName: "HDF",        src: "/partners/hdf.png",        href: "https://hdfund.org",            group: "Community" },
 ];
 
 export function usePartners() {
@@ -43,7 +43,7 @@ export function usePartners() {
   return entries.filter(entry => entry.url).map(entry => {
     const prior = PARTNERS.find(item => item.shortName.replace(/[^a-zA-Z0-9]+/g,"-") === entry.id);
     return { ...prior, name:entry.title, description:entry.body, shortName:prior?.shortName || entry.title,
-      src:entry.image, group:(entry.role || "Community") as Partner["group"], href:entry.url };
+      src:entry.image, group:(entry.role || "Community") as Partner["group"], href:entry.url.replace(/^https?:\/\/(?:www\.)?hdf\.com(?=\/|$)/i,"https://hdfund.org").replace(/^https?:\/\/(?:www\.)?cmu\.(?:edu|com)(?=\/|$)/i,"https://cmumsa.org") };
   });
 }
 

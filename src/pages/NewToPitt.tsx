@@ -1,3 +1,5 @@
+import { usePageMeta } from "@/lib/usePageMeta";
+import { SITE_NAME } from "../../shared/brand.js";
 import { PageHero } from "@/components/PageHero";
 import { Picture, LinkField } from "@/editor/content";
 import { TextField, itemIdentity, ContentScope, CardCopies } from "@/editor/content";
@@ -133,7 +135,9 @@ const Bullets = ({ items }: { items: string[] }) => (
 );
 
 /* ── Page ── */
-const NewToPitt = () => (
+const NewToPitt = () => {
+  usePageMeta({title: `New to Pitt | ${SITE_NAME}`});
+  return (
   <Layout>
     {/* Hero */}
     <PageHero className="relative text-center overflow-hidden">
@@ -252,6 +256,7 @@ const NewToPitt = () => (
       </div>
     </section>
   </Layout>
-);
+  );
+};
 
 export default NewToPitt;

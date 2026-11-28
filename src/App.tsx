@@ -16,7 +16,6 @@ const Join = lazy(() => import("./pages/Join.tsx"));
 const Contact = lazy(() => import("./pages/Contact.tsx"));
 const Resources = lazy(() => import("./pages/Resources.tsx"));
 const NewToPitt = lazy(() => import("./pages/NewToPitt.tsx"));
-const PrayerLocations = lazy(() => import("./pages/PrayerLocations.tsx"));
 const FAQ = lazy(() => import("./pages/FAQ.tsx"));
 const Prayer = lazy(() => import("./pages/Prayer.tsx"));
 const Chaplain = lazy(() => import("./pages/Chaplain.tsx"));
@@ -48,7 +47,7 @@ const App = () => (
               <Route path="/contact" element={<Contact />} />
               <Route path="/resources" element={<Resources />} />
               <Route path="/resources/new-to-pitt" element={<NewToPitt />} />
-              <Route path="/resources/prayer-locations" element={<PrayerLocations />} />
+              <Route path="/resources/prayer-locations" element={<Navigate to="/resources/prayer" replace />} />
               <Route path="/resources/prayer-times" element={<Navigate to="/resources/prayer" replace />} />
               <Route path="/resources/prayer" element={<Prayer />} />
               <Route path="/resources/chaplain" element={<Chaplain />} />

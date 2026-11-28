@@ -136,8 +136,7 @@ const Footer = () => {
           </p>
         </div>
 
-        <details className="text-center text-sm mb-4"><summary>Privacy and analytics</summary>
-          <p>We use aggregate Vercel traffic and speed measurements on public pages. We exclude management and counseling pages. With permission, Google Analytics measures visits and interactions and Microsoft Clarity records how people use public pages. Clarity masks the page text and inputs.</p>
+        <details className="text-center text-sm mb-4"><summary>Analytics preferences</summary>
           {productionPublic && <button onClick={()=>{
             const enabled=consentGiven();
             localStorage.setItem(consentKey,enabled?"no":"yes");

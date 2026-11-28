@@ -23,3 +23,12 @@ No frontend key is needed and calendar events remain in the existing shared Goog
 Success scheduling is aligned to quarter-hour cron ticks to avoid runtime drift.
 SQL checks verified 15/30/60/120-minute retries, stale payload preservation and private access.
 There are two existing moderate dependency advisories; no high or critical findings.
+
+## Follow-up content and event polish
+- Details is the default; genuine calendar-designated registration wins over recurring-event categories.
+- The shared parser recognizes labeled URLs and known form destinations, but excludes generic links and Linktree hubs. Cached descriptions are rechecked on the frontend too.
+- Every event popup retains registration (when present) and Add to Calendar. Open weekly programs show No RSVP needed; pending required registration links to Linktree.
+- Apple subscriptions use a fixed, non-editor webcal destination. Desktop hero parallax changes from 48 to 64; phone stays at 120.
+- The duplicate prayer page redirects to Prayer. ICP's current homepage adds a 2:15 PM English repeat service; no separate upcoming spring timetable was available.
+- Removed the unsigned president quote, chaplain marketing item and obsolete footer policy paragraph, retaining consent controls.
+- Fixed partner links and Brothers Social management; added per-page titles and exact organization-name social metadata; Gaza recap image responses get noindex.

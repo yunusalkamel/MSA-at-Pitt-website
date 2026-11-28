@@ -98,7 +98,7 @@ const OrgChart = () => {
   const advocacy:   NodeSpec = managed({ id: "advocacy",   role: "Advocacy",          name: data?.advocacyChairName,     color: "coral"  });
   const brosDawah:  NodeSpec = managed({ id: "bros-dawah", role: "Brothers Da'wah",   name: data?.brothersDawahChairName, color: "blue"  });
   const sisDawah:   NodeSpec = managed({ id: "sis-dawah",  role: "Sisters Da'wah",    name: data?.sistersDawahChairName, color: "pink"   });
-  const brosSocial: NodeSpec = { id: "bros-social",role: "Brothers Social",   name: data?.brothersSocialChairName, color: "purple"};
+  const brosSocial: NodeSpec = managed({ id: "bros-social",role: "Brothers Social",   name: data?.brothersSocialChairName, color: "purple"});
   const sisSocial:  NodeSpec = managed({ id: "sis-social", role: "Sisters Social",    name: data?.sistersSocialChairName, color: "amber" });
   const marketing:  NodeSpec = managed({ id: "marketing",  role: "Marketing",         name: data?.marketingChairName,    color: "red"    });
 

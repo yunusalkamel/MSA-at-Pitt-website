@@ -1,3 +1,4 @@
+import { SITE_NAME } from "../../shared/brand.js";
 import { useContext } from "react";
 import { useLocation } from "react-router-dom";
 import { Content, TextField, ContentScope } from "@/editor/content";
@@ -13,7 +14,7 @@ export default function VisualPage() {
   const page = getVisualPage(fields, pathname);
   const admin = /^\/admin(?:\/|$)/.test(window.location.pathname);
   const visible = page?.path && (admin || (page.visibility === "published" && isScheduled(page)));
-  usePageMeta({ title: visible ? page.title + " | MSA at Pitt" : "Page not found | MSA at Pitt" });
+  usePageMeta({ title: visible ? `${page.title} | ${SITE_NAME}` : `Page not found | ${SITE_NAME}` });
   if (!visible) return <NotFound />;
   return <Layout names={["Page introduction"]}>
     <PageHero className={page.template === "campaign" ? "gradient-section-gold-soft text-center" : page.template === "landing" ? "gradient-section-emerald-soft text-center" : ""}>

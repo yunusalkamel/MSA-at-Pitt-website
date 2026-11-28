@@ -1,3 +1,5 @@
+import { usePageMeta } from "@/lib/usePageMeta";
+import { SITE_NAME } from "../../shared/brand.js";
 import CardOrder from "@/editor/CardOrder";
 import { useChaplainDetails } from "@/hooks/useChaplainDetails";
 import { PageHero } from "@/components/PageHero";
@@ -77,6 +79,7 @@ function resourceCard(resource: typeof resources[number], index: number) {
 }
 
 const Resources = () => {
+  usePageMeta({title: `Resources | ${SITE_NAME}`});
   const { email, officeHours } = useChaplainDetails();
   const mobile=useIsMobile();
   return (
@@ -139,7 +142,7 @@ const Resources = () => {
               <LinkField fieldId="Resources_destination_4" href={LINKS.googleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="btn-premium text-sm px-4 py-2.5 whitespace-nowrap">
                 <Calendar size={14} /><TextField id="Resources_45"> Google Calendar
               </TextField></LinkField>
-              <LinkField fieldId="Resources_destination_5" href={LINKS.appleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="btn-premium-secondary text-sm px-4 py-2.5 whitespace-nowrap">
+              <LinkField fieldId="Resources_destination_5" fixedDestination href={LINKS.appleCalendarSubscribe} target="_blank" rel="noopener noreferrer" className="btn-premium-secondary text-sm px-4 py-2.5 whitespace-nowrap">
                 <Calendar size={14} /><TextField id="Resources_46"> Apple Calendar
               </TextField></LinkField>
               <LinkField fieldId="Resources_destination_6" href={LINKS.linktree} target="_blank" rel="noopener noreferrer" className="btn-premium-secondary text-sm px-4 py-2.5 whitespace-nowrap">
