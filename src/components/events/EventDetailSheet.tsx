@@ -2,7 +2,8 @@ import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { ArrowRight, CalendarPlus, Camera, Clock, ExternalLink, MapPin, X, CalendarCheck } from "lucide-react";
 import type { MSAEvent } from "@/data/events";
 import { linkifyText } from "@/lib/linkify";
-import { resolveEventAction } from "./resolveEventAction";
+import { LINKS } from "@/config/links";
+import { resolveEventAction, attendanceInfo } from "./resolveEventAction";
 import { getEventTier, getTagChipClass } from "./calendar-utils";
 
 const AiSparkle = () => (
@@ -28,7 +29,8 @@ const EventDetailSheet = ({ event, onClose }: Props) => {
   const actionLabel = action.label;
   const isGallery = action.kind === "gallery";
   const isSubscribe = action.kind === "subscribe";
-  const showCalendar = !event.isPast && action.kind !== "subscribe" && !!event.addToCalendarUrl;
+  const calendarUrl = event.addToCalendarUrl || event.googleCalendarUrl || event.calendarFallbackUrl || LINKS.googleCalendarSubscribe;
+  const attendance = attendanceInfo(event);
 
   const cleanBlurb = (event.description || event.shortBlurb)?.replace(/#\w+/g, "").trim();
 
@@ -103,11 +105,14 @@ const EventDetailSheet = ({ event, onClose }: Props) => {
             </div>
 
             {/* Description */}
-            {cleanBlurb && (
-              <p className="font-dm-sans text-muted-foreground text-sm leading-relaxed mb-5">
-                {linkifyText(cleanBlurb)}
+            <DialogPrimitive.Description asChild>
+              <p className={cleanBlurb ? "font-dm-sans text-muted-foreground text-sm leading-relaxed mb-5" : "sr-only"}>
+                {cleanBlurb ? linkifyText(cleanBlurb) : "Event information, registration and calendar links."}
               </p>
-            )}
+            </DialogPrimitive.Description>
+
+            {attendance === "open" && <p className="text-sm text-muted-foreground mb-4">No RSVP needed</p>}
+            {attendance === "pending" && <p className="text-sm text-muted-foreground mb-4"><a href={LINKS.linktree} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">Linktree ↗</a></p>}
 
             {/* Actions */}
             <div className="flex flex-col sm:flex-row gap-2">
@@ -127,11 +132,11 @@ const EventDetailSheet = ({ event, onClose }: Props) => {
                   {actionLabel} <ExternalLink size={13} />
                 </span>
               ) : null}
-              {showCalendar && (
+              {calendarUrl && (
                 <a
-                  href={event.addToCalendarUrl}
-                  target={action.external ? "_blank" : undefined}
-                  rel={action.external ? "noopener noreferrer" : undefined}
+                  href={calendarUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="btn-premium-secondary flex-1 justify-center text-sm"
                 >
                   <CalendarPlus size={14} /> Add to Calendar

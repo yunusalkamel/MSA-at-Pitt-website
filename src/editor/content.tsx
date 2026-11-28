@@ -118,9 +118,10 @@ export function TextField({
 }
 export function LinkField({
   fieldId,
+  fixedDestination = false,
   fallback,
   ...props
-}: AnchorHTMLAttributes<HTMLAnchorElement> & { fieldId: string; fallback?:ReactNode }) {
+}: AnchorHTMLAttributes<HTMLAnchorElement> & { fieldId: string; fixedDestination?:boolean; fallback?:ReactNode }) {
   const key = useField(fieldId);
   const { fields, editing } = useContext(Content);
   const field = fields[key];
@@ -130,8 +131,8 @@ export function LinkField({
   return (
     <a
       {...props}
-      href={field?.kind === "link" && !replacedChaplainEmail ? field.url : props.href}
-      data-edit-link={editing ? key : undefined}
+      href={!fixedDestination && field?.kind === "link" && !replacedChaplainEmail ? field.url : props.href}
+      data-edit-link={editing && !fixedDestination ? key : undefined}
     />
   );
 }

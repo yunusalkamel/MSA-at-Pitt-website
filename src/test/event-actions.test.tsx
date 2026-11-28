@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { render } from "@testing-library/react";
-import { resolveEventAction } from "@/components/events/resolveEventAction";
+import { resolveEventAction, attendanceInfo } from "@/components/events/resolveEventAction";
 import { linkifyText } from "@/lib/linkify";
 import { parseDescription } from "../../supabase/functions/google-calendar-events/parse-description";
 import type { MSAEvent } from "@/data/events";
@@ -23,4 +23,23 @@ describe("calendar event actions",()=> {
     expect(view.getAllByRole("link")).toHaveLength(2);
     expect(view.container.querySelector("script")).toBeNull();
   });
+  it("recognizes unlabeled form destinations without promoting generic links",()=> {
+    expect(parseDescription('https://forms.gle/example',"").rsvpUrl).toBe('https://forms.gle/example');
+    expect(parseDescription('Link: https://example.org/details',"").rsvpUrl).toBeUndefined();
+    expect(parseDescription('Registration required. Details: https://example.org/details',"").rsvpUrl).toBeUndefined();
+    expect(parseDescription('RSVP: https://linktr.ee/msa.at.pitt',"").rsvpUrl).toBeUndefined();
+  });
+  it("distinguishes open programs from a required but pending registration",()=> {
+    expect(attendanceInfo({...event,rsvpUrl:undefined,title:"Soccer",categories:["sports"]})).toBe("open");
+    expect(attendanceInfo({...event,rsvpUrl:undefined,description:"Registration required. Link coming soon."})).toBe("pending");
+    expect(attendanceInfo(event)).toBeUndefined();
+    expect(attendanceInfo({...event,rsvpUrl:undefined,title:"Paintball",categories:["sports"]})).toBeUndefined();
+  });
+
+  it("rechecks cached descriptions so stale generic links cannot become signup buttons",()=> {
+    expect(resolveEventAction({...event,description:"Link: https://example.org/details"}).kind).toBe("details");
+    expect(resolveEventAction({...event,rsvpUrl:undefined,description:"https://forms.gle/example"}).kind).toBe("signup");
+    expect(attendanceInfo({...event,rsvpUrl:undefined,description:"https://forms.gle/example"})).toBeUndefined();
+  });
+
 });

@@ -16,14 +16,6 @@ export type ParsedDescription = {
   confidence: 1.0 | null;
 };
 
-// RSVP keyword prefixes that signal a signup/registration link on the same line
-const RSVP_LINE_PREFIXES = [
-  "rsvp:",
-  "register:",
-  "sign up:",
-  "signup:",
-];
-
 // Hashtag → audience mapping (lowercase, no leading #)
 const AUDIENCE_HASHTAGS: Record<string, AudienceTag> = {
   brothers: "brothers",
@@ -58,41 +50,36 @@ function stripTrailingPunctuation(url: string): string {
   return url.replace(/[),.:;]+$/, "");
 }
 
-function extractRsvpUrl(raw: string): string | undefined {
-  const text = raw.replace(/<br\s*\/?\s*>|<\/p>/gi, "\n").replace(/<a\b[^>]*href=["'](https?:\/\/[^"']+)["'][^>]*>(.*?)<\/a>/gi, "$2 $1").replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&");
+function registrationDestination(value: string): boolean {
+  try {
+    const url = new URL(value);
+    const host = url.hostname.toLowerCase().replace(/^www\./, "");
+    return (host === "forms.gle" && url.pathname.length > 1) ||
+      (host === "docs.google.com" && url.pathname.startsWith("/forms/")) ||
+      ((host === "typeform.com" || host.endsWith(".typeform.com")) && url.pathname.length > 1) ||
+      ((host === "signupgenius.com" || host === "eventbrite.com") && /\/(?:go|e)\//.test(url.pathname));
+  } catch { return false; }
+}
+
+export function extractRegistrationUrl(raw: string): string | undefined {
+  const text = raw.replace(/<br\s*\/?\s*>|<\/(?:p|div|li)>/gi, "\n")
+    .replace(/<a\b[^>]*href=["'](https?:\/\/[^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi, "$2 $1")
+    .replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&");
   const lines = text.split(/\n/);
-
-  // 1. Check for a line that starts with a recognized RSVP keyword prefix
-  for (const line of lines) {
-    const trimmed = line.trim().toLowerCase();
-    for (const prefix of RSVP_LINE_PREFIXES) {
-      if (trimmed.startsWith(prefix)) {
-        const rest = line.slice(prefix.length).trim();
-        const urlMatch = rest.match(/https?:\/\/[^\s<>"]+/i);
-        if (urlMatch) return stripTrailingPunctuation(urlMatch[0]);
-        break;
-      }
+  for (let index = 0; index < lines.length; index++) {
+    const line = lines[index];
+    for (const match of line.matchAll(/https?:\/\/[^\s<>"']+/gi)) {
+      const url = stripTrailingPunctuation(match[0]);
+      // A hub or calendar is not a direct registration destination.
+      try { if (["linktr.ee","calendar.google.com"].includes(new URL(url).hostname.replace(/^www\./,""))) continue; }
+      catch { continue; }
+      const before = line.slice(0, match.index);
+      const label = before.trim() ? before : (lines[index - 1] || "");
+      const negative = /no\s+(?:rsvp|registration|sign.?up)(?:\s+(?:is|needed|required|necessary))*|(?:rsvp|registration)\s+(?:is\s+)?not\s+(?:required|needed)/i.test(label);
+      const designated = !negative && /(?:rsvp|register|registration|sign[ -]?up|tickets)(?:(?![.!?\n]|https?:).){0,60}$/i.test(label);
+      if (designated || registrationDestination(url)) return url;
     }
   }
-
-  // 2. Fallback: find the first https URL whose surrounding context mentions RSVP/register/signup
-  const urlPattern = /https?:\/\/[^\s<>"]+/gi;
-  let match: RegExpExecArray | null;
-  while ((match = urlPattern.exec(text)) !== null) {
-    const start = Math.max(0, match.index - 30);
-    const end = Math.min(text.length, match.index + match[0].length + 30);
-    const context = text.slice(start, end).toLowerCase();
-    if (/no\s+(?:rsvp|registration|sign.?up)\s+(?:needed|required)|(?:rsvp|registration)\s+(?:is\s+)?not\s+required/i.test(context)) continue;
-    if (
-      context.includes("rsvp") ||
-      context.includes("register") ||
-      context.includes("sign up") ||
-      context.includes("signup")
-    ) {
-      return stripTrailingPunctuation(match[0]);
-    }
-  }
-
   return undefined;
 }
 
@@ -105,7 +92,7 @@ export function parseDescription(
   rawDescription: string,
   _rawTitle: string,
 ): ParsedDescription {
-  const rsvpUrl = extractRsvpUrl(rawDescription);
+  const rsvpUrl = extractRegistrationUrl(rawDescription);
   const hashtags = extractHashtags(rawDescription);
 
   if (hashtags.length === 0) {

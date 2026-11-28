@@ -97,8 +97,8 @@ describe("EventCardBase variants", () => {
       fullCalendarUrl: undefined,
       ctaMode: "learn-more",
     });
-    expect(container.querySelector('a[href="/events?event=no-link"]')).toHaveTextContent(
-      "View details",
+    expect(container.querySelector('a.btn-premium[href="/events?event=no-link"]')).toHaveTextContent(
+      "Details",
     );
   });
 });
