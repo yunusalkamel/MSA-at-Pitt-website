@@ -164,18 +164,20 @@ export function Picture({
   const srcSet = retiredPicnic || overridden || !props.srcSet
     ? src && (communityImageSizes(src) || sanityImageSrcSet(src, maxWidth))
     : props.srcSet;
-  return (
+  const avif = /^\/photos\/community\/[\w-]+-\d+\.avif$/.test(src || "");
+  const image = (
     <img
       {...props}
       style={position ? { ...props.style, objectPosition: position } : props.style}
       alt={alt?.kind==="alt"?alt.text:props.alt}
-      src={src}
-      srcSet={srcSet || undefined}
+      src={avif ? src.replace(/\.avif$/, ".webp") : src}
+      srcSet={avif ? srcSet?.split(", ").filter(item=>!item.includes("-400.avif ")).join(", ").replace(/\.avif/g, ".webp") : srcSet || undefined}
       sizes={srcSet ? props.sizes ?? `(max-width: ${maxWidth}px) 100vw, ${maxWidth}px` : undefined}
       data-edit-image={editing && !fixedSource ? key : undefined}
       data-edit-position={editing && !fixedSource ? position : undefined}
     />
   );
+  return avif ? <picture style={{display:"contents"}}><source type="image/avif" srcSet={srcSet || src} sizes={props.sizes}/>{image}</picture> : image;
 }
 export function CardCopies({
   id,

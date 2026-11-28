@@ -1,7 +1,7 @@
 import { parseDescription } from "./parse-description.ts";
 import { classifyByRules } from "./classify-rules.ts";
 
-const CALENDAR_ID = "2use05cacfd5hu3q2p49q9dvmc@group.calendar.google.com";
+export const CALENDAR_ID = "2use05cacfd5hu3q2p49q9dvmc@group.calendar.google.com";
 const OUTPUT_TIMEZONE = "America/New_York";
 const PUBLIC_ICS_URL = `https://calendar.google.com/calendar/ical/${encodeURIComponent(CALENDAR_ID)}/public/basic.ics`;
 
@@ -62,7 +62,7 @@ export type SyncClassification = {
   audience: AudienceTag;
   categories: EventCategory[];
   isSignature: boolean;
-  tagSource: "explicit" | "rules" | "uncategorized";
+  tagSource: "explicit" | "rules" | "ai" | "uncategorized";
   confidence: number;
   rsvpUrl?: string;
 };
@@ -721,33 +721,60 @@ function expandRecurringEvents(events: Record<string, string>[]): Record<string,
  * alongside a sync classification (hashtag-based or rules-based).
  * The caller (index.ts) handles the optional AI fallback step.
  */
+export function classifyCalendarText(icsText: string): ClassifiedBlock[] {
+  if (!icsText.includes("BEGIN:VCALENDAR") || !icsText.includes("END:VCALENDAR"))
+    throw new CalendarFeedError("The calendar source did not return a complete calendar.", "ics_parse");
+  return expandRecurringEvents(parseIcsEvents(icsText)).filter(block=>block.STATUS !== "CANCELLED").map(classifyBlock);
+}
+
+function classifyBlock(block: Record<string,string>): ClassifiedBlock {
+  const classification=classifyIcsBlock(block);
+  return {block,classification,needsAI:classification.tagSource === "uncategorized" || classification.confidence < .75};
+}
+
+type ApiEvent = {
+  id: string; iCalUID?: string; summary?: string; description?: string; location?: string;
+  status?: string; updated?: string; htmlLink?: string; recurringEventId?: string;
+  start: {date?:string;dateTime?:string}; end?: {date?:string;dateTime?:string};
+};
+export function apiEventBlock(event: ApiEvent): Record<string,string> {
+  const token=(value: {date?:string;dateTime?:string})=> value.date ? value.date.replace(/-/g, "")
+    : formatUtcToken(new Date(value.dateTime!));
+  const uid=event.iCalUID || event.id;
+  const start=event.start.date || toYMD(new Date(event.start.dateTime!));
+  return {
+    UID:event.recurringEventId ? uid+"-"+start : uid,
+    SUMMARY:event.summary || "Untitled event",DESCRIPTION:event.description || "",
+    LOCATION:event.location || "",DTSTART:token(event.start),
+    ...(event.end ? {DTEND:token(event.end)} : {}),
+    __DTSTART_META:event.start.date ? "DTSTART;VALUE=DATE" : "DTSTART",
+    URL:event.htmlLink || "", "LAST-MODIFIED":event.updated || "",
+  };
+}
+async function apiBlocks(key: string): Promise<ClassifiedBlock[]> {
+  const until=new Date(); until.setUTCFullYear(until.getUTCFullYear()+1);
+  const events: ApiEvent[]=[];
+  let page: string | undefined;
+  for(let count=0;count<20;count++) {
+    const url=new URL(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CALENDAR_ID)}/events`);
+    url.search=new URLSearchParams({key,singleEvents:"true",timeMin:"2024-01-01T00:00:00Z",timeMax:until.toISOString(),
+      maxResults:"2500",timeZone:OUTPUT_TIMEZONE,...(page?{pageToken:page}:{})}).toString();
+    const response=await fetch(url,{signal:AbortSignal.timeout(20000)});
+    if (!response.ok) throw new CalendarFeedError(`Google Calendar API returned HTTP ${response.status}.`, "ics_fetch");
+    const result=await response.json();
+    if (!Array.isArray(result.items)) throw Error("Google Calendar API returned an invalid event list.");
+    events.push(...result.items);
+    page=result.nextPageToken;
+    if (!page) return events.filter(event=>event.status!=="cancelled" && event.start).map(apiEventBlock).map(classifyBlock);
+  }
+  throw Error("The calendar exceeded the supported pagination limit.");
+}
 export async function fetchAndClassifyBlocks(): Promise<ClassifiedBlock[]> {
-  const response = await fetch(PUBLIC_ICS_URL);
-
-  if (!response.ok) {
-    const body = await response.text();
-    throw new CalendarFeedError(
-      `Public iCal feed request failed with status ${response.status}`,
-      "ics_fetch",
-      body,
-    );
-  }
-
-  const icsText = await response.text();
-  const parsed = parseIcsEvents(icsText);
-
-  if (parsed.length === 0) {
-    throw new CalendarFeedError("No events were parsed from the public iCal feed", "ics_parse");
-  }
-
-  const allBlocks = expandRecurringEvents(parsed);
-
-  return allBlocks.map((block) => {
-    const classification = classifyIcsBlock(block);
-    const needsAI =
-      classification.tagSource === "uncategorized" || classification.confidence < 0.75;
-    return { block, classification, needsAI };
-  });
+  const key=Deno.env.get("GOOGLE_CALENDAR_API_KEY");
+  if (key) return apiBlocks(key);
+  const response=await fetch(PUBLIC_ICS_URL,{signal:AbortSignal.timeout(20000)});
+  if (!response.ok) throw new CalendarFeedError(`Public iCal feed request failed with status ${response.status}`, "ics_fetch");
+  return classifyCalendarText(await response.text());
 }
 
 /**

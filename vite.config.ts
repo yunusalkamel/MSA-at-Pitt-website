@@ -38,14 +38,25 @@ export default defineConfig({
           const asset = (name: string) =>
             chunks.find((chunk) => chunk.name === name)?.fileName;
           const layout = asset("Layout");
-          const routes = {
-            "/": [asset("Index"), layout],
-            "/resources/prayer": [asset("Prayer"), layout],
-            "/gallery": [asset("Gallery"), layout, asset("RecapStories")],
+          const graph = (files: (string | undefined)[]) => {
+            const result = new Set<string>();
+            function visit(file?: string) {
+              if (!file || result.has(file)) return;
+              result.add(file);
+              const chunk = chunks.find(item => item.fileName === file);
+              if (chunk?.type === "chunk") chunk.imports.forEach(visit);
+            }
+            files.forEach(visit);
+            return [...result];
           };
-          const phonePhotos = [daylightWall, eveningWall].map(list=>list.slice(0,4).map((id) => ({
-            href: `/photos/community/${id}-320.webp`,
-            srcset: communityImageSizes(`/photos/community/${id}.webp`,true),
+          const routes = {
+            "/": graph([asset("Index"), layout]),
+            "/resources/prayer": graph([asset("Prayer"), layout]),
+            "/gallery": graph([asset("Gallery"), layout, asset("RecapStories")]),
+          };
+          const phonePhotos = [daylightWall, eveningWall].map(list=>list.slice(0,8).map((id) => ({
+            href: `/photos/community/${id}-320.avif`,
+            srcset: `/photos/community/${id}-320.avif 320w, /photos/community/${id}-400.avif 400w, /photos/community/${id}-480.avif 480w`,
           })));
           return [{
             tag: "script",
@@ -58,6 +69,19 @@ export default defineConfig({
                 cover.href = ${JSON.stringify(recaps[0].cover.replace("cover.webp", "preview.webp"))};
                 document.head.append(cover);
               }
+              if (location.pathname === "/" && matchMedia("(width < 768px)").matches) {
+                const dark = document.documentElement.classList.contains("dark");
+                for (const [index,photo] of ${JSON.stringify(phonePhotos)}[Number(dark)].entries()) {
+                  const link = document.createElement("link");
+                  link.rel = "preload";
+                  link.as = "image";
+                  link.fetchPriority = index < 4 ? "high" : "low";
+                  link.href = photo.href;
+                  link.imageSrcset = photo.srcset;
+                  link.imageSizes = "50vw";
+                  document.head.append(link);
+                }
+              }
               for (const file of (${JSON.stringify(routes)}[location.pathname] || [])) {
                 if (!file) continue;
                 const link = document.createElement("link");
@@ -65,19 +89,6 @@ export default defineConfig({
                 link.crossOrigin = "anonymous";
                 link.href = "/" + file;
                 document.head.append(link);
-              }
-              if (location.pathname === "/" && matchMedia("(width < 768px)").matches) {
-                const dark = document.documentElement.classList.contains("dark");
-                for (const photo of ${JSON.stringify(phonePhotos)}[Number(dark)]) {
-                  const link = document.createElement("link");
-                  link.rel = "preload";
-                  link.as = "image";
-                  link.fetchPriority = "high";
-                  link.href = photo.href;
-                  link.imageSrcset = photo.srcset;
-                  link.imageSizes = "50vw";
-                  document.head.append(link);
-                }
               }
             `,
           }];

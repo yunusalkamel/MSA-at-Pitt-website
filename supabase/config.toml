@@ -1,1 +1,4 @@
-project_id = "asztcfcodimalyyvcdab"
+project_id = "hvoiytjyimcyvpamsbay"
+
+[functions.sync-calendar]
+verify_jwt = false

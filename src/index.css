@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Keep desktop typography unchanged; deliver phone fonts without a third-party waterfall. */
+@media (width < 768px) {
+@font-face { font-family: 'Cormorant Garamond'; src: url('/fonts/cormorant-600.woff2') format('woff2'); font-style: normal; font-weight: 600; font-display: swap; }
+@font-face { font-family: 'Cormorant Garamond'; src: url('/fonts/cormorant-700.woff2') format('woff2'); font-style: normal; font-weight: 700; font-display: swap; }
+@font-face { font-family: 'Pinyon Script'; src: url('/fonts/pinyon.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'Amiri Invocation'; src: url('/fonts/amiri-basmalah.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'Plus Jakarta Sans'; src: url('/fonts/jakarta.woff2') format('woff2'); font-weight: 300 800; font-style: normal; font-display: swap; }
+}
+
 /* ── Local font-face declarations ─────────────────────────────────── */
 @font-face {
   font-family: 'Satoshi';
@@ -1171,3 +1180,5 @@ img[src*="/lawn-prayer"] { object-position: center 72%; }
 [data-album-layout="filmstrip"] { display:flex; gap:var(--space-4); overflow-x:auto; scroll-snap-type:x mandatory; }
 [data-album-layout="filmstrip"] > * { flex:0 0 min(80vw,440px); scroll-snap-align:start; }
 [data-album-layout="spotlight"] { grid-template-columns:1fr; }
+
+@media (width < 768px) { .hero-words .font-arabic, .app-loader .font-arabic { font-family: "Amiri Invocation", "Amiri", serif; } }

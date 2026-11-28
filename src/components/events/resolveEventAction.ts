@@ -1,6 +1,4 @@
 import type { MSAEvent } from "@/data/events";
-import { getEventTier } from "./calendar-utils";
-import { LINKS } from "@/config/links";
 
 export type EventActionKind = "signup" | "gallery" | "learn-more" | "details" | "subscribe";
 
@@ -15,7 +13,7 @@ function normalizeUrl(url?: string): string | undefined {
   if (!url) return undefined;
   const candidate = url.trim().replace(/[),.;]+$/, "");
 
-  if (candidate.startsWith("/")) return candidate;
+  if (candidate.startsWith("/") && !candidate.startsWith("//")) return candidate;
   if (!/^https?:\/\//i.test(candidate)) return undefined;
 
   try {
@@ -37,42 +35,21 @@ export function resolveEventAction(event: MSAEvent): EventAction {
     };
   }
 
-  // Recurring events (Jummah / halaqa / sports) → subscribe to calendar
-  const tier = getEventTier(event);
-  if (tier === "recurring") {
-    return {
-      kind: "subscribe",
-      label: "Subscribe to Calendar",
-      href: LINKS.googleCalendarSubscribe,
-      external: true,
-    };
-  }
-
-  // Upcoming/signature: use rsvpUrl if present, else linktree
+  // An actual registration link takes priority for every event category.
   const rsvpUrl = normalizeUrl(event.rsvpUrl);
   if (rsvpUrl) {
     return {
       kind: "signup",
       label: "RSVP",
       href: rsvpUrl,
-      external: true,
-    };
-  }
-
-  const clickUrl = normalizeUrl(event.clickUrl);
-  if (clickUrl) {
-    return {
-      kind: "learn-more",
-      label: "Learn More",
-      href: clickUrl,
-      external: !clickUrl.startsWith("/"),
+      external: !rsvpUrl.startsWith("/"),
     };
   }
 
   return {
-    kind: "learn-more",
-    label: "Learn More",
-    href: LINKS.linktree,
-    external: true,
+    kind: "details",
+    label: "View details",
+    href: `/events?event=${encodeURIComponent(event.id)}`,
+    external: false,
   };
 }

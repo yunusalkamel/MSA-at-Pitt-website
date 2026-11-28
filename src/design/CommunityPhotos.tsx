@@ -1,8 +1,11 @@
 import { HomeStoryBubbles } from "@/components/recaps/RecapStories";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { createPortal } from "react-dom";
 import { ChevronRight, Pause, Play } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
+import AppLoader from "@/components/AppLoader";
+import { useHeroReady } from "@/hooks/use-hero-ready";
 import { useHeroParallax } from "@/hooks/use-hero-parallax";
 import { Content, Picture, TextField } from "@/editor/content";
 import { getCollection, findAvailable } from "@/editor/visual-model";
@@ -14,6 +17,8 @@ import { sanityImageSrcSet } from "@/lib/sanityImageVariants";
 import {
   communityPhoto, daylightWall, eveningWall, wallCaption, type PhotoId,
 } from "@/data/communityPhotos";
+
+let heroRevealed = false;
 
 type WallPhoto = PhotoId | `managed-${string}`;
 type Tile = { photo: WallPhoto; previous?: WallPhoto };
@@ -55,7 +60,10 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
   const reduced = useReducedMotion();
   const parallax = useHeroParallax(phone ? 120 : 48);
   const wall = useRef<HTMLDivElement>(null);
+  const ready = useHeroReady(wall, [phone, night, fullPhoto].join("|"), phone && !fullPhoto ? 4 : undefined);
+  useEffect(() => { if (ready) heroRevealed = true; }, [ready]);
   const last = useRef(-1);
+  const scrollingUntil = useRef(0);
   const changes = useRef(0);
   const busy = useRef(false);
   const epoch = useRef(0);
@@ -89,6 +97,10 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
     }
     const variants = communityImageSizes(photo.src,phone && !fullPhoto);
     if (managed) return {src:photo.src,srcSet:variants || sanityImageSrcSet(photo.src,1920)};
+    if (phone && !fullPhoto) {
+      const base = photo.src.slice(0,-5);
+      return {src:base + "-320.avif",srcSet:[320,400,480].map(width=>`${base}-${width}.avif ${width}w`).join(", ")};
+    }
     return { src: photo.src.replace(".webp", "-320.webp"), srcSet: variants };
   }
 
@@ -97,9 +109,12 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
     const observer = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting));
     observer.observe(wall.current);
     const updateTab = () => setTabVisible(!document.hidden);
+    const onScroll = () => { scrollingUntil.current = performance.now() + 160; };
+    window.addEventListener("scroll", onScroll, { passive: true });
     document.addEventListener("visibilitychange", updateTab);
     return () => {
       observer.disconnect();
+      window.removeEventListener("scroll", onScroll);
       document.removeEventListener("visibilitychange", updateTab);
       epoch.current++;
     };
@@ -122,7 +137,7 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
   }, [fields, library]);
 
   async function advance() {
-    if (still || reduced || busy.current || !wall.current || document.hidden ||
+    if ((phone && performance.now() < scrollingUntil.current) || still || reduced || busy.current || !wall.current || document.hidden ||
         board.current.filter(tile => tile.previous).length >= 2) return;
     const hero = wall.current.closest("[data-photo-hero]");
     if (!hero) return;
@@ -152,7 +167,15 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
     img.src = next.src;
     busy.current = true;
     const currentEpoch = epoch.current;
-    try { await img.decode(); } catch { return; } finally { busy.current = false; }
+    try {
+      try { await img.decode(); }
+      catch {
+        if (!next.src.endsWith(".avif")) return;
+        img.srcset = next.srcSet?.split(", ").filter(item => !item.includes("-400.avif ")).join(", ").replace(/\.avif/g,".webp") || "";
+        img.src = next.src.replace(/\.avif$/, ".webp");
+        try { await img.decode(); } catch { return; }
+      }
+    } finally { busy.current = false; }
     if (epoch.current !== currentEpoch || document.hidden || !wall.current) return;
     last.current = slot;
     lastChanged.current[slot] = ++changes.current;
@@ -161,7 +184,7 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
   }
 
   useEffect(() => {
-    if (still || paused || reduced || !visible || !tabVisible) return;
+    if (still || paused || reduced || !visible || !tabVisible || !ready) return;
     let timer: number;
     const schedule = () => {
       const interval = changes.current
@@ -176,7 +199,7 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
     const activeEpoch = ++epoch.current;
     schedule();
     return () => { epoch.current++; window.clearTimeout(timer); };
-  }, [paused, reduced, visible, tabVisible, phone, still, design.rotation, fullPhoto]);
+  }, [paused, reduced, visible, tabVisible, phone, still, design.rotation, fullPhoto, ready]);
 
   const finish = (index: number, previous: WallPhoto, restore: boolean) => {
     if (board.current[index].previous !== previous) return;
@@ -186,6 +209,7 @@ function Wall({ phone, night }: { phone: boolean; night: boolean }) {
 
   return (
     <div className="community-media">
+      {!ready && !heroRevealed && createPortal(<AppLoader />, document.body)}
       <motion.div className="photo-arrangement" ref={wall} style={{ y: parallax,
         ...(columns !== (phone ? 2 : 4) || rows !== 4 ? {gridTemplateColumns:`repeat(${columns}, minmax(0,1fr))`,gridTemplateRows:`repeat(${rows}, minmax(0,1fr))`} : {})
       }} aria-hidden="true">

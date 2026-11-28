@@ -6,7 +6,7 @@ type AudienceTag = "brothers" | "sisters" | "joint" | "general";
 type EventCategory =
   | "jumuah" | "dawah" | "sports" | "social" | "halaqa"
   | "signature" | "ramadan" | "career" | "service"
-  | "meeting" | "fundraiser" | "other";
+  | "meeting" | "fundraiser" | "cec" | "other";
 
 export type CachedClassification = {
   audience: AudienceTag;
@@ -78,6 +78,7 @@ export async function getCachedTagsBatch(
 
   try {
     const response = await fetch(tableUrl, {
+      signal: AbortSignal.timeout(8000),
       headers: makeHeaders(config.serviceKey),
     });
 
@@ -133,6 +134,7 @@ export async function setCachedTags(
 
   try {
     const response = await fetch(tableUrl, {
+      signal: AbortSignal.timeout(8000),
       method: "POST",
       headers: {
         ...makeHeaders(config.serviceKey),

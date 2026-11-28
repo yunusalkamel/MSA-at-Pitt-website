@@ -97,8 +97,8 @@ describe("EventCardBase variants", () => {
       fullCalendarUrl: undefined,
       ctaMode: "learn-more",
     });
-    expect(container.querySelector('a[href*="linktr.ee"]')).toHaveTextContent(
-      "Open MSA event links",
+    expect(container.querySelector('a[href="/events?event=no-link"]')).toHaveTextContent(
+      "View details",
     );
   });
 });
